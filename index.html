@@ -964,6 +964,63 @@ async function doLogout() {
   showToastMain('로그아웃되었습니다.');
 }
 
+// 헤더 로그인 상태 변경
+function updateHeaderLoggedIn(name, level, status) {
+  // 로그인/회원가입 버튼 숨기기
+  const loginBtn = document.getElementById('loginBtn');
+  const joinBtn = document.querySelector('.h-join');
+  if(loginBtn) loginBtn.style.display = 'none';
+  if(joinBtn) joinBtn.style.display = 'none';
+
+  // 헤더에 환영 메시지 추가
+  const headerRight = document.querySelector('.header-right');
+  if(headerRight && !document.getElementById('welcomeMsg')) {
+    const levelBadge = level >= 2
+      ? '<span style="font-size:10px;background:#E8FBF0;color:#27AE60;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">B2B</span>'
+      : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
+    const welcomeEl = document.createElement('div');
+    welcomeEl.id = 'welcomeMsg';
+    welcomeEl.style.cssText = 'font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;';
+    welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
+    headerRight.insertBefore(welcomeEl, headerRight.firstChild);
+  }
+
+  // 드롭다운 메뉴 업데이트
+  const dropdown = document.getElementById('userDropdown');
+  if(dropdown) {
+    dropdown.innerHTML = `
+      <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
+        <div style="font-size:13px;font-weight:700;color:#1A2D4A;">${name}님</div>
+        <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
+      </div>
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">마이페이지</a>
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">주문/배송조회</a>
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">관심상품</a>
+      <a href="#" onclick="doLogout()" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#FEECEC'" onmouseout="this.style.background=''">로그아웃</a>`;
+  }
+}
+
+function updateHeaderLoggedOut() {
+  const loginBtn = document.getElementById('loginBtn');
+  const joinBtn = document.querySelector('.h-join');
+  if(loginBtn) loginBtn.style.display = '';
+  if(joinBtn) joinBtn.style.display = '';
+
+  // 환영 메시지 제거
+  const welcomeMsg = document.getElementById('welcomeMsg');
+  if(welcomeMsg) welcomeMsg.remove();
+
+  // 드롭다운 원래대로
+  const dropdown = document.getElementById('userDropdown');
+  if(dropdown) {
+    dropdown.innerHTML = `
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">마이페이지</a>
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">주문/배송조회</a>
+      <a href="#" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">최근 본 상품</a>
+      <a href="#" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">관심상품</a>`;
+  }
+}
+
 // 로그인 상태 감지
 _auth.onAuthStateChanged(async (user) => {
   if (user) {
