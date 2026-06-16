@@ -920,11 +920,10 @@ document.querySelectorAll('.bnav-item').forEach(btn => {
 </script>
 
 <!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
   authDomain: "opticmall.firebaseapp.com",
@@ -933,25 +932,16 @@ const firebaseConfig = {
   messagingSenderId: "649171316547",
   appId: "1:649171316547:web:778de09e4fe6a43df109f6"
 };
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-window._auth = auth;
-window._db = db;
-window._signIn = signInWithEmailAndPassword;
-window._signOut = signOut;
-window._doc = doc;
-window._getDoc = getDoc;
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
 
 // 로그인 상태 감지
-onAuthStateChanged(auth, async (user) => {
+_auth.onAuthStateChanged(async (user) => {
   if (user) {
-    // 로그인 상태 - 헤더 변경
     try {
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      const userData = userDoc.exists() ? userDoc.data() : {};
+      const userDoc = await _db.collection('users').doc(user.uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
       const name = userData.name || user.email.split('@')[0];
       const level = userData.member_level || 0;
       const status = userData.approval_status || 'pending';
@@ -960,7 +950,6 @@ onAuthStateChanged(auth, async (user) => {
       updateHeaderLoggedIn(user.email.split('@')[0], 0, 'pending');
     }
   } else {
-    // 로그아웃 상태
     updateHeaderLoggedOut();
   }
 });
