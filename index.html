@@ -936,6 +936,34 @@ firebase.initializeApp(firebaseConfig);
 const _auth = firebase.auth();
 const _db = firebase.firestore();
 
+// Firebase 로그인
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginSubmitBtn');
+  errEl.style.display = 'none';
+  if(!email || !pw) { errEl.textContent='이메일과 비밀번호를 입력해주세요.'; errEl.style.display='block'; return; }
+  btn.textContent = '로그인 중...';
+  btn.disabled = true;
+  try {
+    await _auth.signInWithEmailAndPassword(email, pw);
+    closeLogin();
+    showToastMain('✓ 로그인되었습니다!', 'success');
+  } catch(e) {
+    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    errEl.style.display = 'block';
+    btn.textContent = '로그인';
+    btn.disabled = false;
+  }
+}
+
+// 로그아웃
+async function doLogout() {
+  await _auth.signOut();
+  showToastMain('로그아웃되었습니다.');
+}
+
 // 로그인 상태 감지
 _auth.onAuthStateChanged(async (user) => {
   if (user) {
