@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTICMALL | 장바구니</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--sky:#1B9FD8;--sky-lt:#E6F5FB;--sky-dk:#1480B0;--navy:#1A2D4A;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);padding-bottom:80px;}
+.header{background:var(--white);border-bottom:1px solid var(--g2);position:sticky;top:0;z-index:100;}
+.header-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:24px;}
+.logo{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--navy);text-decoration:none;}
+.logo span{color:var(--sky);}
+.back{margin-left:auto;font-size:13px;color:var(--g3);text-decoration:none;display:flex;align-items:center;gap:4px;}
+.back:hover{color:var(--sky);}
+.main{max-width:1100px;margin:0 auto;padding:24px;display:flex;gap:20px;align-items:flex-start;}
+
+/* 장바구니 목록 */
+.cart-list{flex:1;}
+.cart-header{background:var(--white);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:12px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.cart-header label{font-size:13px;font-weight:600;color:var(--navy);}
+.cart-item{background:var(--white);border-radius:10px;padding:20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.item-img{width:80px;height:80px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:0.15;flex-shrink:0;}
+.item-info{flex:1;}
+.item-cat{font-size:11px;font-weight:700;color:var(--sky);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px;}
+.item-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.item-option{font-size:12px;color:var(--g3);}
+.item-qty{display:flex;align-items:center;border:1.5px solid var(--g2);border-radius:6px;overflow:hidden;}
+.qty-btn{width:32px;height:32px;border:none;background:var(--g1);font-size:16px;cursor:pointer;}
+.qty-btn:hover{background:var(--g2);}
+.qty-val{width:40px;height:32px;border:none;text-align:center;font-size:14px;font-weight:700;font-family:inherit;outline:none;}
+.item-price{font-family:'Inter',sans-serif;font-size:17px;font-weight:800;color:var(--navy);text-align:right;min-width:80px;}
+.item-del{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--g3);font-size:18px;margin-left:4px;}
+.item-del:hover{color:var(--red);}
+.empty-cart{background:var(--white);border-radius:10px;padding:60px;text-align:center;color:var(--g3);}
+
+/* 주문 요약 */
+.order-summary{width:300px;flex-shrink:0;position:sticky;top:88px;}
+.summary-card{background:var(--white);border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:12px;}
+.summary-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px;}
+.summary-row .label{color:var(--g4);}
+.summary-row .value{font-weight:600;color:var(--black);}
+.summary-divider{border:none;border-top:1px solid var(--g2);margin:14px 0;}
+.summary-total{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:700;}
+.summary-total .total-price{font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:var(--sky);}
+.coupon-input{display:flex;gap:8px;margin-top:12px;}
+.coupon-input input{flex:1;padding:9px 12px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;}
+.coupon-input input:focus{border-color:var(--sky);}
+.coupon-btn{padding:9px 14px;background:var(--navy);color:var(--white);border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.btn-order{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:4px;}
+.btn-order:hover{background:var(--sky-dk);transform:translateY(-1px);}
+.btn-continue{width:100%;padding:12px;background:var(--white);color:var(--navy);border:2px solid var(--navy);border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:8px;}
+.btn-continue:hover{background:var(--navy);color:var(--white);}
+
+/* 하단 네비 */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--white);border-top:1px solid var(--g2);display:flex;z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;font-size:10px;font-weight:600;color:var(--g3);cursor:pointer;font-family:inherit;}
+.bnav-item.active{color:var(--sky);}
+.bnav-item svg{width:22px;height:22px;}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
+    <a href="list.html" class="back">← 계속 쇼핑하기</a>
+  </div>
+</header>
+
+<div class="main">
+  <div class="cart-list">
+    <div class="cart-header">
+      <input type="checkbox" id="chk-all" onchange="toggleAll(this)" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+      <label for="chk-all">전체선택 (3개)</label>
+      <button onclick="deleteSelected()" style="margin-left:auto;font-size:12px;color:var(--g3);border:none;background:none;cursor:pointer;">선택삭제</button>
+    </div>
+
+    <div class="cart-item" id="item1">
+      <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+      <div class="item-img">👓</div>
+      <div class="item-info">
+        <div class="item-cat">HALF RIM</div>
+        <div class="item-name">드렌테 K9191</div>
+        <div class="item-option">색상: 블랙 | 코드: 49-23-147</div>
+      </div>
+      <div class="item-qty">
+        <button class="qty-btn" onclick="changeQty('q1',-1)">−</button>
+        <input class="qty-val" id="q1" type="number" value="3" min="1" onchange="updateTotal()">
+        <button class="qty-btn" onclick="changeQty('q1',1)">+</button>
+      </div>
+      <div class="item-price" id="p1">₩55,500</div>
+      <button class="item-del" onclick="removeItem('item1')">✕</button>
+    </div>
+
+    <div class="cart-item" id="item2">
+      <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+      <div class="item-img">👓</div>
+      <div class="item-info">
+        <div class="item-cat">TITANIUM</div>
+        <div class="item-name">티타늄 T-2241</div>
+        <div class="item-option">색상: 실버 | 코드: 51-18-142</div>
+      </div>
+      <div class="item-qty">
+        <button class="qty-btn" onclick="changeQty('q2',-1)">−</button>
+        <input class="qty-val" id="q2" type="number" value="2" min="1" onchange="updateTotal()">
+        <button class="qty-btn" onclick="changeQty('q2',1)">+</button>
+      </div>
+      <div class="item-price" id="p2">₩56,000</div>
+      <button class="item-del" onclick="removeItem('item2')">✕</button>
+    </div>
+
+    <div class="cart-item" id="item3">
+      <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+      <div class="item-img">👓</div>
+      <div class="item-info">
+        <div class="item-cat">ULTEM</div>
+        <div class="item-name">울템 U-1189</div>
+        <div class="item-option">색상: 브라운 | 코드: 48-20-140</div>
+      </div>
+      <div class="item-qty">
+        <button class="qty-btn" onclick="changeQty('q3',-1)">−</button>
+        <input class="qty-val" id="q3" type="number" value="5" min="1" onchange="updateTotal()">
+        <button class="qty-btn" onclick="changeQty('q3',1)">+</button>
+      </div>
+      <div class="item-price" id="p3">₩82,500</div>
+      <button class="item-del" onclick="removeItem('item3')">✕</button>
+    </div>
+  </div>
+
+  <!-- 주문 요약 -->
+  <div class="order-summary">
+    <div class="summary-card">
+      <div class="summary-title">주문 요약</div>
+      <div class="summary-row"><span class="label">상품 금액</span><span class="value" id="sum-products">₩194,000</span></div>
+      <div class="summary-row"><span class="label">배송비</span><span class="value" style="color:var(--green);">무료</span></div>
+      <div class="summary-row"><span class="label">쿠폰 할인</span><span class="value" style="color:var(--red);" id="sum-coupon">- ₩0</span></div>
+      <hr class="summary-divider">
+      <div class="summary-total">
+        <span>최종 결제금액</span>
+        <span class="total-price" id="sum-total">₩194,000</span>
+      </div>
+      <div class="coupon-input">
+        <input type="text" placeholder="쿠폰 코드 입력" id="coupon-code">
+        <button class="coupon-btn" onclick="applyCoupon()">적용</button>
+      </div>
+    </div>
+    <button class="btn-order" onclick="location.href='order.html'">주문하기 →</button>
+    <button class="btn-continue" onclick="location.href='list.html'">쇼핑 계속하기</button>
+  </div>
+</div>
+
+<!-- 하단 네비 -->
+<nav class="bottom-nav">
+  <button class="bnav-item" onclick="location.href='index.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>HOME
+  </button>
+  <button class="bnav-item" onclick="location.href='list.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>CATE
+  </button>
+  <button class="bnav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>ORDER
+  </button>
+  <button class="bnav-item" onclick="location.href='mypage.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>MY
+  </button>
+</nav>
+
+<script>
+const prices = {q1:18500, q2:28000, q3:16500};
+function changeQty(id, val) {
+  const input = document.getElementById(id);
+  input.value = Math.max(1, parseInt(input.value) + val);
+  updateTotal();
+}
+function updateTotal() {
+  let total = 0;
+  ['1','2','3'].forEach(n => {
+    const q = parseInt(document.getElementById('q'+n).value) || 1;
+    const p = prices['q'+n];
+    const price = (n==='1' && q>=10) ? 17000 : p;
+    const sub = price * q;
+    document.getElementById('p'+n).textContent = '₩' + sub.toLocaleString();
+    total += sub;
+  });
+  document.getElementById('sum-products').textContent = '₩' + total.toLocaleString();
+  document.getElementById('sum-total').textContent = '₩' + total.toLocaleString();
+}
+function removeItem(id) {
+  if(confirm('상품을 삭제하시겠습니까?')) {
+    document.getElementById(id).style.display = 'none';
+    updateTotal();
+  }
+}
+function toggleAll(cb) {
+  document.querySelectorAll('.cart-item input[type=checkbox]').forEach(c => c.checked = cb.checked);
+}
+function applyCoupon() {
+  const code = document.getElementById('coupon-code').value;
+  if(code === 'OPTIC10') {
+    document.getElementById('sum-coupon').textContent = '- ₩10,000';
+    alert('✓ 쿠폰이 적용되었습니다! (-₩10,000)');
+  } else {
+    alert('유효하지 않은 쿠폰 코드입니다.');
+  }
+}
+</script>
+</body>
+</html>

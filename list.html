@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTICMALL | 상품 목록</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sky: #1B9FD8; --sky-lt: #E6F5FB; --sky-dk: #1480B0;
+  --navy: #1A2D4A; --white: #FFFFFF;
+  --g1: #F2F4F6; --g2: #E0E4E8; --g3: #9BA5B0; --g4: #5A6472;
+  --black: #111318; --red: #FF4444; --yellow: #F5C518;
+}
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color: var(--black); padding-bottom: 80px; }
+.header { background: var(--white); border-bottom: 1px solid var(--g2); position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 24px; }
+.logo { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: var(--navy); text-decoration: none; }
+.logo span { color: var(--sky); }
+.header-search { flex: 1; max-width: 480px; display: flex; border: 1.5px solid var(--g2); border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
+.header-search:focus-within { border-color: var(--sky); }
+.header-search input { flex: 1; padding: 10px 16px; border: none; outline: none; font-size: 14px; font-family: inherit; }
+.search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
+.search-btn:hover { color: var(--sky); }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.h-btn { padding: 7px 12px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--g4); font-family: inherit; cursor: pointer; }
+.h-sep { color: var(--g2); }
+.h-join { padding: 7px 14px; border: none; background: var(--sky); color: var(--white); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 4px; }
+.icon-btn { width: 36px; height: 36px; border: none; background: none; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--g4); position: relative; }
+.cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; }
+.gnb { background: var(--white); border-bottom: 2px solid var(--sky); position: sticky; top: 64px; z-index: 99; }
+.gnb-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; }
+.gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
+.gnb-item:hover, .gnb-item.active { color: var(--sky); font-weight: 700; }
+
+/* 레이아웃 */
+.page-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; display: flex; gap: 24px; }
+
+/* 사이드 필터 */
+.sidebar { width: 220px; flex-shrink: 0; }
+.filter-section { background: var(--white); border: 1px solid var(--g2); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.filter-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 12px; display: flex; justify-content: space-between; cursor: pointer; }
+.filter-title span { color: var(--g3); font-weight: 400; font-size: 11px; }
+.filter-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; }
+.filter-item input[type="checkbox"] { accent-color: var(--sky); width: 15px; height: 15px; cursor: pointer; }
+.filter-item label { font-size: 13px; color: var(--g4); cursor: pointer; flex: 1; }
+.filter-item .cnt { font-size: 11px; color: var(--g3); }
+.price-range { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.price-input { flex: 1; padding: 8px 10px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 12px; font-family: inherit; outline: none; }
+.price-input:focus { border-color: var(--sky); }
+.btn-filter-apply { width: 100%; padding: 9px; background: var(--sky); color: var(--white); border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 8px; }
+.btn-reset { width: 100%; padding: 8px; background: none; color: var(--g3); border: 1px solid var(--g2); border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; margin-top: 6px; }
+
+/* 상품 목록 */
+.products-area { flex: 1; }
+.list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.list-title { font-size: 18px; font-weight: 700; color: var(--navy); }
+.list-count { font-size: 13px; color: var(--g3); }
+.list-count strong { color: var(--navy); }
+.list-controls { display: flex; align-items: center; gap: 10px; }
+.sort-select { padding: 8px 12px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 13px; font-family: inherit; outline: none; cursor: pointer; background: var(--white); }
+.view-btns { display: flex; gap: 4px; }
+.view-btn { width: 32px; height: 32px; border: 1.5px solid var(--g2); background: var(--white); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
+.view-btn.active { border-color: var(--sky); color: var(--sky); background: var(--sky-lt); }
+
+/* 상품 그리드 */
+.product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.product-card { border: 1px solid var(--g2); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; background: var(--white); }
+.product-card:hover { border-color: var(--sky); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.product-img { aspect-ratio: 1; background: var(--g1); display: flex; align-items: center; justify-content: center; position: relative; font-size: 60px; opacity: 0.12; }
+.p-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+.p-badge.new { background: var(--yellow); color: var(--black); }
+.p-badge.hot { background: var(--red); color: var(--white); }
+.p-badge.best { background: var(--navy); color: var(--white); }
+.p-badge.out { background: var(--g3); color: var(--white); }
+.wish-btn { position: absolute; bottom: 8px; right: 8px; width: 30px; height: 30px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.color-dots { display: flex; gap: 4px; padding: 10px 10px 0; }
+.color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.1); }
+.product-info { padding: 8px 10px 12px; }
+.p-cat { font-size: 10px; font-weight: 700; color: var(--sky); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+.p-name { font-size: 13px; font-weight: 600; color: var(--black); margin-bottom: 3px; line-height: 1.3; }
+.p-size { font-size: 11px; color: var(--g3); margin-bottom: 6px; }
+.p-price { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: var(--navy); }
+.p-price .won { font-size: 12px; font-weight: 500; }
+.p-locked { font-size: 12px; color: var(--g3); display: flex; align-items: center; gap: 4px; }
+
+/* 페이지네이션 */
+.pagination { display: flex; justify-content: center; gap: 6px; margin-top: 32px; }
+.page-btn { width: 36px; height: 36px; border: 1.5px solid var(--g2); background: var(--white); border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-family: inherit; }
+.page-btn.active { background: var(--sky); color: var(--white); border-color: var(--sky); font-weight: 700; }
+.page-btn:hover:not(.active) { border-color: var(--sky); color: var(--sky); }
+
+/* 하단 네비 */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--white); border-top: 1px solid var(--g2); display: flex; z-index: 300; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: none; background: none; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; color: var(--g3); cursor: pointer; font-family: inherit; }
+.bnav-item.active { color: var(--sky); }
+.bnav-item svg { width: 22px; height: 22px; }
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
+    <div class="header-search">
+      <input type="text" placeholder="상품명, 상품코드 검색">
+      <button class="search-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+    </div>
+    <div class="header-right">
+      <button class="h-btn">주문조회</button><span class="h-sep">|</span>
+      <button class="h-btn">로그인</button><span class="h-sep">|</span>
+      <button class="h-join">회원가입</button>
+      <button class="icon-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <button class="icon-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg><span class="cart-count">2</span></button>
+    </div>
+  </div>
+</header>
+<nav class="gnb">
+  <div class="gnb-inner">
+    <button class="gnb-item">OUR'S</button>
+    <button class="gnb-item">브랜드별</button>
+    <button class="gnb-item active">하금테</button>
+    <button class="gnb-item">판테</button>
+    <button class="gnb-item">동글이</button>
+    <button class="gnb-item">뿔테</button>
+    <button class="gnb-item">선글라스</button>
+    <button class="gnb-item">타임세일</button>
+    <button class="gnb-item">이벤트</button>
+    <button class="gnb-item">고객센터</button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <!-- 사이드 필터 -->
+  <aside class="sidebar">
+    <div class="filter-section">
+      <div class="filter-title">카테고리</div>
+      <div class="filter-item"><input type="checkbox" id="c1" checked><label for="c1">하금테</label><span class="cnt">(124)</span></div>
+      <div class="filter-item"><input type="checkbox" id="c2"><label for="c2">판테</label><span class="cnt">(89)</span></div>
+      <div class="filter-item"><input type="checkbox" id="c3"><label for="c3">동글이</label><span class="cnt">(76)</span></div>
+      <div class="filter-item"><input type="checkbox" id="c4"><label for="c4">뿔테</label><span class="cnt">(95)</span></div>
+      <div class="filter-item"><input type="checkbox" id="c5"><label for="c5">선글라스</label><span class="cnt">(112)</span></div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">소재</div>
+      <div class="filter-item"><input type="checkbox" id="m1"><label for="m1">티타늄</label></div>
+      <div class="filter-item"><input type="checkbox" id="m2"><label for="m2">울템</label></div>
+      <div class="filter-item"><input type="checkbox" id="m3"><label for="m3">아세테이트</label></div>
+      <div class="filter-item"><input type="checkbox" id="m4"><label for="m4">TR90</label></div>
+      <div class="filter-item"><input type="checkbox" id="m5"><label for="m5">메탈</label></div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">색상</div>
+      <div class="filter-item"><input type="checkbox" id="col1"><label for="col1">블랙</label></div>
+      <div class="filter-item"><input type="checkbox" id="col2"><label for="col2">브라운</label></div>
+      <div class="filter-item"><input type="checkbox" id="col3"><label for="col3">실버/골드</label></div>
+      <div class="filter-item"><input type="checkbox" id="col4"><label for="col4">컬러</label></div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">가격대 <span>(회원 전용)</span></div>
+      <div class="price-range">
+        <input class="price-input" type="text" placeholder="최소">
+        <span style="color:var(--g3);font-size:12px;">~</span>
+        <input class="price-input" type="text" placeholder="최대">
+      </div>
+      <button class="btn-filter-apply">필터 적용</button>
+      <button class="btn-reset">초기화</button>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">재고</div>
+      <div class="filter-item"><input type="checkbox" id="s1" checked><label for="s1">재고있음만</label></div>
+      <div class="filter-item"><input type="checkbox" id="s2"><label for="s2">품절 포함</label></div>
+    </div>
+  </aside>
+
+  <!-- 상품 목록 -->
+  <div class="products-area">
+    <div class="list-header">
+      <div>
+        <div class="list-title">하금테</div>
+        <div class="list-count">총 <strong>124</strong>개 상품</div>
+      </div>
+      <div class="list-controls">
+        <select class="sort-select">
+          <option>신상품순</option>
+          <option>판매량순</option>
+          <option>낮은가격순</option>
+          <option>높은가격순</option>
+        </select>
+        <div class="view-btns">
+          <button class="view-btn active">⊞</button>
+          <button class="view-btn">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+      <!-- 상품 카드들 JS로 생성 -->
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn">‹</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">4</button>
+      <button class="page-btn">5</button>
+      <button class="page-btn">›</button>
+    </div>
+  </div>
+</div>
+
+<!-- 하단 네비 -->
+<nav class="bottom-nav">
+  <button class="bnav-item" onclick="location.href='index.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>HOME
+  </button>
+  <button class="bnav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>CATE
+  </button>
+  <button class="bnav-item" onclick="location.href='cart.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>ORDER
+  </button>
+  <button class="bnav-item" onclick="location.href='mypage.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>MY
+  </button>
+</nav>
+
+<script>
+const products = [
+  {name:'드렌테 K9191', cat:'HALF RIM', code:'49-23-147', colors:['#111','#8B6F47','#C0C0C0'], badge:'new', price:'18,500', locked:false},
+  {name:'드렌테 98063', cat:'ROUND', code:'41-26-145', colors:['#111','#5C4033','#4A7856'], badge:'new', price:null, locked:true},
+  {name:'드렌테 98287', cat:'SQUARE', code:'49-21-143', colors:['#111','#8B7355','#708090','#C8B96E'], badge:'hot', price:'22,000', locked:false},
+  {name:'바디글라스 5306', cat:'HALF RIM', code:'49-22-148', colors:['#111','#8B6F47'], badge:'best', price:null, locked:true},
+  {name:'티타늄 T-2241', cat:'TITANIUM', code:'51-18-142', colors:['#111','#C0A882'], badge:'hot', price:'28,000', locked:false},
+  {name:'울템 U-1189', cat:'ULTEM', code:'48-20-140', colors:['#111','#8B4513','#4682B4','#228B22'], badge:'best', price:'16,500', locked:false},
+  {name:'아세테이트 A-3382', cat:'ACETATE', code:'50-20-145', colors:['#111','#5C3317','#F5DEB3'], badge:'', price:null, locked:true},
+  {name:'하금테 H-0892', cat:'HALF RIM', code:'52-19-145', colors:['#C0C0C0','#FFD700'], badge:'new', price:null, locked:true},
+];
+
+const grid = document.getElementById('productGrid');
+products.forEach(p => {
+  const dots = p.colors.map(c => `<div class="color-dot" style="background:${c};"></div>`).join('');
+  const badgeHtml = p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '';
+  const priceHtml = p.locked
+    ? `<div class="p-locked">🔒 로그인 후 가격확인</div>`
+    : `<div class="p-price"><span class="won">₩</span>${p.price}</div>`;
+  grid.innerHTML += `
+    <div class="product-card" onclick="location.href='product.html'">
+      <div class="product-img">👓${badgeHtml}<button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button></div>
+      <div class="color-dots">${dots}</div>
+      <div class="product-info">
+        <div class="p-cat">${p.cat}</div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-size">${p.code}</div>
+        ${priceHtml}
+      </div>
+    </div>`;
+});
+</script>
+</body>
+</html>

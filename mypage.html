@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTICMALL | 마이페이지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--sky:#1B9FD8;--sky-lt:#E6F5FB;--sky-dk:#1480B0;--navy:#1A2D4A;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--orange:#F39C12;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);padding-bottom:80px;}
+.header{background:var(--white);border-bottom:1px solid var(--g2);position:sticky;top:0;z-index:100;}
+.header-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:24px;}
+.logo{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--navy);text-decoration:none;}
+.logo span{color:var(--sky);}
+.back{margin-left:auto;font-size:13px;color:var(--g3);text-decoration:none;}
+.back:hover{color:var(--sky);}
+
+.main{max-width:1100px;margin:0 auto;padding:24px;display:flex;gap:20px;align-items:flex-start;}
+
+/* 사이드 */
+.sidebar{width:220px;flex-shrink:0;}
+.profile-card{background:var(--white);border-radius:10px;padding:20px;text-align:center;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.profile-avatar{width:64px;height:64px;background:var(--sky);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--white);margin:0 auto 10px;}
+.profile-name{font-size:15px;font-weight:700;color:var(--navy);}
+.profile-store{font-size:12px;color:var(--g3);margin-top:2px;}
+.profile-level{display:inline-block;margin-top:8px;background:var(--sky-lt);color:var(--sky);font-size:11px;font-weight:700;padding:3px 12px;border-radius:100px;}
+.menu-card{background:var(--white);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.menu-item{padding:13px 16px;font-size:13px;font-weight:500;color:var(--g4);cursor:pointer;border-bottom:1px solid var(--g1);display:flex;align-items:center;gap:8px;transition:all 0.15s;}
+.menu-item:last-child{border-bottom:none;}
+.menu-item:hover,.menu-item.active{background:var(--sky-lt);color:var(--sky);font-weight:700;}
+.menu-item .icon{font-size:15px;width:20px;text-align:center;}
+
+/* 컨텐츠 */
+.content{flex:1;}
+.section-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+
+/* 요약 카드 */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.sum-card{background:var(--white);border-radius:10px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.15s;}
+.sum-card:hover{border:1px solid var(--sky);}
+.sum-num{font-family:'Inter',sans-serif;font-size:26px;font-weight:800;color:var(--navy);}
+.sum-label{font-size:11px;color:var(--g3);margin-top:4px;}
+
+/* 주문 내역 */
+.order-card{background:var(--white);border-radius:10px;padding:20px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--g1);}
+.order-num{font-family:'Inter',sans-serif;font-size:13px;color:var(--sky);font-weight:700;}
+.order-date{font-size:12px;color:var(--g3);}
+.order-status{font-size:12px;font-weight:700;padding:4px 12px;border-radius:100px;}
+.status-pay{background:#E8FBF0;color:var(--green);}
+.status-ready{background:#FEF9E7;color:var(--orange);}
+.status-ship{background:var(--sky-lt);color:var(--sky);}
+.status-done{background:var(--g1);color:var(--g3);}
+.order-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--g1);}
+.order-item:last-child{border-bottom:none;}
+.order-img{width:56px;height:56px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0.15;flex-shrink:0;}
+.order-item-info{flex:1;}
+.order-item-name{font-size:13px;font-weight:600;color:var(--navy);}
+.order-item-opt{font-size:11px;color:var(--g3);margin-top:2px;}
+.order-item-price{font-family:'Inter',sans-serif;font-size:14px;font-weight:800;color:var(--navy);}
+.order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--g1);}
+.order-total{font-size:14px;font-weight:700;color:var(--navy);}
+.order-total span{font-family:'Inter',sans-serif;font-size:18px;color:var(--sky);}
+.order-actions{display:flex;gap:8px;}
+.btn-sm{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all 0.15s;}
+.btn-track{background:var(--sky);color:var(--white);}
+.btn-track:hover{background:var(--sky-dk);}
+.btn-cancel{background:var(--white);color:var(--g4);border:1.5px solid var(--g2) !important;}
+.btn-cancel:hover{border-color:var(--red) !important;color:var(--red);}
+
+/* 관심 상품 */
+.wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.wish-card{background:var(--white);border-radius:10px;overflow:hidden;border:1px solid var(--g2);cursor:pointer;transition:all 0.2s;}
+.wish-card:hover{border-color:var(--sky);transform:translateY(-2px);}
+.wish-img{aspect-ratio:1;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:50px;opacity:0.12;}
+.wish-info{padding:10px;}
+.wish-name{font-size:13px;font-weight:600;color:var(--navy);}
+.wish-price{font-size:13px;color:var(--sky);font-weight:700;margin-top:4px;}
+
+/* 재입고 알림 */
+.restock-card{background:var(--white);border-radius:10px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.restock-img{width:56px;height:56px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0.15;flex-shrink:0;}
+.restock-info{flex:1;}
+.restock-name{font-size:13px;font-weight:600;color:var(--navy);}
+.restock-status{font-size:11px;margin-top:3px;}
+.restock-status.waiting{color:var(--orange);}
+.restock-status.ready{color:var(--green);}
+.btn-del-alarm{padding:6px 14px;background:var(--white);color:var(--red);border:1px solid var(--red);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* 하단 네비 */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--white);border-top:1px solid var(--g2);display:flex;z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;font-size:10px;font-weight:600;color:var(--g3);cursor:pointer;font-family:inherit;}
+.bnav-item.active{color:var(--sky);}
+.bnav-item svg{width:22px;height:22px;}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
+    <a href="index.html" class="back">← 홈으로</a>
+  </div>
+</header>
+
+<div class="main">
+  <!-- 사이드바 -->
+  <aside class="sidebar">
+    <div class="profile-card">
+      <div class="profile-avatar">홍</div>
+      <div class="profile-name">홍길동</div>
+      <div class="profile-store">밝은안경원</div>
+      <div class="profile-level">✓ B2B 승인회원</div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-item active" onclick="showSection('orders',this)"><span class="icon">🛒</span>주문 내역</div>
+      <div class="menu-item" onclick="showSection('wish',this)"><span class="icon">❤️</span>관심상품</div>
+      <div class="menu-item" onclick="showSection('restock',this)"><span class="icon">🔔</span>재입고 알림</div>
+      <div class="menu-item" onclick="showSection('profile',this)"><span class="icon">👤</span>회원 정보 수정</div>
+      <div class="menu-item" onclick="showSection('profile',this)"><span class="icon">🏢</span>사업자 정보</div>
+      <div class="menu-item" onclick="showSection('profile',this)"><span class="icon">📍</span>배송지 관리</div>
+      <div class="menu-item" onclick="alert('로그아웃 되었습니다.')"><span class="icon">🚪</span>로그아웃</div>
+    </div>
+  </aside>
+
+  <!-- 컨텐츠 -->
+  <div class="content">
+
+    <!-- 주문 요약 -->
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-num" style="color:var(--sky);">3</div><div class="sum-label">결제완료</div></div>
+      <div class="sum-card"><div class="sum-num" style="color:var(--orange);">1</div><div class="sum-label">배송중</div></div>
+      <div class="sum-card"><div class="sum-num" style="color:var(--green);">12</div><div class="sum-label">배송완료</div></div>
+      <div class="sum-card"><div class="sum-num" style="color:var(--red);">0</div><div class="sum-label">취소/반품</div></div>
+    </div>
+
+    <!-- 주문 내역 -->
+    <div id="section-orders">
+      <div class="section-title">주문 내역</div>
+
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-num">OM-20240612-001</div>
+            <div class="order-date">2026.06.12 09:23</div>
+          </div>
+          <span class="order-status status-ready">포장중</span>
+        </div>
+        <div class="order-item">
+          <div class="order-img">👓</div>
+          <div class="order-item-info">
+            <div class="order-item-name">드렌테 K9191 · 블랙</div>
+            <div class="order-item-opt">49-23-147 · 3개</div>
+          </div>
+          <div class="order-item-price">₩55,500</div>
+        </div>
+        <div class="order-item">
+          <div class="order-img">👓</div>
+          <div class="order-item-info">
+            <div class="order-item-name">티타늄 T-2241 · 실버</div>
+            <div class="order-item-opt">51-18-142 · 2개</div>
+          </div>
+          <div class="order-item-price">₩56,000</div>
+        </div>
+        <div class="order-footer">
+          <div class="order-total">합계 <span>₩111,500</span></div>
+          <div class="order-actions">
+            <button class="btn-sm btn-cancel" style="border:1.5px solid var(--g2);">주문 취소</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-num">OM-20240610-008</div>
+            <div class="order-date">2026.06.10 14:12</div>
+          </div>
+          <span class="order-status status-ship">배송중</span>
+        </div>
+        <div class="order-item">
+          <div class="order-img">👓</div>
+          <div class="order-item-info">
+            <div class="order-item-name">울템 U-1189 · 브라운</div>
+            <div class="order-item-opt">48-20-140 · 5개</div>
+          </div>
+          <div class="order-item-price">₩82,500</div>
+        </div>
+        <div class="order-footer">
+          <div class="order-total">합계 <span>₩82,500</span></div>
+          <div class="order-actions">
+            <button class="btn-sm btn-track">배송 조회</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 관심상품 -->
+    <div id="section-wish" style="display:none;">
+      <div class="section-title">관심상품</div>
+      <div class="wish-grid">
+        <div class="wish-card" onclick="location.href='product.html'">
+          <div class="wish-img">👓</div>
+          <div class="wish-info">
+            <div class="wish-name">드렌테 K9191</div>
+            <div class="wish-price">₩18,500</div>
+          </div>
+        </div>
+        <div class="wish-card" onclick="location.href='product.html'">
+          <div class="wish-img">👓</div>
+          <div class="wish-info">
+            <div class="wish-name">티타늄 T-2241</div>
+            <div class="wish-price">₩28,000</div>
+          </div>
+        </div>
+        <div class="wish-card" onclick="location.href='product.html'">
+          <div class="wish-img">👓</div>
+          <div class="wish-info">
+            <div class="wish-name">울템 U-1189</div>
+            <div class="wish-price">₩16,500</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 재입고 알림 -->
+    <div id="section-restock" style="display:none;">
+      <div class="section-title">재입고 알림 신청 목록</div>
+      <div class="restock-card">
+        <div class="restock-img">👓</div>
+        <div class="restock-info">
+          <div class="restock-name">드렌테 98063 · 블랙</div>
+          <div class="restock-status waiting">🔔 재입고 대기중 · 신청일: 2026.06.10</div>
+        </div>
+        <button class="btn-del-alarm" onclick="this.closest('.restock-card').remove()">알림 취소</button>
+      </div>
+      <div class="restock-card">
+        <div class="restock-img">👓</div>
+        <div class="restock-info">
+          <div class="restock-name">바디글라스 5306 · 브라운</div>
+          <div class="restock-status ready">✅ 재입고 완료! 지금 바로 구매하세요</div>
+        </div>
+        <button class="btn-sm btn-track" onclick="location.href='product.html'">바로가기</button>
+      </div>
+    </div>
+
+    <!-- 회원 정보 -->
+    <div id="section-profile" style="display:none;">
+      <div class="section-title">회원 정보</div>
+      <div style="background:var(--white);border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="display:grid;gap:14px;">
+          <div><label style="font-size:12px;font-weight:600;color:var(--g4);display:block;margin-bottom:5px;">이름</label><input style="width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" value="홍길동"></div>
+          <div><label style="font-size:12px;font-weight:600;color:var(--g4);display:block;margin-bottom:5px;">이메일</label><input style="width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:var(--g1);" value="hong@email.com" readonly></div>
+          <div><label style="font-size:12px;font-weight:600;color:var(--g4);display:block;margin-bottom:5px;">휴대폰</label><input style="width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" value="010-1234-5678"></div>
+          <div><label style="font-size:12px;font-weight:600;color:var(--g4);display:block;margin-bottom:5px;">안경원명</label><input style="width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" value="밝은안경원"></div>
+          <button style="padding:13px;background:var(--sky);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;" onclick="alert('✓ 정보가 수정되었습니다.')">수정하기</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 하단 네비 -->
+<nav class="bottom-nav">
+  <button class="bnav-item" onclick="location.href='index.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>HOME
+  </button>
+  <button class="bnav-item" onclick="location.href='list.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>CATE
+  </button>
+  <button class="bnav-item" onclick="location.href='cart.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>ORDER
+  </button>
+  <button class="bnav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>MY
+  </button>
+</nav>
+
+<script>
+function showSection(name, el) {
+  ['orders','wish','restock','profile'].forEach(s => {
+    const sec = document.getElementById('section-'+s);
+    if(sec) sec.style.display = s===name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

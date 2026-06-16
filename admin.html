@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTICMALL 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--sky:#1B9FD8;--sky-lt:#E6F5FB;--navy:#1A2D4A;--white:#fff;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--orange:#F39C12;--sidebar:220px;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);display:flex;min-height:100vh;}
+
+/* 로그인 화면 */
+.login-screen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.login-box{background:var(--white);border-radius:12px;padding:40px;width:360px;text-align:center;}
+.login-logo{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.login-logo span{color:var(--sky);}
+.login-sub{font-size:12px;color:var(--g3);margin-bottom:24px;}
+.login-input{width:100%;padding:12px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px;transition:border-color 0.2s;}
+.login-input:focus{border-color:var(--sky);}
+.login-btn{width:100%;padding:13px;background:var(--sky);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.2s;}
+.login-btn:hover{background:#1480B0;}
+.login-error{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+
+/* 사이드바 */
+.sidebar{width:var(--sidebar);background:var(--navy);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sidebar-logo .logo{font-family:'Inter',sans-serif;font-size:18px;font-weight:800;color:var(--white);}
+.sidebar-logo .logo span{color:var(--sky);}
+.sidebar-logo .admin-badge{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;letter-spacing:0.1em;}
+.sidebar-menu{flex:1;padding:12px 0;overflow-y:auto;}
+.menu-section{padding:16px 20px 6px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:0.15em;text-transform:uppercase;}
+.menu-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);transition:all 0.15s;position:relative;border:none;background:none;width:100%;font-family:inherit;}
+.menu-item:hover{background:rgba(255,255,255,0.06);color:var(--white);}
+.menu-item.active{background:rgba(27,159,216,0.15);color:var(--white);}
+.menu-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sky);border-radius:0 2px 2px 0;}
+.menu-badge{margin-left:auto;background:var(--red);color:var(--white);font-size:10px;font-weight:700;padding:1px 6px;border-radius:100px;}
+.sidebar-user{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+.user-avatar{width:32px;height:32px;background:var(--sky);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);}
+.user-info .name{font-size:13px;font-weight:600;color:var(--white);}
+.user-info .role{font-size:11px;color:rgba(255,255,255,0.35);}
+.logout-btn{margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:18px;}
+.logout-btn:hover{color:var(--red);}
+
+/* 메인 */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--white);border-bottom:1px solid var(--g2);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;color:var(--navy);}
+.today{font-size:12px;color:var(--g3);}
+.content{padding:24px;flex:1;}
+
+/* 대시보드 카드 */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.dash-card{background:var(--white);border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);position:relative;overflow:hidden;}
+.dash-card .label{font-size:12px;color:var(--g3);font-weight:500;margin-bottom:8px;}
+.dash-card .value{font-family:'Inter',sans-serif;font-size:28px;font-weight:800;color:var(--navy);}
+.dash-card .value span{font-size:14px;font-weight:500;color:var(--g3);}
+.dash-card .icon{position:absolute;right:16px;top:16px;font-size:28px;opacity:0.15;}
+
+/* 테이블 */
+.table-wrap{background:var(--white);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:16px;font-weight:700;color:var(--navy);}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--g1);}
+th{padding:12px 16px;font-size:11px;font-weight:700;color:var(--g4);text-align:left;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;}
+td{padding:14px 16px;font-size:13px;color:var(--black);border-bottom:1px solid var(--g1);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FAFBFC;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+.badge.pending{background:#FEF9E7;color:var(--orange);}
+.badge.approved{background:#E8FBF0;color:#27AE60;}
+.badge.rejected{background:#FEECEC;color:var(--red);}
+.action-btns{display:flex;gap:6px;}
+.btn-approve{padding:5px 12px;background:#E8FBF0;color:#27AE60;border:1px solid #A8DDB8;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-approve:hover{background:#27AE60;color:var(--white);}
+.btn-reject{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-reject:hover{background:var(--red);color:var(--white);}
+.btn-view{padding:5px 12px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-view:hover{background:var(--sky-lt);color:var(--sky);border-color:var(--sky);}
+.btn-sm{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all 0.15s;}
+.btn-primary{background:var(--sky);color:var(--white);}
+.btn-primary:hover{background:#1480B0;}
+
+/* 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--white);border-radius:12px;width:580px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);}
+.modal-title{font-size:16px;font-weight:700;color:var(--navy);}
+.modal-close{width:30px;height:30px;border:none;background:var(--g1);border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--g4);}
+.modal-body{padding:24px;}
+.info-row{display:flex;margin-bottom:12px;gap:0;}
+.info-label{width:120px;font-size:12px;color:var(--g3);font-weight:600;flex-shrink:0;padding-top:2px;}
+.info-value{font-size:13px;color:var(--black);flex:1;word-break:break-all;}
+.doc-img{width:100%;border-radius:8px;border:1px solid var(--g2);margin:12px 0;cursor:pointer;}
+.doc-img:hover{opacity:0.9;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--g2);display:flex;gap:10px;justify-content:flex-end;}
+.btn-modal-approve{padding:10px 24px;background:var(--green);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+.btn-modal-approve:hover{background:#27AE60;}
+.btn-modal-reject{padding:10px 24px;background:var(--white);color:var(--red);border:1.5px solid var(--red);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+/* 토스트 */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:14px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:1000;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+
+/* 로딩 */
+.loading{text-align:center;padding:40px;color:var(--g3);}
+.spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* 페이지 */
+.page{display:none;}
+.page.active{display:block;}
+</style>
+</head>
+<body>
+
+<!-- 로그인 화면 -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">OPTIC<span>MALL</span></div>
+    <div class="login-sub">관리자 로그인</div>
+    <input class="login-input" type="email" placeholder="관리자 이메일" id="adminEmail">
+    <input class="login-input" type="password" placeholder="비밀번호" id="adminPw" onkeydown="if(event.key==='Enter') adminLogin()">
+    <button class="login-btn" onclick="adminLogin()">로그인</button>
+    <div class="login-error" id="loginError">이메일 또는 비밀번호가 올바르지 않습니다.</div>
+  </div>
+</div>
+
+<!-- 사이드바 -->
+<aside class="sidebar" id="sidebar" style="display:none;">
+  <div class="sidebar-logo">
+    <div class="logo">OPTIC<span>MALL</span></div>
+    <div class="admin-badge">ADMIN PANEL</div>
+  </div>
+  <nav class="sidebar-menu">
+    <div class="menu-section">메인</div>
+    <button class="menu-item active" onclick="showPage('dashboard',this)"><span>📊</span> 대시보드</button>
+    <div class="menu-section">회원 관리</div>
+    <button class="menu-item" onclick="showPage('approval',this)"><span>✅</span> 가입 승인 관리 <span class="menu-badge" id="pendingBadge">0</span></button>
+    <button class="menu-item" onclick="showPage('members',this)"><span>👥</span> 회원 목록</button>
+    <div class="menu-section">운영</div>
+    <button class="menu-item" onclick="showPage('dashboard',this)"><span>📈</span> 매출 통계</button>
+    <button class="menu-item" onclick="showPage('dashboard',this)"><span>⚙️</span> 설정</button>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar">관</div>
+    <div class="user-info">
+      <div class="name" id="adminName">관리자</div>
+      <div class="role">최고 관리자</div>
+    </div>
+    <button class="logout-btn" onclick="adminLogout()" title="로그아웃">⏻</button>
+  </div>
+</aside>
+
+<!-- 메인 -->
+<div class="main" id="mainArea" style="display:none;">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">대시보드</div>
+    <div class="today" id="todayDate"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- 대시보드 -->
+    <div class="page active" id="page-dashboard">
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="icon">👥</div>
+          <div class="label">전체 회원수</div>
+          <div class="value" id="totalMembers">-<span>명</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="icon">⏳</div>
+          <div class="label">승인 대기</div>
+          <div class="value" id="pendingCount" style="color:var(--orange);">-<span>건</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="icon">✅</div>
+          <div class="label">승인 완료</div>
+          <div class="value" id="approvedCount" style="color:var(--green);">-<span>명</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="icon">📅</div>
+          <div class="label">오늘 가입</div>
+          <div class="value" id="todayCount">-<span>명</span></div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">🔔 최근 승인 대기</div>
+        <button class="btn-sm btn-primary" onclick="showPage('approval', document.querySelector('.menu-item:nth-child(4)'))">전체보기</button>
+      </div>
+      <div class="table-wrap" id="dashPendingTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 가입 승인 관리 -->
+    <div class="page" id="page-approval">
+      <div class="section-header">
+        <div class="section-title">가입 승인 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadApproval()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="approvalTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 회원 목록 -->
+    <div class="page" id="page-members">
+      <div class="section-header">
+        <div class="section-title">회원 목록</div>
+        <button class="btn-sm btn-primary" onclick="loadMembers()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="membersTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 회원 상세 모달 -->
+<div class="modal-bg" id="memberModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">회원 상세 정보</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// 전역 노출
+window._auth = auth;
+window._db = db;
+window._signIn = signInWithEmailAndPassword;
+window._signOut = signOut;
+window._collection = collection;
+window._getDocs = getDocs;
+window._doc = doc;
+window._updateDoc = updateDoc;
+window._query = query;
+window._orderBy = orderBy;
+window._where = where;
+window._serverTimestamp = serverTimestamp;
+
+// 로그인 상태 감지
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('sidebar').style.display = 'flex';
+    document.getElementById('mainArea').style.display = 'flex';
+    document.getElementById('adminName').textContent = user.email.split('@')[0];
+    loadDashboard();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('mainArea').style.display = 'none';
+  }
+});
+</script>
+
+<script>
+// 날짜
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'short'});
+
+// 토스트
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// 관리자 로그인
+async function adminLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const pw = document.getElementById('adminPw').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  try {
+    await window._signIn(window._auth, email, pw);
+  } catch(e) {
+    errEl.style.display = 'block';
+  }
+}
+
+// 로그아웃
+async function adminLogout() {
+  if(confirm('로그아웃 하시겠습니까?')) {
+    await window._signOut(window._auth);
+  }
+}
+
+// 페이지 전환
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록'};
+  document.getElementById('pageTitle').textContent = titles[name] || '';
+  if(name === 'approval') loadApproval();
+  if(name === 'members') loadMembers();
+}
+
+// 날짜 포맷
+function formatDate(ts) {
+  if(!ts) return '-';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('ko-KR', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+// 대시보드 로드
+async function loadDashboard() {
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    const users = [];
+    snap.forEach(d => users.push({id:d.id,...d.data()}));
+
+    const total = users.length;
+    const pending = users.filter(u => u.approval_status === 'pending');
+    const approved = users.filter(u => u.approval_status === 'approved');
+    const today = users.filter(u => {
+      if(!u.createdAt) return false;
+      const d = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+      return d.toDateString() === new Date().toDateString();
+    });
+
+    document.getElementById('totalMembers').innerHTML = total + '<span>명</span>';
+    document.getElementById('pendingCount').innerHTML = pending.length + '<span>건</span>';
+    document.getElementById('approvedCount').innerHTML = approved.length + '<span>명</span>';
+    document.getElementById('todayCount').innerHTML = today.length + '<span>명</span>';
+    document.getElementById('pendingBadge').textContent = pending.length;
+
+    // 대시보드 최근 대기 목록
+    const tableEl = document.getElementById('dashPendingTable');
+    if(pending.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--g3);">승인 대기 회원이 없습니다 😊</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>신청일</th><th>이름</th><th>안경원명</th>
+          <th>사업자번호</th><th>지역</th><th>처리</th>
+        </tr></thead>
+        <tbody>
+          ${pending.slice(0,5).map(u => `
+            <tr>
+              <td>${formatDate(u.createdAt)}</td>
+              <td><strong>${u.name||'-'}</strong></td>
+              <td>${u.storeName||'-'}</td>
+              <td>${u.bizNo||'-'}</td>
+              <td>${u.address?.addr1?.split(' ').slice(0,2).join(' ')||'-'}</td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-view" onclick="openModal('${u.id}')">📄 상세보기</button>
+                  <button class="btn-approve" onclick="approveUser('${u.id}', this)">✅ 승인</button>
+                  <button class="btn-reject" onclick="rejectUser('${u.id}', this)">❌ 거절</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    console.error(e);
+    showToast('데이터 로드 실패: ' + e.message, 'error');
+  }
+}
+
+// 승인 관리 로드
+async function loadApproval() {
+  const tableEl = document.getElementById('approvalTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    const users = [];
+    snap.forEach(d => users.push({id:d.id,...d.data()}));
+    const pending = users.filter(u => u.approval_status === 'pending');
+
+    if(pending.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">🎉 승인 대기 회원이 없습니다!</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>신청일</th><th>이름</th><th>안경원명</th>
+          <th>사업자번호</th><th>면허번호</th><th>지역</th><th>서류</th><th>상태</th><th>처리</th>
+        </tr></thead>
+        <tbody>
+          ${pending.map(u => `
+            <tr id="row-${u.id}">
+              <td>${formatDate(u.createdAt)}</td>
+              <td><strong>${u.name||'-'}</strong></td>
+              <td>${u.storeName||'-'}</td>
+              <td>${u.bizNo||'-'}</td>
+              <td>${u.licenseNo||'-'}</td>
+              <td>${u.address?.addr1?.split(' ').slice(0,2).join(' ')||'-'}</td>
+              <td><button class="btn-view" onclick="openModal('${u.id}')">📄 보기</button></td>
+              <td><span class="badge pending">대기</span></td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-approve" onclick="approveUser('${u.id}', this)">✅ 승인</button>
+                  <button class="btn-reject" onclick="rejectUser('${u.id}', this)">❌ 거절</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+// 회원 목록 로드
+async function loadMembers() {
+  const tableEl = document.getElementById('membersTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    const users = [];
+    snap.forEach(d => users.push({id:d.id,...d.data()}));
+    users.sort((a,b) => {
+      const da = a.createdAt?.toDate?.() || new Date(0);
+      const db2 = b.createdAt?.toDate?.() || new Date(0);
+      return db2 - da;
+    });
+
+    const statusMap = {pending:'pending', approved:'approved', rejected:'rejected'};
+    const labelMap = {pending:'대기', approved:'승인', rejected:'거절'};
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>가입일</th><th>이름</th><th>이메일</th>
+          <th>안경원명</th><th>지역</th><th>상태</th><th>관리</th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u => `
+            <tr>
+              <td>${formatDate(u.createdAt)}</td>
+              <td><strong>${u.name||'-'}</strong></td>
+              <td style="font-size:12px;">${u.email||'-'}</td>
+              <td>${u.storeName||'-'}</td>
+              <td>${u.address?.addr1?.split(' ').slice(0,2).join(' ')||'-'}</td>
+              <td><span class="badge ${statusMap[u.approval_status]||'pending'}">${labelMap[u.approval_status]||'대기'}</span></td>
+              <td><button class="btn-view" onclick="openModal('${u.id}')">상세보기</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패</div>';
+  }
+}
+
+// 모달 열기
+let currentUserId = null;
+let allUsers = {};
+
+async function openModal(uid) {
+  currentUserId = uid;
+  const modal = document.getElementById('memberModal');
+  const body = document.getElementById('modalBody');
+  const footer = document.getElementById('modalFooter');
+  body.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  footer.innerHTML = '';
+  modal.classList.add('open');
+
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    let user = null;
+    snap.forEach(d => { if(d.id === uid) user = {id:d.id,...d.data()}; });
+    if(!user) { body.innerHTML = '회원 정보를 찾을 수 없습니다.'; return; }
+    allUsers[uid] = user;
+
+    body.innerHTML = `
+      <div class="info-row"><div class="info-label">이름</div><div class="info-value"><strong>${user.name||'-'}</strong></div></div>
+      <div class="info-row"><div class="info-label">이메일</div><div class="info-value">${user.email||'-'}</div></div>
+      <div class="info-row"><div class="info-label">휴대폰</div><div class="info-value">${user.phone||'-'}</div></div>
+      <div class="info-row"><div class="info-label">안경원명</div><div class="info-value">${user.storeName||'-'}</div></div>
+      <div class="info-row"><div class="info-label">사업자번호</div><div class="info-value">${user.bizNo||'-'}</div></div>
+      <div class="info-row"><div class="info-label">면허번호</div><div class="info-value">${user.licenseNo||'-'}</div></div>
+      <div class="info-row"><div class="info-label">주소</div><div class="info-value">${user.address?.addr1||''} ${user.address?.addr2||''}</div></div>
+      <div class="info-row"><div class="info-label">신청일</div><div class="info-value">${formatDate(user.createdAt)}</div></div>
+      <div class="info-row"><div class="info-label">상태</div><div class="info-value"><span class="badge ${user.approval_status||'pending'}">${user.approval_status==='approved'?'승인완료':user.approval_status==='rejected'?'거절':'승인대기'}</span></div></div>
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">📄 사업자등록증</div>
+      ${user.bizDocUrl ?
+        `<img src="${user.bizDocUrl}" class="doc-img" onclick="window.open('${user.bizDocUrl}','_blank')" title="클릭하면 크게 보기">
+         <div style="font-size:11px;color:var(--g3);text-align:center;">이미지 클릭 시 크게 보기</div>` :
+        `<div style="background:var(--g1);border-radius:8px;padding:20px;text-align:center;color:var(--g3);">업로드된 서류가 없습니다.</div>`
+      }`;
+
+    // 대기 상태일 때만 승인/거절 버튼
+    if(user.approval_status === 'pending') {
+      footer.innerHTML = `
+        <button class="btn-modal-reject" onclick="rejectUser('${uid}', null, true)">❌ 거절</button>
+        <button class="btn-modal-approve" onclick="approveUser('${uid}', null, true)">✅ 승인하기</button>`;
+    } else {
+      footer.innerHTML = `<div style="font-size:13px;color:var(--g3);">이미 처리된 회원입니다.</div>`;
+    }
+  } catch(e) {
+    body.innerHTML = '오류: ' + e.message;
+  }
+}
+
+function closeModal() {
+  document.getElementById('memberModal').classList.remove('open');
+  currentUserId = null;
+}
+
+// 승인
+async function approveUser(uid, btn, fromModal=false) {
+  if(!confirm('승인하시겠습니까?\n승인 시 도매가 확인 및 주문이 가능해집니다.')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      approval_status: 'approved',
+      member_level: 2,
+      approvedAt: window._serverTimestamp()
+    });
+    showToast('✅ 승인 완료! 회원에게 알림을 보내주세요.', 'success');
+    if(fromModal) closeModal();
+    loadDashboard();
+    if(document.getElementById('page-approval').classList.contains('active')) loadApproval();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 거절
+async function rejectUser(uid, btn, fromModal=false) {
+  const reason = prompt('거절 사유를 입력해주세요 (선택사항):') ;
+  if(reason === null) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      approval_status: 'rejected',
+      member_level: 0,
+      rejectedAt: window._serverTimestamp(),
+      rejectReason: reason || '서류 미흡'
+    });
+    showToast('거절 처리되었습니다.', 'error');
+    if(fromModal) closeModal();
+    loadDashboard();
+    if(document.getElementById('page-approval').classList.contains('active')) loadApproval();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 모달 배경 클릭
+document.getElementById('memberModal').addEventListener('click', function(e) {
+  if(e.target === this) closeModal();
+});
+
+// ESC 키
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTICMALL | 주문/결제</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--sky:#1B9FD8;--sky-lt:#E6F5FB;--sky-dk:#1480B0;--navy:#1A2D4A;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);padding-bottom:40px;}
+.header{background:var(--white);border-bottom:1px solid var(--g2);position:sticky;top:0;z-index:100;}
+.header-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;}
+.logo{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--navy);text-decoration:none;}
+.logo span{color:var(--sky);}
+.page-title{font-size:16px;font-weight:700;color:var(--navy);margin-left:24px;}
+
+/* 진행 단계 */
+.steps{background:var(--white);border-bottom:1px solid var(--g2);padding:16px 0;}
+.steps-inner{max-width:600px;margin:0 auto;display:flex;align-items:center;}
+.step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;}
+.step::after{content:'';position:absolute;top:14px;left:60%;right:-40%;height:2px;background:var(--g2);}
+.step:last-child::after{display:none;}
+.step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;z-index:1;background:var(--g2);color:var(--g3);}
+.step.done .step-circle{background:var(--navy);color:var(--white);}
+.step.done::after{background:var(--navy);}
+.step.active .step-circle{background:var(--sky);color:var(--white);}
+.step-label{font-size:11px;color:var(--g3);}
+.step.active .step-label{color:var(--sky);font-weight:700;}
+.step.done .step-label{color:var(--navy);}
+
+.main{max-width:1100px;margin:24px auto;padding:0 24px;display:flex;gap:20px;align-items:flex-start;}
+.order-form{flex:1;}
+.card{background:var(--white);border-radius:10px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.card-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--g2);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group{margin-bottom:12px;}
+.form-group:last-child{margin-bottom:0;}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--g4);margin-bottom:5px;}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--sky);}
+.form-input::placeholder{color:var(--g3);}
+.addr-row{display:flex;gap:8px;margin-bottom:8px;}
+.btn-addr{padding:11px 16px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:80px;}
+.form-textarea:focus{border-color:var(--sky);}
+
+/* 결제 방법 */
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
+.pay-btn{padding:14px;border:2px solid var(--g2);border-radius:8px;background:var(--white);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;text-align:center;transition:all 0.15s;color:var(--g4);}
+.pay-btn:hover{border-color:var(--sky);color:var(--sky);}
+.pay-btn.active{border-color:var(--sky);background:var(--sky-lt);color:var(--sky);}
+.pay-icon{font-size:22px;display:block;margin-bottom:4px;}
+
+/* 주문 상품 */
+.order-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--g1);}
+.order-item:last-child{border-bottom:none;}
+.order-img{width:60px;height:60px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.15;flex-shrink:0;}
+.order-item-info{flex:1;}
+.order-item-name{font-size:13px;font-weight:600;color:var(--navy);}
+.order-item-opt{font-size:11px;color:var(--g3);margin-top:2px;}
+.order-item-price{font-family:'Inter',sans-serif;font-size:14px;font-weight:800;color:var(--navy);}
+
+/* 요약 */
+.summary-box{width:300px;flex-shrink:0;position:sticky;top:88px;}
+.summary-card{background:var(--white);border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.summary-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+.sum-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px;}
+.sum-row .lbl{color:var(--g4);}
+.sum-row .val{font-weight:600;}
+.sum-divider{border:none;border-top:1px solid var(--g2);margin:14px 0;}
+.sum-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;}
+.sum-total .price{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--sky);}
+.agree-box{margin-top:16px;padding:12px;background:var(--g1);border-radius:8px;}
+.agree-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g4);margin-bottom:6px;cursor:pointer;}
+.agree-item:last-child{margin-bottom:0;}
+.agree-item input{accent-color:var(--sky);cursor:pointer;}
+.btn-pay{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:12px;}
+.btn-pay:hover{background:var(--sky-dk);transform:translateY(-1px);}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
+    <div class="page-title">주문/결제</div>
+  </div>
+</header>
+
+<div class="steps">
+  <div class="steps-inner">
+    <div class="step done"><div class="step-circle">✓</div><div class="step-label">장바구니</div></div>
+    <div class="step active"><div class="step-circle">2</div><div class="step-label">주문/결제</div></div>
+    <div class="step"><div class="step-circle">3</div><div class="step-label">주문완료</div></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="order-form">
+
+    <!-- 주문자 정보 -->
+    <div class="card">
+      <div class="card-title">📋 주문자 정보</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">이름</label>
+          <input class="form-input" value="홍길동" readonly style="background:var(--g1);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">휴대폰</label>
+          <input class="form-input" value="010-1234-5678" readonly style="background:var(--g1);">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">이메일</label>
+        <input class="form-input" value="hong@email.com" readonly style="background:var(--g1);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">안경원명</label>
+        <input class="form-input" value="밝은안경원" readonly style="background:var(--g1);">
+      </div>
+    </div>
+
+    <!-- 배송지 -->
+    <div class="card">
+      <div class="card-title">🚚 배송지 정보</div>
+      <div class="form-group">
+        <label class="form-label">수령인</label>
+        <input class="form-input" placeholder="수령인 이름" value="홍길동">
+      </div>
+      <div class="form-group">
+        <label class="form-label">연락처</label>
+        <input class="form-input" placeholder="연락처" value="010-1234-5678">
+      </div>
+      <div class="form-group">
+        <label class="form-label">주소</label>
+        <div class="addr-row">
+          <input class="form-input" placeholder="우편번호" value="21565" readonly style="max-width:140px;">
+          <button class="btn-addr">주소 검색</button>
+        </div>
+        <input class="form-input" placeholder="기본 주소" value="인천광역시 남동구 장제로 00" readonly style="margin-bottom:8px;">
+        <input class="form-input" placeholder="상세 주소" value="1층 밝은안경원">
+      </div>
+      <div class="form-group">
+        <label class="form-label">배송 요청사항</label>
+        <textarea class="form-textarea" placeholder="배송 시 요청사항을 입력해주세요">부재시 경비실에 맡겨주세요</textarea>
+      </div>
+    </div>
+
+    <!-- 결제 방법 -->
+    <div class="card">
+      <div class="card-title">💳 결제 방법</div>
+      <div class="pay-methods">
+        <button class="pay-btn active" onclick="selectPay(this)"><span class="pay-icon">💳</span>신용카드</button>
+        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">🏦</span>계좌이체</button>
+        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">💬</span>카카오페이</button>
+        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">N</span>네이버페이</button>
+        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">T</span>토스페이</button>
+        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">📱</span>휴대폰결제</button>
+      </div>
+    </div>
+
+    <!-- 주문 상품 -->
+    <div class="card">
+      <div class="card-title">👓 주문 상품 (3종)</div>
+      <div class="order-item">
+        <div class="order-img">👓</div>
+        <div class="order-item-info">
+          <div class="order-item-name">드렌테 K9191 · 블랙</div>
+          <div class="order-item-opt">49-23-147 · 3개</div>
+        </div>
+        <div class="order-item-price">₩55,500</div>
+      </div>
+      <div class="order-item">
+        <div class="order-img">👓</div>
+        <div class="order-item-info">
+          <div class="order-item-name">티타늄 T-2241 · 실버</div>
+          <div class="order-item-opt">51-18-142 · 2개</div>
+        </div>
+        <div class="order-item-price">₩56,000</div>
+      </div>
+      <div class="order-item">
+        <div class="order-img">👓</div>
+        <div class="order-item-info">
+          <div class="order-item-name">울템 U-1189 · 브라운</div>
+          <div class="order-item-opt">48-20-140 · 5개</div>
+        </div>
+        <div class="order-item-price">₩82,500</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 요약 -->
+  <div class="summary-box">
+    <div class="summary-card">
+      <div class="summary-title">결제 금액</div>
+      <div class="sum-row"><span class="lbl">상품 금액</span><span class="val">₩194,000</span></div>
+      <div class="sum-row"><span class="lbl">배송비</span><span class="val" style="color:var(--green);">무료</span></div>
+      <div class="sum-row"><span class="lbl">쿠폰 할인</span><span class="val" style="color:var(--red);">- ₩0</span></div>
+      <hr class="sum-divider">
+      <div class="sum-total">
+        <span>최종 결제</span>
+        <span class="price">₩194,000</span>
+      </div>
+      <div class="agree-box">
+        <div class="agree-item"><input type="checkbox" checked> 구매조건 확인 및 결제 동의 (필수)</div>
+        <div class="agree-item"><input type="checkbox" checked> 개인정보 제3자 제공 동의 (필수)</div>
+      </div>
+      <button class="btn-pay" onclick="submitOrder()">₩194,000 결제하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectPay(btn) {
+  document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function submitOrder() {
+  if(confirm('주문을 완료하시겠습니까?\n\n총 결제금액: ₩194,000')) {
+    alert('✓ 주문이 완료되었습니다!\n\n주문번호: OM-20240612-001\n빠른 배송으로 준비하겠습니다. 감사합니다! 😊');
+    location.href = 'mypage.html';
+  }
+}
+</script>
+</body>
+</html>
