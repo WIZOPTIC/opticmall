@@ -791,8 +791,12 @@ function addCart() {
 }
 function buyNow() {
   if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
+  if(!currentProduct) return;
+  const qty = parseInt(document.getElementById('qty').value) || 1;
   showToast('주문 페이지로 이동합니다...', 'success');
-  setTimeout(() => location.href = 'order.html', 800);
+  setTimeout(() => {
+    location.href = `order.html?pid=${currentProduct.id}&qty=${qty}`;
+  }, 500);
 }
 
 function requestRestock() {
