@@ -124,6 +124,13 @@ tr:hover td{background:#FAFBFC;}
 .btn-view:hover{background:var(--sky-lt);color:var(--sky);border-color:var(--sky);}
 .btn-del-tbl{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-del-tbl:hover{background:var(--red);color:var(--white);}
+.btn-edit-tbl{padding:5px 12px;background:var(--sky-lt);color:var(--sky);border:1px solid #B3E0F5;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-edit-tbl:hover{background:var(--sky);color:var(--white);}
+.btn-save-tbl{padding:5px 12px;background:var(--green);color:var(--white);border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-save-tbl:hover{background:#27AE60;}
+.btn-cancel-tbl{padding:5px 12px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-cancel-tbl:hover{background:var(--g2);}
+.edit-input{padding:6px 8px;border:1.5px solid var(--sky);border-radius:5px;font-size:13px;font-family:inherit;outline:none;}
 
 /* 로딩/토스트 */
 .loading{text-align:center;padding:40px;color:var(--g3);}
@@ -291,7 +298,7 @@ tr:hover td{background:#FAFBFC;}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, collection, getDocs, addDoc, doc, getDoc, deleteDoc, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, addDoc, doc, getDoc, deleteDoc, updateDoc, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const firebaseConfig = {
@@ -320,6 +327,7 @@ window._addDoc = addDoc;
 window._doc = doc;
 window._getDoc = getDoc;
 window._deleteDoc = deleteDoc;
+window._updateDoc = updateDoc;
 window._query = query;
 window._where = where;
 window._serverTimestamp = serverTimestamp;
@@ -471,26 +479,62 @@ function renderProductTable(products, withActions=true) {
         <th>도매가</th><th>재고</th><th>상태</th>${withActions ? '<th>관리</th>' : ''}
       </tr></thead>
       <tbody>
-        ${products.map(p => `
-          <tr>
-            <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb">` : `<div class="prod-thumb">👓</div>`}</td>
-            <td><strong>${p.modelName||'-'}</strong></td>
-            <td style="font-size:12px;">${p.barcode||'-'}</td>
-            <td>${p.color||'-'}</td>
-            <td>${p.type||'-'}</td>
-            <td>${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</td>
-            <td>${p.stock ?? '-'}</td>
-            <td><span class="badge ${statusClassMap[p.status]||'pending'}">${statusLabelMap[p.status]||'대기'}</span></td>
-            ${withActions ? `
-            <td>
-              <div class="action-btns">
-                <button class="btn-del-tbl" onclick="deleteProduct('${p.id}')">삭제</button>
-              </div>
-            </td>` : ''}
-          </tr>
-        `).join('')}
+        ${products.map(p => renderProductRowHtml(p, withActions)).join('')}
       </tbody>
     </table>`;
+}
+
+function renderProductRowHtml(p, withActions) {
+  return `
+    <tr data-pid="${p.id}">
+      <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb">` : `<div class="prod-thumb">👓</div>`}</td>
+      <td><strong>${p.modelName||'-'}</strong></td>
+      <td style="font-size:12px;">${p.barcode||'-'}</td>
+      <td>${p.color||'-'}</td>
+      <td>${p.type||'-'}</td>
+      <td class="cell-price">${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</td>
+      <td class="cell-stock">${p.stock ?? '-'}</td>
+      <td><span class="badge ${statusClassMap[p.status]||'pending'}">${statusLabelMap[p.status]||'대기'}</span></td>
+      ${withActions ? `
+      <td>
+        <div class="action-btns" data-view="display">
+          <button class="btn-edit-tbl" onclick="startEditRow('${p.id}', ${p.price||0}, ${p.stock||0})">✏️ 수정</button>
+          <button class="btn-del-tbl" onclick="deleteProduct('${p.id}')">삭제</button>
+        </div>
+      </td>` : ''}
+    </tr>`;
+}
+
+// 인라인 수정 모드 시작
+function startEditRow(pid, currentPrice, currentStock) {
+  const tr = document.querySelector(`tr[data-pid="${pid}"]`);
+  if(!tr) return;
+  const priceCell = tr.querySelector('.cell-price');
+  const stockCell = tr.querySelector('.cell-stock');
+  const actionCell = tr.querySelector('.action-btns');
+
+  priceCell.innerHTML = `<input type="number" class="edit-input" id="editPrice-${pid}" value="${currentPrice}" style="width:90px;">`;
+  stockCell.innerHTML = `<input type="number" class="edit-input" id="editStock-${pid}" value="${currentStock}" style="width:60px;">`;
+  actionCell.innerHTML = `
+    <button class="btn-save-tbl" onclick="saveEditRow('${pid}')">💾 저장</button>
+    <button class="btn-cancel-tbl" onclick="loadProducts()">취소</button>`;
+}
+
+// 인라인 수정 저장
+async function saveEditRow(pid) {
+  const newPrice = Number(document.getElementById('editPrice-'+pid).value) || 0;
+  const newStock = Number(document.getElementById('editStock-'+pid).value) || 0;
+
+  if(newPrice <= 0) { showToast('도매가는 0보다 커야 합니다.', 'error'); return; }
+
+  try {
+    await window._updateDoc(window._doc(window._db, 'products', pid), { price: newPrice, stock: newStock });
+    showToast('✅ 수정이 저장되었습니다.', 'success');
+    loadProducts();
+    loadDashboard();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
 }
 
 async function loadProducts() {
