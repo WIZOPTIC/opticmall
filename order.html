@@ -40,22 +40,22 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .form-input{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
 .form-input:focus{border-color:var(--sky);}
 .form-input::placeholder{color:var(--g3);}
+.form-input[readonly]{background:var(--g1);color:var(--g4);}
 .addr-row{display:flex;gap:8px;margin-bottom:8px;}
 .btn-addr{padding:11px 16px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:80px;}
 .form-textarea:focus{border-color:var(--sky);}
 
-/* 결제 방법 */
-.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
-.pay-btn{padding:14px;border:2px solid var(--g2);border-radius:8px;background:var(--white);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;text-align:center;transition:all 0.15s;color:var(--g4);}
-.pay-btn:hover{border-color:var(--sky);color:var(--sky);}
-.pay-btn.active{border-color:var(--sky);background:var(--sky-lt);color:var(--sky);}
-.pay-icon{font-size:22px;display:block;margin-bottom:4px;}
+/* 결제 안내 */
+.pay-info-box{background:var(--sky-lt);border:1px solid #B3E0F5;border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px;}
+.pay-info-box .icon{font-size:24px;}
+.pay-info-box .txt{font-size:12px;color:var(--sky-dk);line-height:1.6;}
 
 /* 주문 상품 */
 .order-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--g1);}
 .order-item:last-child{border-bottom:none;}
-.order-img{width:60px;height:60px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.15;flex-shrink:0;}
+.order-img{width:60px;height:60px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.15;flex-shrink:0;overflow:hidden;}
+.order-img img{width:100%;height:100%;object-fit:cover;}
 .order-item-info{flex:1;}
 .order-item-name{font-size:13px;font-weight:600;color:var(--navy);}
 .order-item-opt{font-size:11px;color:var(--g3);margin-top:2px;}
@@ -77,6 +77,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .agree-item input{accent-color:var(--sky);cursor:pointer;}
 .btn-pay{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:12px;}
 .btn-pay:hover{background:var(--sky-dk);transform:translateY(-1px);}
+.btn-pay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
+
+.loading-box{text-align:center;padding:60px;color:var(--g3);}
+.spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
@@ -89,13 +94,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
 <div class="steps">
   <div class="steps-inner">
-    <div class="step done"><div class="step-circle">✓</div><div class="step-label">장바구니</div></div>
+    <div class="step done"><div class="step-circle">✓</div><div class="step-label">상품선택</div></div>
     <div class="step active"><div class="step-circle">2</div><div class="step-label">주문/결제</div></div>
     <div class="step"><div class="step-circle">3</div><div class="step-label">주문완료</div></div>
   </div>
 </div>
 
-<div class="main">
+<div id="loadingArea" class="loading-box">
+  <div class="spinner"></div>주문 정보를 불러오는 중...
+</div>
+
+<div class="main" id="orderMain" style="display:none;">
   <div class="order-form">
 
     <!-- 주문자 정보 -->
@@ -104,20 +113,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">이름</label>
-          <input class="form-input" value="홍길동" readonly style="background:var(--g1);">
+          <input class="form-input" id="ordererName" readonly>
         </div>
         <div class="form-group">
           <label class="form-label">휴대폰</label>
-          <input class="form-input" value="010-1234-5678" readonly style="background:var(--g1);">
+          <input class="form-input" id="ordererPhone" readonly>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">이메일</label>
-        <input class="form-input" value="hong@email.com" readonly style="background:var(--g1);">
+        <input class="form-input" id="ordererEmail" readonly>
       </div>
       <div class="form-group">
         <label class="form-label">안경원명</label>
-        <input class="form-input" value="밝은안경원" readonly style="background:var(--g1);">
+        <input class="form-input" id="ordererStore" readonly>
       </div>
     </div>
 
@@ -126,67 +135,43 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
       <div class="card-title">🚚 배송지 정보</div>
       <div class="form-group">
         <label class="form-label">수령인</label>
-        <input class="form-input" placeholder="수령인 이름" value="홍길동">
+        <input class="form-input" id="receiverName" placeholder="수령인 이름">
       </div>
       <div class="form-group">
         <label class="form-label">연락처</label>
-        <input class="form-input" placeholder="연락처" value="010-1234-5678">
+        <input class="form-input" id="receiverPhone" placeholder="연락처">
       </div>
       <div class="form-group">
         <label class="form-label">주소</label>
         <div class="addr-row">
-          <input class="form-input" placeholder="우편번호" value="21565" readonly style="max-width:140px;">
-          <button class="btn-addr">주소 검색</button>
+          <input class="form-input" id="receiverZip" placeholder="우편번호" readonly style="max-width:140px;">
+          <button class="btn-addr" onclick="searchAddress()">주소 검색</button>
         </div>
-        <input class="form-input" placeholder="기본 주소" value="인천광역시 남동구 장제로 00" readonly style="margin-bottom:8px;">
-        <input class="form-input" placeholder="상세 주소" value="1층 밝은안경원">
+        <input class="form-input" id="receiverAddr1" placeholder="기본 주소" readonly style="margin-bottom:8px;">
+        <input class="form-input" id="receiverAddr2" placeholder="상세 주소">
       </div>
       <div class="form-group">
         <label class="form-label">배송 요청사항</label>
-        <textarea class="form-textarea" placeholder="배송 시 요청사항을 입력해주세요">부재시 경비실에 맡겨주세요</textarea>
+        <textarea class="form-textarea" id="receiverMemo" placeholder="배송 시 요청사항을 입력해주세요"></textarea>
       </div>
     </div>
 
-    <!-- 결제 방법 -->
+    <!-- 결제 안내 -->
     <div class="card">
       <div class="card-title">💳 결제 방법</div>
-      <div class="pay-methods">
-        <button class="pay-btn active" onclick="selectPay(this)"><span class="pay-icon">💳</span>신용카드</button>
-        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">🏦</span>계좌이체</button>
-        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">💬</span>카카오페이</button>
-        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">N</span>네이버페이</button>
-        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">T</span>토스페이</button>
-        <button class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">📱</span>휴대폰결제</button>
+      <div class="pay-info-box">
+        <div class="icon">🔒</div>
+        <div class="txt">
+          하단 결제 버튼을 누르면 <strong>토스페이먼츠 결제창</strong>이 열립니다.<br>
+          카드, 계좌이체, 간편결제 등 원하는 수단을 결제창에서 선택해주세요.
+        </div>
       </div>
     </div>
 
     <!-- 주문 상품 -->
     <div class="card">
-      <div class="card-title">👓 주문 상품 (3종)</div>
-      <div class="order-item">
-        <div class="order-img">👓</div>
-        <div class="order-item-info">
-          <div class="order-item-name">드렌테 K9191 · 블랙</div>
-          <div class="order-item-opt">49-23-147 · 3개</div>
-        </div>
-        <div class="order-item-price">₩55,500</div>
-      </div>
-      <div class="order-item">
-        <div class="order-img">👓</div>
-        <div class="order-item-info">
-          <div class="order-item-name">티타늄 T-2241 · 실버</div>
-          <div class="order-item-opt">51-18-142 · 2개</div>
-        </div>
-        <div class="order-item-price">₩56,000</div>
-      </div>
-      <div class="order-item">
-        <div class="order-img">👓</div>
-        <div class="order-item-info">
-          <div class="order-item-name">울템 U-1189 · 브라운</div>
-          <div class="order-item-opt">48-20-140 · 5개</div>
-        </div>
-        <div class="order-item-price">₩82,500</div>
-      </div>
+      <div class="card-title">👓 주문 상품 (<span id="itemCount">0</span>건)</div>
+      <div id="orderItemsList"><!-- JS로 생성 --></div>
     </div>
   </div>
 
@@ -194,32 +179,213 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
   <div class="summary-box">
     <div class="summary-card">
       <div class="summary-title">결제 금액</div>
-      <div class="sum-row"><span class="lbl">상품 금액</span><span class="val">₩194,000</span></div>
+      <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
       <div class="sum-row"><span class="lbl">배송비</span><span class="val" style="color:var(--green);">무료</span></div>
-      <div class="sum-row"><span class="lbl">쿠폰 할인</span><span class="val" style="color:var(--red);">- ₩0</span></div>
       <hr class="sum-divider">
       <div class="sum-total">
         <span>최종 결제</span>
-        <span class="price">₩194,000</span>
+        <span class="price" id="sumTotal">₩0</span>
       </div>
       <div class="agree-box">
-        <div class="agree-item"><input type="checkbox" checked> 구매조건 확인 및 결제 동의 (필수)</div>
-        <div class="agree-item"><input type="checkbox" checked> 개인정보 제3자 제공 동의 (필수)</div>
+        <div class="agree-item"><input type="checkbox" id="agree1"> 구매조건 확인 및 결제 동의 (필수)</div>
+        <div class="agree-item"><input type="checkbox" id="agree2"> 개인정보 제3자 제공 동의 (필수)</div>
       </div>
-      <button class="btn-pay" onclick="submitOrder()">₩194,000 결제하기</button>
+      <button class="btn-pay" id="payBtn" onclick="startPayment()">결제하기</button>
     </div>
   </div>
 </div>
 
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-function selectPay(btn) {
-  document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
+
+// 토스페이먼츠 테스트 클라이언트 키
+const TOSS_CLIENT_KEY = "test_ck_P9BRQmyarYDRQ9WY4jj2VJ07KzLN";
+
+let currentUser = null;
+let currentUserData = null;
+let orderProduct = null;
+let orderQty = 1;
+let totalAmount = 0;
+
+// ===================== 로그인 체크 =====================
+_auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    alert('로그인 후 이용 가능합니다.');
+    location.href = 'index.html';
+    return;
+  }
+  currentUser = user;
+  try {
+    const userDoc = await _db.collection('users').doc(user.uid).get();
+    currentUserData = userDoc.exists ? userDoc.data() : {};
+    if ((currentUserData.member_level || 0) < 2) {
+      alert('안경사 인증 승인 후 주문이 가능합니다.');
+      location.href = 'mypage.html';
+      return;
+    }
+    fillOrdererInfo();
+    await loadOrderProduct();
+  } catch(e) {
+    console.error(e);
+    alert('회원 정보를 불러오지 못했습니다.');
+  }
+});
+
+function fillOrdererInfo() {
+  document.getElementById('ordererName').value = currentUserData.name || '-';
+  document.getElementById('ordererPhone').value = currentUserData.phone || '-';
+  document.getElementById('ordererEmail').value = currentUser.email || '-';
+  document.getElementById('ordererStore').value = currentUserData.storeName || currentUserData.brandName || '-';
+
+  // 배송지 기본값을 회원 정보로 채워줌 (수정 가능)
+  document.getElementById('receiverName').value = currentUserData.name || '';
+  document.getElementById('receiverPhone').value = currentUserData.phone || currentUserData.storePhone || '';
+  if(currentUserData.address) {
+    document.getElementById('receiverZip').value = currentUserData.address.zipcode || '';
+    document.getElementById('receiverAddr1').value = currentUserData.address.addr1 || '';
+    document.getElementById('receiverAddr2').value = currentUserData.address.addr2 || '';
+  }
 }
-function submitOrder() {
-  if(confirm('주문을 완료하시겠습니까?\n\n총 결제금액: ₩194,000')) {
-    alert('✓ 주문이 완료되었습니다!\n\n주문번호: OM-20240612-001\n빠른 배송으로 준비하겠습니다. 감사합니다! 😊');
-    location.href = 'mypage.html';
+
+function searchAddress() {
+  alert('주소 검색 기능은 다음 단계에서 연동됩니다.\n지금은 직접 입력해주세요.');
+}
+
+// ===================== 주문 상품 로드 =====================
+async function loadOrderProduct() {
+  const params = new URLSearchParams(location.search);
+  const pid = params.get('pid');
+  orderQty = parseInt(params.get('qty')) || 1;
+
+  if(!pid) {
+    alert('주문할 상품 정보가 없습니다.');
+    location.href = 'list.html';
+    return;
+  }
+
+  try {
+    const docSnap = await _db.collection('products').doc(pid).get();
+    if(!docSnap.exists) {
+      alert('존재하지 않는 상품입니다.');
+      location.href = 'list.html';
+      return;
+    }
+    orderProduct = { id: docSnap.id, ...docSnap.data() };
+    renderOrderItem();
+    document.getElementById('loadingArea').style.display = 'none';
+    document.getElementById('orderMain').style.display = 'flex';
+  } catch(e) {
+    console.error(e);
+    alert('상품 정보를 불러오지 못했습니다.');
+  }
+}
+
+function renderOrderItem() {
+  const p = orderProduct;
+  const unitPrice = Number(p.price || 0);
+  totalAmount = unitPrice * orderQty;
+
+  const imgHtml = p.mainImageUrl
+    ? `<img src="${p.mainImageUrl}">`
+    : `👓`;
+
+  document.getElementById('itemCount').textContent = 1;
+  document.getElementById('orderItemsList').innerHTML = `
+    <div class="order-item">
+      <div class="order-img">${imgHtml}</div>
+      <div class="order-item-info">
+        <div class="order-item-name">${p.modelName||'-'}${p.color ? ' · '+p.color : ''}</div>
+        <div class="order-item-opt">${p.barcode||''} · ${orderQty}개</div>
+      </div>
+      <div class="order-item-price">₩${totalAmount.toLocaleString()}</div>
+    </div>`;
+
+  document.getElementById('sumProducts').textContent = '₩' + totalAmount.toLocaleString();
+  document.getElementById('sumTotal').textContent = '₩' + totalAmount.toLocaleString();
+}
+
+// ===================== 결제 시작 =====================
+function generateOrderId() {
+  return 'OM' + Date.now() + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+async function startPayment() {
+  // 필수값 검증
+  if(!document.getElementById('receiverName').value.trim()) { alert('수령인을 입력해주세요.'); return; }
+  if(!document.getElementById('receiverPhone').value.trim()) { alert('연락처를 입력해주세요.'); return; }
+  if(!document.getElementById('receiverAddr1').value.trim()) { alert('배송지 주소를 입력해주세요.'); return; }
+  if(!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
+    alert('필수 약관에 동의해주세요.'); return;
+  }
+
+  const orderId = generateOrderId();
+  const orderName = orderProduct.modelName + (orderQty > 1 ? ` 외 ${orderQty - 1}개` : '');
+
+  // 주문 정보를 Firestore에 임시 저장 (결제 시도 단계, 상태: payment_pending)
+  try {
+    await _db.collection('orders').doc(orderId).set({
+      orderId,
+      userId: currentUser.uid,
+      userName: currentUserData.name || '',
+      productId: orderProduct.id,
+      productName: orderProduct.modelName || '',
+      brandId: orderProduct.brandId || '',
+      brandName: orderProduct.brandName || '',
+      qty: orderQty,
+      unitPrice: Number(orderProduct.price || 0),
+      totalAmount,
+      receiver: {
+        name: document.getElementById('receiverName').value.trim(),
+        phone: document.getElementById('receiverPhone').value.trim(),
+        zipcode: document.getElementById('receiverZip').value.trim(),
+        addr1: document.getElementById('receiverAddr1').value.trim(),
+        addr2: document.getElementById('receiverAddr2').value.trim(),
+        memo: document.getElementById('receiverMemo').value.trim()
+      },
+      status: 'payment_pending', // 결제창 진입 단계. 승인 완료 전.
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) {
+    console.error(e);
+    alert('주문 생성 중 오류가 발생했습니다: ' + e.message);
+    return;
+  }
+
+  // 토스페이먼츠 결제창 호출
+  try {
+    const tossPayments = TossPayments(TOSS_CLIENT_KEY);
+    const payment = tossPayments.payment({ customerKey: currentUser.uid });
+
+    await payment.requestPayment({
+      method: "CARD",
+      amount: { currency: "KRW", value: totalAmount },
+      orderId: orderId,
+      orderName: orderName,
+      customerName: currentUserData.name || '',
+      customerEmail: currentUser.email || '',
+      successUrl: location.origin + '/order-success.html',
+      failUrl: location.origin + '/order-fail.html',
+      card: { useEscrow: false, flowMode: "DEFAULT" }
+    });
+  } catch(e) {
+    console.error(e);
+    if(e.code !== 'USER_CANCEL') {
+      alert('결제 요청 중 오류가 발생했습니다: ' + (e.message || e.code));
+    }
   }
 }
 </script>
