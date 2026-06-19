@@ -99,6 +99,38 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 </style>
 </head>
 <body>
+
+<!-- 로그인 팝업 -->
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:1000;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeLogin()"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:460px;max-width:90vw;border-radius:6px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:none;font-size:20px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;transition:color 0.15s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#bbb'">✕</button>
+    <div style="padding:48px 44px 40px;">
+      <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:28px;">LOGIN</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="email" id="loginEmail" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+        </div>
+        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;transition:background 0.15s;" onmouseover="this.style.background='#1B9FD8'" onmouseout="this.style.background='#1A2D4A'">로그인</button>
+      </div>
+      <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
+      <div style="border-top:1px solid #f0f0f0;margin:20px 0;"></div>
+      <p style="font-size:12px;color:#bbb;line-height:1.9;margin-bottom:14px;">
+        안경사 면허 인증 회원만 로그인이 가능합니다.<br>
+        아직 회원이 아니시라면 회원가입 후 이용해 주세요.
+      </p>
+      <a href="join.html" style="font-size:13px;color:#1A2D4A;font-weight:600;text-decoration:underline;">회원가입 →</a>
+    </div>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
@@ -107,11 +139,17 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
       <button class="search-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
     <div class="header-right">
-      <button class="h-btn">주문조회</button><span class="h-sep">|</span>
-      <button class="h-btn">로그인</button><span class="h-sep">|</span>
-      <button class="h-join">회원가입</button>
-      <button class="icon-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-      <button class="icon-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg><span class="cart-count">2</span></button>
+      <button class="h-btn" onclick="location.href='mypage.html'">주문조회</button><span class="h-sep">|</span>
+      <button class="h-btn" id="loginBtn" onclick="openLogin()">로그인</button><span class="h-sep">|</span>
+      <button class="h-join" onclick="location.href='join.html'">회원가입</button>
+      <div style="position:relative;margin-left:8px;" id="userMenuWrap">
+        <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
+          <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+          <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="location.href='cart.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg><span class="cart-count">2</span></button>
     </div>
   </div>
 </header>
@@ -226,37 +264,175 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   </button>
 </nav>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-const products = [
-  {name:'드렌테 K9191', cat:'HALF RIM', code:'49-23-147', colors:['#111','#8B6F47','#C0C0C0'], badge:'new', price:'18,500', locked:false},
-  {name:'드렌테 98063', cat:'ROUND', code:'41-26-145', colors:['#111','#5C4033','#4A7856'], badge:'new', price:null, locked:true},
-  {name:'드렌테 98287', cat:'SQUARE', code:'49-21-143', colors:['#111','#8B7355','#708090','#C8B96E'], badge:'hot', price:'22,000', locked:false},
-  {name:'바디글라스 5306', cat:'HALF RIM', code:'49-22-148', colors:['#111','#8B6F47'], badge:'best', price:null, locked:true},
-  {name:'티타늄 T-2241', cat:'TITANIUM', code:'51-18-142', colors:['#111','#C0A882'], badge:'hot', price:'28,000', locked:false},
-  {name:'울템 U-1189', cat:'ULTEM', code:'48-20-140', colors:['#111','#8B4513','#4682B4','#228B22'], badge:'best', price:'16,500', locked:false},
-  {name:'아세테이트 A-3382', cat:'ACETATE', code:'50-20-145', colors:['#111','#5C3317','#F5DEB3'], badge:'', price:null, locked:true},
-  {name:'하금테 H-0892', cat:'HALF RIM', code:'52-19-145', colors:['#C0C0C0','#FFD700'], badge:'new', price:null, locked:true},
-];
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
 
-const grid = document.getElementById('productGrid');
-products.forEach(p => {
-  const dots = p.colors.map(c => `<div class="color-dot" style="background:${c};"></div>`).join('');
-  const badgeHtml = p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '';
-  const priceHtml = p.locked
-    ? `<div class="p-locked">🔒 로그인 후 가격확인</div>`
-    : `<div class="p-price"><span class="won">₩</span>${p.price}</div>`;
-  grid.innerHTML += `
-    <div class="product-card" onclick="location.href='product.html'">
-      <div class="product-img">👓${badgeHtml}<button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button></div>
-      <div class="color-dots">${dots}</div>
-      <div class="product-info">
-        <div class="p-cat">${p.cat}</div>
-        <div class="p-name">${p.name}</div>
-        <div class="p-size">${p.code}</div>
-        ${priceHtml}
+let memberLevel = 0; // 0=비회원, 1=대기, 2=승인완료(가격공개)
+let allProducts = []; // Firestore에서 불러온 승인 상품 전체
+
+// ===================== 로그인 모달 =====================
+function openLogin() { document.getElementById('loginOverlay').style.display = 'block'; }
+function closeLogin() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('loginError').style.display='none'; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin(); });
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginSubmitBtn');
+  errEl.style.display = 'none';
+  if(!email || !pw) { errEl.textContent='이메일과 비밀번호를 입력해주세요.'; errEl.style.display='block'; return; }
+  btn.textContent = '...';
+  btn.disabled = true;
+  try {
+    await _auth.signInWithEmailAndPassword(email, pw);
+    closeLogin();
+  } catch(e) {
+    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = '로그인';
+    btn.disabled = false;
+  }
+}
+async function doLogout() { await _auth.signOut(); }
+
+function updateHeaderLoggedIn(name, level) {
+  const loginBtn = document.getElementById('loginBtn');
+  const joinBtn = document.querySelector('.h-join');
+  if(loginBtn) loginBtn.style.display = 'none';
+  if(joinBtn) joinBtn.style.display = 'none';
+  const dropdown = document.getElementById('userDropdown');
+  if(dropdown) {
+    dropdown.innerHTML = `
+      <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
+        <div style="font-size:13px;font-weight:700;color:#1A2D4A;">${name}님</div>
+        <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
       </div>
-    </div>`;
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+      <a href="#" onclick="doLogout()" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
+  }
+}
+function updateHeaderLoggedOut() {
+  const loginBtn = document.getElementById('loginBtn');
+  const joinBtn = document.querySelector('.h-join');
+  if(loginBtn) loginBtn.style.display = '';
+  if(joinBtn) joinBtn.style.display = '';
+}
+
+document.getElementById('userMenuBtn')?.addEventListener('click', () => {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
 });
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('userMenuWrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('userDropdown').style.display = 'none';
+});
+
+_auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    try {
+      const userDoc = await _db.collection('users').doc(user.uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      const name = userData.name || user.email.split('@')[0];
+      memberLevel = userData.member_level || 0;
+      updateHeaderLoggedIn(name, memberLevel);
+    } catch(e) {
+      memberLevel = 0;
+      updateHeaderLoggedIn(user.email.split('@')[0], 0);
+    }
+  } else {
+    memberLevel = 0;
+    updateHeaderLoggedOut();
+  }
+  renderProducts(allProducts); // 로그인 상태 바뀌면 가격 잠금 표시 다시 그림
+});
+
+// ===================== 상품 목록 (Firestore 연동) =====================
+const grid = document.getElementById('productGrid');
+
+function renderEmptyState() {
+  grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#9BA5B0;">
+    <div style="font-size:40px;margin-bottom:12px;">👓</div>
+    <div style="font-size:14px;font-weight:600;">아직 등록된 상품이 없습니다.</div>
+  </div>`;
+}
+
+function renderProducts(products) {
+  if(!products || products.length === 0) { renderEmptyState(); updateCount(0); return; }
+
+  grid.innerHTML = products.map(p => {
+    const badgeHtml = p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '';
+    const outHtml = (p.stock !== undefined && Number(p.stock) <= 0) ? `<span class="p-badge out">SOLD OUT</span>` : '';
+    const priceHtml = memberLevel >= 2
+      ? `<div class="p-price"><span class="won">₩</span>${Number(p.price||0).toLocaleString()}</div>`
+      : `<div class="p-locked">🔒 로그인 후 가격확인</div>`;
+    const imgHtml = p.mainImageUrl
+      ? `<img src="${p.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">`
+      : `👓`;
+    const catLabel = p.type || p.brandName || '안경테';
+
+    return `
+      <div class="product-card" onclick="location.href='product.html?id=${p.id}'">
+        <div class="product-img">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button></div>
+        <div class="product-info">
+          <div class="p-cat">${catLabel}</div>
+          <div class="p-name">${p.modelName || '-'}${p.color ? ' · '+p.color : ''}</div>
+          <div class="p-size">${p.barcode || ''}</div>
+          ${priceHtml}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateCount(n) {
+  document.querySelector('.list-count').innerHTML = `총 <strong>${n}</strong>개 상품`;
+}
+
+async function loadApprovedProducts() {
+  try {
+    const snap = await _db.collection('products').where('status', '==', 'approved').get();
+    const products = [];
+    snap.forEach(doc => products.push({id: doc.id, ...doc.data()}));
+    // 최신순 정렬
+    products.sort((a,b) => {
+      const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const dbb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return dbb - da;
+    });
+    allProducts = products;
+    renderProducts(allProducts);
+    updateCount(allProducts.length);
+  } catch(e) {
+    console.error(e);
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:#FF4444;">상품을 불러오는 중 오류가 발생했습니다.</div>`;
+  }
+}
+
+// 정렬 변경
+document.querySelector('.sort-select')?.addEventListener('change', function() {
+  const sorted = [...allProducts];
+  const v = this.value;
+  if(v === '낮은가격순') sorted.sort((a,b) => (a.price||0) - (b.price||0));
+  else if(v === '높은가격순') sorted.sort((a,b) => (b.price||0) - (a.price||0));
+  renderProducts(sorted);
+});
+
+loadApprovedProducts();
 </script>
 </body>
 </html>
