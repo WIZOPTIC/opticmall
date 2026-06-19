@@ -496,8 +496,8 @@ function renderProductRowHtml(p, withActions) {
       <td class="cell-stock">${p.stock ?? '-'}</td>
       <td><span class="badge ${statusClassMap[p.status]||'pending'}">${statusLabelMap[p.status]||'대기'}</span></td>
       ${withActions ? `
-      <td>
-        <div class="action-btns" data-view="display">
+      <td class="cell-action">
+        <div class="action-btns">
           <button class="btn-edit-tbl" onclick="startEditRow('${p.id}', ${p.price||0}, ${p.stock||0})">✏️ 수정</button>
           <button class="btn-del-tbl" onclick="deleteProduct('${p.id}')">삭제</button>
         </div>
@@ -508,16 +508,24 @@ function renderProductRowHtml(p, withActions) {
 // 인라인 수정 모드 시작
 function startEditRow(pid, currentPrice, currentStock) {
   const tr = document.querySelector(`tr[data-pid="${pid}"]`);
-  if(!tr) return;
+  if(!tr) { console.error('행을 찾을 수 없습니다:', pid); return; }
   const priceCell = tr.querySelector('.cell-price');
   const stockCell = tr.querySelector('.cell-stock');
-  const actionCell = tr.querySelector('.action-btns');
+  const actionCell = tr.querySelector('.cell-action');
+
+  if(!priceCell || !stockCell || !actionCell) {
+    console.error('셀을 찾을 수 없습니다:', {priceCell, stockCell, actionCell});
+    showToast('수정 모드를 열 수 없습니다. 새로고침 후 다시 시도해주세요.', 'error');
+    return;
+  }
 
   priceCell.innerHTML = `<input type="number" class="edit-input" id="editPrice-${pid}" value="${currentPrice}" style="width:90px;">`;
   stockCell.innerHTML = `<input type="number" class="edit-input" id="editStock-${pid}" value="${currentStock}" style="width:60px;">`;
   actionCell.innerHTML = `
-    <button class="btn-save-tbl" onclick="saveEditRow('${pid}')">💾 저장</button>
-    <button class="btn-cancel-tbl" onclick="loadProducts()">취소</button>`;
+    <div class="action-btns">
+      <button class="btn-save-tbl" onclick="saveEditRow('${pid}')">💾 저장</button>
+      <button class="btn-cancel-tbl" onclick="loadProducts()">취소</button>
+    </div>`;
 }
 
 // 인라인 수정 저장
