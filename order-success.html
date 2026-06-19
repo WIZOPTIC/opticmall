@@ -96,6 +96,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
@@ -107,7 +108,17 @@ const firebaseConfig = {
   appId: "1:649171316547:web:778de09e4fe6a43df109f6"
 };
 firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
 const _db = firebase.firestore();
+
+function renderOrderNameFromOrder(order) {
+  if(Array.isArray(order.items) && order.items.length > 0) {
+    const first = order.items[0].productName || '상품';
+    return order.items.length > 1 ? `${first} 외 ${order.items.length - 1}건` : first;
+  }
+  // 이전 단건 구조 호환
+  return (order.productName || '상품') + (order.qty > 1 ? ` 외 ${order.qty-1}개` : '');
+}
 
 async function handleSuccess() {
   const params = new URLSearchParams(location.search);
@@ -145,8 +156,11 @@ async function handleSuccess() {
       paymentPassedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
+    // 결제 완료된 상품을 장바구니에서 제거 (장바구니에서 주문한 경우)
+    await removeOrderedItemsFromCart(order);
+
     document.getElementById('rOrderId').textContent = orderId;
-    document.getElementById('rOrderName').textContent = order.productName + (order.qty > 1 ? ` 외 ${order.qty-1}개` : '');
+    document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
     document.getElementById('rAmount').textContent = '₩' + Number(amount).toLocaleString();
 
     document.getElementById('loadingArea').style.display = 'none';
@@ -158,13 +172,30 @@ async function handleSuccess() {
   }
 }
 
+async function removeOrderedItemsFromCart(order) {
+  const uid = _auth.currentUser?.uid;
+  if(!uid || !Array.isArray(order.items)) return;
+  try {
+    await Promise.all(
+      order.items.map(item => _db.collection('carts').doc(uid).collection('items').doc(item.productId).delete())
+    );
+  } catch(e) {
+    console.error('장바구니 정리 중 오류:', e);
+  }
+}
+
 function showError(msg) {
   document.getElementById('loadingArea').style.display = 'none';
   document.getElementById('errorArea').style.display = 'block';
   document.getElementById('errorMsg').textContent = msg;
 }
 
-handleSuccess();
+let _handled = false;
+_auth.onAuthStateChanged(() => {
+  if(_handled) return;
+  _handled = true;
+  handleSuccess();
+});
 </script>
 </body>
 </html>

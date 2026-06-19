@@ -13,7 +13,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .header-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:24px;}
 .logo{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--navy);text-decoration:none;}
 .logo span{color:var(--sky);}
-.back{margin-left:auto;font-size:13px;color:var(--g3);text-decoration:none;display:flex;align-items:center;gap:4px;}
+.back{margin-left:auto;font-size:13px;color:var(--g3);text-decoration:none;display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-family:inherit;}
 .back:hover{color:var(--sky);}
 .main{max-width:1100px;margin:0 auto;padding:24px;display:flex;gap:20px;align-items:flex-start;}
 
@@ -22,7 +22,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .cart-header{background:var(--white);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:12px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .cart-header label{font-size:13px;font-weight:600;color:var(--navy);}
 .cart-item{background:var(--white);border-radius:10px;padding:20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.item-img{width:80px;height:80px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:0.15;flex-shrink:0;}
+.item-img{width:80px;height:80px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:0.15;flex-shrink:0;overflow:hidden;}
+.item-img img{width:100%;height:100%;object-fit:cover;}
 .item-info{flex:1;}
 .item-cat{font-size:11px;font-weight:700;color:var(--sky);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px;}
 .item-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
@@ -32,9 +33,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .qty-btn:hover{background:var(--g2);}
 .qty-val{width:40px;height:32px;border:none;text-align:center;font-size:14px;font-weight:700;font-family:inherit;outline:none;}
 .item-price{font-family:'Inter',sans-serif;font-size:17px;font-weight:800;color:var(--navy);text-align:right;min-width:80px;}
+.item-locked{font-size:12px;color:var(--g3);min-width:80px;text-align:right;}
 .item-del{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--g3);font-size:18px;margin-left:4px;}
 .item-del:hover{color:var(--red);}
 .empty-cart{background:var(--white);border-radius:10px;padding:60px;text-align:center;color:var(--g3);}
+.empty-cart .icon{font-size:40px;margin-bottom:12px;}
+.loading-box{text-align:center;padding:60px;color:var(--g3);}
+.spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.soldout-badge{font-size:11px;font-weight:700;color:var(--red);background:#FEECEC;padding:2px 8px;border-radius:4px;margin-left:6px;}
 
 /* 주문 요약 */
 .order-summary{width:300px;flex-shrink:0;position:sticky;top:88px;}
@@ -46,12 +53,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .summary-divider{border:none;border-top:1px solid var(--g2);margin:14px 0;}
 .summary-total{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:700;}
 .summary-total .total-price{font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:var(--sky);}
-.coupon-input{display:flex;gap:8px;margin-top:12px;}
-.coupon-input input{flex:1;padding:9px 12px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;}
-.coupon-input input:focus{border-color:var(--sky);}
-.coupon-btn{padding:9px 14px;background:var(--navy);color:var(--white);border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .btn-order{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:4px;}
 .btn-order:hover{background:var(--sky-dk);transform:translateY(-1px);}
+.btn-order:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
 .btn-continue{width:100%;padding:12px;background:var(--white);color:var(--navy);border:2px solid var(--navy);border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:8px;}
 .btn-continue:hover{background:var(--navy);color:var(--white);}
 
@@ -66,88 +70,38 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 <header class="header">
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
-    <a href="list.html" class="back">← 계속 쇼핑하기</a>
+    <button class="back" onclick="location.href='list.html'">← 계속 쇼핑하기</button>
   </div>
 </header>
 
-<div class="main">
+<div id="loadingArea" class="main">
+  <div class="loading-box" style="flex:1;"><div class="spinner"></div>장바구니를 불러오는 중...</div>
+</div>
+
+<div class="main" id="cartMain" style="display:none;">
   <div class="cart-list">
     <div class="cart-header">
       <input type="checkbox" id="chk-all" onchange="toggleAll(this)" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
-      <label for="chk-all">전체선택 (3개)</label>
+      <label for="chk-all" id="chkAllLabel">전체선택 (0개)</label>
       <button onclick="deleteSelected()" style="margin-left:auto;font-size:12px;color:var(--g3);border:none;background:none;cursor:pointer;">선택삭제</button>
     </div>
-
-    <div class="cart-item" id="item1">
-      <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
-      <div class="item-img">👓</div>
-      <div class="item-info">
-        <div class="item-cat">HALF RIM</div>
-        <div class="item-name">드렌테 K9191</div>
-        <div class="item-option">색상: 블랙 | 코드: 49-23-147</div>
-      </div>
-      <div class="item-qty">
-        <button class="qty-btn" onclick="changeQty('q1',-1)">−</button>
-        <input class="qty-val" id="q1" type="number" value="3" min="1" onchange="updateTotal()">
-        <button class="qty-btn" onclick="changeQty('q1',1)">+</button>
-      </div>
-      <div class="item-price" id="p1">₩55,500</div>
-      <button class="item-del" onclick="removeItem('item1')">✕</button>
-    </div>
-
-    <div class="cart-item" id="item2">
-      <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
-      <div class="item-img">👓</div>
-      <div class="item-info">
-        <div class="item-cat">TITANIUM</div>
-        <div class="item-name">티타늄 T-2241</div>
-        <div class="item-option">색상: 실버 | 코드: 51-18-142</div>
-      </div>
-      <div class="item-qty">
-        <button class="qty-btn" onclick="changeQty('q2',-1)">−</button>
-        <input class="qty-val" id="q2" type="number" value="2" min="1" onchange="updateTotal()">
-        <button class="qty-btn" onclick="changeQty('q2',1)">+</button>
-      </div>
-      <div class="item-price" id="p2">₩56,000</div>
-      <button class="item-del" onclick="removeItem('item2')">✕</button>
-    </div>
-
-    <div class="cart-item" id="item3">
-      <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
-      <div class="item-img">👓</div>
-      <div class="item-info">
-        <div class="item-cat">ULTEM</div>
-        <div class="item-name">울템 U-1189</div>
-        <div class="item-option">색상: 브라운 | 코드: 48-20-140</div>
-      </div>
-      <div class="item-qty">
-        <button class="qty-btn" onclick="changeQty('q3',-1)">−</button>
-        <input class="qty-val" id="q3" type="number" value="5" min="1" onchange="updateTotal()">
-        <button class="qty-btn" onclick="changeQty('q3',1)">+</button>
-      </div>
-      <div class="item-price" id="p3">₩82,500</div>
-      <button class="item-del" onclick="removeItem('item3')">✕</button>
-    </div>
+    <div id="cartItemsList"><!-- JS로 생성 --></div>
   </div>
 
   <!-- 주문 요약 -->
   <div class="order-summary">
     <div class="summary-card">
       <div class="summary-title">주문 요약</div>
-      <div class="summary-row"><span class="label">상품 금액</span><span class="value" id="sum-products">₩194,000</span></div>
+      <div class="summary-row"><span class="label">선택 상품</span><span class="value" id="sumCount">0개</span></div>
+      <div class="summary-row"><span class="label">상품 금액</span><span class="value" id="sumProducts">₩0</span></div>
       <div class="summary-row"><span class="label">배송비</span><span class="value" style="color:var(--green);">무료</span></div>
-      <div class="summary-row"><span class="label">쿠폰 할인</span><span class="value" style="color:var(--red);" id="sum-coupon">- ₩0</span></div>
       <hr class="summary-divider">
       <div class="summary-total">
         <span>최종 결제금액</span>
-        <span class="total-price" id="sum-total">₩194,000</span>
-      </div>
-      <div class="coupon-input">
-        <input type="text" placeholder="쿠폰 코드 입력" id="coupon-code">
-        <button class="coupon-btn" onclick="applyCoupon()">적용</button>
+        <span class="total-price" id="sumTotal">₩0</span>
       </div>
     </div>
-    <button class="btn-order" onclick="location.href='order.html'">주문하기 →</button>
+    <button class="btn-order" id="orderBtn" onclick="goToOrder()">주문하기 →</button>
     <button class="btn-continue" onclick="location.href='list.html'">쇼핑 계속하기</button>
   </div>
 </div>
@@ -168,43 +122,225 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
   </button>
 </nav>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-const prices = {q1:18500, q2:28000, q3:16500};
-function changeQty(id, val) {
-  const input = document.getElementById(id);
-  input.value = Math.max(1, parseInt(input.value) + val);
-  updateTotal();
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
+
+let memberLevel = 0;
+let cartItems = []; // [{cartItemId, productId, qty, product:{...}}]
+
+_auth.onAuthStateChanged(async (user) => {
+  if(!user) {
+    alert('로그인 후 이용 가능합니다.');
+    location.href = 'index.html';
+    return;
+  }
+  try {
+    const userDoc = await _db.collection('users').doc(user.uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    memberLevel = userData.member_level || 0;
+    await loadCart();
+  } catch(e) {
+    console.error(e);
+    alert('회원 정보를 불러오지 못했습니다.');
+  }
+});
+
+async function loadCart() {
+  const uid = _auth.currentUser.uid;
+  try {
+    const snap = await _db.collection('carts').doc(uid).collection('items').get();
+    const rawItems = [];
+    snap.forEach(doc => rawItems.push({ cartItemId: doc.id, ...doc.data() }));
+
+    if(rawItems.length === 0) {
+      cartItems = [];
+      renderCart();
+      document.getElementById('loadingArea').style.display = 'none';
+      document.getElementById('cartMain').style.display = 'flex';
+      return;
+    }
+
+    // 각 상품 정보 조회
+    const productDocs = await Promise.all(
+      rawItems.map(item => _db.collection('products').doc(item.productId).get())
+    );
+
+    cartItems = rawItems.map((item, i) => {
+      const pDoc = productDocs[i];
+      return {
+        ...item,
+        product: pDoc.exists ? { id: pDoc.id, ...pDoc.data() } : null,
+        selected: true
+      };
+    }).filter(item => item.product); // 삭제된 상품은 제외
+
+    renderCart();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('loadingArea').innerHTML = '<div style="flex:1;text-align:center;padding:60px;color:var(--red);">장바구니를 불러오지 못했습니다.</div>';
+    return;
+  }
+  document.getElementById('loadingArea').style.display = 'none';
+  document.getElementById('cartMain').style.display = 'flex';
 }
-function updateTotal() {
-  let total = 0;
-  ['1','2','3'].forEach(n => {
-    const q = parseInt(document.getElementById('q'+n).value) || 1;
-    const p = prices['q'+n];
-    const price = (n==='1' && q>=10) ? 17000 : p;
-    const sub = price * q;
-    document.getElementById('p'+n).textContent = '₩' + sub.toLocaleString();
-    total += sub;
-  });
-  document.getElementById('sum-products').textContent = '₩' + total.toLocaleString();
-  document.getElementById('sum-total').textContent = '₩' + total.toLocaleString();
+
+function renderCart() {
+  const listEl = document.getElementById('cartItemsList');
+
+  if(cartItems.length === 0) {
+    listEl.innerHTML = `
+      <div class="empty-cart">
+        <div class="icon">🛒</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">장바구니가 비어있습니다</div>
+        <div style="font-size:13px;">마음에 드는 상품을 담아보세요!</div>
+      </div>`;
+    updateSummary();
+    return;
+  }
+
+  listEl.innerHTML = cartItems.map(item => {
+    const p = item.product;
+    const stock = Number(p.stock || 0);
+    const isSoldOut = stock <= 0;
+    const imgHtml = p.mainImageUrl ? `<img src="${p.mainImageUrl}">` : `👓`;
+    const priceHtml = memberLevel >= 2
+      ? `<div class="item-price" id="price-${item.cartItemId}">₩${(Number(p.price||0)*item.qty).toLocaleString()}</div>`
+      : `<div class="item-locked">🔒 로그인 필요</div>`;
+
+    return `
+      <div class="cart-item" id="item-${item.cartItemId}" data-cart-item-id="${item.cartItemId}">
+        <input type="checkbox" class="item-check" data-id="${item.cartItemId}" ${item.selected ? 'checked' : ''} ${isSoldOut ? 'disabled' : ''} onchange="onItemCheckChange()" style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+        <div class="item-img">${imgHtml}</div>
+        <div class="item-info">
+          <div class="item-cat">${p.type || p.brandName || '안경테'}</div>
+          <div class="item-name">${p.modelName||'-'}${isSoldOut ? `<span class="soldout-badge">품절</span>` : ''}</div>
+          <div class="item-option">색상: ${p.color||'-'} | 코드: ${p.barcode||'-'}</div>
+        </div>
+        <div class="item-qty">
+          <button class="qty-btn" onclick="changeQty('${item.cartItemId}',-1)" ${isSoldOut ? 'disabled' : ''}>−</button>
+          <input class="qty-val" type="number" value="${item.qty}" min="1" data-id="${item.cartItemId}" onchange="updateQtyInput('${item.cartItemId}', this.value)" ${isSoldOut ? 'disabled' : ''}>
+          <button class="qty-btn" onclick="changeQty('${item.cartItemId}',1)" ${isSoldOut ? 'disabled' : ''}>+</button>
+        </div>
+        ${priceHtml}
+        <button class="item-del" onclick="removeItem('${item.cartItemId}')">✕</button>
+      </div>`;
+  }).join('');
+
+  updateSummary();
 }
-function removeItem(id) {
-  if(confirm('상품을 삭제하시겠습니까?')) {
-    document.getElementById(id).style.display = 'none';
-    updateTotal();
+
+function getItem(cartItemId) {
+  return cartItems.find(i => i.cartItemId === cartItemId);
+}
+
+async function changeQty(cartItemId, delta) {
+  const item = getItem(cartItemId);
+  if(!item) return;
+  const newQty = Math.max(1, item.qty + delta);
+  await setQty(cartItemId, newQty);
+}
+
+async function updateQtyInput(cartItemId, value) {
+  const newQty = Math.max(1, parseInt(value) || 1);
+  await setQty(cartItemId, newQty);
+}
+
+async function setQty(cartItemId, newQty) {
+  const item = getItem(cartItemId);
+  if(!item) return;
+  item.qty = newQty;
+  const uid = _auth.currentUser.uid;
+  try {
+    await _db.collection('carts').doc(uid).collection('items').doc(cartItemId).update({ qty: newQty });
+  } catch(e) { console.error(e); }
+  renderCart();
+}
+
+async function removeItem(cartItemId) {
+  if(!confirm('상품을 삭제하시겠습니까?')) return;
+  const uid = _auth.currentUser.uid;
+  try {
+    await _db.collection('carts').doc(uid).collection('items').doc(cartItemId).delete();
+    cartItems = cartItems.filter(i => i.cartItemId !== cartItemId);
+    renderCart();
+  } catch(e) {
+    console.error(e);
+    alert('삭제 중 오류가 발생했습니다.');
   }
 }
+
+async function deleteSelected() {
+  const selectedIds = cartItems.filter(i => i.selected).map(i => i.cartItemId);
+  if(selectedIds.length === 0) { alert('삭제할 상품을 선택해주세요.'); return; }
+  if(!confirm(`선택한 ${selectedIds.length}개 상품을 삭제하시겠습니까?`)) return;
+
+  const uid = _auth.currentUser.uid;
+  try {
+    await Promise.all(selectedIds.map(id => _db.collection('carts').doc(uid).collection('items').doc(id).delete()));
+    cartItems = cartItems.filter(i => !selectedIds.includes(i.cartItemId));
+    renderCart();
+  } catch(e) {
+    console.error(e);
+    alert('삭제 중 오류가 발생했습니다.');
+  }
+}
+
 function toggleAll(cb) {
-  document.querySelectorAll('.cart-item input[type=checkbox]').forEach(c => c.checked = cb.checked);
+  cartItems.forEach(i => { if(Number(i.product.stock||0) > 0) i.selected = cb.checked; });
+  renderCart();
 }
-function applyCoupon() {
-  const code = document.getElementById('coupon-code').value;
-  if(code === 'OPTIC10') {
-    document.getElementById('sum-coupon').textContent = '- ₩10,000';
-    alert('✓ 쿠폰이 적용되었습니다! (-₩10,000)');
+
+function onItemCheckChange() {
+  document.querySelectorAll('.item-check').forEach(chk => {
+    const item = getItem(chk.dataset.id);
+    if(item) item.selected = chk.checked;
+  });
+  updateSummary();
+}
+
+function updateSummary() {
+  const selectedItems = cartItems.filter(i => i.selected && Number(i.product.stock||0) > 0);
+  const count = selectedItems.length;
+  const total = selectedItems.reduce((sum, i) => sum + Number(i.product.price||0) * i.qty, 0);
+
+  document.getElementById('chkAllLabel').textContent = `전체선택 (${cartItems.length}개)`;
+  document.getElementById('sumCount').textContent = count + '개';
+
+  if(memberLevel >= 2) {
+    document.getElementById('sumProducts').textContent = '₩' + total.toLocaleString();
+    document.getElementById('sumTotal').textContent = '₩' + total.toLocaleString();
   } else {
-    alert('유효하지 않은 쿠폰 코드입니다.');
+    document.getElementById('sumProducts').textContent = '로그인 필요';
+    document.getElementById('sumTotal').textContent = '-';
   }
+
+  const orderBtn = document.getElementById('orderBtn');
+  orderBtn.disabled = (count === 0 || memberLevel < 2);
+
+  const allCb = document.getElementById('chk-all');
+  allCb.checked = cartItems.length > 0 && cartItems.every(i => i.selected || Number(i.product.stock||0) <= 0);
+}
+
+function goToOrder() {
+  const selectedItems = cartItems.filter(i => i.selected && Number(i.product.stock||0) > 0);
+  if(selectedItems.length === 0) { alert('주문할 상품을 선택해주세요.'); return; }
+
+  // 여러 상품을 order.html로 전달: pids=id1:qty1,id2:qty2
+  const param = selectedItems.map(i => `${i.product.id}:${i.qty}`).join(',');
+  location.href = `order.html?items=${encodeURIComponent(param)}`;
 }
 </script>
 </body>
