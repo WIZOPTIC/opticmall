@@ -187,20 +187,57 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 </head>
 <body>
 
+<!-- 로그인 팝업 -->
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:1000;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeLogin()"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:460px;max-width:90vw;border-radius:6px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:none;font-size:20px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="padding:48px 44px 40px;">
+      <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:28px;">LOGIN</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="email" id="loginEmail" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+        </div>
+        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;">로그인</button>
+      </div>
+      <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
+      <div style="border-top:1px solid #f0f0f0;margin:20px 0;"></div>
+      <p style="font-size:12px;color:#bbb;line-height:1.9;margin-bottom:14px;">
+        안경사 면허 인증 회원만 로그인이 가능합니다.<br>
+        아직 회원이 아니시라면 회원가입 후 이용해 주세요.
+      </p>
+      <a href="join.html" style="font-size:13px;color:#1A2D4A;font-weight:600;text-decoration:underline;">회원가입 →</a>
+    </div>
+  </div>
+</div>
+
 <!-- 헤더 -->
 <header class="header">
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
     <div class="header-right">
-      <button class="h-btn">주문조회</button>
+      <button class="h-btn" onclick="location.href='mypage.html'">주문조회</button>
       <span style="color:var(--g2);">|</span>
-      <button class="h-btn">로그인</button>
-      <span style="color:var(--g2);">|</span>
-      <button class="h-join">회원가입</button>
-      <button class="icon-btn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </button>
-      <button class="icon-btn">
+      <button class="h-btn" id="loginBtn" onclick="openLogin()">로그인</button>
+      <span style="color:var(--g2);" id="loginSep">|</span>
+      <button class="h-join" id="joinBtn" onclick="location.href='join.html'">회원가입</button>
+      <div style="position:relative;" id="userMenuWrap">
+        <button class="icon-btn" id="userMenuBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
+          <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+          <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="location.href='cart.html'">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
         <span class="cart-count">2</span>
       </button>
@@ -225,10 +262,10 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 </nav>
 
 <!-- 브레드크럼 -->
-<div class="breadcrumb">
+<div class="breadcrumb" id="breadcrumb">
   <a href="index.html">홈</a> ›
-  <a href="#">하금테</a> ›
-  <span style="color:var(--navy);font-weight:500;">드렌테 K9191</span>
+  <a href="list.html">상품목록</a> ›
+  <span style="color:var(--navy);font-weight:500;" id="breadcrumbName">상품 정보를 불러오는 중...</span>
 </div>
 
 <!-- 상품 메인 -->
@@ -236,23 +273,20 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 
   <!-- 이미지 -->
   <div class="product-images">
-    <div class="main-img">
-      <div class="main-img-placeholder">👓</div>
-      <span class="img-badge">NEW</span>
+    <div class="main-img" id="mainImgBox">
+      <div class="main-img-placeholder" id="mainImgPlaceholder">👓</div>
+      <span class="img-badge" id="imgBadge" style="display:none;">NEW</span>
     </div>
-    <div class="thumb-list">
-      <div class="thumb active">👓</div>
-      <div class="thumb">👓</div>
-      <div class="thumb">👓</div>
-      <div class="thumb">👓</div>
+    <div class="thumb-list" id="thumbList">
+      <!-- JS로 동적 생성 -->
     </div>
   </div>
 
   <!-- 정보 -->
   <div class="product-info">
-    <div class="product-category">HALF RIM · 하금테</div>
-    <div class="product-name">드렌테 K9191</div>
-    <div class="product-code">상품코드: WO-HF-K9191</div>
+    <div class="product-category" id="productCategory">-</div>
+    <div class="product-name" id="productName">불러오는 중...</div>
+    <div class="product-code" id="productCode">상품코드: -</div>
 
     <!-- 가격 (비회원) -->
     <div class="price-wrap" id="price-locked">
@@ -264,32 +298,21 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
           로그인 후 도매가를 확인하실 수 있습니다.
         </div>
       </div>
-      <button class="btn-login-for-price" onclick="showPrice()">로그인하고 가격 확인</button>
+      <button class="btn-login-for-price" onclick="openLogin()">로그인하고 가격 확인</button>
     </div>
 
     <!-- 가격 (회원 - 기본 숨김) -->
     <div class="price-wrap" id="price-visible" style="display:none;">
       <div class="price-label">도매 공급가</div>
-      <div class="price-value"><span class="won">₩</span>18,500</div>
-      <div style="font-size:12px;color:var(--g3);margin-top:6px;">부가세 별도 · 10개 이상 주문시 ₩17,000</div>
+      <div class="price-value"><span class="won">₩</span><span id="priceValue">0</span></div>
+      <div style="font-size:12px;color:var(--g3);margin-top:6px;">부가세 별도</div>
     </div>
 
-    <!-- 색상 선택 -->
-    <div class="option-section">
-      <div class="option-label">색상 <span id="selected-color">블랙 선택됨</span></div>
-      <div class="color-list">
-        <button class="color-btn active" onclick="selectColor(this,'블랙')">
-          <div class="color-dot" style="background:#111;"></div> 블랙
-        </button>
-        <button class="color-btn" onclick="selectColor(this,'브라운')">
-          <div class="color-dot" style="background:#8B6F47;"></div> 브라운
-        </button>
-        <button class="color-btn" onclick="selectColor(this,'실버')">
-          <div class="color-dot" style="background:#C0C0C0;"></div> 실버
-        </button>
-        <button class="color-btn" onclick="selectColor(this,'골드')">
-          <div class="color-dot" style="background:#FFD700;"></div> 골드
-        </button>
+    <!-- 색상/타입 정보 -->
+    <div class="option-section" id="colorSection">
+      <div class="option-label">색상 <span id="selected-color"></span></div>
+      <div class="color-list" id="colorList">
+        <!-- JS로 동적 생성 -->
       </div>
     </div>
 
@@ -297,7 +320,6 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
     <div class="stock-info" id="stock-status">
       <div class="stock-dot"></div>
       <span style="color:var(--green);font-weight:600;">재고 있음</span>
-      <span style="color:var(--g3);">(잔여 45개)</span>
     </div>
 
     <!-- 수량 -->
@@ -308,7 +330,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
         <input class="qty-input" type="number" value="1" min="1" id="qty" onchange="updateTotal()">
         <button class="qty-btn" onclick="changeQty(1)">+</button>
       </div>
-      <div class="qty-total">합계: <strong id="total-price">₩18,500</strong></div>
+      <div class="qty-total">합계: <strong id="total-price">₩0</strong></div>
     </div>
 
     <!-- 구매 버튼 -->
@@ -339,7 +361,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
       </div>
       <div class="delivery-row">
         <div class="delivery-label">최소 주문</div>
-        <div class="delivery-value">1개부터 주문 가능 · <span class="highlight">10개 이상 추가 할인</span></div>
+        <div class="delivery-value">1개부터 주문 가능</div>
       </div>
     </div>
   </div>
@@ -356,26 +378,23 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 
   <!-- 스펙 -->
   <div id="tab-spec">
-    <table class="spec-table">
-      <tr><td>브랜드</td><td>드렌테 (Drente)</td></tr>
-      <tr><td>상품코드</td><td>WO-HF-K9191</td></tr>
-      <tr><td>프레임 종류</td><td>하금테 (Half Rim)</td></tr>
-      <tr><td>소재</td><td>티타늄 + 아세테이트</td></tr>
-      <tr><td>렌즈 사이즈</td><td>49mm</td></tr>
-      <tr><td>브릿지</td><td>23mm</td></tr>
-      <tr><td>템플</td><td>147mm</td></tr>
-      <tr><td>무게</td><td>약 12g</td></tr>
-      <tr><td>색상</td><td>블랙 / 브라운 / 실버 / 골드</td></tr>
-      <tr><td>원산지</td><td>한국</td></tr>
-      <tr><td>포장</td><td>케이스 미포함 (케이스 별도 구매 가능)</td></tr>
+    <table class="spec-table" id="specTable">
+      <tr><td>브랜드</td><td id="spec-brand">-</td></tr>
+      <tr><td>상품코드</td><td id="spec-barcode">-</td></tr>
+      <tr><td>프레임 종류</td><td id="spec-type">-</td></tr>
+      <tr><td>색상</td><td id="spec-color">-</td></tr>
+      <tr><td>도매가</td><td id="spec-price">로그인 후 확인 가능</td></tr>
+      <tr><td>재고</td><td id="spec-stock">-</td></tr>
     </table>
   </div>
 
   <!-- 상세 이미지 -->
   <div id="tab-detail" style="display:none;">
-    <div style="background:var(--g1);border-radius:12px;padding:60px;text-align:center;color:var(--g3);">
-      <div style="font-size:48px;margin-bottom:16px;">📸</div>
-      <div style="font-size:14px;">상품 상세 이미지가 여기에 표시됩니다<br>관리자 페이지에서 이미지 업로드 가능</div>
+    <div id="detailImagesWrap">
+      <div style="background:var(--g1);border-radius:12px;padding:60px;text-align:center;color:var(--g3);">
+        <div style="font-size:48px;margin-bottom:16px;">📸</div>
+        <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
+      </div>
     </div>
   </div>
 
@@ -399,57 +418,270 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 <!-- 관련 상품 -->
 <div class="related-section">
   <div class="section-title">함께 보면 좋은 상품</div>
-  <div class="related-grid">
-    <div class="related-card">
-      <div class="related-img">👓</div>
-      <div class="related-info">
-        <div class="related-name">드렌테 98063</div>
-        <div class="related-price">🔒 회원 전용 가격</div>
-      </div>
-    </div>
-    <div class="related-card">
-      <div class="related-img">👓</div>
-      <div class="related-info">
-        <div class="related-name">드렌테 98287</div>
-        <div class="related-price">🔒 회원 전용 가격</div>
-      </div>
-    </div>
-    <div class="related-card">
-      <div class="related-img">👓</div>
-      <div class="related-info">
-        <div class="related-name">티타늄 T-2241</div>
-        <div class="related-price"><span style="color:var(--sky);font-weight:700;">₩28,000</span></div>
-      </div>
-    </div>
-    <div class="related-card">
-      <div class="related-img">👓</div>
-      <div class="related-info">
-        <div class="related-name">울템 U-1189</div>
-        <div class="related-price"><span style="color:var(--sky);font-weight:700;">₩16,500</span></div>
-      </div>
-    </div>
+  <div class="related-grid" id="relatedGrid">
+    <div style="grid-column:1/-1;text-align:center;color:var(--g3);padding:20px;font-size:13px;">관련 상품을 불러오는 중...</div>
   </div>
 </div>
 
 <!-- 토스트 -->
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-// 가격 보기 (로그인 시뮬레이션)
-function showPrice() {
-  document.getElementById('price-locked').style.display = 'none';
-  document.getElementById('price-visible').style.display = 'block';
-  showToast('✓ 로그인 완료! 도매가를 확인하세요.', 'success');
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
+
+let memberLevel = 0;
+let currentProduct = null;
+let currentPrice = 0;
+
+// ===================== 로그인 모달 =====================
+function openLogin() { document.getElementById('loginOverlay').style.display = 'block'; }
+function closeLogin() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('loginError').style.display='none'; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin(); });
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginSubmitBtn');
+  errEl.style.display = 'none';
+  if(!email || !pw) { errEl.textContent='이메일과 비밀번호를 입력해주세요.'; errEl.style.display='block'; return; }
+  btn.textContent = '...';
+  btn.disabled = true;
+  try {
+    await _auth.signInWithEmailAndPassword(email, pw);
+    closeLogin();
+  } catch(e) {
+    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = '로그인';
+    btn.disabled = false;
+  }
+}
+async function doLogout() { await _auth.signOut(); }
+
+function updateHeaderLoggedIn(name, level) {
+  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('loginSep').style.display = 'none';
+  document.getElementById('joinBtn').style.display = 'none';
+  const dropdown = document.getElementById('userDropdown');
+  dropdown.innerHTML = `
+    <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
+      <div style="font-size:13px;font-weight:700;color:#1A2D4A;">${name}님</div>
+      <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
+    </div>
+    <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+    <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+    <a href="#" onclick="doLogout()" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
+}
+function updateHeaderLoggedOut() {
+  document.getElementById('loginBtn').style.display = '';
+  document.getElementById('loginSep').style.display = '';
+  document.getElementById('joinBtn').style.display = '';
+}
+document.getElementById('userMenuBtn')?.addEventListener('click', () => {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+});
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('userMenuWrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('userDropdown').style.display = 'none';
+});
+
+_auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    try {
+      const userDoc = await _db.collection('users').doc(user.uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      memberLevel = userData.member_level || 0;
+      updateHeaderLoggedIn(userData.name || user.email.split('@')[0], memberLevel);
+    } catch(e) {
+      memberLevel = 0;
+      updateHeaderLoggedIn(user.email.split('@')[0], 0);
+    }
+  } else {
+    memberLevel = 0;
+    updateHeaderLoggedOut();
+  }
+  updatePriceDisplay(); // 로그인 상태 바뀌면 가격 표시 갱신
+});
+
+function updatePriceDisplay() {
+  if(!currentProduct) return;
+  if(memberLevel >= 2) {
+    document.getElementById('price-locked').style.display = 'none';
+    document.getElementById('price-visible').style.display = 'block';
+    document.getElementById('priceValue').textContent = Number(currentProduct.price||0).toLocaleString();
+    document.getElementById('spec-price').textContent = '₩' + Number(currentProduct.price||0).toLocaleString();
+    updateTotal();
+  } else {
+    document.getElementById('price-locked').style.display = 'block';
+    document.getElementById('price-visible').style.display = 'none';
+    document.getElementById('spec-price').textContent = '로그인 후 확인 가능';
+  }
 }
 
-// 색상 선택
-function selectColor(btn, name) {
-  document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('selected-color').textContent = name + ' 선택됨';
+// ===================== 상품 데이터 로드 =====================
+function getProductIdFromUrl() {
+  const params = new URLSearchParams(location.search);
+  return params.get('id');
 }
 
-// 수량
+async function loadProduct() {
+  const pid = getProductIdFromUrl();
+  if(!pid) {
+    document.getElementById('productName').textContent = '상품을 찾을 수 없습니다.';
+    document.getElementById('breadcrumbName').textContent = '오류';
+    return;
+  }
+
+  try {
+    const docSnap = await _db.collection('products').doc(pid).get();
+    if(!docSnap.exists) {
+      document.getElementById('productName').textContent = '존재하지 않는 상품입니다.';
+      document.getElementById('breadcrumbName').textContent = '오류';
+      return;
+    }
+    const p = { id: docSnap.id, ...docSnap.data() };
+    currentProduct = p;
+    renderProduct(p);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('productName').textContent = '상품 정보를 불러오지 못했습니다.';
+  }
+}
+
+function renderProduct(p) {
+  document.title = 'OPTICMALL | ' + (p.modelName || '상품');
+  document.getElementById('breadcrumbName').textContent = p.modelName || '-';
+  document.getElementById('productCategory').textContent = (p.type || '안경테') + (p.brandName ? ' · ' + p.brandName : '');
+  document.getElementById('productName').textContent = p.modelName || '-';
+  document.getElementById('productCode').textContent = '상품코드: ' + (p.barcode || '-');
+
+  // 스펙 테이블
+  document.getElementById('spec-brand').textContent = p.brandName || '-';
+  document.getElementById('spec-barcode').textContent = p.barcode || '-';
+  document.getElementById('spec-type').textContent = p.type || '-';
+  document.getElementById('spec-color').textContent = p.color || '-';
+  document.getElementById('spec-stock').textContent = (p.stock !== undefined ? p.stock + '개' : '-');
+
+  // 이미지
+  const mainBox = document.getElementById('mainImgBox');
+  const placeholder = document.getElementById('mainImgPlaceholder');
+  if(p.mainImageUrl) {
+    placeholder.style.display = 'none';
+    let img = document.getElementById('mainImgTag');
+    if(!img) {
+      img = document.createElement('img');
+      img.id = 'mainImgTag';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+      mainBox.appendChild(img);
+    }
+    img.src = p.mainImageUrl;
+  }
+
+  // 썸네일 (메인 + 상세이미지들)
+  const allImages = [p.mainImageUrl, ...(p.detailImageUrls || [])].filter(Boolean);
+  const thumbList = document.getElementById('thumbList');
+  if(allImages.length > 0) {
+    thumbList.innerHTML = allImages.map((url, i) => `
+      <div class="thumb ${i===0?'active':''}" onclick="switchMainImage('${url}', this)" style="background-image:url('${url}');background-size:cover;background-position:center;"></div>
+    `).join('');
+  } else {
+    thumbList.innerHTML = `<div class="thumb active">👓</div>`;
+  }
+
+  // 색상 (단일 색상 표시)
+  const colorList = document.getElementById('colorList');
+  if(p.color) {
+    colorList.innerHTML = `<button class="color-btn active"><div class="color-dot" style="background:#888;"></div> ${p.color}</button>`;
+    document.getElementById('selected-color').textContent = p.color;
+  } else {
+    document.getElementById('colorSection').style.display = 'none';
+  }
+
+  // 재고/품절 처리
+  const stock = Number(p.stock || 0);
+  if(stock <= 0) {
+    document.getElementById('stock-status').innerHTML = '<div class="stock-dot out"></div><span style="color:var(--red);font-weight:600;">품절</span>';
+    document.getElementById('qty-wrap').style.display = 'none';
+    document.getElementById('buy-btns').style.display = 'none';
+    document.getElementById('restock-btn').style.display = 'flex';
+  } else {
+    document.getElementById('stock-status').innerHTML = `<div class="stock-dot"></div><span style="color:var(--green);font-weight:600;">재고 있음</span> <span style="color:var(--g3);">(잔여 ${stock}개)</span>`;
+  }
+
+  // 상세 이미지 탭
+  if(p.detailImageUrls && p.detailImageUrls.length > 0) {
+    document.getElementById('detailImagesWrap').innerHTML = p.detailImageUrls.map(url =>
+      `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
+    ).join('');
+  }
+
+  updatePriceDisplay();
+  loadRelatedProducts(p);
+}
+
+function switchMainImage(url, el) {
+  const mainBox = document.getElementById('mainImgBox');
+  let img = document.getElementById('mainImgTag');
+  if(!img) {
+    img = document.createElement('img');
+    img.id = 'mainImgTag';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+    mainBox.appendChild(img);
+  }
+  img.src = url;
+  document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// 관련 상품 (같은 타입 다른 상품 최대 4개)
+async function loadRelatedProducts(p) {
+  const grid = document.getElementById('relatedGrid');
+  try {
+    const snap = await _db.collection('products').where('status', '==', 'approved').get();
+    const all = [];
+    snap.forEach(doc => { if(doc.id !== p.id) all.push({id: doc.id, ...doc.data()}); });
+    const related = all.slice(0, 4);
+
+    if(related.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--g3);padding:20px;font-size:13px;">관련 상품이 없습니다.</div>`;
+      return;
+    }
+    grid.innerHTML = related.map(r => {
+      const priceHtml = memberLevel >= 2
+        ? `<span style="color:var(--sky);font-weight:700;">₩${Number(r.price||0).toLocaleString()}</span>`
+        : `🔒 회원 전용 가격`;
+      const imgHtml = r.mainImageUrl ? `<img src="${r.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '👓';
+      return `
+        <div class="related-card" onclick="location.href='product.html?id=${r.id}'">
+          <div class="related-img">${imgHtml}</div>
+          <div class="related-info">
+            <div class="related-name">${r.modelName||'-'}</div>
+            <div class="related-price">${priceHtml}</div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '';
+  }
+}
+
+// ===================== 기존 UI 동작 =====================
 function changeQty(val) {
   const input = document.getElementById('qty');
   const newVal = Math.max(1, parseInt(input.value) + val);
@@ -457,13 +689,13 @@ function changeQty(val) {
   updateTotal();
 }
 function updateTotal() {
+  if(!currentProduct) return;
   const qty = parseInt(document.getElementById('qty').value) || 1;
-  const price = qty >= 10 ? 17000 : 18500;
+  const price = Number(currentProduct.price || 0);
   const total = price * qty;
   document.getElementById('total-price').textContent = '₩' + total.toLocaleString();
 }
 
-// 찜
 function toggleWish() {
   const btn = document.getElementById('wish-btn');
   if (btn.textContent === '🤍') {
@@ -477,17 +709,16 @@ function toggleWish() {
   }
 }
 
-// 장바구니
 function addCart() {
+  if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
   showToast('🛒 장바구니에 담았습니다!', 'success');
 }
-
-// 바로 주문
 function buyNow() {
+  if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
   showToast('주문 페이지로 이동합니다...', 'success');
+  setTimeout(() => location.href = 'order.html', 800);
 }
 
-// 재입고 알림
 function requestRestock() {
   const btn = document.getElementById('restock-btn');
   if (btn.classList.contains('requested')) {
@@ -501,7 +732,6 @@ function requestRestock() {
   }
 }
 
-// 탭 전환
 function switchTab(tab, name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
@@ -511,7 +741,6 @@ function switchTab(tab, name) {
   });
 }
 
-// 토스트
 function showToast(msg, type='') {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
@@ -519,11 +748,8 @@ function showToast(msg, type='') {
   setTimeout(() => toast.className = 'toast', 3000);
 }
 
-// 품절 테스트 버튼 (개발용)
-// document.getElementById('stock-status').innerHTML = '<div class="stock-dot out"></div><span style="color:var(--red);font-weight:600;">품절</span>';
-// document.getElementById('qty-wrap').style.display = 'none';
-// document.getElementById('buy-btns').style.display = 'none';
-// document.getElementById('restock-btn').style.display = 'flex';
+// 초기 로드
+loadProduct();
 </script>
 </body>
 </html>
