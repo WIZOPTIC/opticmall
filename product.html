@@ -312,7 +312,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 
   <!-- 이미지 -->
   <div class="product-images">
-    <div class="main-img" id="mainImgBox">
+    <div class="main-img" id="mainImgBox" onclick="openLightbox(currentImgIndex)">
       <div class="main-img-placeholder" id="mainImgPlaceholder">👓</div>
       <span class="img-badge" id="imgBadge" style="display:none;">NEW</span>
     </div>
@@ -484,6 +484,7 @@ const _db = firebase.firestore();
 let memberLevel = 0;
 let currentProduct = null;
 let currentPrice = 0;
+let currentImgIndex = 0;
 
 // ===================== 로그인 모달 =====================
 function openLogin() { document.getElementById('loginOverlay').style.display = 'block'; }
@@ -622,6 +623,7 @@ function renderProduct(p) {
   const placeholder = document.getElementById('mainImgPlaceholder');
   const allImages = [p.mainImageUrl, ...(p.detailImageUrls || [])].filter(Boolean);
   window._productImages = allImages;
+  currentImgIndex = 0;
 
   if(p.mainImageUrl) {
     placeholder.style.display = 'none';
@@ -629,11 +631,10 @@ function renderProduct(p) {
     if(!img) {
       img = document.createElement('img');
       img.id = 'mainImgTag';
-      img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;cursor:zoom-in;';
       mainBox.appendChild(img);
     }
     img.src = p.mainImageUrl;
-    mainBox.onclick = () => openLightbox(0);
   }
 
   // 썸네일 (메인 + 상세이미지들)
@@ -676,8 +677,6 @@ function renderProduct(p) {
   updatePriceDisplay();
   loadRelatedProducts(p);
 }
-
-let currentImgIndex = 0;
 
 function switchMainImage(url, el, idx) {
   const mainBox = document.getElementById('mainImgBox');
