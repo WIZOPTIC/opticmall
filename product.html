@@ -56,11 +56,39 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   width: 80px; height: 80px; border-radius: 8px;
   background: var(--g1); border: 2px solid var(--g2);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 30px; opacity: 0.15;
-  transition: border-color 0.15s;
+  cursor: pointer; font-size: 30px;
+  transition: border-color 0.15s, opacity 0.15s;
 }
+.thumb.placeholder-emoji { opacity: 0.15; }
 .thumb.active { border-color: var(--sky); }
-.thumb:hover { border-color: var(--sky); }
+.thumb:hover { border-color: var(--sky); opacity: 1; }
+
+/* 이미지 확대 라이트박스 */
+.main-img { cursor: zoom-in; }
+.lightbox-overlay {
+  position: fixed; inset: 0; background: rgba(10,14,20,0.92);
+  display: none; align-items: center; justify-content: center;
+  z-index: 2000; flex-direction: column; gap: 16px;
+}
+.lightbox-overlay.open { display: flex; }
+.lightbox-img-wrap { max-width: 90vw; max-height: 78vh; display: flex; align-items: center; justify-content: center; }
+.lightbox-img-wrap img { max-width: 90vw; max-height: 78vh; object-fit: contain; border-radius: 8px; }
+.lightbox-close {
+  position: absolute; top: 20px; right: 28px; width: 40px; height: 40px;
+  border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 22px;
+  border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.2); }
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,0.1); color: #fff; font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-nav:hover { background: rgba(255,255,255,0.25); }
+.lightbox-prev { left: 24px; }
+.lightbox-next { right: 24px; }
+.lightbox-counter { color: rgba(255,255,255,0.6); font-size: 13px; font-family:'Inter',sans-serif; }
 
 /* 상품 정보 */
 .product-info { flex: 1; }
@@ -216,6 +244,17 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
       <a href="join.html" style="font-size:13px;color:#1A2D4A;font-weight:600;text-decoration:underline;">회원가입 →</a>
     </div>
   </div>
+</div>
+
+<!-- 이미지 확대 라이트박스 -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(-1)">‹</button>
+  <div class="lightbox-img-wrap">
+    <img id="lightboxImg" src="" alt="상품 이미지 확대">
+  </div>
+  <button class="lightbox-nav lightbox-next" onclick="lightboxNav(1)">›</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
 </div>
 
 <!-- 헤더 -->
@@ -581,6 +620,9 @@ function renderProduct(p) {
   // 이미지
   const mainBox = document.getElementById('mainImgBox');
   const placeholder = document.getElementById('mainImgPlaceholder');
+  const allImages = [p.mainImageUrl, ...(p.detailImageUrls || [])].filter(Boolean);
+  window._productImages = allImages;
+
   if(p.mainImageUrl) {
     placeholder.style.display = 'none';
     let img = document.getElementById('mainImgTag');
@@ -591,17 +633,17 @@ function renderProduct(p) {
       mainBox.appendChild(img);
     }
     img.src = p.mainImageUrl;
+    mainBox.onclick = () => openLightbox(0);
   }
 
   // 썸네일 (메인 + 상세이미지들)
-  const allImages = [p.mainImageUrl, ...(p.detailImageUrls || [])].filter(Boolean);
   const thumbList = document.getElementById('thumbList');
   if(allImages.length > 0) {
     thumbList.innerHTML = allImages.map((url, i) => `
-      <div class="thumb ${i===0?'active':''}" onclick="switchMainImage('${url}', this)" style="background-image:url('${url}');background-size:cover;background-position:center;"></div>
+      <div class="thumb ${i===0?'active':''}" onclick="switchMainImage('${url}', this, ${i})" style="background-image:url('${url}');background-size:cover;background-position:center;"></div>
     `).join('');
   } else {
-    thumbList.innerHTML = `<div class="thumb active">👓</div>`;
+    thumbList.innerHTML = `<div class="thumb active placeholder-emoji">👓</div>`;
   }
 
   // 색상 (단일 색상 표시)
@@ -635,7 +677,9 @@ function renderProduct(p) {
   loadRelatedProducts(p);
 }
 
-function switchMainImage(url, el) {
+let currentImgIndex = 0;
+
+function switchMainImage(url, el, idx) {
   const mainBox = document.getElementById('mainImgBox');
   let img = document.getElementById('mainImgTag');
   if(!img) {
@@ -645,9 +689,42 @@ function switchMainImage(url, el) {
     mainBox.appendChild(img);
   }
   img.src = url;
+  currentImgIndex = idx || 0;
   document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
 }
+
+// ===================== 이미지 라이트박스 =====================
+function openLightbox(idx) {
+  const images = window._productImages || [];
+  if(images.length === 0) return;
+  currentImgIndex = idx;
+  renderLightbox();
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+}
+function lightboxNav(dir) {
+  const images = window._productImages || [];
+  if(images.length === 0) return;
+  currentImgIndex = (currentImgIndex + dir + images.length) % images.length;
+  renderLightbox();
+}
+function renderLightbox() {
+  const images = window._productImages || [];
+  document.getElementById('lightboxImg').src = images[currentImgIndex];
+  document.getElementById('lightboxCounter').textContent = (currentImgIndex+1) + ' / ' + images.length;
+}
+document.getElementById('lightboxOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'lightboxOverlay') closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if(!document.getElementById('lightboxOverlay').classList.contains('open')) return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowLeft') lightboxNav(-1);
+  if(e.key === 'ArrowRight') lightboxNav(1);
+});
 
 // 관련 상품 (같은 타입 다른 상품 최대 4개)
 async function loadRelatedProducts(p) {
