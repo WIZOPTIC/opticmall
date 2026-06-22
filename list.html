@@ -369,6 +369,7 @@ async function updateCartCount() {
 // ===================== 상품 목록 (Firestore 연동) =====================
 const grid = document.getElementById('productGrid');
 let currentGnbCategory = '전체';
+let currentBrandFilter = null;
 
 function renderEmptyState(message) {
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#9BA5B0;">
@@ -426,6 +427,7 @@ function updateCategoryCounts() {
 // GNB 클릭: 카테고리 단독 선택
 function filterByGnb(category, el) {
   currentGnbCategory = category;
+  currentBrandFilter = null;
   document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('listTitle').textContent = category === '전체' ? '전체상품' : category;
@@ -469,6 +471,7 @@ function resetFilters() {
   document.getElementById('priceMax').value = '';
   document.getElementById('searchInput').value = '';
   currentGnbCategory = '전체';
+  currentBrandFilter = null;
   document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
   document.querySelector('.gnb-item').classList.add('active');
   document.getElementById('listTitle').textContent = '전체상품';
@@ -481,6 +484,11 @@ function doSearch() {
 
 function applyFilters() {
   let result = [...allProducts];
+
+  // 브랜드 필터 (브랜드관에서 진입한 경우)
+  if(currentBrandFilter) {
+    result = result.filter(p => p.brandId === currentBrandFilter);
+  }
 
   // 카테고리 필터 (메인)
   if(Array.isArray(currentGnbCategory)) {
@@ -538,6 +546,16 @@ async function loadApprovedProducts() {
     });
     allProducts = products;
     updateCategoryCounts();
+
+    // URL의 brand 파라미터 처리 (브랜드관에서 넘어온 경우)
+    const urlParams = new URLSearchParams(location.search);
+    const brandId = urlParams.get('brand');
+    if(brandId) {
+      currentBrandFilter = brandId;
+      const brandProduct = allProducts.find(p => p.brandId === brandId);
+      document.getElementById('listTitle').textContent = brandProduct ? `${brandProduct.brandName} 상품` : '브랜드 상품';
+    }
+
     applyFilters();
   } catch(e) {
     console.error(e);
