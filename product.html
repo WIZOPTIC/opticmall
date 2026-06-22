@@ -553,6 +553,7 @@ _auth.onAuthStateChanged(async (user) => {
       updateHeaderLoggedIn(user.email.split('@')[0], 0);
     }
     updateCartCount();
+    if(currentProduct) checkWishAndRestockStatus(currentProduct);
   } else {
     memberLevel = 0;
     updateHeaderLoggedOut();
@@ -694,6 +695,29 @@ function renderProduct(p) {
 
   updatePriceDisplay();
   loadRelatedProducts(p);
+  checkWishAndRestockStatus(p);
+}
+
+async function checkWishAndRestockStatus(p) {
+  if(!_auth.currentUser) return;
+  const uid = _auth.currentUser.uid;
+  try {
+    const wishDoc = await _db.collection('wishlists').doc(uid).collection('items').doc(p.id).get();
+    if(wishDoc.exists) {
+      const btn = document.getElementById('wish-btn');
+      btn.textContent = '❤️';
+      btn.classList.add('active');
+    }
+  } catch(e) { console.error(e); }
+
+  try {
+    const alarmDoc = await _db.collection('restockAlerts').doc(uid).collection('items').doc(p.id).get();
+    if(alarmDoc.exists) {
+      const btn = document.getElementById('restock-btn');
+      btn.classList.add('requested');
+      btn.innerHTML = '✓ 재입고 알림 신청완료 (취소하려면 클릭)';
+    }
+  } catch(e) { console.error(e); }
 }
 
 function switchMainImage(url, el, idx) {
@@ -790,16 +814,27 @@ function updateTotal() {
   document.getElementById('total-price').textContent = '₩' + total.toLocaleString();
 }
 
-function toggleWish() {
+async function toggleWish() {
+  if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
+  if(!currentProduct) return;
   const btn = document.getElementById('wish-btn');
-  if (btn.textContent === '🤍') {
-    btn.textContent = '❤️';
-    btn.classList.add('active');
-    showToast('관심상품에 추가되었습니다.', 'success');
-  } else {
-    btn.textContent = '🤍';
-    btn.classList.remove('active');
-    showToast('관심상품에서 제거되었습니다.');
+  const uid = _auth.currentUser.uid;
+  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(currentProduct.id);
+  try {
+    if (btn.textContent === '🤍') {
+      await wishRef.set({ productId: currentProduct.id, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      btn.textContent = '❤️';
+      btn.classList.add('active');
+      showToast('관심상품에 추가되었습니다.', 'success');
+    } else {
+      await wishRef.delete();
+      btn.textContent = '🤍';
+      btn.classList.remove('active');
+      showToast('관심상품에서 제거되었습니다.');
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('처리 중 오류가 발생했습니다.', 'error');
   }
 }
 
@@ -838,16 +873,32 @@ function buyNow() {
   }, 500);
 }
 
-function requestRestock() {
+async function requestRestock() {
+  if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
+  if(!currentProduct) return;
   const btn = document.getElementById('restock-btn');
-  if (btn.classList.contains('requested')) {
-    btn.classList.remove('requested');
-    btn.textContent = '🔔 재입고 알림 신청';
-    showToast('재입고 알림이 취소되었습니다.');
-  } else {
-    btn.classList.add('requested');
-    btn.innerHTML = '✓ 재입고 알림 신청완료 (취소하려면 클릭)';
-    showToast('🔔 재입고 시 카톡으로 알려드릴게요!', 'success');
+  const uid = _auth.currentUser.uid;
+  const alarmRef = _db.collection('restockAlerts').doc(uid).collection('items').doc(currentProduct.id);
+  try {
+    if (btn.classList.contains('requested')) {
+      await alarmRef.delete();
+      btn.classList.remove('requested');
+      btn.textContent = '🔔 재입고 알림 신청';
+      showToast('재입고 알림이 취소되었습니다.');
+    } else {
+      await alarmRef.set({
+        productId: currentProduct.id,
+        productName: currentProduct.modelName || '',
+        status: 'waiting',
+        requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      btn.classList.add('requested');
+      btn.innerHTML = '✓ 재입고 알림 신청완료 (취소하려면 클릭)';
+      showToast('🔔 재입고 시 알려드릴게요!', 'success');
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('처리 중 오류가 발생했습니다.', 'error');
   }
 }
 
