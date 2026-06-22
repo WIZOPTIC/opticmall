@@ -75,6 +75,7 @@ tr:hover td{background:#FAFBFC;}
 .badge.role-optician{background:#E6F5FB;color:var(--sky);}
 .badge.role-brand{background:#F3E8FF;color:#8E44AD;}
 .badge.role-master{background:#1A2D4A;color:var(--white);}
+.badge.role-submaster{background:#4A5A78;color:var(--white);}
 .role-select-box{display:flex;align-items:center;gap:10px;margin-top:8px;padding:14px;background:var(--g1);border-radius:8px;}
 .role-select-box select{flex:1;padding:9px 12px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);cursor:pointer;}
 .role-select-box select:focus{border-color:var(--sky);}
@@ -523,18 +524,19 @@ async function loadMembers() {
 
     const statusMap = {pending:'pending', approved:'approved', rejected:'rejected'};
     const labelMap = {pending:'대기', approved:'승인', rejected:'거절'};
-    const roleLabelMap = {optician:'안경원', brand:'브랜드사', master:'마스터'};
-    const roleClassMap = {optician:'role-optician', brand:'role-brand', master:'role-master'};
+    const roleLabelMap = {optician:'안경원', brand:'브랜드사', submaster:'서브마스터', master:'마스터'};
+    const roleClassMap = {optician:'role-optician', brand:'role-brand', submaster:'role-submaster', master:'role-master'};
 
     tableEl.innerHTML = `
       <table>
         <thead><tr>
           <th>가입일</th><th>이름</th><th>이메일</th>
-          <th>안경원명/브랜드명</th><th>지역</th><th>유형</th><th>상태</th><th>관리</th>
+          <th>안경원명/브랜드명</th><th>지역</th><th>유형</th><th>등급</th><th>상태</th><th>관리</th>
         </tr></thead>
         <tbody>
           ${users.map(u => {
             const role = u.role || 'optician';
+            const lvInfo = PURCHASE_LEVELS.find(l=>l.level===(u.purchase_level||1)) || PURCHASE_LEVELS[0];
             return `
             <tr>
               <td>${formatDate(u.createdAt)}</td>
@@ -543,6 +545,7 @@ async function loadMembers() {
               <td>${u.storeName||u.brandName||'-'}</td>
               <td>${u.address?.addr1?.split(' ').slice(0,2).join(' ')||'-'}</td>
               <td><span class="badge ${roleClassMap[role]}">${roleLabelMap[role]}</span></td>
+              <td style="font-size:12px;">${role==='optician' ? lvInfo.name : '-'}</td>
               <td><span class="badge ${statusMap[u.approval_status]||'pending'}">${labelMap[u.approval_status]||'대기'}</span></td>
               <td><button class="btn-view" onclick="openModal('${u.id}')">상세보기</button></td>
             </tr>
@@ -557,6 +560,15 @@ async function loadMembers() {
 // 모달 열기
 let currentUserId = null;
 let allUsers = {};
+
+// ===================== 구매등급 체계 =====================
+const PURCHASE_LEVELS = [
+  { level: 1, name: '화이트', min: 0 },
+  { level: 2, name: '실버', min: 1000000 },
+  { level: 3, name: '골드', min: 3000000 },
+  { level: 4, name: '플래티넘', min: 5000000 },
+  { level: 5, name: '옵틱 마스터', min: 10000000 }
+];
 
 async function openModal(uid) {
   currentUserId = uid;
@@ -588,12 +600,23 @@ async function openModal(uid) {
       <div class="info-row"><div class="info-label">주소</div><div class="info-value">${user.address?.addr1||''} ${user.address?.addr2||''}</div></div>
       <div class="info-row"><div class="info-label">신청일</div><div class="info-value">${formatDate(user.createdAt)}</div></div>
       <div class="info-row"><div class="info-label">상태</div><div class="info-value"><span class="badge ${user.approval_status||'pending'}">${user.approval_status==='approved'?'승인완료':user.approval_status==='rejected'?'거절':'승인대기'}</span></div></div>
+      <div class="info-row"><div class="info-label">누적구매액</div><div class="info-value">₩${Number(user.total_purchase_amount||0).toLocaleString()}</div></div>
+      <div class="info-row"><div class="info-label">구매등급</div><div class="info-value"><strong>${PURCHASE_LEVELS.find(l=>l.level===(user.purchase_level||1))?.name || '화이트'}</strong></div></div>
+
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🏆 구매등급 수동 조정</div>
+      <div class="role-select-box">
+        <select id="purchaseLevelSelect-${uid}">
+          ${PURCHASE_LEVELS.map(lv => `<option value="${lv.level}" ${ (user.purchase_level||1)===lv.level ? 'selected':''}>${lv.name} (₩${lv.min.toLocaleString()}~)</option>`).join('')}
+        </select>
+        <button class="btn-role-save" onclick="changePurchaseLevel('${uid}')">등급 변경</button>
+      </div>
 
       <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🔑 회원 권한 설정</div>
       <div class="role-select-box">
         <select id="roleSelect-${uid}">
           <option value="optician" ${role==='optician'?'selected':''}>안경원 (구매 전용)</option>
           <option value="brand" ${role==='brand'?'selected':''}>브랜드사 (상품 등록 권한)</option>
+          <option value="submaster" ${role==='submaster'?'selected':''}>서브마스터 (운영 관리, 정산 제외)</option>
           <option value="master" ${role==='master'?'selected':''}>마스터 (전체 관리)</option>
         </select>
         <button class="btn-role-save" onclick="changeRole('${uid}')">권한 변경</button>
@@ -628,7 +651,7 @@ function closeModal() {
 async function changeRole(uid) {
   const select = document.getElementById('roleSelect-' + uid);
   const newRole = select.value;
-  const roleLabelMap = {optician:'안경원', brand:'브랜드사', master:'마스터'};
+  const roleLabelMap = {optician:'안경원', brand:'브랜드사', submaster:'서브마스터', master:'마스터'};
 
   if(!confirm(`이 회원의 권한을 [${roleLabelMap[newRole]}]로 변경하시겠습니까?`)) return;
 
@@ -641,6 +664,28 @@ async function changeRole(uid) {
     closeModal();
     if(document.getElementById('page-members').classList.contains('active')) loadMembers();
     if(document.getElementById('page-approval').classList.contains('active')) loadApproval();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 구매등급 수동 변경
+async function changePurchaseLevel(uid) {
+  const select = document.getElementById('purchaseLevelSelect-' + uid);
+  const newLevel = Number(select.value);
+  const lvInfo = PURCHASE_LEVELS.find(l => l.level === newLevel);
+
+  if(!confirm(`이 회원의 구매등급을 [${lvInfo.name}]로 변경하시겠습니까?\n(누적구매액은 변경되지 않고 등급만 수동으로 조정됩니다.)`)) return;
+
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      purchase_level: newLevel,
+      purchase_level_name: lvInfo.name,
+      purchase_level_manual: true
+    });
+    showToast(`✅ 구매등급이 [${lvInfo.name}]로 변경되었습니다.`, 'success');
+    closeModal();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
   } catch(e) {
     showToast('오류: ' + e.message, 'error');
   }
@@ -723,6 +768,7 @@ function renderProductRow(p, isApprovalView) {
       <td style="font-size:12px;">${p.barcode||'-'}</td>
       <td>${p.brandName||'-'}</td>
       <td>${p.color||'-'}</td>
+      <td>${p.category||'-'}</td>
       <td>${p.type||'-'}</td>
       <td>${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</td>
       <td>${p.stock ?? '-'}</td>
@@ -757,7 +803,7 @@ async function loadProductApproval() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>색상</th><th>타입</th>
+          <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
           <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>처리</th>
         </tr></thead>
         <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
@@ -780,7 +826,7 @@ async function loadAllProducts() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>색상</th><th>타입</th>
+          <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
           <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>관리</th>
         </tr></thead>
         <tbody>${products.map(p => renderProductRow(p, false)).join('')}</tbody>

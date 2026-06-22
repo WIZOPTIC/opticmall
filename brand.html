@@ -84,6 +84,7 @@ table.reg-table select{width:100%;padding:8px 6px;border:1.5px solid var(--g2);b
 .col-model{min-width:140px;}
 .col-barcode{min-width:120px;}
 .col-color{min-width:90px;}
+.col-category{min-width:100px;}
 .col-type{min-width:90px;}
 .col-price{min-width:100px;}
 .col-stock{min-width:80px;}
@@ -253,6 +254,7 @@ tr:hover td{background:#FAFBFC;}
                 <th class="col-model">모델명 <span style="color:var(--red);">*</span></th>
                 <th class="col-barcode">바코드</th>
                 <th class="col-color">색상</th>
+                <th class="col-category">카테고리</th>
                 <th class="col-type">타입</th>
                 <th class="col-price">도매가 <span style="color:var(--red);">*</span></th>
                 <th class="col-stock">재고</th>
@@ -475,7 +477,7 @@ function renderProductTable(products, withActions=true) {
   return `
     <table>
       <thead><tr>
-        <th>이미지</th><th>모델명</th><th>바코드</th><th>색상</th><th>타입</th>
+        <th>이미지</th><th>모델명</th><th>바코드</th><th>색상</th><th>카테고리</th><th>타입</th>
         <th>도매가</th><th>재고</th><th>상태</th>${withActions ? '<th>관리</th>' : ''}
       </tr></thead>
       <tbody>
@@ -491,6 +493,7 @@ function renderProductRowHtml(p, withActions) {
       <td><strong>${p.modelName||'-'}</strong></td>
       <td style="font-size:12px;">${p.barcode||'-'}</td>
       <td>${p.color||'-'}</td>
+      <td>${p.category||'-'}</td>
       <td>${p.type||'-'}</td>
       <td class="cell-price">${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</td>
       <td class="cell-stock">${p.stock ?? '-'}</td>
@@ -634,6 +637,15 @@ function renderRegTable() {
       <td class="col-model"><input type="text" data-field="modelName" placeholder="예) K9191" value="${row.modelName||''}" onchange="updateRowField('${row.rowId}','modelName',this.value)"></td>
       <td class="col-barcode"><input type="text" data-field="barcode" placeholder="바코드" value="${row.barcode||''}" onchange="updateRowField('${row.rowId}','barcode',this.value)"></td>
       <td class="col-color"><input type="text" data-field="color" placeholder="블랙" value="${row.color||''}" onchange="updateRowField('${row.rowId}','color',this.value)"></td>
+      <td class="col-category">
+        <select data-field="category" onchange="updateRowField('${row.rowId}','category',this.value)">
+          <option value="">선택</option>
+          <option value="하금테" ${row.category==='하금테'?'selected':''}>하금테</option>
+          <option value="뿔테" ${row.category==='뿔테'?'selected':''}>뿔테</option>
+          <option value="메탈" ${row.category==='메탈'?'selected':''}>메탈</option>
+          <option value="선글라스" ${row.category==='선글라스'?'selected':''}>선글라스</option>
+        </select>
+      </td>
       <td class="col-type">
         <select data-field="type" onchange="updateRowField('${row.rowId}','type',this.value)">
           <option value="">선택</option>
@@ -737,6 +749,7 @@ async function submitBulkRegister() {
         modelName: row.modelName.trim(),
         barcode: row.barcode || '',
         color: row.color || '',
+        category: row.category || '',
         type: row.type || '',
         price: Number(row.price) || 0,
         stock: Number(row.stock) || 0,

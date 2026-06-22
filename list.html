@@ -156,9 +156,11 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 <nav class="gnb">
   <div class="gnb-inner">
     <button class="gnb-item active" onclick="filterByGnb('전체', this)">전체상품</button>
-    <button class="gnb-item" onclick="filterByGnb('하프', this)">하프</button>
-    <button class="gnb-item" onclick="filterByGnb('온', this)">온</button>
-    <button class="gnb-item" onclick="filterByGnb('림리스', this)">림리스</button>
+    <button class="gnb-item" onclick="filterByGnb('하금테', this)">하금테</button>
+    <button class="gnb-item" onclick="filterByGnb('뿔테', this)">뿔테</button>
+    <button class="gnb-item" onclick="filterByGnb('메탈', this)">메탈</button>
+    <button class="gnb-item" onclick="filterByGnb('선글라스', this)">선글라스</button>
+    <button class="gnb-item" onclick="location.href='brands.html'">브랜드관</button>
   </div>
 </nav>
 
@@ -166,11 +168,18 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   <!-- 사이드 필터 -->
   <aside class="sidebar">
     <div class="filter-section">
+      <div class="filter-title">카테고리</div>
+      <div class="filter-item"><input type="checkbox" id="cat-all" checked onchange="onCategoryFilterChange()"><label for="cat-all">전체</label><span class="cnt" id="cnt-all">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-하금테" onchange="onCategoryFilterChange()"><label for="cat-하금테">하금테</label><span class="cnt" id="cnt-하금테">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-뿔테" onchange="onCategoryFilterChange()"><label for="cat-뿔테">뿔테</label><span class="cnt" id="cnt-뿔테">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-메탈" onchange="onCategoryFilterChange()"><label for="cat-메탈">메탈</label><span class="cnt" id="cnt-메탈">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-선글라스" onchange="onCategoryFilterChange()"><label for="cat-선글라스">선글라스</label><span class="cnt" id="cnt-선글라스">(0)</span></div>
+    </div>
+    <div class="filter-section">
       <div class="filter-title">타입</div>
-      <div class="filter-item"><input type="checkbox" id="cat-all" checked onchange="onFilterChange()"><label for="cat-all">전체</label><span class="cnt" id="cnt-all">(0)</span></div>
-      <div class="filter-item"><input type="checkbox" id="cat-하프" onchange="onFilterChange()"><label for="cat-하프">하프</label><span class="cnt" id="cnt-하프">(0)</span></div>
-      <div class="filter-item"><input type="checkbox" id="cat-온" onchange="onFilterChange()"><label for="cat-온">온</label><span class="cnt" id="cnt-온">(0)</span></div>
-      <div class="filter-item"><input type="checkbox" id="cat-림리스" onchange="onFilterChange()"><label for="cat-림리스">림리스</label><span class="cnt" id="cnt-림리스">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="type-하프" onchange="onFilterChange()"><label for="type-하프">하프</label></div>
+      <div class="filter-item"><input type="checkbox" id="type-온" onchange="onFilterChange()"><label for="type-온">온</label></div>
+      <div class="filter-item"><input type="checkbox" id="type-림리스" onchange="onFilterChange()"><label for="type-림리스">림리스</label></div>
     </div>
     <div class="filter-section">
       <div class="filter-title">재고</div>
@@ -359,7 +368,7 @@ async function updateCartCount() {
 
 // ===================== 상품 목록 (Firestore 연동) =====================
 const grid = document.getElementById('productGrid');
-let currentGnbType = '전체';
+let currentGnbCategory = '전체';
 
 function renderEmptyState(message) {
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#9BA5B0;">
@@ -384,7 +393,7 @@ function renderProducts(products) {
     const imgHtml = p.mainImageUrl
       ? `<img src="${p.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">`
       : `👓`;
-    const catLabel = p.type || p.brandName || '안경테';
+    const catLabel = p.category || p.type || p.brandName || '안경테';
 
     return `
       <div class="product-card" onclick="location.href='product.html?id=${p.id}'">
@@ -403,57 +412,63 @@ function updateCount(n) {
   document.querySelector('.list-count').innerHTML = `총 <strong>${n}</strong>개 상품`;
 }
 
+const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
+const TYPES = ['하프', '온', '림리스'];
+
 function updateCategoryCounts() {
-  const counts = { '전체': allProducts.length, '하프': 0, '온': 0, '림리스': 0 };
-  allProducts.forEach(p => { if(counts[p.type] !== undefined) counts[p.type]++; });
+  const counts = { '전체': allProducts.length };
+  CATEGORIES.forEach(c => counts[c] = 0);
+  allProducts.forEach(p => { if(counts[p.category] !== undefined) counts[p.category]++; });
   document.getElementById('cnt-all').textContent = `(${counts['전체']})`;
-  document.getElementById('cnt-하프').textContent = `(${counts['하프']})`;
-  document.getElementById('cnt-온').textContent = `(${counts['온']})`;
-  document.getElementById('cnt-림리스').textContent = `(${counts['림리스']})`;
+  CATEGORIES.forEach(c => { document.getElementById('cnt-'+c).textContent = `(${counts[c]})`; });
 }
 
 // GNB 클릭: 카테고리 단독 선택
-function filterByGnb(type, el) {
-  currentGnbType = type;
+function filterByGnb(category, el) {
+  currentGnbCategory = category;
   document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('listTitle').textContent = type === '전체' ? '전체상품' : type;
+  document.getElementById('listTitle').textContent = category === '전체' ? '전체상품' : category;
 
   // 사이드바 체크박스도 동기화
-  document.getElementById('cat-all').checked = (type === '전체');
-  document.getElementById('cat-하프').checked = (type === '하프');
-  document.getElementById('cat-온').checked = (type === '온');
-  document.getElementById('cat-림리스').checked = (type === '림리스');
+  document.getElementById('cat-all').checked = (category === '전체');
+  CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = (category === c); });
 
   applyFilters();
 }
 
-// 사이드바 체크박스 변경
-function onFilterChange() {
+// 사이드바 카테고리 체크박스 변경
+function onCategoryFilterChange() {
   const allCb = document.getElementById('cat-all');
-  const typeCbs = { '하프': document.getElementById('cat-하프'), '온': document.getElementById('cat-온'), '림리스': document.getElementById('cat-림리스') };
-  const checkedTypes = Object.keys(typeCbs).filter(t => typeCbs[t].checked);
+  const checkedCats = CATEGORIES.filter(c => document.getElementById('cat-'+c).checked);
 
-  if(checkedTypes.length === 0) {
+  document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
+
+  if(checkedCats.length === 0) {
     allCb.checked = true;
-    currentGnbType = '전체';
+    currentGnbCategory = '전체';
+    document.getElementById('listTitle').textContent = '전체상품';
   } else {
     allCb.checked = false;
-    currentGnbType = checkedTypes; // 배열이면 다중 선택
+    currentGnbCategory = checkedCats;
+    document.getElementById('listTitle').textContent = checkedCats.join(', ');
   }
+  applyFilters();
+}
+
+function onFilterChange() {
   applyFilters();
 }
 
 function resetFilters() {
   document.getElementById('cat-all').checked = true;
-  document.getElementById('cat-하프').checked = false;
-  document.getElementById('cat-온').checked = false;
-  document.getElementById('cat-림리스').checked = false;
+  CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = false; });
+  TYPES.forEach(t => { document.getElementById('type-'+t).checked = false; });
   document.getElementById('s1').checked = false;
   document.getElementById('priceMin').value = '';
   document.getElementById('priceMax').value = '';
   document.getElementById('searchInput').value = '';
-  currentGnbType = '전체';
+  currentGnbCategory = '전체';
   document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
   document.querySelector('.gnb-item').classList.add('active');
   document.getElementById('listTitle').textContent = '전체상품';
@@ -467,11 +482,17 @@ function doSearch() {
 function applyFilters() {
   let result = [...allProducts];
 
-  // 카테고리 필터
-  if(Array.isArray(currentGnbType)) {
-    result = result.filter(p => currentGnbType.includes(p.type));
-  } else if(currentGnbType !== '전체') {
-    result = result.filter(p => p.type === currentGnbType);
+  // 카테고리 필터 (메인)
+  if(Array.isArray(currentGnbCategory)) {
+    result = result.filter(p => currentGnbCategory.includes(p.category));
+  } else if(currentGnbCategory !== '전체') {
+    result = result.filter(p => p.category === currentGnbCategory);
+  }
+
+  // 타입 필터 (서브: 하프/온/림리스)
+  const checkedTypes = TYPES.filter(t => document.getElementById('type-'+t).checked);
+  if(checkedTypes.length > 0) {
+    result = result.filter(p => checkedTypes.includes(p.type));
   }
 
   // 검색어 필터
