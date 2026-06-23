@@ -732,6 +732,20 @@ async function openModal(uid) {
         <button class="btn-role-save" onclick="changeRole('${uid}')">권한 변경</button>
       </div>
 
+      ${role === 'brand' ? `
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🏪 브랜드관 표시정보 수정</div>
+      <div style="background:var(--g1);border-radius:8px;padding:14px;">
+        <div style="margin-bottom:10px;">
+          <label style="display:block;font-size:12px;color:var(--g4);margin-bottom:4px;">브랜드명 (목록/상세에 노출)</label>
+          <input type="text" id="brandNameEdit-${uid}" value="${user.brandName||''}" style="width:100%;padding:9px 12px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;">
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="display:block;font-size:12px;color:var(--g4);margin-bottom:4px;">브랜드 소개글</label>
+          <textarea id="brandDescEdit-${uid}" rows="3" style="width:100%;padding:9px 12px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;resize:vertical;">${user.brandDesc||''}</textarea>
+        </div>
+        <button class="btn-role-save" onclick="saveBrandInfo('${uid}')">브랜드 정보 저장</button>
+      </div>` : ''}
+
       <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">📄 사업자등록증</div>
       ${user.bizDocUrl ?
         `<img src="${user.bizDocUrl}" class="doc-img" onclick="window.open('${user.bizDocUrl}','_blank')" title="클릭하면 크게 보기">
@@ -797,6 +811,42 @@ async function changePurchaseLevel(uid) {
     closeModal();
     if(document.getElementById('page-members').classList.contains('active')) loadMembers();
   } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 브랜드관 표시정보(브랜드명/소개글) 수정 - 마스터가 보정 가능
+async function saveBrandInfo(uid) {
+  const newBrandName = document.getElementById('brandNameEdit-' + uid).value.trim();
+  const newBrandDesc = document.getElementById('brandDescEdit-' + uid).value.trim();
+
+  if(!newBrandName) { showToast('브랜드명을 입력해주세요.', 'error'); return; }
+
+  if(!confirm('브랜드 표시정보를 저장하시겠습니까?\n(이 브랜드사가 등록한 모든 상품의 브랜드명도 함께 갱신됩니다.)')) return;
+
+  try {
+    // 1. 회원(브랜드사) 문서 갱신
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      brandName: newBrandName,
+      brandDesc: newBrandDesc
+    });
+
+    // 2. 해당 브랜드사가 등록한 상품들의 brandName도 일괄 갱신 (목록/상세 노출용 동기화)
+    const prodSnap = await window._getDocs(window._query(
+      window._collection(window._db, 'products'),
+      window._where('brandId', '==', uid)
+    ));
+    const updates = [];
+    prodSnap.forEach(d => {
+      updates.push(window._updateDoc(window._doc(window._db, 'products', d.id), { brandName: newBrandName }));
+    });
+    await Promise.all(updates);
+
+    showToast(`✅ 브랜드 정보가 저장되었습니다. (상품 ${updates.length}건 동기화)`, 'success');
+    closeModal();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
+  } catch(e) {
+    console.error(e);
     showToast('오류: ' + e.message, 'error');
   }
 }
