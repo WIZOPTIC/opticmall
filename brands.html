@@ -46,6 +46,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--b
 .brands-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
 .brand-card{border:1px solid var(--g2);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s;background:var(--white);}
 .brand-card:hover{border-color:var(--sky);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08);}
+.brand-logo-display{aspect-ratio:1;background:var(--g1);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.brand-logo-display img{width:100%;height:100%;object-fit:cover;}
+.brand-logo-display .ph{font-size:40px;opacity:0.15;}
 .brand-thumb-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--g1);}
 .brand-thumb{aspect-ratio:1;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0.15;overflow:hidden;}
 .brand-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -180,6 +183,19 @@ async function loadBrands() {
       if(p.mainImageUrl && brandMap[bid].thumbs.length < 3) brandMap[bid].thumbs.push(p.mainImageUrl);
     });
 
+    const brandIds = Object.keys(brandMap);
+
+    // 각 브랜드사 계정의 로고 이미지 조회
+    try {
+      const userDocs = await Promise.all(brandIds.map(bid => _db.collection('users').doc(bid).get()));
+      userDocs.forEach((docSnap, i) => {
+        const bid = brandIds[i];
+        if(docSnap.exists) brandMap[bid].logoUrl = docSnap.data().brandLogoUrl || null;
+      });
+    } catch(e) {
+      console.error('로고 조회 실패:', e);
+    }
+
     allBrands = Object.values(brandMap).sort((a,b) => b.count - a.count);
 
     if(allBrands.length === 0) {
@@ -201,13 +217,21 @@ function renderBrands(brands) {
     return;
   }
   area.innerHTML = `<div class="brands-grid">${brands.map(b => {
-    const thumbsHtml = [0,1,2].map(i => {
-      const url = b.thumbs[i];
-      return `<div class="brand-thumb">${url ? `<img src="${url}">` : '👓'}</div>`;
-    }).join('');
+    let visualHtml;
+    if(b.logoUrl) {
+      // 로고가 있으면 카드 전체에 로고 이미지 크게 표시
+      visualHtml = `<div class="brand-logo-display"><img src="${b.logoUrl}" alt="${b.brandName} 로고"></div>`;
+    } else {
+      // 로고가 없으면 대표 상품 썸네일 격자로 대체
+      const thumbsHtml = [0,1,2].map(i => {
+        const url = b.thumbs[i];
+        return `<div class="brand-thumb">${url ? `<img src="${url}">` : '👓'}</div>`;
+      }).join('');
+      visualHtml = `<div class="brand-thumb-row">${thumbsHtml}</div>`;
+    }
     return `
       <div class="brand-card" onclick="location.href='list.html?brand=${b.brandId}'">
-        <div class="brand-thumb-row">${thumbsHtml}</div>
+        ${visualHtml}
         <div class="brand-card-info">
           <div class="brand-card-name">${b.brandName}</div>
           <div class="brand-card-count">상품 ${b.count}개</div>
