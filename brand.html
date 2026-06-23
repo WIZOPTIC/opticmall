@@ -58,6 +58,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 /* 대시보드 카드 */
 .brand-logo-card{background:var(--white);border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:20px;display:flex;align-items:center;gap:20px;}
 .brand-logo-preview{width:88px;height:88px;border-radius:12px;background:var(--g1);border:1.5px dashed var(--g2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden;text-align:center;color:var(--g3);font-size:24px;transition:all 0.15s;}
+.brand-logo-preview-sm{width:56px;height:56px;border-radius:10px;background:var(--g1);border:1.5px dashed var(--g2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden;color:var(--g3);font-size:20px;transition:all 0.15s;}
+.brand-logo-preview-sm:hover{border-color:var(--sky);}
+.brand-logo-preview-sm img{width:100%;height:100%;object-fit:cover;}
+.my-brand-card{background:var(--white);border-radius:10px;padding:18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.my-brand-logo{width:64px;height:64px;border-radius:10px;background:var(--g1);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:22px;opacity:0.5;}
+.my-brand-logo img{width:100%;height:100%;object-fit:contain;}
+.my-brand-info{flex:1;}
+.my-brand-name{font-size:15px;font-weight:700;color:var(--navy);}
+.my-brand-count{font-size:12px;color:var(--g3);margin-top:2px;}
 .brand-logo-preview:hover{border-color:var(--sky);color:var(--sky);}
 .brand-logo-preview img{width:100%;height:100%;object-fit:cover;}
 .brand-logo-info{flex:1;}
@@ -100,6 +109,7 @@ table.reg-table select{width:100%;padding:8px 6px;border:1.5px solid var(--g2);b
 .col-model{min-width:140px;}
 .col-barcode{min-width:120px;}
 .col-color{min-width:90px;}
+.col-brand{min-width:120px;}
 .col-category{min-width:100px;}
 .col-type{min-width:90px;}
 .col-price{min-width:100px;}
@@ -196,6 +206,8 @@ tr:hover td{background:#FAFBFC;}
   <nav class="sidebar-menu">
     <div class="menu-section">메인</div>
     <button class="menu-item active" onclick="showPage('dashboard',this)"><span>📊</span> 대시보드</button>
+    <div class="menu-section">브랜드 관리</div>
+    <button class="menu-item" onclick="showPage('brandManage',this)"><span>🏪</span> 내 브랜드 관리</button>
     <div class="menu-section">상품 관리</div>
     <button class="menu-item" onclick="showPage('register',this)"><span>➕</span> 상품 일괄등록</button>
     <button class="menu-item" onclick="showPage('products',this)"><span>👓</span> 내 상품 목록</button>
@@ -226,18 +238,6 @@ tr:hover td{background:#FAFBFC;}
 
     <!-- 대시보드 -->
     <div class="page active" id="page-dashboard">
-      <div class="brand-logo-card">
-        <div class="brand-logo-preview" id="brandLogoPreview" onclick="document.getElementById('brandLogoFileInput').click()">
-          <span id="brandLogoPlaceholder">🏪<br><span style="font-size:11px;">클릭하여 로고 등록</span></span>
-        </div>
-        <div class="brand-logo-info">
-          <div class="brand-logo-title">브랜드 로고</div>
-          <div class="brand-logo-desc">브랜드관 페이지에 노출되는 로고 이미지입니다. 정사각형 이미지를 권장합니다.</div>
-          <button class="btn-sm btn-primary" onclick="document.getElementById('brandLogoFileInput').click()">이미지 선택</button>
-        </div>
-        <input type="file" id="brandLogoFileInput" accept="image/*" style="display:none;" onchange="handleBrandLogoUpload(this)">
-      </div>
-
       <div class="dash-grid">
         <div class="dash-card">
           <div class="icon">👓</div>
@@ -284,6 +284,7 @@ tr:hover td{background:#FAFBFC;}
               <tr>
                 <th class="col-model">모델명 <span style="color:var(--red);">*</span></th>
                 <th class="col-barcode">바코드</th>
+                <th class="col-brand">소속 브랜드 <span style="color:var(--red);">*</span></th>
                 <th class="col-color">색상</th>
                 <th class="col-category">카테고리</th>
                 <th class="col-type">타입</th>
@@ -316,6 +317,41 @@ tr:hover td{background:#FAFBFC;}
       <div class="table-wrap" id="productsTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
+    </div>
+
+    <!-- 내 브랜드 관리 -->
+    <div class="page" id="page-brandManage">
+      <div class="section-header">
+        <div class="section-title">내 브랜드 관리</div>
+        <button class="btn-sm btn-primary" onclick="openAddBrandForm()">+ 브랜드 추가</button>
+      </div>
+      <div style="font-size:12px;color:var(--g3);margin-bottom:16px;">
+        한 계정에서 여러 개의 브랜드를 운영할 수 있어요. 브랜드를 추가하고 상품 등록 시 소속 브랜드를 선택하세요.
+      </div>
+
+      <!-- 브랜드 추가/수정 폼 (기본 숨김) -->
+      <div class="reg-card" id="brandFormCard" style="display:none;">
+        <div class="form-group-promo">
+          <label>브랜드명 <span style="color:var(--red);">*</span></label>
+          <input type="text" id="newBrandName" placeholder="예) SUOFEIA">
+        </div>
+        <div class="form-group-promo">
+          <label>브랜드 로고</label>
+          <div style="display:flex;gap:14px;align-items:center;">
+            <div class="brand-logo-preview-sm" id="newBrandLogoPreview" onclick="document.getElementById('newBrandLogoInput').click()">
+              <span id="newBrandLogoPlaceholder">🏪</span>
+            </div>
+            <button class="btn-sm btn-ghost" onclick="document.getElementById('newBrandLogoInput').click()">이미지 선택</button>
+            <input type="file" id="newBrandLogoInput" accept="image/*" style="display:none;" onchange="previewNewBrandLogo(this)">
+          </div>
+        </div>
+        <div class="reg-footer" style="justify-content:flex-end;">
+          <button class="btn-sm btn-ghost" onclick="closeAddBrandForm()">취소</button>
+          <button class="btn-bulk-save" id="saveBrandBtn" onclick="saveBrand()">브랜드 저장</button>
+        </div>
+      </div>
+
+      <div id="myBrandsList"><div class="loading"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
 
     <!-- 이벤트/할인 등록 -->
@@ -505,11 +541,12 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', register:'상품 일괄등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록'};
+  const titles = {dashboard:'대시보드', register:'상품 일괄등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록', brandManage:'내 브랜드 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'products') loadProducts();
   if(name === 'promoCreate') loadPromoProductCheckList();
   if(name === 'myPromos') loadMyPromos();
+  if(name === 'brandManage') loadMyBrands();
 }
 
 // ===================== 대시보드 =====================
@@ -518,7 +555,7 @@ async function loadDashboard() {
     const uid = window._getCurrentBrandUid();
     const snap = await window._getDocs(window._query(
       window._collection(window._db, 'products'),
-      window._where('brandId', '==', uid)
+      window._where('brandOwnerUid', '==', uid)
     ));
     const products = [];
     snap.forEach(d => products.push({id:d.id, ...d.data()}));
@@ -638,7 +675,7 @@ async function loadProducts() {
     const uid = window._getCurrentBrandUid();
     const snap = await window._getDocs(window._query(
       window._collection(window._db, 'products'),
-      window._where('brandId', '==', uid)
+      window._where('brandOwnerUid', '==', uid)
     ));
     const products = [];
     snap.forEach(d => products.push({id:d.id, ...d.data()}));
@@ -674,6 +711,7 @@ async function deleteProduct(productId) {
 // 행 데이터 구조: { rowId, images: { main:File, detail1:File, detail2:File, detail3:File, detail4:File } }
 let regRows = [];
 let rowIdCounter = 0;
+let myBrandsForRegister = []; // 등록 화면 드롭다운용 내 브랜드 목록
 const IMAGE_SLOTS = [
   {key:'main', label:'메인', tag:true},
   {key:'detail1', label:'상세1'},
@@ -682,12 +720,28 @@ const IMAGE_SLOTS = [
   {key:'detail4', label:'상세4'}
 ];
 
+async function loadMyBrandsForRegister() {
+  try {
+    const uid = window._getCurrentBrandUid();
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'brands'),
+      window._where('ownerUid', '==', uid)
+    ));
+    myBrandsForRegister = [];
+    snap.forEach(d => myBrandsForRegister.push({ id: d.id, ...d.data() }));
+    renderRegTable();
+  } catch(e) {
+    console.error('브랜드 목록 로드 실패:', e);
+  }
+}
+
 function initRegisterTable() {
   if(regRows.length === 0) {
     addRegRow();
     addRegRow();
     addRegRow();
   }
+  loadMyBrandsForRegister();
 }
 
 function addRegRow() {
@@ -718,6 +772,12 @@ function renderRegTable() {
     <tr data-row-id="${row.rowId}">
       <td class="col-model"><input type="text" data-field="modelName" placeholder="예) K9191" value="${row.modelName||''}" onchange="updateRowField('${row.rowId}','modelName',this.value)"></td>
       <td class="col-barcode"><input type="text" data-field="barcode" placeholder="바코드" value="${row.barcode||''}" onchange="updateRowField('${row.rowId}','barcode',this.value)"></td>
+      <td class="col-brand">
+        <select data-field="brandId" onchange="updateRowField('${row.rowId}','brandId',this.value)">
+          <option value="">브랜드 선택</option>
+          ${myBrandsForRegister.map(b => `<option value="${b.id}" ${row.brandId===b.id?'selected':''}>${b.brandName}</option>`).join('')}
+        </select>
+      </td>
       <td class="col-color"><input type="text" data-field="color" placeholder="블랙" value="${row.color||''}" onchange="updateRowField('${row.rowId}','color',this.value)"></td>
       <td class="col-category">
         <select data-field="category" onchange="updateRowField('${row.rowId}','category',this.value)">
@@ -793,9 +853,17 @@ async function submitBulkRegister() {
     showToast('모델명을 입력한 상품이 없습니다.', 'error');
     return;
   }
+  if(myBrandsForRegister.length === 0) {
+    showToast('먼저 "내 브랜드 관리"에서 브랜드를 1개 이상 등록해주세요.', 'error');
+    return;
+  }
   for(const row of validRows) {
     if(!row.price) {
       showToast(`[${row.modelName}] 도매가를 입력해주세요.`, 'error');
+      return;
+    }
+    if(!row.brandId) {
+      showToast(`[${row.modelName}] 소속 브랜드를 선택해주세요.`, 'error');
       return;
     }
   }
@@ -807,7 +875,6 @@ async function submitBulkRegister() {
   btn.textContent = '등록 중...';
 
   const uid = window._getCurrentBrandUid();
-  const brandData = window._getCurrentBrandData();
   let successCount = 0;
 
   try {
@@ -825,9 +892,12 @@ async function submitBulkRegister() {
         }
       }
 
+      const brandInfo = myBrandsForRegister.find(b => b.id === row.brandId);
+
       await window._addDoc(window._collection(window._db, 'products'), {
-        brandId: uid,
-        brandName: brandData?.brandName || brandData?.name || '',
+        brandId: row.brandId, // brands 컬렉션 문서ID (서브 브랜드 단위)
+        brandName: brandInfo?.brandName || '',
+        brandOwnerUid: uid, // 회사 계정 (권한/조회용)
         modelName: row.modelName.trim(),
         barcode: row.barcode || '',
         color: row.color || '',
@@ -873,7 +943,7 @@ async function loadPromoProductCheckList() {
     const uid = window._getCurrentBrandUid();
     const snap = await window._getDocs(window._query(
       window._collection(window._db, 'products'),
-      window._where('brandId', '==', uid)
+      window._where('brandOwnerUid', '==', uid)
     ));
     const products = [];
     snap.forEach(d => { const data = d.data(); if(data.status === 'approved') products.push({id: d.id, ...data}); });
@@ -918,7 +988,7 @@ async function submitPromo() {
 
   try {
     await window._addDoc(window._collection(window._db, 'promotions'), {
-      brandId: uid,
+      brandOwnerUid: uid,
       brandName: brandData?.brandName || brandData?.name || '',
       title,
       discountRate,
@@ -952,7 +1022,7 @@ async function loadMyPromos() {
     const uid = window._getCurrentBrandUid();
     const snap = await window._getDocs(window._query(
       window._collection(window._db, 'promotions'),
-      window._where('brandId', '==', uid)
+      window._where('brandOwnerUid', '==', uid)
     ));
     const promos = [];
     snap.forEach(d => promos.push({id: d.id, ...d.data()}));
@@ -992,19 +1062,87 @@ async function loadMyPromos() {
   }
 }
 
-// ===================== 브랜드 로고 관리 =====================
-function renderBrandLogoPreview() {
-  const preview = document.getElementById('brandLogoPreview');
-  const logoUrl = window._getCurrentBrandData()?.brandLogoUrl;
-  if(logoUrl) {
-    preview.innerHTML = `<img src="${logoUrl}" alt="브랜드 로고">`;
-  } else {
-    preview.innerHTML = `<span id="brandLogoPlaceholder">🏪<br><span style="font-size:11px;">클릭하여 로고 등록</span></span>`;
+// ===================== 내 브랜드 관리 (다중 브랜드 지원) =====================
+let myBrandsData = [];
+let newBrandLogoFile = null;
+let editingBrandId = null; // null이면 신규 등록 모드
+
+async function loadMyBrands() {
+  const listEl = document.getElementById('myBrandsList');
+  listEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const uid = window._getCurrentBrandUid();
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'brands'),
+      window._where('ownerUid', '==', uid)
+    ));
+    myBrandsData = [];
+    snap.forEach(d => myBrandsData.push({ id: d.id, ...d.data() }));
+
+    if(myBrandsData.length === 0) {
+      listEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">등록된 브랜드가 없습니다. "+ 브랜드 추가"로 첫 브랜드를 만들어보세요!</div>`;
+      return;
+    }
+
+    // 각 브랜드별 상품 개수 집계
+    const prodSnap = await window._getDocs(window._query(
+      window._collection(window._db, 'products'),
+      window._where('brandOwnerUid', '==', uid)
+    ));
+    const countMap = {};
+    prodSnap.forEach(d => {
+      const bid = d.data().brandId;
+      countMap[bid] = (countMap[bid] || 0) + 1;
+    });
+
+    listEl.innerHTML = myBrandsData.map(b => `
+      <div class="my-brand-card">
+        <div class="my-brand-logo">${b.logoUrl ? `<img src="${b.logoUrl}">` : '🏪'}</div>
+        <div class="my-brand-info">
+          <div class="my-brand-name">${b.brandName}</div>
+          <div class="my-brand-count">등록 상품 ${countMap[b.id] || 0}개</div>
+        </div>
+        <div class="action-btns">
+          <button class="btn-edit-tbl" onclick="openEditBrandForm('${b.id}')">✏️ 수정</button>
+          <button class="btn-del-tbl" onclick="deleteBrand('${b.id}')">삭제</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);">불러오지 못했습니다: ${e.message}</div>`;
   }
 }
-window.renderBrandLogoPreview = renderBrandLogoPreview;
 
-async function handleBrandLogoUpload(input) {
+function openAddBrandForm() {
+  editingBrandId = null;
+  newBrandLogoFile = null;
+  document.getElementById('newBrandName').value = '';
+  document.getElementById('newBrandLogoPreview').innerHTML = `<span id="newBrandLogoPlaceholder">🏪</span>`;
+  document.getElementById('saveBrandBtn').textContent = '브랜드 저장';
+  document.getElementById('brandFormCard').style.display = 'block';
+}
+
+function openEditBrandForm(brandId) {
+  const brand = myBrandsData.find(b => b.id === brandId);
+  if(!brand) return;
+  editingBrandId = brandId;
+  newBrandLogoFile = null;
+  document.getElementById('newBrandName').value = brand.brandName || '';
+  document.getElementById('newBrandLogoPreview').innerHTML = brand.logoUrl
+    ? `<img src="${brand.logoUrl}">`
+    : `<span id="newBrandLogoPlaceholder">🏪</span>`;
+  document.getElementById('saveBrandBtn').textContent = '브랜드 수정 저장';
+  document.getElementById('brandFormCard').style.display = 'block';
+}
+
+function closeAddBrandForm() {
+  document.getElementById('brandFormCard').style.display = 'none';
+  editingBrandId = null;
+  newBrandLogoFile = null;
+}
+
+function previewNewBrandLogo(input) {
   const file = input.files[0];
   if(!file) return;
   if(file.size > 5 * 1024 * 1024) {
@@ -1012,29 +1150,83 @@ async function handleBrandLogoUpload(input) {
     input.value = '';
     return;
   }
+  newBrandLogoFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('newBrandLogoPreview').innerHTML = `<img src="${e.target.result}">`;
+  };
+  reader.readAsDataURL(file);
+}
 
-  const preview = document.getElementById('brandLogoPreview');
-  preview.innerHTML = `<span style="font-size:12px;color:var(--g3);">업로드 중...</span>`;
+async function saveBrand() {
+  const brandName = document.getElementById('newBrandName').value.trim();
+  if(!brandName) { showToast('브랜드명을 입력해주세요.', 'error'); return; }
+
+  const btn = document.getElementById('saveBrandBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
 
   try {
     const uid = window._getCurrentBrandUid();
-    const path = `brand_logos/${uid}/${Date.now()}_${file.name}`;
-    const fileRef = window._ref(window._storage, path);
-    await window._uploadBytes(fileRef, file);
-    const url = await window._getDownloadURL(fileRef);
+    let logoUrl = null;
 
-    await window._updateDoc(window._doc(window._db, 'users', uid), {
-      brandLogoUrl: url
-    });
+    if(editingBrandId) {
+      const existing = myBrandsData.find(b => b.id === editingBrandId);
+      logoUrl = existing?.logoUrl || null;
+    }
 
-    preview.innerHTML = `<img src="${url}" alt="브랜드 로고">`;
-    showToast('✅ 브랜드 로고가 등록되었습니다.', 'success');
+    if(newBrandLogoFile) {
+      const path = `brand_logos/${uid}/${Date.now()}_${newBrandLogoFile.name}`;
+      const fileRef = window._ref(window._storage, path);
+      await window._uploadBytes(fileRef, newBrandLogoFile);
+      logoUrl = await window._getDownloadURL(fileRef);
+    }
+
+    if(editingBrandId) {
+      // 수정
+      await window._updateDoc(window._doc(window._db, 'brands', editingBrandId), {
+        brandName, logoUrl
+      });
+      // 이 브랜드 소속 상품들의 brandName도 동기화
+      const prodSnap = await window._getDocs(window._query(
+        window._collection(window._db, 'products'),
+        window._where('brandId', '==', editingBrandId)
+      ));
+      await Promise.all(prodSnap.docs.map(d =>
+        window._updateDoc(window._doc(window._db, 'products', d.id), { brandName })
+      ));
+      showToast('✅ 브랜드 정보가 수정되었습니다.', 'success');
+    } else {
+      // 신규 등록
+      await window._addDoc(window._collection(window._db, 'brands'), {
+        ownerUid: uid,
+        brandName,
+        logoUrl,
+        createdAt: window._serverTimestamp()
+      });
+      showToast('✅ 새 브랜드가 등록되었습니다.', 'success');
+    }
+
+    closeAddBrandForm();
+    loadMyBrands();
   } catch(e) {
     console.error(e);
-    showToast('로고 업로드 중 오류가 발생했습니다: ' + e.message, 'error');
-    renderBrandLogoPreview();
+    showToast('저장 중 오류가 발생했습니다: ' + e.message, 'error');
   } finally {
-    input.value = '';
+    btn.disabled = false;
+  }
+}
+
+async function deleteBrand(brandId) {
+  const brand = myBrandsData.find(b => b.id === brandId);
+  if(!confirm(`"${brand?.brandName}" 브랜드를 삭제하시겠습니까?\n이미 등록된 상품이 있다면 상품 정보는 유지되지만 브랜드 연결이 끊어질 수 있습니다.`)) return;
+  try {
+    await window._deleteDoc(window._doc(window._db, 'brands', brandId));
+    showToast('브랜드가 삭제되었습니다.', 'success');
+    loadMyBrands();
+  } catch(e) {
+    console.error(e);
+    showToast('삭제 중 오류가 발생했습니다: ' + e.message, 'error');
   }
 }
 </script>

@@ -171,32 +171,41 @@ function doSearch() {
 async function loadBrands() {
   const area = document.getElementById('brandsArea');
   try {
-    const snap = await _db.collection('products').where('status', '==', 'approved').get();
-    const brandMap = {}; // brandId -> {brandName, count, thumbs}
+    // 1. 승인된 상품들로 브랜드별 상품 개수/썸네일 집계 (brandId = brands 컬렉션 문서ID)
+    const prodSnap = await _db.collection('products').where('status', '==', 'approved').get();
+    const statsMap = {}; // brandId -> {count, thumbs}
 
-    snap.forEach(doc => {
+    prodSnap.forEach(doc => {
       const p = doc.data();
       const bid = p.brandId;
       if(!bid) return;
-      if(!brandMap[bid]) brandMap[bid] = { brandId: bid, brandName: p.brandName || '브랜드', count: 0, thumbs: [] };
-      brandMap[bid].count++;
-      if(p.mainImageUrl && brandMap[bid].thumbs.length < 3) brandMap[bid].thumbs.push(p.mainImageUrl);
+      if(!statsMap[bid]) statsMap[bid] = { count: 0, thumbs: [] };
+      statsMap[bid].count++;
+      if(p.mainImageUrl && statsMap[bid].thumbs.length < 3) statsMap[bid].thumbs.push(p.mainImageUrl);
     });
 
-    const brandIds = Object.keys(brandMap);
-
-    // 각 브랜드사 계정의 로고 이미지 조회
-    try {
-      const userDocs = await Promise.all(brandIds.map(bid => _db.collection('users').doc(bid).get()));
-      userDocs.forEach((docSnap, i) => {
-        const bid = brandIds[i];
-        if(docSnap.exists) brandMap[bid].logoUrl = docSnap.data().brandLogoUrl || null;
-      });
-    } catch(e) {
-      console.error('로고 조회 실패:', e);
+    // 2. 상품이 1개 이상 있는 브랜드만, brands 컬렉션에서 실제 정보(이름/로고) 조회
+    const brandIds = Object.keys(statsMap);
+    if(brandIds.length === 0) {
+      area.innerHTML = `<div class="empty-box">아직 입점한 브랜드가 없습니다.</div>`;
+      return;
     }
 
-    allBrands = Object.values(brandMap).sort((a,b) => b.count - a.count);
+    const brandDocs = await Promise.all(brandIds.map(bid => _db.collection('brands').doc(bid).get()));
+    allBrands = brandDocs
+      .filter(docSnap => docSnap.exists)
+      .map(docSnap => {
+        const bid = docSnap.id;
+        const data = docSnap.data();
+        return {
+          brandId: bid,
+          brandName: data.brandName || '브랜드',
+          logoUrl: data.logoUrl || null,
+          count: statsMap[bid].count,
+          thumbs: statsMap[bid].thumbs
+        };
+      })
+      .sort((a,b) => b.count - a.count);
 
     if(allBrands.length === 0) {
       area.innerHTML = `<div class="empty-box">아직 입점한 브랜드가 없습니다.</div>`;
