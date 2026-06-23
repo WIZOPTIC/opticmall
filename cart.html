@@ -94,7 +94,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
       <div class="summary-title">주문 요약</div>
       <div class="summary-row"><span class="label">선택 상품</span><span class="value" id="sumCount">0개</span></div>
       <div class="summary-row"><span class="label">상품 금액</span><span class="value" id="sumProducts">₩0</span></div>
-      <div class="summary-row"><span class="label">배송비</span><span class="value" style="color:var(--green);">무료</span></div>
+      <div class="summary-row"><span class="label">배송비</span><span class="value" id="shippingFeeDisplay" style="color:var(--green);">무료</span></div>
       <hr class="summary-divider">
       <div class="summary-total">
         <span>최종 결제금액</span>
@@ -311,6 +311,9 @@ function onItemCheckChange() {
   updateSummary();
 }
 
+const FREE_SHIPPING_THRESHOLD = 100000; // 10만원 이상 무료
+const BASE_SHIPPING_FEE = 3500;
+
 function updateSummary() {
   const selectedItems = cartItems.filter(i => i.selected && Number(i.product.stock||0) > 0);
   const count = selectedItems.length;
@@ -319,11 +322,23 @@ function updateSummary() {
   document.getElementById('chkAllLabel').textContent = `전체선택 (${cartItems.length}개)`;
   document.getElementById('sumCount').textContent = count + '개';
 
+  const feeDisplay = document.getElementById('shippingFeeDisplay');
+
   if(memberLevel >= 2) {
+    const shippingFee = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : BASE_SHIPPING_FEE;
     document.getElementById('sumProducts').textContent = '₩' + total.toLocaleString();
-    document.getElementById('sumTotal').textContent = '₩' + total.toLocaleString();
+    if(shippingFee === 0) {
+      feeDisplay.textContent = '무료';
+      feeDisplay.style.color = 'var(--green)';
+    } else {
+      feeDisplay.textContent = '₩' + shippingFee.toLocaleString();
+      feeDisplay.style.color = 'var(--black)';
+    }
+    document.getElementById('sumTotal').textContent = '₩' + (total + shippingFee).toLocaleString();
   } else {
     document.getElementById('sumProducts').textContent = '로그인 필요';
+    feeDisplay.textContent = '-';
+    feeDisplay.style.color = 'var(--g3)';
     document.getElementById('sumTotal').textContent = '-';
   }
 
