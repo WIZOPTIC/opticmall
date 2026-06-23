@@ -494,8 +494,8 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
   <div class="header-main">
     <a href="#" class="logo">OPTIC<span>MALL</span></a>
     <div class="header-search">
-      <input type="text" placeholder="상품명, 상품코드 검색">
-      <button class="search-btn">
+      <input type="text" id="mainSearchInput" placeholder="상품명, 상품코드 검색" onkeydown="if(event.key==='Enter') doMainSearch()">
+      <button class="search-btn" onclick="doMainSearch()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
     </div>
@@ -516,9 +516,9 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <a href="#" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">관심상품</a>
         </div>
       </div>
-      <button class="icon-btn">
+      <button class="icon-btn" onclick="location.href='cart.html'">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
-        <span class="cart-count">0</span>
+        <span class="cart-count" id="cartCountBadge" style="display:none;">0</span>
       </button>
     </div>
   </div>
@@ -526,16 +526,15 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
 <!-- GNB -->
 <nav class="gnb">
   <div class="gnb-inner">
-    <button class="gnb-item">OUR'S</button>
-    <button class="gnb-item">브랜드별</button>
-    <button class="gnb-item active">하금테</button>
-    <button class="gnb-item">판테</button>
-    <button class="gnb-item">동글이</button>
-    <button class="gnb-item">뿔테</button>
-    <button class="gnb-item">선글라스</button>
-    <button class="gnb-item">타임세일<span class="dot"></span></button>
-    <button class="gnb-item">이벤트</button>
-    <button class="gnb-item">고객센터</button>
+    <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
+    <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+    <button class="gnb-item" onclick="document.querySelector('.product-section').scrollIntoView({behavior:'smooth'})">타임세일<span class="dot"></span></button>
+    <button class="gnb-item" onclick="location.href='list.html'">이벤트</button>
+    <button class="gnb-item" onclick="alert('카카오톡 채널로 문의해주세요!')">고객센터</button>
   </div>
 </nav>
 </div>
@@ -576,7 +575,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <h2>이번 주 특가<br><span class="ac-red">최대 30% 할인</span></h2>
           <div class="slide-sub">티타늄·울템·뿔테 전 품목</div>
           <div class="slide-date">26.06.09 — 26.06.15</div>
-          <button class="slide-btn sb-red">타임세일 보러가기</button>
+          <button class="slide-btn sb-red" onclick="document.getElementById('timesaleGrid').scrollIntoView({behavior:'smooth'})">타임세일 보러가기</button>
         </div>
       </div>
       <div class="slide slide-2">
@@ -587,7 +586,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <h2>6월 신상품<br><span class="ac-blue">120종 입고 완료</span></h2>
           <div class="slide-sub">티타늄 슬림라인 · TR90 컬러 시리즈</div>
           <div class="slide-date">2026년 6월 신상품</div>
-          <button class="slide-btn sb-blue">신상품 확인하기</button>
+          <button class="slide-btn sb-blue" onclick="document.getElementById('newArrivalGrid').scrollIntoView({behavior:'smooth'})">신상품 확인하기</button>
         </div>
       </div>
       <div class="slide slide-3">
@@ -601,7 +600,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
             🎁 첫 구매 할인 <strong style="color:#F5C518;">15%</strong> 쿠폰 즉시 지급
           </div>
           <div class="slide-date">신규 회원 전용 · 중복 적용 가능</div>
-          <button class="slide-btn sb-yellow">💬 카카오채널 추가하기</button>
+          <button class="slide-btn sb-yellow" onclick="alert('카카오톡에서 옵틱몰을 검색하거나 채널 추가해주세요!')">💬 카카오채널 추가하기</button>
         </div>
       </div>
       <div class="slide slide-4">
@@ -612,7 +611,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <h2>7월 입고 예정<br><span class="ac-purple">신규 브랜드 론칭</span></h2>
           <div class="slide-sub">프리미엄 신규 브랜드 입점 예정</div>
           <div class="slide-date">2026년 7월 예정</div>
-          <button class="slide-btn sb-purple">사전 알림 신청</button>
+          <button class="slide-btn sb-purple" onclick="alert('신규 브랜드 입점 알림은 추후 신청 기능이 추가됩니다.')">사전 알림 신청</button>
         </div>
       </div>
     </div>
@@ -646,79 +645,9 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
       </div>
       <a href="list.html" style="color:var(--g3);font-size:13px;text-decoration:none;position:absolute;right:0;top:0;">전체보기 ›</a>
     </div>
-    <div class="product-grid">
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#C0A882;"></div></div>
-        <div class="product-info"><div class="product-code">[티타늄] T-2241</div><div class="product-name">티타늄 슬림 풀림</div><div class="product-size">51-18-142</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩28,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩19,600</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B4513;"></div></div>
-        <div class="product-info"><div class="product-code">[울템] U-1189</div><div class="product-name">울템 라운드 경량</div><div class="product-size">48-20-140</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩16,500</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩11,550</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#5C3317;"></div></div>
-        <div class="product-info"><div class="product-code">[뿔테] A-3382</div><div class="product-name">아세테이트 클래식</div><div class="product-size">50-20-145</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩22,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩15,400</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#C0C0C0;"></div><div class="color-dot" style="background:#FFD700;"></div></div>
-        <div class="product-info"><div class="product-code">[하금테] H-0892</div><div class="product-name">하금테 골드 미니멀</div><div class="product-size">52-19-145</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩24,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩16,800</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#228B22;"></div></div>
-        <div class="product-info"><div class="product-code">[동글이] D-1105</div><div class="product-name">동글이 라운드 슬림</div><div class="product-size">46-22-143</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩18,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩12,600</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#4682B4;"></div></div>
-        <div class="product-info"><div class="product-code">[판테] P-2208</div><div class="product-name">판테 라운드 컬러</div><div class="product-size">49-20-144</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩20,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩14,000</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B7355;"></div></div>
-        <div class="product-info"><div class="product-code">[뿔테] A-4401</div><div class="product-name">뿔테 스퀘어 빈티지</div><div class="product-size">51-19-146</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩25,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩17,500</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1602080836994-c7b2f0e3a895?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#C0C0C0;"></div></div>
-        <div class="product-info"><div class="product-code">[티타늄] T-3301</div><div class="product-name">티타늄 스퀘어 슬림</div><div class="product-size">53-17-143</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩30,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩21,000</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B4513;"></div><div class="color-dot" style="background:#4682B4;"></div></div>
-        <div class="product-info"><div class="product-code">[울템] U-4401</div><div class="product-name">울템 클래식 오벌</div><div class="product-size">50-20-142</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩19,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩13,300</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-      <div class="product-card" style="border-color:#FFCCCC;">
-        <div class="product-img-wrap" style="background:#FFF5F5;"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">SALE</span><button class="wish-btn">🤍</button></div>
-        <div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#FFD700;"></div></div>
-        <div class="product-info"><div class="product-code">[하금테] H-5502</div><div class="product-name">하금테 스퀘어 골드</div><div class="product-size">51-19-144</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--g3);text-decoration:line-through;">₩26,000</span><span style="font-size:15px;font-weight:800;color:var(--red);">₩18,200</span><span style="font-size:10px;background:var(--red);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">30%</span></div></div>
-      </div>
-
-    </div
+    <div class="product-grid" id="timesaleGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
+    </div>
     <div style="text-align:center;margin-top:24px;">
       <a href="list.html" style="display:inline-block;padding:12px 48px;border:1.5px solid var(--red);border-radius:6px;font-size:14px;font-weight:600;color:var(--red);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='var(--red)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--red)'">할인상품 더보기 ›</a>
     </div>
@@ -734,24 +663,8 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
       <h2>신상품</h2>
       <a href="list.html">전체보기 ›</a>
     </div>
-    <div class="product-grid">
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B6F47;"></div><div class="color-dot" style="background:#C0C0C0;"></div></div><div class="product-info"><div class="product-code">[드렌테] K9191</div><div class="product-name">드렌테 라운드 클래식</div><div class="product-size">49-23-147</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#5C4033;"></div><div class="color-dot" style="background:#4A7856;"></div></div><div class="product-info"><div class="product-code">[드렌테] 98063</div><div class="product-name">드렌테 빅 라운드</div><div class="product-size">41-26-145</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">HOT</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B7355;"></div><div class="color-dot" style="background:#708090;"></div></div><div class="product-info"><div class="product-code">[드렌테] 98287</div><div class="product-name">드렌테 스퀘어 라운드</div><div class="product-size">49-21-143</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B6F47;"></div><div class="color-dot" style="background:#C0C0C0;"></div></div><div class="product-info"><div class="product-code">[바디글라스] 5306</div><div class="product-name">바디글라스 스퀘어</div><div class="product-size">49-22-148</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">HOT</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#C0A882;"></div></div><div class="product-info"><div class="product-code">[티타늄] T-2241</div><div class="product-name">티타늄 슬림 풀림</div><div class="product-size">51-18-142</div><div class="product-price"><span class="won">₩</span>28,000</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B4513;"></div><div class="color-dot" style="background:#4682B4;"></div></div><div class="product-info"><div class="product-code">[울템] U-1189</div><div class="product-name">울템 라운드 경량</div><div class="product-size">48-20-140</div><div class="product-price"><span class="won">₩</span>16,500</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#5C3317;"></div><div class="color-dot" style="background:#F5DEB3;"></div></div><div class="product-info"><div class="product-code">[뿔테] A-3382</div><div class="product-name">아세테이트 클래식</div><div class="product-size">50-20-145</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1602080836994-c7b2f0e3a895?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#C0C0C0;"></div><div class="color-dot" style="background:#FFD700;"></div><div class="color-dot" style="background:#B8860B;"></div></div><div class="product-info"><div class="product-code">[하금테] H-0892</div><div class="product-name">하금테 골드 미니멀</div><div class="product-size">52-19-145</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#C0C0C0;"></div></div><div class="product-info"><div class="product-code">[판테] P-3301</div><div class="product-name">판테 슬림 클래식</div><div class="product-size">50-18-143</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B4513;"></div><div class="color-dot" style="background:#228B22;"></div></div><div class="product-info"><div class="product-code">[동글이] D-3302</div><div class="product-name">동글이 컬러 라운드</div><div class="product-size">46-22-142</div><div class="product-price"><span class="won">₩</span>14,500</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#4682B4;"></div></div><div class="product-info"><div class="product-code">[울템] U-5501</div><div class="product-name">울템 스퀘어 경량</div><div class="product-size">52-18-144</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge hot">HOT</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B6F47;"></div><div class="color-dot" style="background:#C0C0C0;"></div></div><div class="product-info"><div class="product-code">[티타늄] T-4401</div><div class="product-name">티타늄 오벌 미니멀</div><div class="product-size">48-20-141</div><div class="product-price"><span class="won">₩</span>26,000</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#FFD700;"></div></div><div class="product-info"><div class="product-code">[하금테] H-5502</div><div class="product-name">하금테 스퀘어 골드</div><div class="product-size">51-19-144</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge new">NEW</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#5C3317;"></div></div><div class="product-info"><div class="product-code">[뿔테] A-5501</div><div class="product-name">뿔테 빈티지 라운드</div><div class="product-size">49-21-145</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-    </div>
-    <div style="text-align:center;margin-top:24px;">
-      <a href="list.html" style="display:inline-block;padding:12px 48px;border:1.5px solid var(--g2);border-radius:6px;font-size:14px;font-weight:600;color:var(--g4);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--sky)';this.style.color='var(--sky)'" onmouseout="this.style.borderColor='var(--g2)';this.style.color='var(--g4)'">신상품 더보기 ›</a>
+    <div class="product-grid" id="newArrivalGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
     </div>
   </div>
 
@@ -761,22 +674,14 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
       <h2>베스트 상품</h2>
       <a href="list.html">전체보기 ›</a>
     </div>
-    <div class="product-grid">
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B6F47;"></div><div class="color-dot" style="background:#C0C0C0;"></div></div><div class="product-info"><div class="product-code">[울템] U-2201</div><div class="product-name">울템 베스트 라운드</div><div class="product-size">48-20-140</div><div class="product-price"><span class="won">₩</span>16,500</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#5C4033;"></div><div class="color-dot" style="background:#4A7856;"></div></div><div class="product-info"><div class="product-code">[티타늄] T-1102</div><div class="product-name">티타늄 클래식 풀림</div><div class="product-size">51-18-142</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#5C3317;"></div><div class="color-dot" style="background:#F5DEB3;"></div></div><div class="product-info"><div class="product-code">[뿔테] A-2201</div><div class="product-name">아세테이트 스퀘어</div><div class="product-size">50-20-145</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B4513;"></div><div class="color-dot" style="background:#4682B4;"></div></div><div class="product-info"><div class="product-code">[하금테] H-3301</div><div class="product-name">하금테 오벌 미니멀</div><div class="product-size">49-19-143</div><div class="product-price"><span class="won">₩</span>19,000</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#C0C0C0;"></div><div class="color-dot" style="background:#FFD700;"></div></div><div class="product-info"><div class="product-code">[판테] P-1105</div><div class="product-name">판테 스퀘어 골드</div><div class="product-size">52-17-145</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#228B22;"></div><div class="color-dot" style="background:#4682B4;"></div></div><div class="product-info"><div class="product-code">[동글이] D-2208</div><div class="product-name">동글이 라운드 컬러</div><div class="product-size">46-24-145</div><div class="product-price"><span class="won">₩</span>14,500</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#8B7355;"></div></div><div class="product-info"><div class="product-code">[티타늄] T-3301</div><div class="product-name">티타늄 스퀘어 슬림</div><div class="product-size">53-17-143</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1602080836994-c7b2f0e3a895?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#C0A882;"></div><div class="color-dot" style="background:#8B4513;"></div></div><div class="product-info"><div class="product-code">[울템] U-4401</div><div class="product-name">울템 클래식 오벌</div><div class="product-size">50-20-142</div><div class="product-price"><span class="won">₩</span>18,000</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#C0C0C0;"></div></div><div class="product-info"><div class="product-code">[하금테] H-6601</div><div class="product-name">하금테 클래식 실버</div><div class="product-size">53-17-146</div><div class="product-price"><span class="won">₩</span>21,000</div></div></div>
-      <div class="product-card"><div class="product-img-wrap"><div class="img-ph" style="overflow:hidden;"><img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=400&q=80" alt="안경테" style="width:100%;height:100%;object-fit:cover;"></div><span class="p-badge best">BEST</span><button class="wish-btn">🤍</button></div><div class="color-dots"><div class="color-dot" style="background:#111;"></div><div class="color-dot" style="background:#5C3317;"></div><div class="color-dot" style="background:#4682B4;"></div></div><div class="product-info"><div class="product-code">[뿔테] A-7701</div><div class="product-name">뿔테 빈티지 스퀘어</div><div class="product-size">51-19-145</div><div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div></div></div>
+    <div class="product-grid" id="bestGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
     </div>
     <div style="text-align:center;margin-top:24px;">
       <a href="list.html" style="display:inline-block;padding:12px 48px;border:1.5px solid var(--g2);border-radius:6px;font-size:14px;font-weight:600;color:var(--g4);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--sky)';this.style.color='var(--sky)'" onmouseout="this.style.borderColor='var(--g2)';this.style.color='var(--g4)'">베스트 더보기 ›</a>
     </div>
   </div>
+
 
 </div>
 
@@ -787,7 +692,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
       <div class="footer-brand">
         <div class="footer-logo">OPTIC<span>MALL</span></div>
         <p>안경테·선글라스 도매 전문 B2B 플랫폼<br>안경사를 위한 25년의 신뢰</p>
-        <button class="kakao-btn">💬 카카오 채널 상담</button>
+        <button class="kakao-btn" onclick="alert('카카오톡 상담\n운영시간: 오전 10:30~12:00, 오후 1:30~5:00\n카카오톡에서 옵틱몰을 검색해주세요!')">💬 카카오 채널 상담</button>
       </div>
       <div class="footer-cols">
         <div class="footer-col">
@@ -1022,6 +927,7 @@ function updateHeaderLoggedOut() {
 }
 
 // 로그인 상태 감지
+let mainMemberLevel = 0;
 _auth.onAuthStateChanged(async (user) => {
   if (user) {
     try {
@@ -1030,14 +936,112 @@ _auth.onAuthStateChanged(async (user) => {
       const name = userData.name || user.email.split('@')[0];
       const level = userData.member_level || 0;
       const status = userData.approval_status || 'pending';
+      mainMemberLevel = level;
       updateHeaderLoggedIn(name, level, status);
+      updateMainCartCount(user.uid);
     } catch(e) {
       updateHeaderLoggedIn(user.email.split('@')[0], 0, 'pending');
     }
   } else {
+    mainMemberLevel = 0;
     updateHeaderLoggedOut();
   }
+  renderAllMainSections();
 });
+
+async function updateMainCartCount(uid) {
+  try {
+    const snap = await _db.collection('carts').doc(uid).collection('items').get();
+    const badge = document.getElementById('cartCountBadge');
+    if(snap.size > 0) { badge.textContent = snap.size; badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  } catch(e) { console.error(e); }
+}
+
+function doMainSearch() {
+  const keyword = document.getElementById('mainSearchInput').value.trim();
+  location.href = 'list.html' + (keyword ? `?q=${encodeURIComponent(keyword)}` : '');
+}
+
+// ===================== 메인페이지 상품 진열 (Firestore 연동) =====================
+let mainAllProducts = [];
+
+function renderMainProductCard(p, badgeText, badgeClass) {
+  const imgHtml = p.mainImageUrl
+    ? `<img src="${p.mainImageUrl}" alt="${p.modelName||''}" style="width:100%;height:100%;object-fit:cover;">`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;opacity:0.12;">👓</div>`;
+  const badgeHtml = badgeText ? `<span class="p-badge ${badgeClass}">${badgeText}</span>` : '';
+  const priceHtml = mainMemberLevel >= 2
+    ? `<div class="product-price"><span class="won">₩</span>${Number(p.price||0).toLocaleString()}</div>`
+    : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
+  const codeLabel = p.brandName ? `[${p.brandName}]` : '';
+
+  return `
+    <div class="product-card" onclick="location.href='product.html?id=${p.id}'" style="cursor:pointer;">
+      <div class="product-img-wrap">
+        <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
+        ${badgeHtml}
+        <button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button>
+      </div>
+      <div class="product-info">
+        <div class="product-code">${codeLabel}</div>
+        <div class="product-name">${p.modelName||'-'}${p.color ? ' · '+p.color : ''}</div>
+        <div class="product-size">${p.barcode||''}</div>
+        ${priceHtml}
+      </div>
+    </div>`;
+}
+
+function renderEmptyMainSection(gridId, message) {
+  document.getElementById(gridId).innerHTML =
+    `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">${message}</div>`;
+}
+
+function renderAllMainSections() {
+  if(mainAllProducts.length === 0) {
+    renderEmptyMainSection('timesaleGrid', '아직 등록된 상품이 없습니다.');
+    renderEmptyMainSection('newArrivalGrid', '아직 등록된 상품이 없습니다.');
+    renderEmptyMainSection('bestGrid', '아직 등록된 상품이 없습니다.');
+    return;
+  }
+
+  // 신상품: 최신 등록순 10개
+  const newArrivals = [...mainAllProducts].slice(0, 10);
+  document.getElementById('newArrivalGrid').innerHTML =
+    newArrivals.map((p,i) => renderMainProductCard(p, i < 3 ? 'NEW' : '', 'new')).join('');
+
+  // 베스트: 최신순과 다른 섞임을 위해 가격 내림차순 (판매데이터 없어 임시 기준)
+  const best = [...mainAllProducts].sort((a,b) => (b.price||0)-(a.price||0)).slice(0, 10);
+  document.getElementById('bestGrid').innerHTML =
+    best.map(p => renderMainProductCard(p, 'BEST', 'best')).join('');
+
+  // 타임세일: 가격 낮은순 10개 (실제 할인 시스템 도입 전 임시 노출)
+  const timesale = [...mainAllProducts].sort((a,b) => (a.price||0)-(b.price||0)).slice(0, 10);
+  document.getElementById('timesaleGrid').innerHTML =
+    timesale.map(p => renderMainProductCard(p, 'SALE', 'hot')).join('');
+}
+
+async function loadMainProducts() {
+  try {
+    const snap = await _db.collection('products').where('status', '==', 'approved').get();
+    const products = [];
+    snap.forEach(doc => products.push({id: doc.id, ...doc.data()}));
+    products.sort((a,b) => {
+      const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const dbb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return dbb - da;
+    });
+    mainAllProducts = products;
+    renderAllMainSections();
+  } catch(e) {
+    console.error(e);
+    renderEmptyMainSection('timesaleGrid', '상품을 불러오지 못했습니다.');
+    renderEmptyMainSection('newArrivalGrid', '상품을 불러오지 못했습니다.');
+    renderEmptyMainSection('bestGrid', '상품을 불러오지 못했습니다.');
+  }
+}
+
+loadMainProducts();
 </script>
 </body>
 </html>
