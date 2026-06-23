@@ -74,6 +74,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
 /* 상품 일괄등록 테이블 */
 .reg-card{background:var(--white);border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:20px;}
+.form-group-promo{margin-bottom:16px;}
+.form-group-promo label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px;}
+.form-group-promo input{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.form-group-promo input:focus{border-color:var(--sky);}
+.form-row-promo{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.promo-product-item{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--g1);}
+.promo-product-item:last-child{border-bottom:none;}
+.promo-product-item img{width:36px;height:36px;border-radius:6px;object-fit:cover;}
+.promo-product-item .ph{width:36px;height:36px;border-radius:6px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:16px;opacity:0.3;}
 .reg-table-wrap{overflow-x:auto;}
 table.reg-table{width:100%;border-collapse:collapse;min-width:1100px;}
 table.reg-table th{padding:10px 8px;font-size:11px;font-weight:700;color:var(--g4);text-align:left;background:var(--g1);white-space:nowrap;border-bottom:2px solid var(--g2);}
@@ -183,6 +192,9 @@ tr:hover td{background:#FAFBFC;}
     <div class="menu-section">상품 관리</div>
     <button class="menu-item" onclick="showPage('register',this)"><span>➕</span> 상품 일괄등록</button>
     <button class="menu-item" onclick="showPage('products',this)"><span>👓</span> 내 상품 목록</button>
+    <div class="menu-section">프로모션</div>
+    <button class="menu-item" onclick="showPage('promoCreate',this)"><span>🎉</span> 이벤트/할인 등록</button>
+    <button class="menu-item" onclick="showPage('myPromos',this)"><span>🏷️</span> 내 이벤트 목록</button>
     <div class="menu-section">운영</div>
     <button class="menu-item" onclick="showPage('dashboard',this)"><span>📈</span> 판매 통계</button>
   </nav>
@@ -283,6 +295,54 @@ tr:hover td{background:#FAFBFC;}
         <button class="btn-sm btn-primary" onclick="loadProducts()">🔄 새로고침</button>
       </div>
       <div class="table-wrap" id="productsTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 이벤트/할인 등록 -->
+    <div class="page" id="page-promoCreate">
+      <div class="section-header">
+        <div class="section-title">이벤트/할인 등록</div>
+        <div style="font-size:12px;color:var(--g3);">등록한 이벤트는 관리자 승인 후 노출됩니다</div>
+      </div>
+      <div class="reg-card">
+        <div class="form-group-promo">
+          <label>이벤트명 <span style="color:var(--red);">*</span></label>
+          <input type="text" id="promoTitle" placeholder="예) 6월 신상품 런칭 할인">
+        </div>
+        <div class="form-group-promo">
+          <label>할인율 (%) <span style="color:var(--red);">*</span></label>
+          <input type="number" id="promoDiscountRate" placeholder="예) 20" min="1" max="90">
+        </div>
+        <div class="form-group-promo">
+          <label>적용 대상 상품 <span style="color:var(--red);">*</span></label>
+          <div id="promoProductCheckList" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--g2);border-radius:8px;padding:10px;">
+            <div style="color:var(--g3);font-size:13px;padding:10px;">상품 목록을 불러오는 중...</div>
+          </div>
+        </div>
+        <div class="form-row-promo">
+          <div class="form-group-promo">
+            <label>시작일 <span style="color:var(--red);">*</span></label>
+            <input type="date" id="promoStartDate">
+          </div>
+          <div class="form-group-promo">
+            <label>종료일 <span style="color:var(--red);">*</span></label>
+            <input type="date" id="promoEndDate">
+          </div>
+        </div>
+        <div class="reg-footer" style="justify-content:flex-end;">
+          <button class="btn-bulk-save" onclick="submitPromo()">이벤트 등록 신청</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 내 이벤트 목록 -->
+    <div class="page" id="page-myPromos">
+      <div class="section-header">
+        <div class="section-title">내 이벤트 목록</div>
+        <button class="btn-sm btn-primary" onclick="loadMyPromos()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="myPromosTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
     </div>
@@ -425,9 +485,11 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', register:'상품 일괄등록', products:'내 상품 목록'};
+  const titles = {dashboard:'대시보드', register:'상품 일괄등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'products') loadProducts();
+  if(name === 'promoCreate') loadPromoProductCheckList();
+  if(name === 'myPromos') loadMyPromos();
 }
 
 // ===================== 대시보드 =====================
@@ -780,6 +842,135 @@ async function submitBulkRegister() {
 // 전역 노출 (Firebase 모듈 스크립트에서 호출하기 위함)
 window.initRegisterTable = initRegisterTable;
 window.loadDashboard = loadDashboard;
+
+// ===================== 이벤트/할인 등록 =====================
+let myApprovedProducts = []; // 승인된 상품만 이벤트 대상으로 선택 가능
+
+async function loadPromoProductCheckList() {
+  const listEl = document.getElementById('promoProductCheckList');
+  listEl.innerHTML = `<div style="color:var(--g3);font-size:13px;padding:10px;">상품 목록을 불러오는 중...</div>`;
+  try {
+    const uid = window._getCurrentBrandUid();
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'products'),
+      window._where('brandId', '==', uid)
+    ));
+    const products = [];
+    snap.forEach(d => { const data = d.data(); if(data.status === 'approved') products.push({id: d.id, ...data}); });
+    myApprovedProducts = products;
+
+    if(products.length === 0) {
+      listEl.innerHTML = `<div style="color:var(--g3);font-size:13px;padding:10px;">승인된 상품이 없습니다. 먼저 상품을 등록하고 승인받아주세요.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = products.map(p => `
+      <div class="promo-product-item">
+        <input type="checkbox" value="${p.id}" class="promo-product-check" style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+        ${p.mainImageUrl ? `<img src="${p.mainImageUrl}">` : `<div class="ph">👓</div>`}
+        <div style="flex:1;font-size:13px;">${p.modelName||'-'} <span style="color:var(--g3);">· ₩${Number(p.price||0).toLocaleString()}</span></div>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = `<div style="color:var(--red);font-size:13px;padding:10px;">상품 목록을 불러오지 못했습니다.</div>`;
+  }
+}
+
+async function submitPromo() {
+  const title = document.getElementById('promoTitle').value.trim();
+  const discountRate = Number(document.getElementById('promoDiscountRate').value);
+  const startDate = document.getElementById('promoStartDate').value;
+  const endDate = document.getElementById('promoEndDate').value;
+  const checkedBoxes = Array.from(document.querySelectorAll('.promo-product-check:checked'));
+
+  if(!title) { showToast('이벤트명을 입력해주세요.', 'error'); return; }
+  if(!discountRate || discountRate < 1 || discountRate > 90) { showToast('할인율을 1~90 사이로 입력해주세요.', 'error'); return; }
+  if(checkedBoxes.length === 0) { showToast('적용 대상 상품을 1개 이상 선택해주세요.', 'error'); return; }
+  if(!startDate || !endDate) { showToast('시작일과 종료일을 입력해주세요.', 'error'); return; }
+  if(new Date(startDate) > new Date(endDate)) { showToast('종료일은 시작일보다 늦어야 합니다.', 'error'); return; }
+
+  const targetProductIds = checkedBoxes.map(cb => cb.value);
+  const uid = window._getCurrentBrandUid();
+  const brandData = window._getCurrentBrandData();
+
+  if(!confirm(`"${title}" 이벤트를 등록 신청하시겠습니까?\n대상 상품 ${targetProductIds.length}개, 할인율 ${discountRate}%\n등록 후 관리자 승인 절차를 거쳐 노출됩니다.`)) return;
+
+  try {
+    await window._addDoc(window._collection(window._db, 'promotions'), {
+      brandId: uid,
+      brandName: brandData?.brandName || brandData?.name || '',
+      title,
+      discountRate,
+      targetProductIds,
+      targetProductCount: targetProductIds.length,
+      startDate,
+      endDate,
+      status: 'pending',
+      createdAt: window._serverTimestamp(),
+      approvedAt: null
+    });
+    showToast('✅ 이벤트가 등록 신청되었습니다. 관리자 승인 후 노출됩니다.', 'success');
+    document.getElementById('promoTitle').value = '';
+    document.getElementById('promoDiscountRate').value = '';
+    document.getElementById('promoStartDate').value = '';
+    document.getElementById('promoEndDate').value = '';
+    document.querySelectorAll('.promo-product-check').forEach(cb => cb.checked = false);
+  } catch(e) {
+    console.error(e);
+    showToast('등록 중 오류가 발생했습니다: ' + e.message, 'error');
+  }
+}
+
+const myPromoStatusLabelMap = {pending:'승인대기', approved:'진행중', rejected:'반려', ended:'종료'};
+const myPromoStatusClassMap = {pending:'pending', approved:'approved', rejected:'rejected', ended:'pending'};
+
+async function loadMyPromos() {
+  const tableEl = document.getElementById('myPromosTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const uid = window._getCurrentBrandUid();
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'promotions'),
+      window._where('brandId', '==', uid)
+    ));
+    const promos = [];
+    snap.forEach(d => promos.push({id: d.id, ...d.data()}));
+
+    if(promos.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">등록된 이벤트가 없습니다.</div>';
+      return;
+    }
+
+    promos.sort((a,b) => {
+      const da = a.createdAt?.toDate?.() || new Date(0);
+      const dbb = b.createdAt?.toDate?.() || new Date(0);
+      return dbb - da;
+    });
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>이벤트명</th><th>할인율</th><th>대상상품</th><th>기간</th><th>신청일</th><th>상태</th>
+        </tr></thead>
+        <tbody>
+          ${promos.map(p => `
+            <tr>
+              <td><strong>${p.title||'-'}</strong></td>
+              <td>${p.discountRate}%</td>
+              <td>${p.targetProductCount ?? '-'}개</td>
+              <td style="font-size:12px;">${p.startDate||''} ~ ${p.endDate||''}</td>
+              <td>${formatDate(p.createdAt)}</td>
+              <td><span class="badge ${myPromoStatusClassMap[p.status]||'pending'}">${myPromoStatusLabelMap[p.status]||'대기'}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    console.error(e);
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
 </script>
 </body>
 </html>

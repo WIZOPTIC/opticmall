@@ -155,15 +155,18 @@ tr:hover td{background:#FAFBFC;}
     <div class="menu-section">상품 관리</div>
     <button class="menu-item" onclick="showPage('productApproval',this)"><span>📦</span> 상품 승인 관리 <span class="menu-badge" id="pendingProductBadge">0</span></button>
     <button class="menu-item" onclick="showPage('allProducts',this)"><span>👓</span> 전체 상품 목록</button>
+    <div class="menu-section">프로모션</div>
+    <button class="menu-item" onclick="showPage('promoApproval',this)"><span>🎉</span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge">0</span></button>
+    <button class="menu-item" onclick="showPage('allPromos',this)"><span>🏷️</span> 전체 이벤트 목록</button>
     <div class="menu-section">운영</div>
-    <button class="menu-item" onclick="showPage('dashboard',this)"><span>📈</span> 매출 통계</button>
+    <button class="menu-item" id="settlementMenuItem" onclick="showPage('settlement',this)"><span>💰</span> 정산 관리</button>
     <button class="menu-item" onclick="showPage('dashboard',this)"><span>⚙️</span> 설정</button>
   </nav>
   <div class="sidebar-user">
     <div class="user-avatar">관</div>
     <div class="user-info">
       <div class="name" id="adminName">관리자</div>
-      <div class="role">최고 관리자</div>
+      <div class="role" id="adminRoleBadge">마스터</div>
     </div>
     <button class="logout-btn" onclick="adminLogout()" title="로그아웃">⏻</button>
   </div>
@@ -261,6 +264,56 @@ tr:hover td{background:#FAFBFC;}
       </div>
     </div>
 
+    <!-- 이벤트 승인 관리 -->
+    <div class="page" id="page-promoApproval">
+      <div class="section-header">
+        <div class="section-title">이벤트 승인 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadPromoApproval()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="promoApprovalTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 전체 이벤트 목록 -->
+    <div class="page" id="page-allPromos">
+      <div class="section-header">
+        <div class="section-title">전체 이벤트 목록</div>
+        <button class="btn-sm btn-primary" onclick="loadAllPromos()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="allPromosTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 정산 관리 (마스터 전용) -->
+    <div class="page" id="page-settlement">
+      <div class="section-header">
+        <div class="section-title">정산 관리 <span style="font-size:12px;color:var(--g3);font-weight:500;">월말 정산 기준</span></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="settlementMonth" onchange="loadSettlement()" style="padding:8px 12px;border-radius:6px;border:1px solid var(--g2);font-family:inherit;font-size:13px;"></select>
+          <button class="btn-sm btn-primary" onclick="loadSettlement()">🔄 새로고침</button>
+        </div>
+      </div>
+      <div class="dash-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="dash-card">
+          <div class="label">이번 달 총 매출</div>
+          <div class="value" id="settleTotalSales">-<span>원</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="label">정산 대상 브랜드 수</div>
+          <div class="value" id="settleBrandCount" style="color:var(--sky);">-<span>개사</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="label">정산 대기 주문</div>
+          <div class="value" id="settleOrderCount" style="color:var(--orange);">-<span>건</span></div>
+        </div>
+      </div>
+      <div class="table-wrap" id="settlementTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -295,7 +348,7 @@ tr:hover td{background:#FAFBFC;}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -318,6 +371,7 @@ window._signOut = signOut;
 window._collection = collection;
 window._getDocs = getDocs;
 window._doc = doc;
+window._getDoc = getDoc;
 window._updateDoc = updateDoc;
 window._deleteDoc = deleteDoc;
 window._query = query;
@@ -325,20 +379,62 @@ window._orderBy = orderBy;
 window._where = where;
 window._serverTimestamp = serverTimestamp;
 
-// 로그인 상태 감지
-onAuthStateChanged(auth, (user) => {
+// 로그인 상태 + 권한 감지
+let currentAdminRole = null;
+
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('sidebar').style.display = 'flex';
-    document.getElementById('mainArea').style.display = 'flex';
-    document.getElementById('adminName').textContent = user.email.split('@')[0];
-    loadDashboard();
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const role = userData.role || 'optician';
+
+      if (role !== 'master' && role !== 'submaster') {
+        // 관리자 권한이 없으면 접근 차단
+        await signOut(auth);
+        alert('관리자 권한이 없는 계정입니다.');
+        return;
+      }
+
+      currentAdminRole = role;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('sidebar').style.display = 'flex';
+      document.getElementById('mainArea').style.display = 'flex';
+      document.getElementById('adminName').textContent = userData.name || user.email.split('@')[0];
+
+      // 서브마스터는 정산 메뉴 숨김
+      const settlementMenu = document.getElementById('settlementMenuItem');
+      if(settlementMenu) settlementMenu.style.display = (role === 'master') ? '' : 'none';
+
+      // 사이드바에 역할 뱃지 표시
+      const roleBadgeEl = document.getElementById('adminRoleBadge');
+      if(roleBadgeEl) roleBadgeEl.textContent = role === 'master' ? '마스터' : '서브마스터';
+
+      loadDashboard();
+    } catch(e) {
+      console.error(e);
+      alert('권한 확인 중 오류가 발생했습니다.');
+    }
   } else {
+    currentAdminRole = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('sidebar').style.display = 'none';
     document.getElementById('mainArea').style.display = 'none';
   }
 });
+
+window._getCurrentAdminRole = () => currentAdminRole;
+</script>
+
+<script>
+// 정산 페이지 접근 시 권한 재확인 (서브마스터 차단, 직접 호출 방지)
+function guardSettlementAccess() {
+  if(window._getCurrentAdminRole() !== 'master') {
+    showToast('정산 화면은 마스터 권한만 접근 가능합니다.', 'error');
+    return false;
+  }
+  return true;
+}
 </script>
 
 <script>
@@ -375,16 +471,22 @@ async function adminLogout() {
 
 // 페이지 전환
 function showPage(name, el) {
+  // 정산 페이지는 마스터 전용 가드
+  if(name === 'settlement' && !guardSettlementAccess()) return;
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', settlement:'정산 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
   if(name === 'productApproval') loadProductApproval();
   if(name === 'allProducts') loadAllProducts();
+  if(name === 'promoApproval') loadPromoApproval();
+  if(name === 'allPromos') loadAllPromos();
+  if(name === 'settlement') loadSettlement();
 }
 
 // 날짜 포맷
@@ -424,6 +526,14 @@ async function loadDashboard() {
       document.getElementById('pendingProductCount').innerHTML = pendingProductCount + '<span>건</span>';
       document.getElementById('pendingProductBadge').textContent = pendingProductCount;
     } catch(e) { console.error('상품 카운트 로드 실패', e); }
+
+    // 이벤트 승인대기 카운트
+    try {
+      const promoSnap = await window._getDocs(window._collection(window._db, 'promotions'));
+      let pendingPromoCount = 0;
+      promoSnap.forEach(d => { if(d.data().status === 'pending') pendingPromoCount++; });
+      document.getElementById('pendingPromoBadge').textContent = pendingPromoCount;
+    } catch(e) { console.error('이벤트 카운트 로드 실패', e); }
 
     // 대시보드 최근 대기 목록
     const tableEl = document.getElementById('dashPendingTable');
@@ -833,6 +943,224 @@ async function loadAllProducts() {
       </table>`;
   } catch(e) {
     tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+// ===================== 정산 관리 (마스터 전용) =====================
+const SETTLED_STATUSES = ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered'];
+
+function initSettlementMonthSelect() {
+  const sel = document.getElementById('settlementMonth');
+  if(sel.options.length > 0) return; // 이미 채워져 있으면 스킵
+  const now = new Date();
+  for(let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = `${d.getFullYear()}년 ${d.getMonth()+1}월`;
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  }
+}
+
+async function loadSettlement() {
+  if(!guardSettlementAccess()) return;
+  initSettlementMonthSelect();
+
+  const tableEl = document.getElementById('settlementTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+
+  const monthValue = document.getElementById('settlementMonth').value; // "YYYY-MM"
+  const [year, month] = monthValue.split('-').map(Number);
+  const rangeStart = new Date(year, month - 1, 1);
+  const rangeEnd = new Date(year, month, 1);
+
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'orders'));
+    const orders = [];
+    snap.forEach(doc => {
+      const data = doc.data();
+      if(!SETTLED_STATUSES.includes(data.status)) return;
+      const created = data.createdAt?.toDate ? data.createdAt.toDate() : null;
+      if(!created || created < rangeStart || created >= rangeEnd) return;
+      orders.push({ id: doc.id, ...data });
+    });
+
+    // 브랜드별 매출 집계
+    const brandMap = {}; // brandId -> {brandName, orderCount, totalSales}
+    let totalSales = 0;
+    orders.forEach(o => {
+      totalSales += Number(o.totalAmount || 0);
+      const items = Array.isArray(o.items) && o.items.length > 0 ? o.items :
+        (o.productName ? [{ brandId: o.brandId, brandName: o.brandName, subtotal: (o.unitPrice||0)*(o.qty||1) }] : []);
+      items.forEach(it => {
+        const bid = it.brandId || 'unknown';
+        if(!brandMap[bid]) brandMap[bid] = { brandId: bid, brandName: it.brandName || '미지정', orderCount: 0, totalSales: 0 };
+        brandMap[bid].orderCount++;
+        brandMap[bid].totalSales += Number(it.subtotal || 0);
+      });
+    });
+
+    const brandList = Object.values(brandMap).sort((a,b) => b.totalSales - a.totalSales);
+
+    document.getElementById('settleTotalSales').innerHTML = '₩' + totalSales.toLocaleString() + '<span></span>';
+    document.getElementById('settleBrandCount').innerHTML = brandList.length + '<span>개사</span>';
+    document.getElementById('settleOrderCount').innerHTML = orders.length + '<span>건</span>';
+
+    if(brandList.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">해당 월에 정산할 매출이 없습니다.</div>';
+      return;
+    }
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>브랜드</th><th>주문건수</th><th>매출액</th><th>정산예정액(수수료 제외 전)</th><th>상태</th>
+        </tr></thead>
+        <tbody>
+          ${brandList.map(b => `
+            <tr>
+              <td><strong>${b.brandName}</strong></td>
+              <td>${b.orderCount}건</td>
+              <td>₩${b.totalSales.toLocaleString()}</td>
+              <td>₩${b.totalSales.toLocaleString()}</td>
+              <td><span class="badge pending">정산대기</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    console.error(e);
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">정산 데이터를 불러오지 못했습니다: ' + e.message + '</div>';
+  }
+}
+
+// ===================== 이벤트/할인 관리 =====================
+const promoStatusLabelMap = {pending:'승인대기', approved:'진행중', rejected:'반려', ended:'종료'};
+const promoStatusClassMap = {pending:'pending', approved:'approved', rejected:'rejected', ended:'pending'};
+
+async function fetchAllPromos() {
+  const snap = await window._getDocs(window._collection(window._db, 'promotions'));
+  const promos = [];
+  snap.forEach(d => promos.push({id:d.id, ...d.data()}));
+  promos.sort((a,b) => {
+    const da = a.createdAt?.toDate?.() || new Date(0);
+    const dbb = b.createdAt?.toDate?.() || new Date(0);
+    return dbb - da;
+  });
+  return promos;
+}
+
+function renderPromoRow(promo, isApprovalView) {
+  return `
+    <tr>
+      <td><strong>${promo.title||'-'}</strong></td>
+      <td>${promo.brandName||'-'}</td>
+      <td>${promo.discountRate ? promo.discountRate+'%' : '-'}</td>
+      <td>${promo.targetProductCount ?? '-'}개</td>
+      <td style="font-size:12px;">${formatDate(promo.startDate)} ~ ${formatDate(promo.endDate)}</td>
+      <td>${formatDate(promo.createdAt)}</td>
+      <td><span class="badge ${promoStatusClassMap[promo.status]||'pending'}">${promoStatusLabelMap[promo.status]||'대기'}</span></td>
+      <td>
+        <div class="action-btns">
+          ${isApprovalView ? `
+            <button class="btn-approve" onclick="approvePromo('${promo.id}')">✅ 승인</button>
+            <button class="btn-reject" onclick="rejectPromo('${promo.id}')">❌ 반려</button>
+          ` : `
+            <button class="btn-del-tbl" onclick="deletePromo('${promo.id}')">삭제</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+}
+
+async function loadPromoApproval() {
+  const tableEl = document.getElementById('promoApprovalTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const promos = await fetchAllPromos();
+    const pending = promos.filter(p => p.status === 'pending');
+    document.getElementById('pendingPromoBadge').textContent = pending.length;
+
+    if(pending.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">🎉 승인 대기 이벤트가 없습니다!</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>이벤트명</th><th>브랜드</th><th>할인율</th><th>대상상품</th><th>기간</th><th>신청일</th><th>상태</th><th>처리</th>
+        </tr></thead>
+        <tbody>${pending.map(p => renderPromoRow(p, true)).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+async function loadAllPromos() {
+  const tableEl = document.getElementById('allPromosTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const promos = await fetchAllPromos();
+    if(promos.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">등록된 이벤트가 없습니다.</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>이벤트명</th><th>브랜드</th><th>할인율</th><th>대상상품</th><th>기간</th><th>신청일</th><th>상태</th><th>관리</th>
+        </tr></thead>
+        <tbody>${promos.map(p => renderPromoRow(p, false)).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+async function approvePromo(promoId) {
+  if(!confirm('이 이벤트를 승인하시겠습니까?\n승인 시 메인/목록 페이지에 노출됩니다.')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'promotions', promoId), {
+      status: 'approved',
+      approvedAt: window._serverTimestamp()
+    });
+    showToast('✅ 이벤트가 승인되었습니다.', 'success');
+    loadDashboard();
+    if(document.getElementById('page-promoApproval').classList.contains('active')) loadPromoApproval();
+    if(document.getElementById('page-allPromos').classList.contains('active')) loadAllPromos();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function rejectPromo(promoId) {
+  const reason = prompt('반려 사유를 입력해주세요 (선택사항):');
+  if(reason === null) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'promotions', promoId), {
+      status: 'rejected',
+      rejectReason: reason || '',
+      rejectedAt: window._serverTimestamp()
+    });
+    showToast('이벤트가 반려되었습니다.', 'error');
+    if(document.getElementById('page-promoApproval').classList.contains('active')) loadPromoApproval();
+    if(document.getElementById('page-allPromos').classList.contains('active')) loadAllPromos();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function deletePromo(promoId) {
+  if(!confirm('이 이벤트를 삭제하시겠습니까?')) return;
+  try {
+    await window._deleteDoc(window._doc(window._db, 'promotions', promoId));
+    showToast('이벤트가 삭제되었습니다.', 'success');
+    loadAllPromos();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
   }
 }
 

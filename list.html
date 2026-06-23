@@ -386,11 +386,22 @@ function renderProducts(products) {
   }
 
   grid.innerHTML = products.map(p => {
-    const badgeHtml = p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '';
+    const badgeHtml = p.discountRate ? `<span class="p-badge hot">${p.discountRate}% SALE</span>` : (p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '');
     const outHtml = (p.stock !== undefined && Number(p.stock) <= 0) ? `<span class="p-badge out">SOLD OUT</span>` : '';
-    const priceHtml = memberLevel >= 2
-      ? `<div class="p-price"><span class="won">₩</span>${Number(p.price||0).toLocaleString()}</div>`
-      : `<div class="p-locked">🔒 로그인 후 가격확인</div>`;
+    let priceHtml;
+    if(memberLevel >= 2) {
+      if(p.discountRate) {
+        priceHtml = `<div class="p-price">
+          <span style="font-size:11px;color:var(--g3);text-decoration:line-through;margin-right:4px;">₩${p.originalPrice.toLocaleString()}</span>
+          <span class="won">₩</span>${p.salePrice.toLocaleString()}
+          <span style="font-size:11px;color:var(--red);font-weight:700;margin-left:2px;">${p.discountRate}%</span>
+        </div>`;
+      } else {
+        priceHtml = `<div class="p-price"><span class="won">₩</span>${Number(p.price||0).toLocaleString()}</div>`;
+      }
+    } else {
+      priceHtml = `<div class="p-locked">🔒 로그인 후 가격확인</div>`;
+    }
     const imgHtml = p.mainImageUrl
       ? `<img src="${p.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">`
       : `👓`;
@@ -533,6 +544,29 @@ function applyFilters() {
   updateCount(result.length);
 }
 
+async function loadActivePromotions() {
+  try {
+    const snap = await _db.collection('promotions').where('status', '==', 'approved').get();
+    const today = new Date().toISOString().slice(0,10);
+    const discountMap = {}; // productId -> discountRate
+
+    snap.forEach(doc => {
+      const promo = doc.data();
+      if(promo.startDate > today || promo.endDate < today) return; // 기간 외
+      (promo.targetProductIds || []).forEach(pid => {
+        // 여러 이벤트가 겹치면 더 높은 할인율 적용
+        if(!discountMap[pid] || promo.discountRate > discountMap[pid]) {
+          discountMap[pid] = promo.discountRate;
+        }
+      });
+    });
+    return discountMap;
+  } catch(e) {
+    console.error('이벤트 로드 실패:', e);
+    return {};
+  }
+}
+
 async function loadApprovedProducts() {
   try {
     const snap = await _db.collection('products').where('status', '==', 'approved').get();
@@ -544,6 +578,17 @@ async function loadApprovedProducts() {
       const dbb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
       return dbb - da;
     });
+
+    // 진행중 이벤트 할인가 매칭
+    const discountMap = await loadActivePromotions();
+    products.forEach(p => {
+      if(discountMap[p.id]) {
+        p.discountRate = discountMap[p.id];
+        p.originalPrice = Number(p.price || 0);
+        p.salePrice = Math.round(p.originalPrice * (1 - discountMap[p.id]/100));
+      }
+    });
+
     allProducts = products;
     updateCategoryCounts();
 
