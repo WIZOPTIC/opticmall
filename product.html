@@ -583,8 +583,15 @@ function updatePriceDisplay() {
   if(memberLevel >= 2) {
     document.getElementById('price-locked').style.display = 'none';
     document.getElementById('price-visible').style.display = 'block';
-    document.getElementById('priceValue').textContent = Number(currentProduct.price||0).toLocaleString();
-    document.getElementById('spec-price').textContent = '₩' + Number(currentProduct.price||0).toLocaleString();
+
+    if(currentProduct.discountRate) {
+      document.getElementById('priceValue').innerHTML =
+        `<span style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-right:8px;">₩${currentProduct.originalPrice.toLocaleString()}</span>${currentProduct.salePrice.toLocaleString()} <span style="font-size:16px;color:var(--red);font-weight:800;">${currentProduct.discountRate}%</span>`;
+      document.getElementById('spec-price').textContent = '₩' + currentProduct.salePrice.toLocaleString() + ` (${currentProduct.discountRate}% 할인 적용)`;
+    } else {
+      document.getElementById('priceValue').textContent = Number(currentProduct.price||0).toLocaleString();
+      document.getElementById('spec-price').textContent = '₩' + Number(currentProduct.price||0).toLocaleString();
+    }
     updateTotal();
   } else {
     document.getElementById('price-locked').style.display = 'block';
@@ -615,6 +622,24 @@ async function loadProduct() {
       return;
     }
     const p = { id: docSnap.id, ...docSnap.data() };
+
+    // 진행중 이벤트 할인가 확인
+    try {
+      const promoSnap = await _db.collection('promotions').where('status', '==', 'approved').get();
+      const today = new Date().toISOString().slice(0,10);
+      promoSnap.forEach(doc => {
+        const promo = doc.data();
+        if(promo.startDate > today || promo.endDate < today) return;
+        if((promo.targetProductIds || []).includes(p.id)) {
+          if(!p.discountRate || promo.discountRate > p.discountRate) {
+            p.discountRate = promo.discountRate;
+            p.originalPrice = Number(p.price || 0);
+            p.salePrice = Math.round(p.originalPrice * (1 - promo.discountRate/100));
+          }
+        }
+      });
+    } catch(e) { console.error('이벤트 조회 실패:', e); }
+
     currentProduct = p;
     renderProduct(p);
   } catch(e) {
@@ -809,7 +834,7 @@ function changeQty(val) {
 function updateTotal() {
   if(!currentProduct) return;
   const qty = parseInt(document.getElementById('qty').value) || 1;
-  const price = Number(currentProduct.price || 0);
+  const price = currentProduct.discountRate ? currentProduct.salePrice : Number(currentProduct.price || 0);
   const total = price * qty;
   document.getElementById('total-price').textContent = '₩' + total.toLocaleString();
 }

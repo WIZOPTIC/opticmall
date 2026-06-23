@@ -73,6 +73,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .info-box{background:#E6F5FB;border:1px solid #B3E0F5;border-radius:8px;padding:14px 16px;margin-bottom:16px;}
 .info-box p{font-size:12px;color:#1480B0;line-height:1.8;}
 
+/* 가입 유형 선택 */
+.role-select{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;}
+.role-btn{padding:20px 16px;border:2px solid var(--g2);border-radius:10px;background:var(--white);cursor:pointer;text-align:center;transition:all 0.2s;font-family:inherit;}
+.role-btn:hover{border-color:var(--sky);}
+.role-btn.active{border-color:var(--sky);background:#E6F5FB;}
+.role-btn .role-icon{font-size:28px;margin-bottom:8px;}
+.role-btn .role-name{font-size:14px;font-weight:700;color:var(--navy);}
+.role-btn .role-desc{font-size:11px;color:var(--g3);margin-top:3px;line-height:1.5;}
+.role-btn.active .role-name{color:var(--sky);}
+
+
 /* 로딩 오버레이 */
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;}
 .loading-overlay.show{display:flex;}
@@ -117,6 +128,24 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 </div>
 
 <div class="main">
+
+  <!-- 가입 유형 선택 -->
+  <div class="card">
+    <div class="card-title">가입 유형 선택</div>
+    <div class="card-sub">해당하는 유형을 선택해주세요.</div>
+    <div class="role-select">
+      <button class="role-btn active" id="role-optician" onclick="selectRole('optician')">
+        <div class="role-icon">👓</div>
+        <div class="role-name">안경원</div>
+        <div class="role-desc">도매 상품을 구매하는<br>안경원 회원</div>
+      </button>
+      <button class="role-btn" id="role-brand" onclick="selectRole('brand')">
+        <div class="role-icon">🏭</div>
+        <div class="role-name">브랜드사</div>
+        <div class="role-desc">상품을 등록·판매하는<br>입점 브랜드 회원</div>
+      </button>
+    </div>
+  </div>
 
   <!-- 기본 회원정보 -->
   <div class="card">
@@ -183,8 +212,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     </div>
   </div>
 
-  <!-- 안경사 인증 -->
-  <div class="card">
+  <!-- 인증 카드: 안경원 -->
+  <div class="card" id="card-optician">
     <div class="card-title">안경사 인증</div>
     <div class="card-sub">도매가 확인 및 주문을 위해 안경사 인증이 필요합니다.</div>
 
@@ -232,6 +261,55 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     </div>
   </div>
 
+  <!-- 인증 카드: 브랜드사 -->
+  <div class="card" id="card-brand" style="display:none;">
+    <div class="card-title">브랜드사 인증</div>
+    <div class="card-sub">입점 심사를 위한 브랜드 정보를 입력해주세요.</div>
+
+    <div class="info-box">
+      <p><strong>📋 브랜드사 입점 안내</strong><br>
+      입점 심사 후 관리자가 승인하면 상품 등록 기능이 활성화됩니다.<br>
+      심사는 1~2영업일 소요됩니다.</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">브랜드명 <span class="req">*</span></label>
+      <input class="form-input" type="text" placeholder="예) 드렌테 eyewear" id="brandName">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">사업자등록번호 <span class="req">*</span></label>
+        <div class="input-btn-row" style="flex-wrap:nowrap;">
+          <input class="form-input" type="text" placeholder="000-00-00000" id="brandBizNo" style="min-width:0;">
+          <button class="btn-check" id="brandBizCheckBtn" onclick="checkBrandBizNo()" style="flex-shrink:0;">조회</button>
+        </div>
+        <div class="form-hint" id="brand-biz-hint"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">대표자명 <span class="req">*</span></label>
+        <input class="form-input" type="text" placeholder="홍길동" id="ceoName">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">브랜드 소개 <span class="req">*</span></label>
+      <textarea class="form-input" placeholder="브랜드 및 주요 취급 상품을 간단히 소개해주세요." id="brandDesc" rows="3" style="resize:vertical;"></textarea>
+    </div>
+
+    <!-- 사업자등록증 업로드 -->
+    <div class="form-group">
+      <label class="form-label">사업자등록증 <span class="req">*</span></label>
+      <div class="upload-box" id="brand-biz-box" onclick="document.getElementById('brand-biz-file').click()">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">클릭하여 <strong>사업자등록증</strong> 업로드</div>
+        <div class="upload-text" style="font-size:11px;margin-top:4px;">JPG, PNG, PDF · 최대 10MB</div>
+        <div class="upload-filename" id="brand-biz-filename"></div>
+      </div>
+      <input class="upload-input" type="file" id="brand-biz-file" accept="image/*,.pdf" onchange="handleBrandFile()">
+    </div>
+  </div>
+
   <!-- 약관 -->
   <div class="card">
     <div class="card-title">약관 동의</div>
@@ -241,12 +319,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     </div>
     <div class="terms-item" onclick="toggleTerm('chk1')">
       <div class="terms-label"><div class="check-box" id="chk1"></div><span>[필수] 이용약관 동의</span></div>
+      <a href="terms.html" target="_blank" onclick="event.stopPropagation()" style="font-size:12px;color:var(--g3);text-decoration:underline;">보기</a>
     </div>
     <div class="terms-item" onclick="toggleTerm('chk2')">
       <div class="terms-label"><div class="check-box" id="chk2"></div><span>[필수] 개인정보 수집·이용 동의</span></div>
+      <a href="privacy.html" target="_blank" onclick="event.stopPropagation()" style="font-size:12px;color:var(--g3);text-decoration:underline;">보기</a>
     </div>
     <div class="terms-item" onclick="toggleTerm('chk3')">
       <div class="terms-label"><div class="check-box" id="chk3"></div><span>[필수] 개인정보 처리방침 동의</span></div>
+      <a href="privacy.html" target="_blank" onclick="event.stopPropagation()" style="font-size:12px;color:var(--g3);text-decoration:underline;">보기</a>
     </div>
     <div class="terms-item" onclick="toggleTerm('chk4')">
       <div class="terms-label"><div class="check-box" id="chk4"></div><span>[선택] 마케팅 정보 수신 동의</span></div>
@@ -301,8 +382,22 @@ console.log('Firebase 연결 완료!');
 <script>
 let emailVerified = false;
 let bizVerified = false;
+let brandBizVerified = false;
 let bizFileUrl = '';
 let bizFileObj = null;
+let brandBizFileObj = null;
+let currentRole = 'optician'; // 현재 선택된 역할
+
+// 역할 선택
+function selectRole(role) {
+  currentRole = role;
+  document.getElementById('role-optician').classList.toggle('active', role === 'optician');
+  document.getElementById('role-brand').classList.toggle('active', role === 'brand');
+  document.getElementById('card-optician').style.display = role === 'optician' ? '' : 'none';
+  document.getElementById('card-brand').style.display = role === 'brand' ? '' : 'none';
+  // 버튼 텍스트 변경
+  document.getElementById('submitBtn').textContent = role === 'brand' ? '입점 신청하기' : '회원가입 신청하기';
+}
 
 // 토스트
 function showToast(msg, type='') {
@@ -388,7 +483,7 @@ function searchAddr() {
   }).open();
 }
 
-// 사업자번호 조회
+// 사업자번호 조회 (안경원)
 function checkBizNo() {
   const bizNo = document.getElementById('bizNo').value.replace(/-/g,'');
   const hint = document.getElementById('biz-hint');
@@ -397,7 +492,6 @@ function checkBizNo() {
     hint.className = 'form-hint error';
     return;
   }
-  // 실제로는 국세청 API 연동
   hint.textContent = '✓ 정상 사업자입니다.';
   hint.className = 'form-hint success';
   document.getElementById('bizNo').classList.add('success');
@@ -406,17 +500,41 @@ function checkBizNo() {
   bizVerified = true;
 }
 
-// 파일 업로드
+// 사업자번호 조회 (브랜드사)
+function checkBrandBizNo() {
+  const bizNo = document.getElementById('brandBizNo').value.replace(/-/g,'');
+  const hint = document.getElementById('brand-biz-hint');
+  if (bizNo.length !== 10) {
+    hint.textContent = '사업자등록번호 10자리를 입력해주세요.';
+    hint.className = 'form-hint error';
+    return;
+  }
+  hint.textContent = '✓ 정상 사업자입니다.';
+  hint.className = 'form-hint success';
+  document.getElementById('brandBizNo').classList.add('success');
+  document.getElementById('brandBizCheckBtn').textContent = '확인완료';
+  document.getElementById('brandBizCheckBtn').classList.add('done');
+  brandBizVerified = true;
+}
+
+// 파일 업로드 (안경원)
 function handleFile() {
   const file = document.getElementById('biz-file').files[0];
   if (!file) return;
-  if (file.size > 10 * 1024 * 1024) {
-    showToast('파일 크기는 10MB 이하만 가능합니다.', 'error');
-    return;
-  }
+  if (file.size > 10 * 1024 * 1024) { showToast('파일 크기는 10MB 이하만 가능합니다.', 'error'); return; }
   bizFileObj = file;
   document.getElementById('biz-box').classList.add('has-file');
   document.getElementById('biz-filename').textContent = '✓ ' + file.name;
+}
+
+// 파일 업로드 (브랜드사)
+function handleBrandFile() {
+  const file = document.getElementById('brand-biz-file').files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { showToast('파일 크기는 10MB 이하만 가능합니다.', 'error'); return; }
+  brandBizFileObj = file;
+  document.getElementById('brand-biz-box').classList.add('has-file');
+  document.getElementById('brand-biz-filename').textContent = '✓ ' + file.name;
 }
 
 // 약관
@@ -448,12 +566,8 @@ async function submitForm() {
   const zipcode = document.getElementById('zipcode').value;
   const addr1 = document.getElementById('addr1').value;
   const addr2 = document.getElementById('addr2').value;
-  const storeName = document.getElementById('storeName').value.trim();
-  const bizNo = document.getElementById('bizNo').value.trim();
-  const licenseNo = document.getElementById('licenseNo').value.trim();
-  const storePhone = document.getElementById('storePhone').value.trim();
 
-  // 유효성 검사
+  // 공통 유효성
   if (!name) { showToast('이름을 입력해주세요.', 'error'); return; }
   if (!email) { showToast('이메일을 입력해주세요.', 'error'); return; }
   if (!emailVerified) { showToast('이메일 중복확인을 해주세요.', 'error'); return; }
@@ -461,14 +575,31 @@ async function submitForm() {
   if (pw !== pw2) { showToast('비밀번호가 일치하지 않습니다.', 'error'); return; }
   if (!phone) { showToast('휴대폰 번호를 입력해주세요.', 'error'); return; }
   if (!addr1) { showToast('주소를 검색해주세요.', 'error'); return; }
-  if (!storeName) { showToast('안경원명을 입력해주세요.', 'error'); return; }
-  if (!bizNo) { showToast('사업자등록번호를 입력해주세요.', 'error'); return; }
-  if (!licenseNo) { showToast('면허번호를 입력해주세요.', 'error'); return; }
-  if (!bizFileObj) { showToast('사업자등록증을 업로드해주세요.', 'error'); return; }
   if (!document.getElementById('chk1').classList.contains('checked') ||
       !document.getElementById('chk2').classList.contains('checked') ||
       !document.getElementById('chk3').classList.contains('checked')) {
     showToast('필수 약관에 동의해주세요.', 'error'); return;
+  }
+
+  // 역할별 유효성
+  if (currentRole === 'optician') {
+    const storeName = document.getElementById('storeName').value.trim();
+    const bizNo = document.getElementById('bizNo').value.trim();
+    const licenseNo = document.getElementById('licenseNo').value.trim();
+    if (!storeName) { showToast('안경원명을 입력해주세요.', 'error'); return; }
+    if (!bizNo) { showToast('사업자등록번호를 입력해주세요.', 'error'); return; }
+    if (!licenseNo) { showToast('면허번호를 입력해주세요.', 'error'); return; }
+    if (!bizFileObj) { showToast('사업자등록증을 업로드해주세요.', 'error'); return; }
+  } else {
+    const brandName = document.getElementById('brandName').value.trim();
+    const brandBizNo = document.getElementById('brandBizNo').value.trim();
+    const ceoName = document.getElementById('ceoName').value.trim();
+    const brandDesc = document.getElementById('brandDesc').value.trim();
+    if (!brandName) { showToast('브랜드명을 입력해주세요.', 'error'); return; }
+    if (!brandBizNo) { showToast('사업자등록번호를 입력해주세요.', 'error'); return; }
+    if (!ceoName) { showToast('대표자명을 입력해주세요.', 'error'); return; }
+    if (!brandDesc) { showToast('브랜드 소개를 입력해주세요.', 'error'); return; }
+    if (!brandBizFileObj) { showToast('사업자등록증을 업로드해주세요.', 'error'); return; }
   }
 
   // 로딩 시작
@@ -476,42 +607,56 @@ async function submitForm() {
   document.getElementById('submitBtn').disabled = true;
 
   try {
-    // 1. Firebase Auth 회원가입
     const userCred = await window._createUser(window._auth, email, pw);
     const uid = userCred.user.uid;
 
-    // 2. 사업자등록증 Storage 업로드
-    const fileRef = window._ref(window._storage, `business_docs/${uid}/${bizFileObj.name}`);
-    await window._uploadBytes(fileRef, bizFileObj);
-    const fileUrl = await window._getDownloadURL(fileRef);
-
-    // 3. Firestore에 회원 정보 저장
-    await window._setDoc(window._doc(window._db, 'users', uid), {
-      uid: uid,
-      name: name,
-      email: email,
-      phone: phone,
+    let userData = {
+      uid, name, email, phone,
       birth: document.getElementById('birth').value,
-      address: {
-        zipcode: zipcode,
-        addr1: addr1,
-        addr2: addr2
-      },
-      storeName: storeName,
-      bizNo: bizNo,
-      licenseNo: licenseNo,
-      storePhone: storePhone,
-      bizDocUrl: fileUrl,
-      member_level: 1,  // 1 = 승인 대기
+      address: { zipcode, addr1, addr2 },
+      role: currentRole,
       approval_status: 'pending',
+      member_level: 1,
       marketing: document.getElementById('chk4').classList.contains('checked'),
       createdAt: window._serverTimestamp(),
       approvedAt: null
-    });
+    };
 
-    // 4. 완료!
+    if (currentRole === 'optician') {
+      const fileObj = bizFileObj;
+      const fileRef = window._ref(window._storage, `business_docs/${uid}/${fileObj.name}`);
+      await window._uploadBytes(fileRef, fileObj);
+      const fileUrl = await window._getDownloadURL(fileRef);
+      userData = {
+        ...userData,
+        storeName: document.getElementById('storeName').value.trim(),
+        bizNo: document.getElementById('bizNo').value.trim(),
+        licenseNo: document.getElementById('licenseNo').value.trim(),
+        storePhone: document.getElementById('storePhone').value.trim(),
+        bizDocUrl: fileUrl
+      };
+    } else {
+      const fileObj = brandBizFileObj;
+      const fileRef = window._ref(window._storage, `business_docs/${uid}/${fileObj.name}`);
+      await window._uploadBytes(fileRef, fileObj);
+      const fileUrl = await window._getDownloadURL(fileRef);
+      userData = {
+        ...userData,
+        brandName: document.getElementById('brandName').value.trim(),
+        bizNo: document.getElementById('brandBizNo').value.trim(),
+        ceoName: document.getElementById('ceoName').value.trim(),
+        brandDesc: document.getElementById('brandDesc').value.trim(),
+        bizDocUrl: fileUrl
+      };
+    }
+
+    await window._setDoc(window._doc(window._db, 'users', uid), userData);
+
     document.getElementById('loadingOverlay').classList.remove('show');
-    alert('✓ 회원가입이 완료되었습니다!\n\n사업자등록증 검토 후 1영업일 이내 승인 이메일을 보내드립니다.\n감사합니다 😊');
+    const msg = currentRole === 'brand'
+      ? '✓ 입점 신청이 완료되었습니다!\n\n서류 검토 후 1~2영업일 이내 승인 연락드립니다. 감사합니다 😊'
+      : '✓ 회원가입이 완료되었습니다!\n\n사업자등록증 검토 후 1영업일 이내 승인 이메일을 보내드립니다. 감사합니다 😊';
+    alert(msg);
     location.href = 'index.html';
 
   } catch(e) {

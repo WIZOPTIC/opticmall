@@ -180,7 +180,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     <div class="summary-card">
       <div class="summary-title">결제 금액</div>
       <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
-      <div class="sum-row"><span class="lbl">배송비</span><span class="val" style="color:var(--green);">무료</span></div>
+      <div class="sum-row"><span class="lbl">배송비</span><span class="val" id="shippingFeeDisplay" style="color:var(--green);">무료</span></div>
       <hr class="sum-divider">
       <div class="sum-total">
         <span>최종 결제</span>
@@ -303,6 +303,33 @@ async function loadOrderProduct() {
       return;
     }
 
+    // 진행중 이벤트 할인가 매칭 (서버측 가격 재확인 - 위변조 방지)
+    try {
+      const promoSnap = await _db.collection('promotions').where('status', '==', 'approved').get();
+      const today = new Date().toISOString().slice(0,10);
+      const discountMap = {};
+      promoSnap.forEach(doc => {
+        const promo = doc.data();
+        if(promo.startDate > today || promo.endDate < today) return;
+        (promo.targetProductIds || []).forEach(pid => {
+          if(!discountMap[pid] || promo.discountRate > discountMap[pid]) discountMap[pid] = promo.discountRate;
+        });
+      });
+      orderItems.forEach(item => {
+        const rate = discountMap[item.product.id];
+        if(rate) {
+          item.product.discountRate = rate;
+          item.product.originalPrice = Number(item.product.price || 0);
+          item.product.effectivePrice = Math.round(item.product.originalPrice * (1 - rate/100));
+        } else {
+          item.product.effectivePrice = Number(item.product.price || 0);
+        }
+      });
+    } catch(e) {
+      console.error('이벤트 조회 실패:', e);
+      orderItems.forEach(item => { item.product.effectivePrice = Number(item.product.price || 0); });
+    }
+
     renderOrderItems();
     document.getElementById('loadingArea').style.display = 'none';
     document.getElementById('orderMain').style.display = 'flex';
@@ -313,18 +340,20 @@ async function loadOrderProduct() {
 }
 
 function renderOrderItems() {
-  totalAmount = orderItems.reduce((sum, item) => sum + Number(item.product.price||0) * item.qty, 0);
+  totalAmount = orderItems.reduce((sum, item) => sum + Number(item.product.effectivePrice||item.product.price||0) * item.qty, 0);
 
   document.getElementById('itemCount').textContent = orderItems.length;
   document.getElementById('orderItemsList').innerHTML = orderItems.map(item => {
     const p = item.product;
-    const subtotal = Number(p.price||0) * item.qty;
+    const unitPrice = Number(p.effectivePrice || p.price || 0);
+    const subtotal = unitPrice * item.qty;
     const imgHtml = p.mainImageUrl ? `<img src="${p.mainImageUrl}">` : `👓`;
+    const discountTag = p.discountRate ? `<span style="font-size:11px;color:var(--red);font-weight:700;margin-left:4px;">${p.discountRate}% 할인적용</span>` : '';
     return `
       <div class="order-item">
         <div class="order-img">${imgHtml}</div>
         <div class="order-item-info">
-          <div class="order-item-name">${p.modelName||'-'}${p.color ? ' · '+p.color : ''}</div>
+          <div class="order-item-name">${p.modelName||'-'}${p.color ? ' · '+p.color : ''}${discountTag}</div>
           <div class="order-item-opt">${p.barcode||''} · ${item.qty}개</div>
         </div>
         <div class="order-item-price">₩${subtotal.toLocaleString()}</div>
@@ -332,8 +361,50 @@ function renderOrderItems() {
   }).join('');
 
   document.getElementById('sumProducts').textContent = '₩' + totalAmount.toLocaleString();
-  document.getElementById('sumTotal').textContent = '₩' + totalAmount.toLocaleString();
+  updateShippingAndTotal();
 }
+
+// ===================== 배송비 계산 =====================
+const FREE_SHIPPING_THRESHOLD = 100000; // 10만원 이상 무료
+const BASE_SHIPPING_FEE = 3500;
+const JEJU_EXTRA_FEE = 3000; // 제주/도서산간 추가비
+
+let currentShippingFee = 0;
+
+function isJejuAddress(addr) {
+  if(!addr) return false;
+  return addr.includes('제주') || addr.includes('울릉') || addr.includes('독도');
+}
+
+function calcShippingFee() {
+  const addr1 = document.getElementById('receiverAddr1').value || '';
+  let fee = totalAmount >= FREE_SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING_FEE;
+  if(isJejuAddress(addr1)) fee += JEJU_EXTRA_FEE;
+  return fee;
+}
+
+function updateShippingAndTotal() {
+  currentShippingFee = calcShippingFee();
+  const feeDisplay = document.getElementById('shippingFeeDisplay');
+  const addr1 = document.getElementById('receiverAddr1').value || '';
+
+  if(currentShippingFee === 0) {
+    feeDisplay.textContent = '무료';
+    feeDisplay.style.color = 'var(--green)';
+  } else {
+    let label = '₩' + currentShippingFee.toLocaleString();
+    if(isJejuAddress(addr1)) label += ' (도서산간 포함)';
+    feeDisplay.textContent = label;
+    feeDisplay.style.color = 'var(--black)';
+  }
+
+  const finalTotal = totalAmount + currentShippingFee;
+  document.getElementById('sumTotal').textContent = '₩' + finalTotal.toLocaleString();
+}
+
+// 주소 입력 변경 시 배송비 재계산 (주소 검색 완료 후 호출됨)
+document.getElementById('receiverAddr1')?.addEventListener('change', updateShippingAndTotal);
+
 
 // ===================== 결제 시작 =====================
 function generateOrderId() {
@@ -355,6 +426,7 @@ async function startPayment() {
   const orderName = orderItems.length > 1
     ? `${firstName} 외 ${orderItems.length - 1}건`
     : firstName;
+  const finalPayAmount = totalAmount + currentShippingFee;
 
   // 주문 정보를 Firestore에 임시 저장 (결제 시도 단계, 상태: payment_pending)
   try {
@@ -368,11 +440,15 @@ async function startPayment() {
         brandId: item.product.brandId || '',
         brandName: item.product.brandName || '',
         qty: item.qty,
-        unitPrice: Number(item.product.price || 0),
-        subtotal: Number(item.product.price || 0) * item.qty
+        unitPrice: Number(item.product.effectivePrice || item.product.price || 0),
+        originalUnitPrice: Number(item.product.price || 0),
+        discountRate: item.product.discountRate || 0,
+        subtotal: Number(item.product.effectivePrice || item.product.price || 0) * item.qty
       })),
       itemCount: totalItemCount,
-      totalAmount,
+      productAmount: totalAmount,
+      shippingFee: currentShippingFee,
+      totalAmount: finalPayAmount,
       receiver: {
         name: document.getElementById('receiverName').value.trim(),
         phone: document.getElementById('receiverPhone').value.trim(),
@@ -397,7 +473,7 @@ async function startPayment() {
 
     await payment.requestPayment({
       method: "CARD",
-      amount: { currency: "KRW", value: totalAmount },
+      amount: { currency: "KRW", value: finalPayAmount },
       orderId: orderId,
       orderName: orderName,
       customerName: currentUserData.name || '',
