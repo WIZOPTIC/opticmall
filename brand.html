@@ -189,6 +189,9 @@ tr:hover td{background:#FAFBFC;}
     <div class="login-sub">브랜드사 로그인</div>
     <input class="login-input" type="email" placeholder="이메일" id="brandEmail">
     <input class="login-input" type="password" placeholder="비밀번호" id="brandPw" onkeydown="if(event.key==='Enter') brandLogin()">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;margin-bottom:14px;">
+      <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
+    </label>
     <button class="login-btn" onclick="brandLogin()">로그인</button>
     <div class="login-error" id="loginError">이메일 또는 비밀번호가 올바르지 않습니다.</div>
   </div>
@@ -426,7 +429,7 @@ tr:hover td{background:#FAFBFC;}
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, collection, getDocs, addDoc, doc, getDoc, deleteDoc, updateDoc, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
@@ -449,6 +452,9 @@ window._auth = auth;
 window._db = db;
 window._storage = storage;
 window._signIn = signInWithEmailAndPassword;
+window._setPersistence = setPersistence;
+window._localPersistence = browserLocalPersistence;
+window._sessionPersistence = browserSessionPersistence;
 window._signOut = signOut;
 window._collection = collection;
 window._getDocs = getDocs;
@@ -533,9 +539,12 @@ function formatDate(ts) {
 async function brandLogin() {
   const email = document.getElementById('brandEmail').value.trim();
   const pw = document.getElementById('brandPw').value;
+  const keepLogin = document.getElementById('keepLoginChk').checked;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
   try {
+    const persistence = keepLogin ? window._localPersistence : window._sessionPersistence;
+    await window._setPersistence(window._auth, persistence);
     await window._signIn(window._auth, email, pw);
   } catch(e) {
     errEl.style.display = 'block';

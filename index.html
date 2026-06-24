@@ -459,7 +459,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
       <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;">
-          <input type="checkbox" style="accent-color:#1A2D4A;">이메일 저장하기
+          <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
         </label>
         <span style="font-size:12px;color:#999;cursor:pointer;text-decoration:underline;">비밀번호 찾기</span>
       </div>
@@ -845,6 +845,7 @@ const _db = firebase.firestore();
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pw = document.getElementById('loginPw').value;
+  const keepLogin = document.getElementById('keepLoginChk').checked;
   const errEl = document.getElementById('loginError');
   const btn = document.getElementById('loginSubmitBtn');
   errEl.style.display = 'none';
@@ -852,6 +853,9 @@ async function doLogin() {
   btn.textContent = '로그인 중...';
   btn.disabled = true;
   try {
+    // 체크박스 선택 시에만 브라우저를 닫아도 로그인 유지 (LOCAL), 기본은 탭/창을 닫으면 로그아웃 (SESSION)
+    const persistence = keepLogin ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+    await _auth.setPersistence(persistence);
     await _auth.signInWithEmailAndPassword(email, pw);
     closeLogin();
     showToastMain('✓ 로그인되었습니다!', 'success');
