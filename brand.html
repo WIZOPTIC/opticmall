@@ -543,6 +543,7 @@ function showPage(name, el) {
   if(el) el.classList.add('active');
   const titles = {dashboard:'대시보드', register:'상품 일괄등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록', brandManage:'내 브랜드 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
+  if(name === 'register') loadMyBrandsForRegister();
   if(name === 'products') loadProducts();
   if(name === 'promoCreate') loadPromoProductCheckList();
   if(name === 'myPromos') loadMyPromos();
@@ -1209,6 +1210,7 @@ async function saveBrand() {
 
     closeAddBrandForm();
     loadMyBrands();
+    loadMyBrandsForRegister(); // 상품등록 화면 드롭다운도 최신화
   } catch(e) {
     console.error(e);
     showToast('저장 중 오류가 발생했습니다: ' + e.message, 'error');
@@ -1224,6 +1226,7 @@ async function deleteBrand(brandId) {
     await window._deleteDoc(window._doc(window._db, 'brands', brandId));
     showToast('브랜드가 삭제되었습니다.', 'success');
     loadMyBrands();
+    loadMyBrandsForRegister();
   } catch(e) {
     console.error(e);
     showToast('삭제 중 오류가 발생했습니다: ' + e.message, 'error');
