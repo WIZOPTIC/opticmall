@@ -89,6 +89,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .btn-ghost:hover{border-color:var(--sky);color:var(--sky);}
 
 /* 상품 일괄등록 테이블 */
+.bulk-brand-select{background:var(--white);border-radius:10px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.bulk-brand-select label{font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;}
+.bulk-brand-select select{padding:10px 14px;border:1.5px solid var(--sky);border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:var(--white);cursor:pointer;min-width:220px;font-weight:600;color:var(--navy);}
+.bulk-brand-hint{font-size:12px;color:var(--g3);}
 .reg-card{background:var(--white);border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:20px;}
 .form-group-promo{margin-bottom:16px;}
 .form-group-promo label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px;}
@@ -209,7 +213,7 @@ tr:hover td{background:#FAFBFC;}
     <div class="menu-section">브랜드 관리</div>
     <button class="menu-item" onclick="showPage('brandManage',this)"><span>🏪</span> 내 브랜드 관리</button>
     <div class="menu-section">상품 관리</div>
-    <button class="menu-item" onclick="showPage('register',this)"><span>➕</span> 상품 일괄등록</button>
+    <button class="menu-item" onclick="showPage('register',this)"><span>➕</span> 상품 등록</button>
     <button class="menu-item" onclick="showPage('products',this)"><span>👓</span> 내 상품 목록</button>
     <div class="menu-section">프로모션</div>
     <button class="menu-item" onclick="showPage('promoCreate',this)"><span>🎉</span> 이벤트/할인 등록</button>
@@ -273,18 +277,26 @@ tr:hover td{background:#FAFBFC;}
     <!-- 상품 일괄등록 -->
     <div class="page" id="page-register">
       <div class="section-header">
-        <div class="section-title">상품 일괄등록</div>
+        <div class="section-title">상품 등록</div>
         <div style="font-size:12px;color:var(--g3);">등록한 상품은 관리자 승인 후 노출됩니다</div>
+      </div>
+
+      <!-- 등록할 브랜드 선택 -->
+      <div class="bulk-brand-select" id="bulkBrandSelectWrap">
+        <label>등록할 브랜드 <span style="color:var(--red);">*</span></label>
+        <select id="bulkBrandSelect" onchange="onBulkBrandChange()">
+          <option value="">브랜드를 선택해주세요</option>
+        </select>
+        <span class="bulk-brand-hint">선택한 브랜드로 아래 상품 전체가 등록됩니다.</span>
       </div>
 
       <div class="reg-card">
         <div class="reg-table-wrap">
           <table class="reg-table">
             <thead>
-              <tr>
+              <tr id="regTableHeader">
                 <th class="col-model">모델명 <span style="color:var(--red);">*</span></th>
                 <th class="col-barcode">바코드</th>
-                <th class="col-brand">소속 브랜드 <span style="color:var(--red);">*</span></th>
                 <th class="col-color">색상</th>
                 <th class="col-category">카테고리</th>
                 <th class="col-type">타입</th>
@@ -303,7 +315,7 @@ tr:hover td{background:#FAFBFC;}
 
         <div class="reg-footer">
           <button class="btn-sm btn-ghost" onclick="clearAllRows()">전체 비우기</button>
-          <button class="btn-bulk-save" id="bulkSaveBtn" onclick="submitBulkRegister()">일괄 등록하기</button>
+          <button class="btn-bulk-save" id="bulkSaveBtn" onclick="submitBulkRegister()">상품 등록하기</button>
         </div>
       </div>
     </div>
@@ -541,7 +553,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', register:'상품 일괄등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록', brandManage:'내 브랜드 관리'};
+  const titles = {dashboard:'대시보드', register:'상품 등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록', brandManage:'내 브랜드 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'register') loadMyBrandsForRegister();
   if(name === 'products') loadProducts();
@@ -708,11 +720,12 @@ async function deleteProduct(productId) {
   }
 }
 
-// ===================== 상품 일괄등록 (테이블) =====================
+// ===================== 상품 등록 (단일 브랜드 고정) =====================
 // 행 데이터 구조: { rowId, images: { main:File, detail1:File, detail2:File, detail3:File, detail4:File } }
 let regRows = [];
 let rowIdCounter = 0;
 let myBrandsForRegister = []; // 등록 화면 드롭다운용 내 브랜드 목록
+let selectedBulkBrandId = ''; // 현재 등록 작업에서 고정된 브랜드
 const IMAGE_SLOTS = [
   {key:'main', label:'메인', tag:true},
   {key:'detail1', label:'상세1'},
@@ -730,10 +743,28 @@ async function loadMyBrandsForRegister() {
     ));
     myBrandsForRegister = [];
     snap.forEach(d => myBrandsForRegister.push({ id: d.id, ...d.data() }));
-    renderRegTable();
+    renderBulkBrandSelect();
   } catch(e) {
     console.error('브랜드 목록 로드 실패:', e);
   }
+}
+
+function renderBulkBrandSelect() {
+  const sel = document.getElementById('bulkBrandSelect');
+  if(!sel) return;
+  const prevValue = sel.value;
+  sel.innerHTML = `<option value="">브랜드를 선택해주세요</option>` +
+    myBrandsForRegister.map(b => `<option value="${b.id}">${b.brandName}</option>`).join('');
+  // 이전 선택값이 여전히 유효하면 유지
+  if(prevValue && myBrandsForRegister.some(b => b.id === prevValue)) {
+    sel.value = prevValue;
+  } else if(myBrandsForRegister.length === 0) {
+    selectedBulkBrandId = '';
+  }
+}
+
+function onBulkBrandChange() {
+  selectedBulkBrandId = document.getElementById('bulkBrandSelect').value;
 }
 
 function initRegisterTable() {
@@ -773,12 +804,6 @@ function renderRegTable() {
     <tr data-row-id="${row.rowId}">
       <td class="col-model"><input type="text" data-field="modelName" placeholder="예) K9191" value="${row.modelName||''}" onchange="updateRowField('${row.rowId}','modelName',this.value)"></td>
       <td class="col-barcode"><input type="text" data-field="barcode" placeholder="바코드" value="${row.barcode||''}" onchange="updateRowField('${row.rowId}','barcode',this.value)"></td>
-      <td class="col-brand">
-        <select data-field="brandId" onchange="updateRowField('${row.rowId}','brandId',this.value)">
-          <option value="">브랜드 선택</option>
-          ${myBrandsForRegister.map(b => `<option value="${b.id}" ${row.brandId===b.id?'selected':''}>${b.brandName}</option>`).join('')}
-        </select>
-      </td>
       <td class="col-color"><input type="text" data-field="color" placeholder="블랙" value="${row.color||''}" onchange="updateRowField('${row.rowId}','color',this.value)"></td>
       <td class="col-category">
         <select data-field="category" onchange="updateRowField('${row.rowId}','category',this.value)">
@@ -858,18 +883,19 @@ async function submitBulkRegister() {
     showToast('먼저 "내 브랜드 관리"에서 브랜드를 1개 이상 등록해주세요.', 'error');
     return;
   }
+  if(!selectedBulkBrandId) {
+    showToast('상단에서 등록할 브랜드를 먼저 선택해주세요.', 'error');
+    return;
+  }
   for(const row of validRows) {
     if(!row.price) {
       showToast(`[${row.modelName}] 도매가를 입력해주세요.`, 'error');
       return;
     }
-    if(!row.brandId) {
-      showToast(`[${row.modelName}] 소속 브랜드를 선택해주세요.`, 'error');
-      return;
-    }
   }
 
-  if(!confirm(`${validRows.length}건의 상품을 등록하시겠습니까?\n등록 후 관리자 승인 절차를 거쳐 노출됩니다.`)) return;
+  const brandInfo = myBrandsForRegister.find(b => b.id === selectedBulkBrandId);
+  if(!confirm(`[${brandInfo?.brandName}] 브랜드로 ${validRows.length}건의 상품을 등록하시겠습니까?\n등록 후 관리자 승인 절차를 거쳐 노출됩니다.`)) return;
 
   const btn = document.getElementById('bulkSaveBtn');
   btn.disabled = true;
@@ -893,10 +919,8 @@ async function submitBulkRegister() {
         }
       }
 
-      const brandInfo = myBrandsForRegister.find(b => b.id === row.brandId);
-
       await window._addDoc(window._collection(window._db, 'products'), {
-        brandId: row.brandId, // brands 컬렉션 문서ID (서브 브랜드 단위)
+        brandId: selectedBulkBrandId, // brands 컬렉션 문서ID (서브 브랜드 단위), 이 등록작업 전체에 고정
         brandName: brandInfo?.brandName || '',
         brandOwnerUid: uid, // 회사 계정 (권한/조회용)
         modelName: row.modelName.trim(),
@@ -915,7 +939,7 @@ async function submitBulkRegister() {
       successCount++;
     }
 
-    showToast(`✅ ${successCount}건 등록 완료! 관리자 승인 후 노출됩니다.`, 'success');
+    showToast(`✅ [${brandInfo?.brandName}] 브랜드로 ${successCount}건 등록 완료! 관리자 승인 후 노출됩니다.`, 'success');
     regRows = [];
     addRegRow(); addRegRow(); addRegRow();
     renderRegTable();
