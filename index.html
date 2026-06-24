@@ -870,7 +870,7 @@ async function doLogout() {
 }
 
 // 헤더 로그인 상태 변경
-function updateHeaderLoggedIn(name, level, status) {
+function updateHeaderLoggedIn(name, level, status, role) {
   // 로그인/회원가입 버튼 숨기기
   const loginBtn = document.getElementById('loginBtn');
   const joinBtn = document.querySelector('.h-join');
@@ -890,6 +890,14 @@ function updateHeaderLoggedIn(name, level, status) {
     headerRight.insertBefore(welcomeEl, headerRight.firstChild);
   }
 
+  // 관리자 모드 링크 (브랜드사/마스터/서브마스터 전용)
+  let adminLinkHtml = '';
+  if(role === 'brand') {
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#E6F5FB'" onmouseout="this.style.background=''">🏪 브랜드 관리자 모드</a>`;
+  } else if(role === 'master' || role === 'submaster') {
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#E6F5FB'" onmouseout="this.style.background=''">⚙️ 관리자 모드</a>`;
+  }
+
   // 드롭다운 메뉴 업데이트
   const dropdown = document.getElementById('userDropdown');
   if(dropdown) {
@@ -898,6 +906,7 @@ function updateHeaderLoggedIn(name, level, status) {
         <div style="font-size:13px;font-weight:700;color:#1A2D4A;">${name}님</div>
         <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
       </div>
+      ${adminLinkHtml}
       <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">마이페이지</a>
       <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">주문/배송조회</a>
       <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">관심상품</a>
@@ -936,11 +945,12 @@ _auth.onAuthStateChanged(async (user) => {
       const name = userData.name || user.email.split('@')[0];
       const level = userData.member_level || 0;
       const status = userData.approval_status || 'pending';
+      const role = userData.role || 'optician';
       mainMemberLevel = level;
-      updateHeaderLoggedIn(name, level, status);
+      updateHeaderLoggedIn(name, level, status, role);
       updateMainCartCount(user.uid);
     } catch(e) {
-      updateHeaderLoggedIn(user.email.split('@')[0], 0, 'pending');
+      updateHeaderLoggedIn(user.email.split('@')[0], 0, 'pending', 'optician');
     }
   } else {
     mainMemberLevel = 0;
