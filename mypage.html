@@ -123,6 +123,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .form-group input:focus,.form-group textarea:focus{border-color:var(--sky);}
 .form-group input[readonly]{background:var(--g1);color:var(--g4);}
 .btn-save{padding:13px;background:var(--sky);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;margin-top:6px;transition:background 0.15s;}
+.btn-addr-search{padding:0 16px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background 0.15s;}
+.btn-addr-search:hover{background:var(--sky);}
 .btn-save:hover{background:var(--sky-dk);}
 
 /* 하단 네비 */
@@ -131,6 +133,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .bnav-item.active{color:var(--sky);}
 .bnav-item svg{width:22px;height:22px;}
 </style>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
 <header class="header">
@@ -233,9 +236,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
         <div class="form-group"><label>배송지 이름</label><input id="addrLabel" placeholder="예) 회사, 자택, 안경원"></div>
         <div class="form-group"><label>받는 분</label><input id="addrRecipientName" placeholder="수령인 이름"></div>
         <div class="form-group"><label>연락처</label><input id="addrRecipientPhone" placeholder="010-0000-0000"></div>
-        <div class="form-group"><label>우편번호</label><input id="addrZip" placeholder="우편번호"></div>
-        <div class="form-group"><label>기본 주소</label><input id="addrAddr1" placeholder="기본 주소"></div>
-        <div class="form-group"><label>상세 주소</label><input id="addrAddr2" placeholder="상세 주소"></div>
+        <div class="form-group">
+          <label>우편번호</label>
+          <div style="display:flex;gap:8px;">
+            <input id="addrZip" placeholder="우편번호" readonly style="background:var(--g1);">
+            <button type="button" class="btn-addr-search" onclick="openAddressSearch()">주소 검색</button>
+          </div>
+        </div>
+        <div class="form-group"><label>기본 주소</label><input id="addrAddr1" placeholder="주소 검색을 클릭해주세요" readonly style="background:var(--g1);"></div>
+        <div class="form-group"><label>상세 주소</label><input id="addrAddr2" placeholder="상세 주소 (동/호수 등)"></div>
         <div class="form-group">
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
             <input type="checkbox" id="addrIsDefault" style="width:16px;height:16px;accent-color:var(--sky);">
@@ -490,6 +499,19 @@ function openAddAddressForm() {
   document.getElementById('addrIsDefault').checked = myAddresses.length === 0; // 첫 배송지면 자동으로 기본 체크
   document.getElementById('saveAddressBtn').textContent = '배송지 저장';
   document.getElementById('addressFormCard').style.display = 'block';
+}
+
+// 다음(카카오) 우편번호 서비스로 주소 검색
+function openAddressSearch() {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      // 도로명 주소 우선, 없으면 지번 주소
+      const fullAddr = data.roadAddress || data.jibunAddress;
+      document.getElementById('addrZip').value = data.zonecode;
+      document.getElementById('addrAddr1').value = fullAddr;
+      document.getElementById('addrAddr2').focus(); // 상세주소 입력으로 포커스 이동
+    }
+  }).open();
 }
 
 function openEditAddressForm(addressId) {

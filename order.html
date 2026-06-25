@@ -90,6 +90,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
 <header class="header">
@@ -162,11 +163,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
         <div class="form-group">
           <label class="form-label">주소</label>
           <div class="addr-row">
-            <input class="form-input" id="newAddrZip" placeholder="우편번호" style="max-width:140px;">
-            <button class="btn-addr" onclick="alert('주소 검색 기능은 다음 단계에서 연동됩니다. 직접 입력해주세요.')">주소 검색</button>
+            <input class="form-input" id="newAddrZip" placeholder="우편번호" readonly style="max-width:140px;background:var(--g1);">
+            <button class="btn-addr" onclick="openNewAddressSearch()">주소 검색</button>
           </div>
-          <input class="form-input" id="newAddrAddr1" placeholder="기본 주소" style="margin-bottom:8px;">
-          <input class="form-input" id="newAddrAddr2" placeholder="상세 주소">
+          <input class="form-input" id="newAddrAddr1" placeholder="주소 검색을 클릭해주세요" readonly style="margin-bottom:8px;background:var(--g1);">
+          <input class="form-input" id="newAddrAddr2" placeholder="상세 주소 (동/호수 등)">
         </div>
         <div class="form-group">
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--g4);">
@@ -343,6 +344,18 @@ function openNewAddressForm() {
 function closeNewAddressForm() {
   document.getElementById('newAddressForm').style.display = 'none';
   document.getElementById('addNewAddressBtn').style.display = 'block';
+}
+
+// 다음(카카오) 우편번호 서비스로 주소 검색
+function openNewAddressSearch() {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      const fullAddr = data.roadAddress || data.jibunAddress;
+      document.getElementById('newAddrZip').value = data.zonecode;
+      document.getElementById('newAddrAddr1').value = fullAddr;
+      document.getElementById('newAddrAddr2').focus();
+    }
+  }).open();
 }
 
 async function saveNewAddressAndSelect() {
