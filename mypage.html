@@ -26,6 +26,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .profile-store{font-size:12px;color:var(--g3);margin-top:2px;}
 .profile-level{display:inline-block;margin-top:8px;background:var(--sky-lt);color:var(--sky);font-size:11px;font-weight:700;padding:3px 12px;border-radius:100px;}
 .profile-level.pending{background:#FEF9E7;color:var(--orange);}
+.purchase-level-badge{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;padding:4px 14px;border-radius:100px;}
+.purchase-level-badge.lv-1{background:#F2F4F6;color:#5A6472;}
+.purchase-level-badge.lv-2{background:#EEF2F6;color:#6B7C93;}
+.purchase-level-badge.lv-3{background:#FEF8E7;color:#C49A1A;}
+.purchase-level-badge.lv-4{background:#F1EEFB;color:#6B4FBB;}
+.purchase-level-badge.lv-5{background:#1A2D4A;color:#FFD700;}
+.purchase-progress{margin-top:10px;font-size:11px;color:var(--g3);text-align:left;}
+.purchase-progress-bar{width:100%;height:5px;background:var(--g1);border-radius:100px;margin-top:5px;overflow:hidden;}
+.purchase-progress-fill{height:100%;background:var(--sky);border-radius:100px;transition:width 0.3s;}
 .menu-card{background:var(--white);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .menu-item{padding:13px 16px;font-size:13px;font-weight:500;color:var(--g4);cursor:pointer;border-bottom:1px solid var(--g1);display:flex;align-items:center;gap:8px;transition:all 0.15s;}
 .menu-item:last-child{border-bottom:none;}
@@ -101,6 +110,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
 /* 회원정보 폼 */
 .form-card{background:var(--white);border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.addr-card{background:var(--white);border-radius:10px;padding:18px 20px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.addr-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.addr-label{font-size:14px;font-weight:700;color:var(--navy);}
+.addr-default-badge{font-size:11px;font-weight:700;background:var(--sky-lt);color:var(--sky);padding:2px 10px;border-radius:100px;}
+.addr-recipient{font-size:13px;color:var(--g4);margin-bottom:4px;}
+.addr-text{font-size:13px;color:var(--black);line-height:1.6;margin-bottom:12px;}
+.addr-actions{display:flex;gap:8px;}
 .form-group{margin-bottom:14px;}
 .form-group label{font-size:12px;font-weight:600;color:var(--g4);display:block;margin-bottom:5px;}
 .form-group input,.form-group textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
@@ -136,6 +152,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
       <div class="profile-name" id="profileName">-</div>
       <div class="profile-store" id="profileStore">-</div>
       <div class="profile-level" id="profileLevel">-</div>
+      <div class="purchase-level-badge" id="purchaseLevelBadge" style="display:none;"></div>
+      <div class="purchase-progress" id="purchaseProgress" style="display:none;">
+        <div id="purchaseProgressText"></div>
+        <div class="purchase-progress-bar"><div class="purchase-progress-fill" id="purchaseProgressFill" style="width:0%;"></div></div>
+      </div>
     </div>
     <div class="menu-card">
       <div class="menu-item active" onclick="showSection('orders',this)"><span class="icon">🛒</span>주문 내역</div>
@@ -202,13 +223,32 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
     <!-- 배송지 관리 -->
     <div id="section-address" style="display:none;">
-      <div class="section-title">배송지 관리</div>
-      <div class="form-card">
+      <div class="section-header">
+        <div class="section-title">배송지 관리</div>
+        <button class="btn-sm btn-primary" onclick="openAddAddressForm()">+ 배송지 추가</button>
+      </div>
+
+      <!-- 배송지 추가/수정 폼 (기본 숨김) -->
+      <div class="form-card" id="addressFormCard" style="display:none;margin-bottom:14px;">
+        <div class="form-group"><label>배송지 이름</label><input id="addrLabel" placeholder="예) 회사, 자택, 안경원"></div>
+        <div class="form-group"><label>받는 분</label><input id="addrRecipientName" placeholder="수령인 이름"></div>
+        <div class="form-group"><label>연락처</label><input id="addrRecipientPhone" placeholder="010-0000-0000"></div>
         <div class="form-group"><label>우편번호</label><input id="addrZip" placeholder="우편번호"></div>
         <div class="form-group"><label>기본 주소</label><input id="addrAddr1" placeholder="기본 주소"></div>
         <div class="form-group"><label>상세 주소</label><input id="addrAddr2" placeholder="상세 주소"></div>
-        <button class="btn-save" onclick="saveAddress()">배송지 저장</button>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" id="addrIsDefault" style="width:16px;height:16px;accent-color:var(--sky);">
+            <span style="font-size:13px;color:var(--g4);">기본 배송지로 설정</span>
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-sm btn-ghost" onclick="closeAddAddressForm()" style="flex:1;padding:13px;">취소</button>
+          <button class="btn-save" id="saveAddressBtn" onclick="saveAddress()" style="flex:2;margin-top:0;">배송지 저장</button>
+        </div>
       </div>
+
+      <div id="addressList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
 
   </div>
@@ -249,6 +289,15 @@ const _db = firebase.firestore();
 let currentUser = null;
 let currentUserData = null;
 
+// ===================== 구매등급 체계 =====================
+const PURCHASE_LEVELS = [
+  { level: 1, name: '화이트', min: 0, max: 1000000 },
+  { level: 2, name: '실버', min: 1000000, max: 3000000 },
+  { level: 3, name: '골드', min: 3000000, max: 5000000 },
+  { level: 4, name: '플래티넘', min: 5000000, max: 10000000 },
+  { level: 5, name: '옵틱 마스터', min: 10000000, max: null }
+];
+
 _auth.onAuthStateChanged(async (user) => {
   if(!user) {
     alert('로그인 후 이용 가능합니다.');
@@ -286,6 +335,7 @@ function showSection(name, el) {
 
   if(name === 'wish') loadWishlist();
   if(name === 'restock') loadRestockAlerts();
+  if(name === 'address') loadAddresses();
 }
 
 function formatDate(ts) {
@@ -305,12 +355,43 @@ function renderProfile() {
   document.getElementById('profileStore').textContent = displayName || '-';
 
   const levelEl = document.getElementById('profileLevel');
-  if((u.member_level||0) >= 2) {
+  const isApproved = (u.member_level||0) >= 2;
+  if(isApproved) {
     levelEl.textContent = '✓ B2B 승인회원';
     levelEl.classList.remove('pending');
   } else {
     levelEl.textContent = '⏳ 승인 대기중';
     levelEl.classList.add('pending');
+  }
+
+  // 구매등급 (승인된 회원만 표시)
+  const badgeEl = document.getElementById('purchaseLevelBadge');
+  const progressEl = document.getElementById('purchaseProgress');
+  if(isApproved) {
+    const purchaseLevel = u.purchase_level || 1;
+    const totalAmount = Number(u.total_purchase_amount || 0);
+    const lvInfo = PURCHASE_LEVELS.find(l => l.level === purchaseLevel) || PURCHASE_LEVELS[0];
+
+    badgeEl.textContent = lvInfo.name;
+    badgeEl.className = `purchase-level-badge lv-${lvInfo.level}`;
+    badgeEl.style.display = 'inline-block';
+
+    if(lvInfo.max) {
+      const progress = Math.min(100, Math.round((totalAmount - lvInfo.min) / (lvInfo.max - lvInfo.min) * 100));
+      const remain = lvInfo.max - totalAmount;
+      const nextLv = PURCHASE_LEVELS.find(l => l.level === lvInfo.level + 1);
+      document.getElementById('purchaseProgressText').textContent =
+        `${nextLv ? nextLv.name : '다음 등급'}까지 ₩${remain.toLocaleString()} 남음`;
+      document.getElementById('purchaseProgressFill').style.width = progress + '%';
+      progressEl.style.display = 'block';
+    } else {
+      document.getElementById('purchaseProgressText').textContent = '최고 등급입니다 🎉';
+      document.getElementById('purchaseProgressFill').style.width = '100%';
+      progressEl.style.display = 'block';
+    }
+  } else {
+    badgeEl.style.display = 'none';
+    progressEl.style.display = 'none';
   }
 
   // 회원정보 폼
@@ -333,13 +414,6 @@ function renderProfile() {
   } else {
     document.getElementById('licenseNo').value = u.licenseNo || '-';
     document.getElementById('storePhone').value = u.storePhone || '-';
-  }
-
-  // 배송지
-  if(u.address) {
-    document.getElementById('addrZip').value = u.address.zipcode || '';
-    document.getElementById('addrAddr1').value = u.address.addr1 || '';
-    document.getElementById('addrAddr2').value = u.address.addr2 || '';
   }
 }
 
@@ -365,21 +439,149 @@ async function saveProfile() {
   }
 }
 
+// ===================== 배송지 관리 (다중 배송지) =====================
+let myAddresses = [];
+let editingAddressId = null;
+
+async function loadAddresses() {
+  const listEl = document.getElementById('addressList');
+  listEl.innerHTML = '<div class="loading-box"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await _db.collection('users').doc(currentUser.uid).collection('addresses').get();
+    myAddresses = [];
+    snap.forEach(d => myAddresses.push({ id: d.id, ...d.data() }));
+    // 기본 배송지가 맨 위로
+    myAddresses.sort((a,b) => (b.isDefault?1:0) - (a.isDefault?1:0));
+
+    if(myAddresses.length === 0) {
+      listEl.innerHTML = `<div class="empty-box">등록된 배송지가 없습니다. "+ 배송지 추가"로 첫 배송지를 등록해보세요!</div>`;
+      return;
+    }
+
+    listEl.innerHTML = myAddresses.map(a => `
+      <div class="addr-card">
+        <div class="addr-card-top">
+          <span class="addr-label">${a.label || '배송지'}</span>
+          ${a.isDefault ? `<span class="addr-default-badge">기본 배송지</span>` : ''}
+        </div>
+        <div class="addr-recipient">${a.recipientName||'-'} · ${a.recipientPhone||'-'}</div>
+        <div class="addr-text">${a.addr1||''} ${a.addr2||''} ${a.zipcode ? `(${a.zipcode})` : ''}</div>
+        <div class="addr-actions">
+          ${!a.isDefault ? `<button class="btn-sm btn-track" onclick="setDefaultAddress('${a.id}')">기본으로 설정</button>` : ''}
+          <button class="btn-sm btn-cancel" onclick="openEditAddressForm('${a.id}')">수정</button>
+          <button class="btn-sm btn-cancel" onclick="deleteAddress('${a.id}')">삭제</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = `<div class="empty-box" style="color:var(--red);">불러오지 못했습니다: ${e.message}</div>`;
+  }
+}
+
+function openAddAddressForm() {
+  editingAddressId = null;
+  document.getElementById('addrLabel').value = '';
+  document.getElementById('addrRecipientName').value = currentUserData.name || '';
+  document.getElementById('addrRecipientPhone').value = currentUserData.phone || '';
+  document.getElementById('addrZip').value = '';
+  document.getElementById('addrAddr1').value = '';
+  document.getElementById('addrAddr2').value = '';
+  document.getElementById('addrIsDefault').checked = myAddresses.length === 0; // 첫 배송지면 자동으로 기본 체크
+  document.getElementById('saveAddressBtn').textContent = '배송지 저장';
+  document.getElementById('addressFormCard').style.display = 'block';
+}
+
+function openEditAddressForm(addressId) {
+  const addr = myAddresses.find(a => a.id === addressId);
+  if(!addr) return;
+  editingAddressId = addressId;
+  document.getElementById('addrLabel').value = addr.label || '';
+  document.getElementById('addrRecipientName').value = addr.recipientName || '';
+  document.getElementById('addrRecipientPhone').value = addr.recipientPhone || '';
+  document.getElementById('addrZip').value = addr.zipcode || '';
+  document.getElementById('addrAddr1').value = addr.addr1 || '';
+  document.getElementById('addrAddr2').value = addr.addr2 || '';
+  document.getElementById('addrIsDefault').checked = !!addr.isDefault;
+  document.getElementById('saveAddressBtn').textContent = '배송지 수정 저장';
+  document.getElementById('addressFormCard').style.display = 'block';
+}
+
+function closeAddAddressForm() {
+  document.getElementById('addressFormCard').style.display = 'none';
+  editingAddressId = null;
+}
+
 async function saveAddress() {
+  const label = document.getElementById('addrLabel').value.trim() || '배송지';
+  const recipientName = document.getElementById('addrRecipientName').value.trim();
+  const recipientPhone = document.getElementById('addrRecipientPhone').value.trim();
   const zipcode = document.getElementById('addrZip').value.trim();
   const addr1 = document.getElementById('addrAddr1').value.trim();
   const addr2 = document.getElementById('addrAddr2').value.trim();
+  const isDefault = document.getElementById('addrIsDefault').checked;
+
+  if(!recipientName) { alert('받는 분 이름을 입력해주세요.'); return; }
   if(!addr1) { alert('기본 주소를 입력해주세요.'); return; }
 
+  const btn = document.getElementById('saveAddressBtn');
+  btn.disabled = true;
+
   try {
-    await _db.collection('users').doc(currentUser.uid).update({
-      address: { zipcode, addr1, addr2 }
-    });
-    currentUserData.address = { zipcode, addr1, addr2 };
-    alert('✓ 배송지가 저장되었습니다.');
+    const colRef = _db.collection('users').doc(currentUser.uid).collection('addresses');
+
+    // 이 배송지를 기본으로 설정하면, 기존 기본 배송지들의 플래그를 해제
+    if(isDefault) {
+      await Promise.all(
+        myAddresses.filter(a => a.isDefault && a.id !== editingAddressId)
+          .map(a => colRef.doc(a.id).update({ isDefault: false }))
+      );
+    }
+
+    const data = { label, recipientName, recipientPhone, zipcode, addr1, addr2, isDefault };
+
+    if(editingAddressId) {
+      await colRef.doc(editingAddressId).update(data);
+      alert('✓ 배송지가 수정되었습니다.');
+    } else {
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await colRef.add(data);
+      alert('✓ 배송지가 추가되었습니다.');
+    }
+
+    closeAddAddressForm();
+    loadAddresses();
   } catch(e) {
     console.error(e);
     alert('저장 중 오류가 발생했습니다: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function setDefaultAddress(addressId) {
+  try {
+    const colRef = _db.collection('users').doc(currentUser.uid).collection('addresses');
+    await Promise.all(
+      myAddresses.filter(a => a.isDefault).map(a => colRef.doc(a.id).update({ isDefault: false }))
+    );
+    await colRef.doc(addressId).update({ isDefault: true });
+    loadAddresses();
+  } catch(e) {
+    console.error(e);
+    alert('기본 배송지 설정 중 오류가 발생했습니다: ' + e.message);
+  }
+}
+
+async function deleteAddress(addressId) {
+  const addr = myAddresses.find(a => a.id === addressId);
+  if(!confirm(`"${addr?.label}" 배송지를 삭제하시겠습니까?`)) return;
+  try {
+    await _db.collection('users').doc(currentUser.uid).collection('addresses').doc(addressId).delete();
+    loadAddresses();
+  } catch(e) {
+    console.error(e);
+    alert('삭제 중 오류가 발생했습니다: ' + e.message);
   }
 }
 

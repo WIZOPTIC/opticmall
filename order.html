@@ -42,6 +42,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .form-input::placeholder{color:var(--g3);}
 .form-input[readonly]{background:var(--g1);color:var(--g4);}
 .addr-row{display:flex;gap:8px;margin-bottom:8px;}
+.addr-select-card{border:1.5px solid var(--g2);border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;}
+.addr-select-card:hover{border-color:var(--sky);}
+.addr-select-card.selected{border-color:var(--sky);background:var(--sky-lt);}
+.addr-select-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.addr-select-label{font-size:13px;font-weight:700;color:var(--navy);}
+.addr-select-default{font-size:10px;font-weight:700;background:var(--sky);color:var(--white);padding:1px 8px;border-radius:100px;}
+.addr-select-info{font-size:12px;color:var(--g4);line-height:1.6;}
 .btn-addr{padding:11px 16px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:80px;}
 .form-textarea:focus{border-color:var(--sky);}
@@ -133,24 +140,46 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     <!-- 배송지 -->
     <div class="card">
       <div class="card-title">🚚 배송지 정보</div>
-      <div class="form-group">
-        <label class="form-label">수령인</label>
-        <input class="form-input" id="receiverName" placeholder="수령인 이름">
-      </div>
-      <div class="form-group">
-        <label class="form-label">연락처</label>
-        <input class="form-input" id="receiverPhone" placeholder="연락처">
-      </div>
-      <div class="form-group">
-        <label class="form-label">주소</label>
-        <div class="addr-row">
-          <input class="form-input" id="receiverZip" placeholder="우편번호" readonly style="max-width:140px;">
-          <button class="btn-addr" onclick="searchAddress()">주소 검색</button>
+      <div id="addressSelectArea"><!-- JS로 배송지 카드 목록 렌더링 --></div>
+      <button class="btn-addr" id="addNewAddressBtn" onclick="openNewAddressForm()" style="width:100%;margin-top:4px;">+ 새 배송지 추가</button>
+
+      <!-- 새 배송지 입력 폼 (기본 숨김) -->
+      <div id="newAddressForm" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--g2);">
+        <div class="form-group">
+          <label class="form-label">배송지 이름</label>
+          <input class="form-input" id="newAddrLabel" placeholder="예) 회사, 자택">
         </div>
-        <input class="form-input" id="receiverAddr1" placeholder="기본 주소" readonly style="margin-bottom:8px;">
-        <input class="form-input" id="receiverAddr2" placeholder="상세 주소">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">수령인</label>
+            <input class="form-input" id="newAddrName" placeholder="수령인 이름">
+          </div>
+          <div class="form-group">
+            <label class="form-label">연락처</label>
+            <input class="form-input" id="newAddrPhone" placeholder="연락처">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">주소</label>
+          <div class="addr-row">
+            <input class="form-input" id="newAddrZip" placeholder="우편번호" style="max-width:140px;">
+            <button class="btn-addr" onclick="alert('주소 검색 기능은 다음 단계에서 연동됩니다. 직접 입력해주세요.')">주소 검색</button>
+          </div>
+          <input class="form-input" id="newAddrAddr1" placeholder="기본 주소" style="margin-bottom:8px;">
+          <input class="form-input" id="newAddrAddr2" placeholder="상세 주소">
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--g4);">
+            <input type="checkbox" id="newAddrIsDefault" style="width:16px;height:16px;accent-color:var(--sky);">기본 배송지로 설정
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-addr" onclick="closeNewAddressForm()" style="flex:1;">취소</button>
+          <button class="btn-addr" onclick="saveNewAddressAndSelect()" style="flex:2;background:var(--sky);">이 배송지 저장하고 선택</button>
+        </div>
       </div>
-      <div class="form-group">
+
+      <div class="form-group" style="margin-top:14px;">
         <label class="form-label">배송 요청사항</label>
         <textarea class="form-textarea" id="receiverMemo" placeholder="배송 시 요청사항을 입력해주세요"></textarea>
       </div>
@@ -237,6 +266,7 @@ _auth.onAuthStateChanged(async (user) => {
       return;
     }
     fillOrdererInfo();
+    await loadAddressesForOrder();
     await loadOrderProduct();
   } catch(e) {
     console.error(e);
@@ -249,19 +279,103 @@ function fillOrdererInfo() {
   document.getElementById('ordererPhone').value = currentUserData.phone || '-';
   document.getElementById('ordererEmail').value = currentUser.email || '-';
   document.getElementById('ordererStore').value = currentUserData.storeName || currentUserData.brandName || '-';
+}
 
-  // 배송지 기본값을 회원 정보로 채워줌 (수정 가능)
-  document.getElementById('receiverName').value = currentUserData.name || '';
-  document.getElementById('receiverPhone').value = currentUserData.phone || currentUserData.storePhone || '';
-  if(currentUserData.address) {
-    document.getElementById('receiverZip').value = currentUserData.address.zipcode || '';
-    document.getElementById('receiverAddr1').value = currentUserData.address.addr1 || '';
-    document.getElementById('receiverAddr2').value = currentUserData.address.addr2 || '';
+// ===================== 배송지 선택 (다중 배송지) =====================
+let myAddresses = [];
+let selectedAddressId = null;
+
+async function loadAddressesForOrder() {
+  const area = document.getElementById('addressSelectArea');
+  try {
+    const snap = await _db.collection('users').doc(currentUser.uid).collection('addresses').get();
+    myAddresses = [];
+    snap.forEach(d => myAddresses.push({ id: d.id, ...d.data() }));
+    myAddresses.sort((a,b) => (b.isDefault?1:0) - (a.isDefault?1:0));
+
+    if(myAddresses.length === 0) {
+      area.innerHTML = `<div style="font-size:13px;color:var(--g3);padding:10px 0;">등록된 배송지가 없습니다. "+ 새 배송지 추가"로 첫 배송지를 등록해주세요.</div>`;
+      return;
+    }
+
+    // 기본 배송지(또는 첫번째)를 자동 선택
+    const defaultAddr = myAddresses.find(a => a.isDefault) || myAddresses[0];
+    selectedAddressId = defaultAddr.id;
+
+    renderAddressSelectArea();
+    updateShippingAndTotal(); // 주소 기준 배송비 재계산
+  } catch(e) {
+    console.error(e);
+    area.innerHTML = `<div style="font-size:13px;color:var(--red);">배송지를 불러오지 못했습니다.</div>`;
   }
 }
 
-function searchAddress() {
-  alert('주소 검색 기능은 다음 단계에서 연동됩니다.\n지금은 직접 입력해주세요.');
+function renderAddressSelectArea() {
+  const area = document.getElementById('addressSelectArea');
+  area.innerHTML = myAddresses.map(a => `
+    <div class="addr-select-card ${a.id===selectedAddressId?'selected':''}" onclick="selectAddress('${a.id}')">
+      <div class="addr-select-top">
+        <span class="addr-select-label">${a.label||'배송지'}</span>
+        ${a.isDefault ? `<span class="addr-select-default">기본</span>` : ''}
+      </div>
+      <div class="addr-select-info">${a.recipientName||'-'} · ${a.recipientPhone||'-'}<br>${a.addr1||''} ${a.addr2||''}</div>
+    </div>
+  `).join('');
+}
+
+function selectAddress(addressId) {
+  selectedAddressId = addressId;
+  renderAddressSelectArea();
+  updateShippingAndTotal();
+}
+
+function getSelectedAddress() {
+  return myAddresses.find(a => a.id === selectedAddressId) || null;
+}
+
+function openNewAddressForm() {
+  document.getElementById('newAddressForm').style.display = 'block';
+  document.getElementById('addNewAddressBtn').style.display = 'none';
+  document.getElementById('newAddrName').value = currentUserData.name || '';
+  document.getElementById('newAddrPhone').value = currentUserData.phone || '';
+}
+
+function closeNewAddressForm() {
+  document.getElementById('newAddressForm').style.display = 'none';
+  document.getElementById('addNewAddressBtn').style.display = 'block';
+}
+
+async function saveNewAddressAndSelect() {
+  const label = document.getElementById('newAddrLabel').value.trim() || '배송지';
+  const recipientName = document.getElementById('newAddrName').value.trim();
+  const recipientPhone = document.getElementById('newAddrPhone').value.trim();
+  const zipcode = document.getElementById('newAddrZip').value.trim();
+  const addr1 = document.getElementById('newAddrAddr1').value.trim();
+  const addr2 = document.getElementById('newAddrAddr2').value.trim();
+  const isDefault = document.getElementById('newAddrIsDefault').checked;
+
+  if(!recipientName) { alert('수령인을 입력해주세요.'); return; }
+  if(!addr1) { alert('기본 주소를 입력해주세요.'); return; }
+
+  try {
+    const colRef = _db.collection('users').doc(currentUser.uid).collection('addresses');
+    if(isDefault) {
+      await Promise.all(myAddresses.filter(a => a.isDefault).map(a => colRef.doc(a.id).update({ isDefault: false })));
+    }
+    const docRef = await colRef.add({
+      label, recipientName, recipientPhone, zipcode, addr1, addr2, isDefault,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    await loadAddressesForOrder();
+    selectedAddressId = docRef.id;
+    renderAddressSelectArea();
+    updateShippingAndTotal();
+    closeNewAddressForm();
+  } catch(e) {
+    console.error(e);
+    alert('배송지 저장 중 오류가 발생했습니다: ' + e.message);
+  }
 }
 
 // ===================== 주문 상품 로드 (단건/다건 모두 지원) =====================
@@ -377,7 +491,8 @@ function isJejuAddress(addr) {
 }
 
 function calcShippingFee() {
-  const addr1 = document.getElementById('receiverAddr1').value || '';
+  const selected = getSelectedAddress();
+  const addr1 = selected?.addr1 || '';
   let fee = totalAmount >= FREE_SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING_FEE;
   if(isJejuAddress(addr1)) fee += JEJU_EXTRA_FEE;
   return fee;
@@ -386,7 +501,8 @@ function calcShippingFee() {
 function updateShippingAndTotal() {
   currentShippingFee = calcShippingFee();
   const feeDisplay = document.getElementById('shippingFeeDisplay');
-  const addr1 = document.getElementById('receiverAddr1').value || '';
+  const selected = getSelectedAddress();
+  const addr1 = selected?.addr1 || '';
 
   if(currentShippingFee === 0) {
     feeDisplay.textContent = '무료';
@@ -402,9 +518,6 @@ function updateShippingAndTotal() {
   document.getElementById('sumTotal').textContent = '₩' + finalTotal.toLocaleString();
 }
 
-// 주소 입력 변경 시 배송비 재계산 (주소 검색 완료 후 호출됨)
-document.getElementById('receiverAddr1')?.addEventListener('change', updateShippingAndTotal);
-
 
 // ===================== 결제 시작 =====================
 function generateOrderId() {
@@ -413,9 +526,9 @@ function generateOrderId() {
 
 async function startPayment() {
   // 필수값 검증
-  if(!document.getElementById('receiverName').value.trim()) { alert('수령인을 입력해주세요.'); return; }
-  if(!document.getElementById('receiverPhone').value.trim()) { alert('연락처를 입력해주세요.'); return; }
-  if(!document.getElementById('receiverAddr1').value.trim()) { alert('배송지 주소를 입력해주세요.'); return; }
+  const selectedAddr = getSelectedAddress();
+  if(!selectedAddr) { alert('배송지를 선택하거나 새 배송지를 추가해주세요.'); return; }
+  if(!selectedAddr.recipientName) { alert('선택한 배송지에 수령인 정보가 없습니다. 배송지를 수정해주세요.'); return; }
   if(!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
     alert('필수 약관에 동의해주세요.'); return;
   }
@@ -450,11 +563,11 @@ async function startPayment() {
       shippingFee: currentShippingFee,
       totalAmount: finalPayAmount,
       receiver: {
-        name: document.getElementById('receiverName').value.trim(),
-        phone: document.getElementById('receiverPhone').value.trim(),
-        zipcode: document.getElementById('receiverZip').value.trim(),
-        addr1: document.getElementById('receiverAddr1').value.trim(),
-        addr2: document.getElementById('receiverAddr2').value.trim(),
+        name: selectedAddr.recipientName || '',
+        phone: selectedAddr.recipientPhone || '',
+        zipcode: selectedAddr.zipcode || '',
+        addr1: selectedAddr.addr1 || '',
+        addr2: selectedAddr.addr2 || '',
         memo: document.getElementById('receiverMemo').value.trim()
       },
       status: 'payment_pending', // 결제창 진입 단계. 승인 완료 전.
