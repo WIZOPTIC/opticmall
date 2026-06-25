@@ -305,16 +305,15 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 <!-- GNB -->
 <nav class="gnb">
   <div class="gnb-inner">
-    <button class="gnb-item">OUR'S</button>
-    <button class="gnb-item">브랜드별</button>
-    <button class="gnb-item" style="color:var(--sky);font-weight:700;">하금테</button>
-    <button class="gnb-item">판테</button>
-    <button class="gnb-item">동글이</button>
-    <button class="gnb-item">뿔테</button>
-    <button class="gnb-item">선글라스</button>
-    <button class="gnb-item">타임세일</button>
-    <button class="gnb-item">이벤트</button>
-    <button class="gnb-item">고객센터</button>
+    <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
+    <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+    <button class="gnb-item" onclick="location.href='list.html'">타임세일</button>
+    <button class="gnb-item" onclick="location.href='list.html'">이벤트</button>
+    <button class="gnb-item" onclick="alert('카카오톡 채널로 문의해주세요!')">고객센터</button>
   </div>
 </nav>
 
