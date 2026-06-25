@@ -980,6 +980,17 @@ function doMainSearch() {
 // ===================== 메인페이지 상품 진열 (Firestore 연동) =====================
 let mainAllProducts = [];
 
+// 카드 클릭 시 상품 데이터를 미리 sessionStorage에 저장해서 상세페이지 로딩 깜빡임 최소화
+function goToProductFromMain(productId) {
+  const product = mainAllProducts.find(p => p.id === productId);
+  if(product) {
+    try {
+      sessionStorage.setItem('preloadProduct_' + productId, JSON.stringify(product));
+    } catch(e) { console.error('상품 미리보기 데이터 저장 실패:', e); }
+  }
+  location.href = 'product.html?id=' + productId;
+}
+
 function renderMainProductCard(p, badgeText, badgeClass) {
   const imgHtml = p.mainImageUrl
     ? `<img src="${p.mainImageUrl}" alt="${p.modelName||''}" style="width:100%;height:100%;object-fit:cover;">`
@@ -991,7 +1002,7 @@ function renderMainProductCard(p, badgeText, badgeClass) {
   const codeLabel = p.brandName ? `[${p.brandName}]` : '';
 
   return `
-    <div class="product-card" onclick="location.href='product.html?id=${p.id}'" style="cursor:pointer;">
+    <div class="product-card" onclick="goToProductFromMain('${p.id}')" style="cursor:pointer;">
       <div class="product-img-wrap">
         <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
         ${badgeHtml}

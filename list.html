@@ -416,7 +416,7 @@ function renderProducts(products) {
     const catLabel = p.category || p.type || p.brandName || '안경테';
 
     return `
-      <div class="product-card" onclick="location.href='product.html?id=${p.id}'">
+      <div class="product-card" onclick="goToProduct('${p.id}')">
         <div class="product-img">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button></div>
         <div class="product-info">
           <div class="p-cat">${catLabel}</div>
@@ -426,6 +426,17 @@ function renderProducts(products) {
         </div>
       </div>`;
   }).join('');
+}
+
+// 카드 클릭 시 상품 데이터를 미리 sessionStorage에 저장해서 상세페이지 로딩 깜빡임 최소화
+function goToProduct(productId) {
+  const product = allProducts.find(p => p.id === productId);
+  if(product) {
+    try {
+      sessionStorage.setItem('preloadProduct_' + productId, JSON.stringify(product));
+    } catch(e) { console.error('상품 미리보기 데이터 저장 실패:', e); }
+  }
+  location.href = 'product.html?id=' + productId;
 }
 
 function updateCount(n) {

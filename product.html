@@ -667,6 +667,21 @@ async function loadProduct() {
     return;
   }
 
+  // 목록 페이지에서 넘어온 미리보기 데이터가 있으면 즉시 1차 렌더링 (로딩 깜빡임 최소화)
+  // 이후 Firestore에서 정식으로 다시 가져와 최신 가격/재고/할인 정보로 갱신함
+  try {
+    const preloadKey = 'preloadProduct_' + pid;
+    const preloadRaw = sessionStorage.getItem(preloadKey);
+    if(preloadRaw) {
+      const preloadData = JSON.parse(preloadRaw);
+      currentProduct = preloadData;
+      renderProduct(preloadData);
+      sessionStorage.removeItem(preloadKey); // 1회성으로만 사용
+    }
+  } catch(e) {
+    console.error('미리보기 데이터 적용 실패:', e);
+  }
+
   try {
     const docSnap = await _db.collection('products').doc(pid).get();
     if(!docSnap.exists) {
@@ -697,7 +712,10 @@ async function loadProduct() {
     renderProduct(p);
   } catch(e) {
     console.error(e);
-    document.getElementById('productName').textContent = '상품 정보를 불러오지 못했습니다.';
+    // 미리보기 데이터로 이미 화면이 채워져 있다면 굳이 에러 문구로 덮어쓰지 않음
+    if(!currentProduct) {
+      document.getElementById('productName').textContent = '상품 정보를 불러오지 못했습니다.';
+    }
   }
 }
 
