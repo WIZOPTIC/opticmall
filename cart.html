@@ -22,7 +22,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .cart-header{background:var(--white);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:12px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .cart-header label{font-size:13px;font-weight:600;color:var(--navy);}
 .cart-item{background:var(--white);border-radius:10px;padding:20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.item-img{width:80px;height:80px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:0.15;flex-shrink:0;overflow:hidden;}
+.item-img{width:80px;height:80px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;overflow:hidden;}
+.item-img.no-img{opacity:0.15;}
 .item-img img{width:100%;height:100%;object-fit:cover;}
 .item-info{flex:1;}
 .item-cat{font-size:11px;font-weight:700;color:var(--sky);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px;}
@@ -215,7 +216,8 @@ function renderCart() {
     const p = item.product;
     const stock = Number(p.stock || 0);
     const isSoldOut = stock <= 0;
-    const imgHtml = p.mainImageUrl ? `<img src="${p.mainImageUrl}">` : `👓`;
+    const hasImg = !!p.mainImageUrl;
+    const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : `👓`;
     const priceHtml = memberLevel >= 2
       ? `<div class="item-price" id="price-${item.cartItemId}">₩${(Number(p.price||0)*item.qty).toLocaleString()}</div>`
       : `<div class="item-locked">🔒 로그인 필요</div>`;
@@ -223,7 +225,7 @@ function renderCart() {
     return `
       <div class="cart-item" id="item-${item.cartItemId}" data-cart-item-id="${item.cartItemId}">
         <input type="checkbox" class="item-check" data-id="${item.cartItemId}" ${item.selected ? 'checked' : ''} ${isSoldOut ? 'disabled' : ''} onchange="onItemCheckChange()" style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
-        <div class="item-img">${imgHtml}</div>
+        <div class="item-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
         <div class="item-info">
           <div class="item-cat">${p.type || p.brandName || '안경테'}</div>
           <div class="item-name">${p.modelName||'-'}${isSoldOut ? `<span class="soldout-badge">품절</span>` : ''}</div>

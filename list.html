@@ -68,7 +68,8 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .product-card { border: 1px solid var(--g2); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; background: var(--white); }
 .product-card:hover { border-color: var(--sky); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-.product-img { aspect-ratio: 1; background: var(--g1); display: flex; align-items: center; justify-content: center; position: relative; font-size: 60px; opacity: 0.12; }
+.product-img { aspect-ratio: 1; background: var(--g1); display: flex; align-items: center; justify-content: center; position: relative; font-size: 60px; }
+.product-img.no-img { opacity: 0.12; }
 .p-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
 .p-badge.new { background: var(--yellow); color: var(--black); }
 .p-badge.hot { background: var(--red); color: var(--white); }
@@ -410,14 +411,15 @@ function renderProducts(products) {
     } else {
       priceHtml = `<div class="p-locked">🔒 로그인 후 가격확인</div>`;
     }
-    const imgHtml = p.mainImageUrl
+    const hasImg = !!p.mainImageUrl;
+    const imgHtml = hasImg
       ? `<img src="${p.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">`
       : `👓`;
     const catLabel = p.category || p.type || p.brandName || '안경테';
 
     return `
       <div class="product-card" onclick="goToProduct('${p.id}')">
-        <div class="product-img">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button></div>
+        <div class="product-img${hasImg ? '' : ' no-img'}">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button></div>
         <div class="product-info">
           <div class="p-cat">${catLabel}</div>
           <div class="p-name">${p.modelName || '-'}${p.color ? ' · '+p.color : ''}</div>

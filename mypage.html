@@ -89,7 +89,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
 .wish-card{background:var(--white);border-radius:10px;overflow:hidden;border:1px solid var(--g2);cursor:pointer;transition:all 0.2s;position:relative;}
 .wish-card:hover{border-color:var(--sky);transform:translateY(-2px);}
-.wish-img{aspect-ratio:1;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:50px;opacity:0.12;overflow:hidden;}
+.wish-img{aspect-ratio:1;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:50px;overflow:hidden;}
+.wish-img.no-img{opacity:0.12;}
 .wish-img img{width:100%;height:100%;object-fit:cover;}
 .wish-info{padding:10px;}
 .wish-name{font-size:13px;font-weight:600;color:var(--navy);}
@@ -99,7 +100,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
 /* 재입고 알림 */
 .restock-card{background:var(--white);border-radius:10px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.restock-img{width:56px;height:56px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0.15;flex-shrink:0;overflow:hidden;}
+.restock-img{width:56px;height:56px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;}
+.restock-img.no-img{opacity:0.15;}
 .restock-img img{width:100%;height:100%;object-fit:cover;}
 .restock-info{flex:1;}
 .restock-name{font-size:13px;font-weight:600;color:var(--navy);}
@@ -737,14 +739,15 @@ async function loadWishlist() {
     }
 
     listEl.innerHTML = `<div class="wish-grid">${products.map(p => {
-      const imgHtml = p.mainImageUrl ? `<img src="${p.mainImageUrl}">` : '👓';
+      const hasImg = !!p.mainImageUrl;
+      const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : '👓';
       const priceHtml = (currentUserData.member_level||0) >= 2
         ? `₩${Number(p.price||0).toLocaleString()}`
         : `🔒 로그인 후 확인`;
       return `
         <div class="wish-card" onclick="location.href='product.html?id=${p.id}'">
           <button class="wish-del" onclick="event.stopPropagation();removeWish('${p.id}')">✕</button>
-          <div class="wish-img">${imgHtml}</div>
+          <div class="wish-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
           <div class="wish-info">
             <div class="wish-name">${p.modelName||'-'}</div>
             <div class="wish-price">${priceHtml}</div>
@@ -788,11 +791,12 @@ async function loadRestockAlerts() {
       const p = pDoc.exists ? pDoc.data() : null;
       const stock = p ? Number(p.stock||0) : 0;
       const isReady = stock > 0;
-      const imgHtml = p?.mainImageUrl ? `<img src="${p.mainImageUrl}">` : '👓';
+      const hasImg = !!p?.mainImageUrl;
+      const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : '👓';
 
       return `
         <div class="restock-card">
-          <div class="restock-img">${imgHtml}</div>
+          <div class="restock-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
           <div class="restock-info">
             <div class="restock-name">${p?.modelName || a.productName || '-'}</div>
             ${isReady
