@@ -345,8 +345,18 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
     <div class="product-name" id="productName">불러오는 중...</div>
     <div class="product-code" id="productCode">상품코드: -</div>
 
+    <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
+    <div class="price-wrap" id="price-checking">
+      <div class="price-label">도매 공급가</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:16px 0;color:var(--g3);font-size:14px;">
+        <div style="width:18px;height:18px;border:2px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:priceCheckSpin 0.7s linear infinite;"></div>
+        확인 중...
+      </div>
+    </div>
+    <style>@keyframes priceCheckSpin{to{transform:rotate(360deg);}}</style>
+
     <!-- 가격 (비회원) -->
-    <div class="price-wrap" id="price-locked">
+    <div class="price-wrap" id="price-locked" style="display:none;">
       <div class="price-label">도매 공급가</div>
       <div class="price-locked">
         <div class="price-locked-icon">🔒</div>
@@ -511,6 +521,7 @@ const _auth = firebase.auth();
 const _db = firebase.firestore();
 
 let memberLevel = 0;
+let authChecked = false; // Firebase 로그인 상태 확인이 끝났는지 여부 (깜빡임 방지용)
 let currentProduct = null;
 let currentPrice = 0;
 let currentImgIndex = 0;
@@ -591,6 +602,7 @@ _auth.onAuthStateChanged(async (user) => {
     updateHeaderLoggedOut();
     document.getElementById('cartCountBadge').style.display = 'none';
   }
+  authChecked = true;
   updatePriceDisplay(); // 로그인 상태 바뀌면 가격 표시 갱신
 });
 
@@ -620,6 +632,8 @@ async function updateCartCount() {
 
 function updatePriceDisplay() {
   if(!currentProduct) return;
+  if(!authChecked) return; // 로그인 상태 확인 전이면 "확인 중" 화면 유지 (깜빡임 방지)
+  document.getElementById('price-checking').style.display = 'none'; // 로그인 상태 확정됐으니 확인중 화면은 숨김
   if(memberLevel >= 2) {
     document.getElementById('price-locked').style.display = 'none';
     document.getElementById('price-visible').style.display = 'block';
