@@ -199,7 +199,8 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .related-card { border: 1px solid var(--g2); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
 .related-card:hover { border-color: var(--sky); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-.related-img { aspect-ratio: 1; background: var(--g1); display: flex; align-items: center; justify-content: center; font-size: 50px; opacity: 0.12; }
+.related-img { aspect-ratio: 1; background: var(--g1); display: flex; align-items: center; justify-content: center; font-size: 50px; }
+.related-img.no-img { opacity: 0.12; }
 .related-info { padding: 12px; }
 .related-name { font-size: 13px; font-weight: 600; color: var(--black); margin-bottom: 6px; }
 .related-price { font-size: 13px; color: var(--g3); display: flex; align-items: center; gap: 4px; }
@@ -447,6 +448,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
     <table class="spec-table" id="specTable">
       <tr><td>브랜드</td><td id="spec-brand">-</td></tr>
       <tr><td>상품코드</td><td id="spec-barcode">-</td></tr>
+      <tr><td>사이즈</td><td id="spec-size">-</td></tr>
       <tr><td>프레임 종류</td><td id="spec-type">-</td></tr>
       <tr><td>색상</td><td id="spec-color">-</td></tr>
       <tr><td>도매가</td><td id="spec-price">로그인 후 확인 가능</td></tr>
@@ -467,8 +469,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   <!-- 후기 -->
   <div id="tab-review" style="display:none;">
     <div style="text-align:center;padding:60px;color:var(--g3);">
-      <div style="font-size:48px;margin-bottom:16px;">⭐</div>
-      <div style="font-size:14px;">아직 등록된 후기가 없습니다.</div>
+      <div style="font-size:14px;color:var(--g3);">아직 등록된 후기가 없습니다.</div>
     </div>
   </div>
 
@@ -724,11 +725,12 @@ function renderProduct(p) {
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
   document.getElementById('productCategory').textContent = (p.type || '안경테') + (p.brandName ? ' · ' + p.brandName : '');
   document.getElementById('productName').textContent = p.modelName || '-';
-  document.getElementById('productCode').textContent = '상품코드: ' + (p.barcode || '-');
+  document.getElementById('productCode').textContent = '상품코드: ' + (p.barcode || '-') + (p.size ? '  ·  사이즈: ' + p.size : '');
 
   // 스펙 테이블
   document.getElementById('spec-brand').textContent = p.brandName || '-';
   document.getElementById('spec-barcode').textContent = p.barcode || '-';
+  document.getElementById('spec-size').textContent = p.size || '-';
   document.getElementById('spec-type').textContent = p.type || '-';
   document.getElementById('spec-color').textContent = p.color || '-';
   document.getElementById('spec-stock').textContent = (p.stock !== undefined ? p.stock + '개' : '-');
@@ -880,10 +882,11 @@ async function loadRelatedProducts(p) {
       const priceHtml = memberLevel >= 2
         ? `<span style="color:var(--sky);font-weight:700;">₩${Number(r.price||0).toLocaleString()}</span>`
         : `🔒 회원 전용 가격`;
-      const imgHtml = r.mainImageUrl ? `<img src="${r.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '👓';
+      const hasImg = !!r.mainImageUrl;
+      const imgHtml = hasImg ? `<img src="${r.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '👓';
       return `
         <div class="related-card" onclick="location.href='product.html?id=${r.id}'">
-          <div class="related-img">${imgHtml}</div>
+          <div class="related-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
           <div class="related-info">
             <div class="related-name">${r.modelName||'-'}</div>
             <div class="related-price">${priceHtml}</div>

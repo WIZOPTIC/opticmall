@@ -1011,7 +1011,7 @@ function renderMainProductCard(p, badgeText, badgeClass) {
       <div class="product-info">
         <div class="product-code">${codeLabel}</div>
         <div class="product-name">${p.modelName||'-'}${p.color ? ' · '+p.color : ''}</div>
-        <div class="product-size">${p.barcode||''}</div>
+        <div class="product-size">${p.size ? p.size + ' · ' : ''}${p.barcode||''}</div>
         ${priceHtml}
       </div>
     </div>`;

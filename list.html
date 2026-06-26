@@ -423,7 +423,7 @@ function renderProducts(products) {
         <div class="product-info">
           <div class="p-cat">${catLabel}</div>
           <div class="p-name">${p.modelName || '-'}${p.color ? ' · '+p.color : ''}</div>
-          <div class="p-size">${p.barcode || ''}</div>
+          <div class="p-size">${p.size ? p.size + ' · ' : ''}${p.barcode || ''}</div>
           ${priceHtml}
         </div>
       </div>`;

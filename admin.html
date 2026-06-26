@@ -922,6 +922,7 @@ function renderProductRow(p, isApprovalView) {
       <td>${thumb}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
       <td style="font-size:12px;">${p.barcode||'-'}</td>
+      <td style="font-size:12px;">${p.size||'-'}</td>
       <td>${p.brandName||'-'}</td>
       <td>${p.color||'-'}</td>
       <td>${p.category||'-'}</td>
@@ -959,7 +960,7 @@ async function loadProductApproval() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
+          <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
           <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>처리</th>
         </tr></thead>
         <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
@@ -982,7 +983,7 @@ async function loadAllProducts() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
+          <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
           <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>관리</th>
         </tr></thead>
         <tbody>${products.map(p => renderProductRow(p, false)).join('')}</tbody>
@@ -1234,6 +1235,7 @@ async function openProductModal(pid) {
     body.innerHTML = `
       <div class="info-row"><div class="info-label">모델명</div><div class="info-value"><strong>${p.modelName||'-'}</strong></div></div>
       <div class="info-row"><div class="info-label">바코드</div><div class="info-value">${p.barcode||'-'}</div></div>
+      <div class="info-row"><div class="info-label">사이즈</div><div class="info-value">${p.size||'-'}</div></div>
       <div class="info-row"><div class="info-label">브랜드</div><div class="info-value">${p.brandName||'-'}</div></div>
       <div class="info-row"><div class="info-label">색상</div><div class="info-value">${p.color||'-'}</div></div>
       <div class="info-row"><div class="info-label">타입</div><div class="info-value">${p.type||'-'}</div></div>

@@ -112,6 +112,7 @@ table.reg-table input:focus{border-color:var(--sky);}
 table.reg-table select{width:100%;padding:8px 6px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);}
 .col-model{min-width:140px;}
 .col-barcode{min-width:120px;}
+.col-size{min-width:110px;}
 .col-color{min-width:90px;}
 .col-brand{min-width:120px;}
 .col-category{min-width:100px;}
@@ -301,6 +302,7 @@ tr:hover td{background:#FAFBFC;}
               <tr id="regTableHeader">
                 <th class="col-model">모델명 <span style="color:var(--red);">*</span></th>
                 <th class="col-barcode">바코드</th>
+                <th class="col-size">사이즈</th>
                 <th class="col-color">색상</th>
                 <th class="col-category">카테고리</th>
                 <th class="col-type">타입</th>
@@ -619,7 +621,7 @@ function renderProductTable(products, withActions=true) {
   return `
     <table>
       <thead><tr>
-        <th>이미지</th><th>모델명</th><th>바코드</th><th>색상</th><th>카테고리</th><th>타입</th>
+        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>색상</th><th>카테고리</th><th>타입</th>
         <th>도매가</th><th>재고</th><th>상태</th>${withActions ? '<th>관리</th>' : ''}
       </tr></thead>
       <tbody>
@@ -634,6 +636,7 @@ function renderProductRowHtml(p, withActions) {
       <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb">` : `<div class="prod-thumb no-img">👓</div>`}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
       <td style="font-size:12px;">${p.barcode||'-'}</td>
+      <td style="font-size:12px;">${p.size||'-'}</td>
       <td>${p.color||'-'}</td>
       <td>${p.category||'-'}</td>
       <td>${p.type||'-'}</td>
@@ -814,6 +817,7 @@ function renderRegTable() {
     <tr data-row-id="${row.rowId}">
       <td class="col-model"><input type="text" data-field="modelName" placeholder="예) K9191" value="${row.modelName||''}" onchange="updateRowField('${row.rowId}','modelName',this.value)"></td>
       <td class="col-barcode"><input type="text" data-field="barcode" placeholder="바코드" value="${row.barcode||''}" onchange="updateRowField('${row.rowId}','barcode',this.value)"></td>
+      <td class="col-size"><input type="text" data-field="size" placeholder="53-20-149" value="${row.size||''}" onchange="updateRowField('${row.rowId}','size',this.value)"></td>
       <td class="col-color"><input type="text" data-field="color" placeholder="블랙" value="${row.color||''}" onchange="updateRowField('${row.rowId}','color',this.value)"></td>
       <td class="col-category">
         <select data-field="category" onchange="updateRowField('${row.rowId}','category',this.value)">
@@ -935,6 +939,7 @@ async function submitBulkRegister() {
         brandOwnerUid: uid, // 회사 계정 (권한/조회용)
         modelName: row.modelName.trim(),
         barcode: row.barcode || '',
+        size: row.size || '',
         color: row.color || '',
         category: row.category || '',
         type: row.type || '',
