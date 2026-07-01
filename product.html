@@ -44,7 +44,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 /* 이미지 영역 */
 .product-images { flex: 0 0 520px; }
 .main-img {
-  width: 100%; aspect-ratio: 1;
+  width: 100%; aspect-ratio: 4/3;
   background: var(--g1); border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 12px; position: relative; overflow: hidden;
@@ -199,7 +199,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .related-card { border: 1px solid var(--g2); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
 .related-card:hover { border-color: var(--sky); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-.related-img { aspect-ratio: 1; background: var(--g1); display: flex; align-items: center; justify-content: center; font-size: 50px; }
+.related-img { aspect-ratio: 4/3; background: var(--g1); display: flex; align-items: center; justify-content: center; font-size: 50px; }
 .related-img.no-img { opacity: 0.12; }
 .related-info { padding: 12px; }
 .related-name { font-size: 13px; font-weight: 600; color: var(--black); margin-bottom: 6px; }
