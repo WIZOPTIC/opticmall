@@ -177,7 +177,12 @@ tr:hover td{background:#FAFBFC;}
 .badge.approved{background:#E8FBF0;color:#27AE60;}
 .badge.rejected{background:#FEECEC;color:var(--red);}
 .badge.soldout{background:#F2F4F6;color:var(--g4);}
-.action-btns{display:flex;gap:6px;}
+.action-btns{display:flex;gap:6px;flex-wrap:nowrap;}
+/* 상품 테이블 행 높이 고정 */
+#productsTable table td { vertical-align:middle; white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis; padding:8px 10px; }
+#productsTable table td:first-child { width:52px; max-width:52px; overflow:visible; }
+#productsTable table td:last-child { max-width:none; overflow:visible; white-space:nowrap; }
+#productsTable table tr { height:64px; }
 .btn-view{padding:5px 12px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-view:hover{background:var(--sky-lt);color:var(--sky);border-color:var(--sky);}
 .btn-del-tbl{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
