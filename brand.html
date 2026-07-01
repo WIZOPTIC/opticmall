@@ -1325,12 +1325,15 @@ async function submitBulkRegister() {
 
       // 색상별 이미지 업로드
       const uploadedColors = [];
-      for(const color of card.colors) {
+      for(let ci = 0; ci < card.colors.length; ci++) {
+        const color = card.colors[ci];
         const imgUrls = {};
         for(const slot of SLOT_KEYS) {
           const img = color.images[slot];
           if(img && img.file) {
-            const path = `products/${uid}/${Date.now()}_${slot}_${img.file.name}`;
+            // 색상 인덱스(ci) + 슬롯명 + 랜덤값으로 경로 중복 완전 방지
+            const rand = Math.random().toString(36).slice(2, 8);
+            const path = `products/${uid}/${Date.now()}_c${ci}_${slot}_${rand}_${img.file.name}`;
             const fileRef = window._ref(window._storage, path);
             await window._uploadBytes(fileRef, img.file);
             imgUrls[slot] = await window._getDownloadURL(fileRef);
