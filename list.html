@@ -399,7 +399,10 @@ function renderProducts(products) {
 
   grid.innerHTML = products.map(p => {
     const badgeHtml = p.discountRate ? `<span class="p-badge hot">${p.discountRate}% SALE</span>` : (p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '');
-    const outHtml = (p.stock !== undefined && Number(p.stock) <= 0) ? `<span class="p-badge out">SOLD OUT</span>` : '';
+    const totalStock = p.colors && p.colors.length > 0
+      ? p.colors.reduce((sum, c) => sum + Number(c.stock || 0), 0)
+      : Number(p.stock || 0);
+    const outHtml = totalStock <= 0 ? `<span class="p-badge out">SOLD OUT</span>` : '';
     let priceHtml;
     if(memberLevel >= 2) {
       const discountRate = Number(p.discountRate) || 0;
@@ -577,7 +580,14 @@ function applyFilters() {
 
   // 재고 필터
   if(document.getElementById('s1').checked) {
-    result = result.filter(p => Number(p.stock||0) > 0);
+    result = result.filter(p => {
+      // 새 구조: colors 배열에서 하나라도 재고 있으면 OK
+      if(p.colors && p.colors.length > 0) {
+        return p.colors.some(c => Number(c.stock || 0) > 0);
+      }
+      // 구버전: p.stock
+      return Number(p.stock || 0) > 0;
+    });
   }
 
   // 가격대 필터 (회원만 의미있음)
