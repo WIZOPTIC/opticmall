@@ -703,12 +703,44 @@ async function loadOrders() {
 }
 
 async function cancelOrder(orderId) {
-  if(!confirm('주문을 취소하시겠습니까?')) return;
+  if(!confirm('주문을 취소하시겠습니까?\n취소 후에는 되돌릴 수 없습니다.')) return;
   try {
-    await _db.collection('orders').doc(orderId).update({
-      status: 'cancelled',
-      cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+    const orderRef = _db.collection('orders').doc(orderId);
+    const orderSnap = await orderRef.get();
+    if(!orderSnap.exists) throw new Error('주문 정보를 찾을 수 없습니다.');
+    const orderData = orderSnap.data();
+
+    // 트랜잭션으로 주문 취소 + 재고 복구 동시 처리
+    await _db.runTransaction(async (tx) => {
+      // 각 주문 아이템의 재고 복구
+      for(const item of (orderData.items || [])) {
+        const productRef = _db.collection('products').doc(item.productId);
+        const productSnap = await tx.get(productRef);
+        if(!productSnap.exists) continue;
+
+        const pData = productSnap.data();
+        const colorIdx = Number(item.selectedColorIdx) || 0;
+        const qtyToRestore = Number(item.qty) || 0;
+
+        if(pData.colors && pData.colors.length > colorIdx) {
+          const colors = [...pData.colors];
+          colors[colorIdx] = {
+            ...colors[colorIdx],
+            stock: Number(colors[colorIdx].stock || 0) + qtyToRestore
+          };
+          tx.update(productRef, { colors });
+        } else {
+          tx.update(productRef, { stock: Number(pData.stock || 0) + qtyToRestore });
+        }
+      }
+      // 주문 상태 취소로 변경
+      tx.update(orderRef, {
+        status: 'cancelled',
+        cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
     });
+
+    alert('주문이 취소되었습니다. 재고가 복구되었습니다.');
     loadOrders();
   } catch(e) {
     console.error(e);

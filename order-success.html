@@ -213,9 +213,19 @@ async function removeOrderedItemsFromCart(order) {
   const uid = _auth.currentUser?.uid;
   if(!uid || !Array.isArray(order.items)) return;
   try {
-    await Promise.all(
-      order.items.map(item => _db.collection('carts').doc(uid).collection('items').doc(item.productId).delete())
-    );
+    const cartRef = _db.collection('carts').doc(uid).collection('items');
+    const cartSnap = await cartRef.get();
+    const batch = _db.batch();
+    // 주문한 상품 ID 목록
+    const orderedProductIds = new Set(order.items.map(i => i.productId));
+    cartSnap.forEach(doc => {
+      const data = doc.data();
+      // productId가 주문한 상품이면 삭제 (색상별로 담긴 아이템 모두 포함)
+      if(orderedProductIds.has(data.productId)) {
+        batch.delete(doc.ref);
+      }
+    });
+    await batch.commit();
   } catch(e) {
     console.error('장바구니 정리 중 오류:', e);
   }

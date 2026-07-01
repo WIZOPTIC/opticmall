@@ -277,36 +277,95 @@ async function updateQtyInput(cartItemId, value) {
 async function setQty(cartItemId, newQty) {
   const item = getItem(cartItemId);
   if(!item) return;
-  item.qty = newQty;
+
+  const oldQty = item.qty;
+  const delta = newQty - oldQty; // 양수면 더 담는 것(재고 차감), 음수면 줄이는 것(재고 복구)
+  if(delta === 0) return;
+
   const uid = _auth.currentUser.uid;
+  const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
+  const productRef = _db.collection('products').doc(item.product.id);
+  const colorIdx = Number(item.selectedColorIdx) || 0;
+
   try {
-    await _db.collection('carts').doc(uid).collection('items').doc(cartItemId).update({ qty: newQty });
-  } catch(e) { console.error(e); }
+    await _db.runTransaction(async (tx) => {
+      const productSnap = await tx.get(productRef);
+      if(!productSnap.exists) throw new Error('상품 정보 없음');
+      const pData = productSnap.data();
+
+      if(pData.colors && pData.colors.length > colorIdx) {
+        const colors = [...pData.colors];
+        const currentStock = Number(colors[colorIdx].stock || 0);
+        // 증가 시 재고 체크
+        if(delta > 0 && currentStock < delta) throw new Error(`재고가 부족합니다. (잔여 ${currentStock}개)`);
+        colors[colorIdx] = { ...colors[colorIdx], stock: currentStock - delta };
+        tx.update(productRef, { colors });
+      } else {
+        const currentStock = Number(pData.stock || 0);
+        if(delta > 0 && currentStock < delta) throw new Error(`재고가 부족합니다. (잔여 ${currentStock}개)`);
+        tx.update(productRef, { stock: currentStock - delta });
+      }
+      tx.update(cartItemRef, { qty: newQty, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    });
+
+    item.qty = newQty;
+    // 로컬 product 재고 반영
+    if(item.product.colors && item.product.colors.length > colorIdx) {
+      item.product.colors[colorIdx].stock = Number(item.product.colors[colorIdx].stock || 0) - delta;
+    } else {
+      item.product.stock = Number(item.product.stock || 0) - delta;
+    }
+  } catch(e) {
+    alert(e.message.includes('재고') ? e.message : '수량 변경 중 오류가 발생했습니다.');
+  }
   renderCart();
 }
 
 async function removeItem(cartItemId) {
   if(!confirm('상품을 삭제하시겠습니까?')) return;
-  const uid = _auth.currentUser.uid;
-  try {
-    await _db.collection('carts').doc(uid).collection('items').doc(cartItemId).delete();
-    cartItems = cartItems.filter(i => i.cartItemId !== cartItemId);
-    renderCart();
-  } catch(e) {
-    console.error(e);
-    alert('삭제 중 오류가 발생했습니다.');
-  }
+  await restoreStockAndRemove([cartItemId]);
 }
 
 async function deleteSelected() {
   const selectedIds = cartItems.filter(i => i.selected).map(i => i.cartItemId);
   if(selectedIds.length === 0) { alert('삭제할 상품을 선택해주세요.'); return; }
   if(!confirm(`선택한 ${selectedIds.length}개 상품을 삭제하시겠습니까?`)) return;
+  await restoreStockAndRemove(selectedIds);
+}
 
+// 장바구니 삭제 + 재고 복구 (트랜잭션)
+async function restoreStockAndRemove(cartItemIds) {
   const uid = _auth.currentUser.uid;
   try {
-    await Promise.all(selectedIds.map(id => _db.collection('carts').doc(uid).collection('items').doc(id).delete()));
-    cartItems = cartItems.filter(i => !selectedIds.includes(i.cartItemId));
+    await _db.runTransaction(async (tx) => {
+      for(const cartItemId of cartItemIds) {
+        const item = getItem(cartItemId);
+        if(!item) continue;
+
+        const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
+        const productRef = _db.collection('products').doc(item.product.id);
+        const colorIdx = Number(item.selectedColorIdx) || 0;
+        const qtyToRestore = item.qty;
+
+        const productSnap = await tx.get(productRef);
+        if(productSnap.exists) {
+          const pData = productSnap.data();
+          if(pData.colors && pData.colors.length > colorIdx) {
+            const colors = [...pData.colors];
+            colors[colorIdx] = {
+              ...colors[colorIdx],
+              stock: Number(colors[colorIdx].stock || 0) + qtyToRestore
+            };
+            tx.update(productRef, { colors });
+          } else {
+            tx.update(productRef, { stock: Number(pData.stock || 0) + qtyToRestore });
+          }
+        }
+        tx.delete(cartItemRef);
+      }
+    });
+
+    cartItems = cartItems.filter(i => !cartItemIds.includes(i.cartItemId));
     renderCart();
   } catch(e) {
     console.error(e);
@@ -315,7 +374,7 @@ async function deleteSelected() {
 }
 
 function toggleAll(cb) {
-  cartItems.forEach(i => { if(Number(i.product.stock||0) > 0) i.selected = cb.checked; });
+  cartItems.forEach(i => { if(getItemStock(i) > 0) i.selected = cb.checked; });
   renderCart();
 }
 
