@@ -435,12 +435,22 @@ tr:hover td{background:#FAFBFC;}
       </div>
       <div class="edit-form-row">
         <div class="edit-form-group">
-          <label>도매가 <span style="color:var(--red);">*</span></label>
-          <input type="number" id="aEditPrice">
+          <label>정가 <span style="color:var(--red);">*</span></label>
+          <input type="number" id="aEditPrice" onchange="updateAdminSalePricePreview()">
         </div>
+        <div class="edit-form-group">
+          <label>할인율 (%)</label>
+          <input type="number" id="aEditDiscountRate" placeholder="0 (할인 없음)" min="0" max="99" onchange="updateAdminSalePricePreview()">
+        </div>
+      </div>
+      <div class="edit-form-row">
         <div class="edit-form-group">
           <label>재고</label>
           <input type="number" id="aEditStock">
+        </div>
+        <div class="edit-form-group">
+          <label style="color:var(--g3);">할인가 (자동계산)</label>
+          <input type="text" id="aEditSalePricePreview" disabled style="background:var(--g1);color:var(--sky);font-weight:700;">
         </div>
       </div>
       <div class="edit-form-group" style="margin-bottom:0;">
@@ -1505,7 +1515,9 @@ function startAdminEditRow(pid) {
   document.getElementById('aEditCategory').value = product.category || '';
   document.getElementById('aEditType').value = product.type || '';
   document.getElementById('aEditPrice').value = product.price || 0;
+  document.getElementById('aEditDiscountRate').value = product.discountRate || 0;
   document.getElementById('aEditStock').value = product.stock || 0;
+  updateAdminSalePricePreview();
   document.getElementById('aEditBrandDisplay').value = product.brandName || '-';
 
   renderAdminEditImageSlots();
@@ -1568,6 +1580,19 @@ function removeAdminEditImage(slotKey) {
   renderAdminEditImageSlots();
 }
 
+function updateAdminSalePricePreview() {
+  const price = Number(document.getElementById('aEditPrice')?.value) || 0;
+  const rate = Number(document.getElementById('aEditDiscountRate')?.value) || 0;
+  const preview = document.getElementById('aEditSalePricePreview');
+  if(!preview) return;
+  if(rate > 0 && price > 0) {
+    const salePrice = Math.round(price * (1 - rate/100));
+    preview.value = `₩${salePrice.toLocaleString()} (${rate}% 할인)`;
+  } else {
+    preview.value = '할인 없음';
+  }
+}
+
 function closeAdminEditModal() {
   document.getElementById('adminEditModalOverlay').classList.remove('open');
   adminEditingProductId = null;
@@ -1621,6 +1646,10 @@ async function saveAdminProductEdit() {
       category: document.getElementById('aEditCategory').value,
       type: document.getElementById('aEditType').value,
       price,
+      discountRate: Number(document.getElementById('aEditDiscountRate').value) || 0,
+      salePrice: Number(document.getElementById('aEditDiscountRate').value) > 0
+        ? Math.round(price * (1 - Number(document.getElementById('aEditDiscountRate').value)/100))
+        : 0,
       stock: Number(document.getElementById('aEditStock').value) || 0,
       mainImageUrl: urlMap.main,
       detailImageUrls: [urlMap.detail1, urlMap.detail2, urlMap.detail3, urlMap.detail4].filter(Boolean)

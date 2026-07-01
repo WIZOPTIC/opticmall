@@ -639,9 +639,14 @@ function updatePriceDisplay() {
     document.getElementById('price-visible').style.display = 'block';
 
     if(currentProduct.discountRate) {
+      const price = Number(currentProduct.price || 0);
+      const discountRate = Number(currentProduct.discountRate);
+      const salePrice = currentProduct.salePrice
+        ? Number(currentProduct.salePrice)
+        : Math.round(price * (1 - discountRate/100));
       document.getElementById('priceValue').innerHTML =
-        `<span style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-right:8px;">₩${currentProduct.originalPrice.toLocaleString()}</span>${currentProduct.salePrice.toLocaleString()} <span style="font-size:16px;color:var(--red);font-weight:800;">${currentProduct.discountRate}%</span>`;
-      document.getElementById('spec-price').textContent = '₩' + currentProduct.salePrice.toLocaleString() + ` (${currentProduct.discountRate}% 할인 적용)`;
+        `<span style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-right:8px;">₩${price.toLocaleString()}</span>${salePrice.toLocaleString()} <span style="font-size:16px;color:var(--red);font-weight:800;">${discountRate}%</span>`;
+      document.getElementById('spec-price').textContent = '₩' + salePrice.toLocaleString() + ` (${discountRate}% 할인 적용)`;
     } else {
       document.getElementById('priceValue').textContent = Number(currentProduct.price||0).toLocaleString();
       document.getElementById('spec-price').textContent = '₩' + Number(currentProduct.price||0).toLocaleString();
@@ -908,7 +913,12 @@ function changeQty(val) {
 function updateTotal() {
   if(!currentProduct) return;
   const qty = parseInt(document.getElementById('qty').value) || 1;
-  const price = currentProduct.discountRate ? currentProduct.salePrice : Number(currentProduct.price || 0);
+  const basePrice = Number(currentProduct.price || 0);
+  const discountRate = Number(currentProduct.discountRate) || 0;
+  const salePrice = currentProduct.salePrice
+    ? Number(currentProduct.salePrice)
+    : (discountRate > 0 ? Math.round(basePrice * (1 - discountRate/100)) : 0);
+  const price = discountRate > 0 ? salePrice : basePrice;
   const total = price * qty;
   document.getElementById('total-price').textContent = '₩' + total.toLocaleString();
 }

@@ -399,14 +399,17 @@ function renderProducts(products) {
     const outHtml = (p.stock !== undefined && Number(p.stock) <= 0) ? `<span class="p-badge out">SOLD OUT</span>` : '';
     let priceHtml;
     if(memberLevel >= 2) {
-      if(p.discountRate) {
+      const discountRate = Number(p.discountRate) || 0;
+      const price = Number(p.price) || 0;
+      const salePrice = p.salePrice ? Number(p.salePrice) : (discountRate > 0 ? Math.round(price * (1 - discountRate/100)) : 0);
+      if(discountRate > 0 && price > 0) {
         priceHtml = `<div class="p-price">
-          <span style="font-size:11px;color:var(--g3);text-decoration:line-through;margin-right:4px;">₩${p.originalPrice.toLocaleString()}</span>
-          <span class="won">₩</span>${p.salePrice.toLocaleString()}
-          <span style="font-size:11px;color:var(--red);font-weight:700;margin-left:2px;">${p.discountRate}%</span>
+          <span style="font-size:11px;color:var(--g3);text-decoration:line-through;margin-right:4px;">₩${price.toLocaleString()}</span>
+          <span class="won">₩</span>${salePrice.toLocaleString()}
+          <span style="font-size:11px;color:var(--red);font-weight:700;margin-left:2px;">${discountRate}%</span>
         </div>`;
       } else {
-        priceHtml = `<div class="p-price"><span class="won">₩</span>${Number(p.price||0).toLocaleString()}</div>`;
+        priceHtml = `<div class="p-price"><span class="won">₩</span>${price.toLocaleString()}</div>`;
       }
     } else {
       priceHtml = `<div class="p-locked">🔒 로그인 후 가격확인</div>`;

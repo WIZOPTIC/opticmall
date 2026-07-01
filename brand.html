@@ -118,6 +118,7 @@ table.reg-table select{width:100%;padding:8px 6px;border:1.5px solid var(--g2);b
 .col-category{min-width:100px;}
 .col-type{min-width:90px;}
 .col-price{min-width:100px;}
+.col-discount{min-width:80px;}
 .col-stock{min-width:80px;}
 .col-img{min-width:160px;}
 .col-del{width:40px;}
@@ -336,7 +337,8 @@ tr:hover td{background:#FAFBFC;}
                 <th class="col-color">색상</th>
                 <th class="col-category">카테고리</th>
                 <th class="col-type">타입</th>
-                <th class="col-price">도매가 <span style="color:var(--red);">*</span></th>
+                <th class="col-price">정가 <span style="color:var(--red);">*</span></th>
+                <th class="col-discount">할인율(%)</th>
                 <th class="col-stock">재고</th>
                 <th class="col-img">이미지 (메인+상세4)</th>
                 <th class="col-del"></th>
@@ -510,12 +512,22 @@ tr:hover td{background:#FAFBFC;}
       </div>
       <div class="edit-form-row">
         <div class="edit-form-group">
-          <label>도매가 <span style="color:var(--red);">*</span></label>
-          <input type="number" id="editPrice">
+          <label>정가 <span style="color:var(--red);">*</span></label>
+          <input type="number" id="editPrice" onchange="updateEditSalePricePreview()">
         </div>
+        <div class="edit-form-group">
+          <label>할인율 (%)</label>
+          <input type="number" id="editDiscountRate" placeholder="0 (할인 없음)" min="0" max="99" onchange="updateEditSalePricePreview()">
+        </div>
+      </div>
+      <div class="edit-form-row">
         <div class="edit-form-group">
           <label>재고</label>
           <input type="number" id="editStock">
+        </div>
+        <div class="edit-form-group">
+          <label style="color:var(--g3);">할인가 (자동계산)</label>
+          <input type="text" id="editSalePricePreview" disabled style="background:var(--g1);color:var(--sky);font-weight:700;">
         </div>
       </div>
 
@@ -788,7 +800,9 @@ function startEditRow(pid) {
   document.getElementById('editCategory').value = product.category || '';
   document.getElementById('editType').value = product.type || '';
   document.getElementById('editPrice').value = product.price || 0;
+  document.getElementById('editDiscountRate').value = product.discountRate || 0;
   document.getElementById('editStock').value = product.stock || 0;
+  updateEditSalePricePreview();
 
   renderEditImageSlots();
   document.getElementById('editModalOverlay').classList.add('open');
@@ -850,6 +864,19 @@ function removeEditImage(slotKey) {
   renderEditImageSlots();
 }
 
+function updateEditSalePricePreview() {
+  const price = Number(document.getElementById('editPrice')?.value) || 0;
+  const rate = Number(document.getElementById('editDiscountRate')?.value) || 0;
+  const preview = document.getElementById('editSalePricePreview');
+  if(!preview) return;
+  if(rate > 0 && price > 0) {
+    const salePrice = Math.round(price * (1 - rate/100));
+    preview.value = `₩${salePrice.toLocaleString()} (${rate}% 할인)`;
+  } else {
+    preview.value = '할인 없음';
+  }
+}
+
 function closeEditModal() {
   document.getElementById('editModalOverlay').classList.remove('open');
   editingProductId = null;
@@ -905,6 +932,10 @@ async function saveProductEdit() {
       category: document.getElementById('editCategory').value,
       type: document.getElementById('editType').value,
       price,
+      discountRate: Number(document.getElementById('editDiscountRate').value) || 0,
+      salePrice: Number(document.getElementById('editDiscountRate').value) > 0
+        ? Math.round(price * (1 - Number(document.getElementById('editDiscountRate').value)/100))
+        : 0,
       stock: Number(document.getElementById('editStock').value) || 0,
       mainImageUrl: urlMap.main,
       detailImageUrls: [urlMap.detail1, urlMap.detail2, urlMap.detail3, urlMap.detail4].filter(Boolean)
@@ -1087,7 +1118,8 @@ function renderRegTable() {
           <option value="림리스" ${row.type==='림리스'?'selected':''}>림리스</option>
         </select>
       </td>
-      <td class="col-price"><input type="number" data-field="price" placeholder="도매가" value="${row.price||''}" onchange="updateRowField('${row.rowId}','price',this.value)"></td>
+      <td class="col-price"><input type="number" data-field="price" placeholder="정가" value="${row.price||''}" onchange="updateRowField('${row.rowId}','price',this.value)"></td>
+      <td class="col-discount"><input type="number" data-field="discountRate" placeholder="0" min="0" max="99" value="${row.discountRate||''}" onchange="updateRowField('${row.rowId}','discountRate',this.value)" style="text-align:center;"></td>
       <td class="col-stock"><input type="number" data-field="stock" placeholder="재고" value="${row.stock||''}" onchange="updateRowField('${row.rowId}','stock',this.value)"></td>
       <td class="col-img">
         <div class="img-slot-row">
@@ -1195,6 +1227,10 @@ async function submitBulkRegister() {
         category: row.category || '',
         type: row.type || '',
         price: Number(row.price) || 0,
+        discountRate: Number(row.discountRate) || 0,
+        salePrice: Number(row.discountRate) > 0
+          ? Math.round((Number(row.price)||0) * (1 - Number(row.discountRate)/100))
+          : 0,
         stock: Number(row.stock) || 0,
         mainImageUrl: imageUrls.main || '',
         detailImageUrls: [imageUrls.detail1, imageUrls.detail2, imageUrls.detail3, imageUrls.detail4].filter(Boolean),

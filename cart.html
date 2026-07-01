@@ -219,7 +219,7 @@ function renderCart() {
     const hasImg = !!p.mainImageUrl;
     const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : `👓`;
     const priceHtml = memberLevel >= 2
-      ? `<div class="item-price" id="price-${item.cartItemId}">₩${(Number(p.price||0)*item.qty).toLocaleString()}</div>`
+      ? `<div class="item-price" id="price-${item.cartItemId}">₩${(Number(p.discountRate > 0 ? (p.salePrice || Math.round(Number(p.price||0)*(1-Number(p.discountRate)/100))) : (p.price||0))*item.qty).toLocaleString()}</div>`
       : `<div class="item-locked">🔒 로그인 필요</div>`;
 
     return `
