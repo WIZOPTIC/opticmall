@@ -444,18 +444,37 @@ async function loadOrderProduct() {
         });
       });
       orderItems.forEach(item => {
-        const rate = discountMap[item.product.id];
-        if(rate) {
-          item.product.discountRate = rate;
-          item.product.originalPrice = Number(item.product.price || 0);
-          item.product.effectivePrice = Math.round(item.product.originalPrice * (1 - rate/100));
+        const p = item.product;
+        const eventRate = discountMap[p.id] || 0;
+        const productRate = Number(p.discountRate) || 0;
+        // 이벤트 할인과 상품 자체 할인 중 더 높은 것 적용
+        const finalRate = Math.max(eventRate, productRate);
+        const basePrice = Number(p.price || 0);
+
+        if(finalRate > 0) {
+          item.product.discountRate = finalRate;
+          item.product.originalPrice = basePrice;
+          // salePrice가 이미 있으면 우선 사용, 없으면 계산
+          item.product.effectivePrice = (productRate === finalRate && p.salePrice)
+            ? Number(p.salePrice)
+            : Math.round(basePrice * (1 - finalRate/100));
         } else {
-          item.product.effectivePrice = Number(item.product.price || 0);
+          item.product.effectivePrice = basePrice;
         }
       });
     } catch(e) {
       console.error('이벤트 조회 실패:', e);
-      orderItems.forEach(item => { item.product.effectivePrice = Number(item.product.price || 0); });
+      orderItems.forEach(item => {
+        const p = item.product;
+        const productRate = Number(p.discountRate) || 0;
+        if(productRate > 0 && p.salePrice) {
+          item.product.effectivePrice = Number(p.salePrice);
+        } else if(productRate > 0) {
+          item.product.effectivePrice = Math.round(Number(p.price||0) * (1 - productRate/100));
+        } else {
+          item.product.effectivePrice = Number(p.price || 0);
+        }
+      });
     }
 
     renderOrderItems();

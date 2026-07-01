@@ -214,7 +214,10 @@ function renderCart() {
 
   listEl.innerHTML = cartItems.map(item => {
     const p = item.product;
-    const stock = Number(p.stock || 0);
+    // 새 구조: 선택된 색상의 재고, 구버전: p.stock
+    const colorIdx = Number(item.selectedColorIdx) || 0;
+    const colorData = (p.colors && p.colors.length > colorIdx) ? p.colors[colorIdx] : null;
+    const stock = colorData ? Number(colorData.stock || 0) : Number(p.stock || 0);
     const isSoldOut = stock <= 0;
     const hasImg = !!p.mainImageUrl;
     const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : `👓`;

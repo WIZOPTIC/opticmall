@@ -738,7 +738,8 @@ function renderProduct(p) {
   document.getElementById('spec-size').textContent = p.size || '-';
   document.getElementById('spec-type').textContent = p.type || '-';
   document.getElementById('spec-color').textContent = p.color || '-';
-  document.getElementById('spec-stock').textContent = (p.stock !== undefined ? p.stock + '개' : '-');
+  const firstColorStock = (p.colors && p.colors.length > 0) ? p.colors[0].stock : p.stock;
+  document.getElementById('spec-stock').textContent = (firstColorStock !== undefined ? firstColorStock + '개' : '-');
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
   const firstColor = (p.colors && p.colors.length > 0) ? p.colors[0] : null;
