@@ -447,17 +447,18 @@ async function loadOrderProduct() {
         const p = item.product;
         const eventRate = discountMap[p.id] || 0;
         const productRate = Number(p.discountRate) || 0;
-        // 이벤트 할인과 상품 자체 할인 중 더 높은 것 적용
         const finalRate = Math.max(eventRate, productRate);
         const basePrice = Number(p.price || 0);
 
         if(finalRate > 0) {
           item.product.discountRate = finalRate;
           item.product.originalPrice = basePrice;
-          // salePrice가 이미 있으면 우선 사용, 없으면 계산
-          item.product.effectivePrice = (productRate === finalRate && p.salePrice)
-            ? Number(p.salePrice)
-            : Math.round(basePrice * (1 - finalRate/100));
+          // salePrice가 있고 상품 자체 할인율이 최종 할인율과 같으면 salePrice 사용
+          if(productRate > 0 && productRate === finalRate && Number(p.salePrice) > 0) {
+            item.product.effectivePrice = Number(p.salePrice);
+          } else {
+            item.product.effectivePrice = Math.round(basePrice * (1 - finalRate / 100));
+          }
         } else {
           item.product.effectivePrice = basePrice;
         }

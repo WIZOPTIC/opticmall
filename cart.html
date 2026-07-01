@@ -214,10 +214,20 @@ function renderCart() {
 
   listEl.innerHTML = cartItems.map(item => {
     const p = item.product;
-    // 새 구조: 선택된 색상의 재고, 구버전: p.stock
-    const colorIdx = Number(item.selectedColorIdx) || 0;
-    const colorData = (p.colors && p.colors.length > colorIdx) ? p.colors[colorIdx] : null;
-    const stock = colorData ? Number(colorData.stock || 0) : Number(p.stock || 0);
+    // 재고 체크 - 새 구조(colors 배열) vs 구버전(p.stock)
+    let stock = 0;
+    if(p.colors && p.colors.length > 0) {
+      if(item.selectedColorIdx !== undefined && item.selectedColorIdx !== null) {
+        // 선택된 색상의 재고
+        const colorIdx = Number(item.selectedColorIdx);
+        stock = Number(p.colors[colorIdx]?.stock || 0);
+      } else {
+        // selectedColorIdx 없으면 전체 색상 재고 합산 (기존 담긴 아이템 호환)
+        stock = p.colors.reduce((sum, c) => sum + Number(c.stock || 0), 0);
+      }
+    } else {
+      stock = Number(p.stock || 0);
+    }
     const isSoldOut = stock <= 0;
     const hasImg = !!p.mainImageUrl;
     const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : `👓`;
