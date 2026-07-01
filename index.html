@@ -996,8 +996,17 @@ function renderMainProductCard(p, badgeText, badgeClass) {
     ? `<img src="${p.mainImageUrl}" alt="${p.modelName||''}" style="width:100%;height:100%;object-fit:cover;">`
     : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;opacity:0.12;">👓</div>`;
   const badgeHtml = badgeText ? `<span class="p-badge ${badgeClass}">${badgeText}</span>` : '';
+  const discountRate = Number(p.discountRate) || 0;
+  const basePrice = Number(p.price || 0);
+  const salePrice = p.salePrice ? Number(p.salePrice) : (discountRate > 0 ? Math.round(basePrice * (1 - discountRate/100)) : 0);
   const priceHtml = mainMemberLevel >= 2
-    ? `<div class="product-price"><span class="won">₩</span>${Number(p.price||0).toLocaleString()}</div>`
+    ? (discountRate > 0 && basePrice > 0
+        ? `<div class="product-price">
+            <span style="font-size:11px;color:#9BA5B0;text-decoration:line-through;margin-right:4px;">₩${basePrice.toLocaleString()}</span>
+            <span class="won">₩</span>${salePrice.toLocaleString()}
+            <span style="font-size:11px;color:#FF4444;font-weight:700;margin-left:2px;">${discountRate}%</span>
+           </div>`
+        : `<div class="product-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
   const codeLabel = p.brandName ? `[${p.brandName}]` : '';
 
