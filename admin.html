@@ -1382,31 +1382,45 @@ async function openProductModal(pid) {
     const p = products.find(x => x.id === pid);
     if(!p) { body.innerHTML = '상품 정보를 찾을 수 없습니다.'; return; }
 
-    const detailImgs = (p.detailImageUrls || []).map(url =>
-      `<img src="${url}" class="doc-img" onclick="window.open('${url}','_blank')" style="width:calc(50% - 4px);display:inline-block;margin:2px;">`
-    ).join('');
+    // 색상별 이미지 섹션 생성 (새 구조 우선, 구버전 호환)
+    let imagesSection = '';
+    if(p.colors && p.colors.length > 0) {
+      imagesSection = p.colors.map((c, i) => {
+        const detailImgs = (c.detailImageUrls || []).map(url =>
+          `<img src="${url}" class="doc-img" onclick="window.open('${url}','_blank')" style="width:calc(50% - 4px);display:inline-block;margin:2px;">`
+        ).join('');
+        return `
+          <div style="margin-top:16px;padding:12px;background:var(--g1);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;">
+              🎨 색상 ${i+1}: ${c.colorName} (재고 ${c.stock}개)
+            </div>
+            ${c.mainImageUrl ? `<img src="${c.mainImageUrl}" class="doc-img" onclick="window.open('${c.mainImageUrl}','_blank')" style="margin-bottom:6px;">` : ''}
+            ${detailImgs ? `<div>${detailImgs}</div>` : ''}
+          </div>`;
+      }).join('');
+    } else {
+      // 구버전 단일 이미지
+      const detailImgs = (p.detailImageUrls || []).map(url =>
+        `<img src="${url}" class="doc-img" onclick="window.open('${url}','_blank')" style="width:calc(50% - 4px);display:inline-block;margin:2px;">`
+      ).join('');
+      imagesSection = `
+        ${p.mainImageUrl ? `<div style="margin-top:12px;"><img src="${p.mainImageUrl}" class="doc-img" onclick="window.open('${p.mainImageUrl}','_blank')"></div>` : ''}
+        ${detailImgs ? `<div style="margin-top:8px;">${detailImgs}</div>` : ''}`;
+    }
 
     body.innerHTML = `
       <div class="info-row"><div class="info-label">모델명</div><div class="info-value"><strong>${p.modelName||'-'}</strong></div></div>
       <div class="info-row"><div class="info-label">바코드</div><div class="info-value">${p.barcode||'-'}</div></div>
       <div class="info-row"><div class="info-label">사이즈</div><div class="info-value">${p.size||'-'}</div></div>
       <div class="info-row"><div class="info-label">브랜드</div><div class="info-value">${p.brandName||'-'}</div></div>
-      <div class="info-row"><div class="info-label">색상</div><div class="info-value">${p.color||'-'}</div></div>
+      <div class="info-row"><div class="info-label">색상</div><div class="info-value">${p.colorNames ? p.colorNames.join(', ') : (p.color||'-')}</div></div>
       <div class="info-row"><div class="info-label">타입</div><div class="info-value">${p.type||'-'}</div></div>
-      <div class="info-row"><div class="info-label">도매가</div><div class="info-value">${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</div></div>
-      <div class="info-row"><div class="info-label">재고</div><div class="info-value">${p.stock ?? '-'}</div></div>
+      <div class="info-row"><div class="info-label">정가</div><div class="info-value">${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}${p.discountRate ? ` <span style="color:var(--red);font-size:11px;">${p.discountRate}% 할인</span>` : ''}</div></div>
       <div class="info-row"><div class="info-label">등록일</div><div class="info-value">${formatDate(p.createdAt)}</div></div>
       <div class="info-row"><div class="info-label">상태</div><div class="info-value"><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></div></div>
 
-      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🖼️ 메인 이미지</div>
-      ${p.mainImageUrl ?
-        `<img src="${p.mainImageUrl}" class="doc-img" onclick="window.open('${p.mainImageUrl}','_blank')">` :
-        `<div style="background:var(--g1);border-radius:8px;padding:20px;text-align:center;color:var(--g3);">메인 이미지가 없습니다.</div>`
-      }
-
-      ${detailImgs ? `
-      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🖼️ 상세 이미지</div>
-      <div>${detailImgs}</div>` : ''}
+      <div style="margin-top:16px;margin-bottom:6px;font-size:12px;font-weight:700;color:var(--g4);">🖼️ 색상별 이미지</div>
+      ${imagesSection}
     `;
 
     if(p.status === 'pending') {
