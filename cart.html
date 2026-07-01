@@ -319,6 +319,26 @@ function toggleAll(cb) {
   renderCart();
 }
 
+// 상품 재고 확인 헬퍼 (새 구조 colors[] 및 구버전 stock 모두 지원)
+function getItemStock(item) {
+  const p = item.product;
+  if(p.colors && p.colors.length > 0) {
+    if(item.selectedColorIdx !== undefined && item.selectedColorIdx !== null) {
+      return Number(p.colors[Number(item.selectedColorIdx)]?.stock || 0);
+    }
+    return p.colors.reduce((sum, c) => sum + Number(c.stock || 0), 0);
+  }
+  return Number(p.stock || 0);
+}
+
+// 상품 실제 결제가 확인 헬퍼 (할인가 우선)
+function getItemPrice(item) {
+  const p = item.product;
+  if(Number(p.discountRate) > 0 && Number(p.salePrice) > 0) return Number(p.salePrice);
+  if(Number(p.discountRate) > 0) return Math.round(Number(p.price||0) * (1 - Number(p.discountRate)/100));
+  return Number(p.price || 0);
+}
+
 function onItemCheckChange() {
   document.querySelectorAll('.item-check').forEach(chk => {
     const item = getItem(chk.dataset.id);
@@ -327,13 +347,13 @@ function onItemCheckChange() {
   updateSummary();
 }
 
-const FREE_SHIPPING_THRESHOLD = 100000; // 10만원 이상 무료
+const FREE_SHIPPING_THRESHOLD = 100000;
 const BASE_SHIPPING_FEE = 3500;
 
 function updateSummary() {
-  const selectedItems = cartItems.filter(i => i.selected && Number(i.product.stock||0) > 0);
+  const selectedItems = cartItems.filter(i => i.selected && getItemStock(i) > 0);
   const count = selectedItems.length;
-  const total = selectedItems.reduce((sum, i) => sum + Number(i.product.price||0) * i.qty, 0);
+  const total = selectedItems.reduce((sum, i) => sum + getItemPrice(i) * i.qty, 0);
 
   document.getElementById('chkAllLabel').textContent = `전체선택 (${cartItems.length}개)`;
   document.getElementById('sumCount').textContent = count + '개';
@@ -362,14 +382,12 @@ function updateSummary() {
   orderBtn.disabled = (count === 0 || memberLevel < 2);
 
   const allCb = document.getElementById('chk-all');
-  allCb.checked = cartItems.length > 0 && cartItems.every(i => i.selected || Number(i.product.stock||0) <= 0);
+  allCb.checked = cartItems.length > 0 && cartItems.every(i => i.selected || getItemStock(i) <= 0);
 }
 
 function goToOrder() {
-  const selectedItems = cartItems.filter(i => i.selected && Number(i.product.stock||0) > 0);
+  const selectedItems = cartItems.filter(i => i.selected && getItemStock(i) > 0);
   if(selectedItems.length === 0) { alert('주문할 상품을 선택해주세요.'); return; }
-
-  // 여러 상품을 order.html로 전달: pids=id1:qty1,id2:qty2
   const param = selectedItems.map(i => `${i.product.id}:${i.qty}`).join(',');
   location.href = `order.html?items=${encodeURIComponent(param)}`;
 }
