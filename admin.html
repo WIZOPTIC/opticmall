@@ -87,6 +87,35 @@ tr:hover td{background:#FAFBFC;}
 .btn-reject{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-reject:hover{background:var(--red);color:var(--white);}
 .btn-view{padding:5px 12px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-edit-tbl{padding:5px 12px;background:var(--sky-lt);color:var(--sky);border:1px solid var(--sky);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* 상품 수정 모달 (마스터용) */
+.edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1500;}
+.edit-modal-overlay.open{display:flex;}
+.edit-modal-box{background:var(--white);border-radius:12px;width:560px;max-width:92vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+.edit-modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--g2);flex-shrink:0;}
+.edit-modal-title{font-size:16px;font-weight:700;color:var(--navy);}
+.edit-modal-close{width:30px;height:30px;border:none;background:var(--g1);border-radius:50%;cursor:pointer;font-size:14px;color:var(--g4);}
+.edit-modal-close:hover{background:var(--g2);}
+.edit-modal-body{padding:22px;overflow-y:auto;flex:1;}
+.edit-form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.edit-form-group label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px;}
+.edit-form-group input,.edit-form-group select{width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.edit-form-group input:focus,.edit-form-group select:focus{border-color:var(--sky);}
+.edit-img-slot-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.edit-img-thumb-btn{width:64px;height:64px;border-radius:8px;border:1.5px dashed var(--g2);background:var(--g1);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
+.edit-img-thumb-btn:hover{border-color:var(--sky);color:var(--sky);}
+.edit-img-thumb-btn.filled{border-style:solid;border-color:var(--green);}
+.edit-img-thumb-btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.edit-img-thumb-btn .main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:8px;text-align:center;padding:1px 0;font-weight:700;}
+.edit-img-thumb-btn .del-x{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;}
+.edit-modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--g2);flex-shrink:0;}
+.product-search-bar{margin-bottom:14px;}
+.product-search-bar input{width:100%;max-width:360px;padding:10px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.product-search-bar input:focus{border-color:var(--sky);}
+.btn-bulk-save{padding:12px 28px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+.btn-ghost{padding:12px 24px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.hidden-file-input{display:none;}
 .btn-view:hover{background:var(--sky-lt);color:var(--sky);border-color:var(--sky);}
 .btn-sm{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all 0.15s;}
 .btn-primary{background:var(--sky);color:var(--white);}
@@ -262,6 +291,9 @@ tr:hover td{background:#FAFBFC;}
         <div class="section-title">전체 상품 목록</div>
         <button class="btn-sm btn-primary" onclick="loadAllProducts()">🔄 새로고침</button>
       </div>
+      <div class="product-search-bar">
+        <input type="text" id="adminProductSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyAdminProductSearch()">
+      </div>
       <div class="table-wrap" id="allProductsTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
@@ -347,11 +379,89 @@ tr:hover td{background:#FAFBFC;}
 <!-- 토스트 -->
 <div class="toast" id="toast"></div>
 
+<!-- 상품 수정 모달 (마스터 전체수정용) -->
+<div class="edit-modal-overlay" id="adminEditModalOverlay">
+  <div class="edit-modal-box">
+    <div class="edit-modal-header">
+      <div class="edit-modal-title">상품 정보 수정 (관리자)</div>
+      <button class="edit-modal-close" onclick="closeAdminEditModal()">✕</button>
+    </div>
+    <div class="edit-modal-body">
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>모델명 <span style="color:var(--red);">*</span></label>
+          <input type="text" id="aEditModelName">
+        </div>
+        <div class="edit-form-group">
+          <label>바코드</label>
+          <input type="text" id="aEditBarcode">
+        </div>
+      </div>
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>사이즈</label>
+          <input type="text" id="aEditSize" placeholder="53-20-149">
+        </div>
+        <div class="edit-form-group">
+          <label>색상</label>
+          <input type="text" id="aEditColor">
+        </div>
+      </div>
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>카테고리</label>
+          <select id="aEditCategory">
+            <option value="">선택</option>
+            <option value="하금테">하금테</option>
+            <option value="뿔테">뿔테</option>
+            <option value="메탈">메탈</option>
+            <option value="선글라스">선글라스</option>
+          </select>
+        </div>
+        <div class="edit-form-group">
+          <label>타입</label>
+          <select id="aEditType">
+            <option value="">선택</option>
+            <option value="하프">하프</option>
+            <option value="온">온</option>
+            <option value="림리스">림리스</option>
+          </select>
+        </div>
+      </div>
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>도매가 <span style="color:var(--red);">*</span></label>
+          <input type="number" id="aEditPrice">
+        </div>
+        <div class="edit-form-group">
+          <label>재고</label>
+          <input type="number" id="aEditStock">
+        </div>
+      </div>
+      <div class="edit-form-group" style="margin-bottom:0;">
+        <label>소속 브랜드</label>
+        <input type="text" id="aEditBrandDisplay" disabled style="background:var(--g1);color:var(--g3);">
+      </div>
+
+      <div class="edit-form-group" style="margin-top:14px;">
+        <label>상품 이미지 (메인 + 상세 4)</label>
+        <div class="edit-img-slot-row" id="aEditImgSlotRow"></div>
+      </div>
+    </div>
+    <div class="edit-modal-footer">
+      <button class="btn-sm btn-ghost" onclick="closeAdminEditModal()">취소</button>
+      <button class="btn-bulk-save" id="aEditModalSaveBtn" onclick="saveAdminProductEdit()">저장하기</button>
+    </div>
+  </div>
+</div>
+<input type="file" class="hidden-file-input" id="aEditImgFileInput" accept="image/*" style="display:none;">
+
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -365,10 +475,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // 전역 노출
 window._auth = auth;
 window._db = db;
+window._storage = storage;
+window._ref = ref;
+window._uploadBytes = uploadBytes;
+window._getDownloadURL = getDownloadURL;
 window._signIn = signInWithEmailAndPassword;
 window._setPersistence = setPersistence;
 window._localPersistence = browserLocalPersistence;
@@ -937,7 +1052,9 @@ function renderProductRow(p, isApprovalView) {
           ${isApprovalView ? `
             <button class="btn-approve" onclick="approveProduct('${p.id}')">✅ 승인</button>
             <button class="btn-reject" onclick="rejectProduct('${p.id}')">❌ 반려</button>
-          ` : ''}
+          ` : `
+            <button class="btn-edit-tbl" onclick="startAdminEditRow('${p.id}')">✏️ 수정</button>
+          `}
         </div>
       </td>
     </tr>`;
@@ -976,21 +1093,43 @@ async function loadAllProducts() {
   tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
   try {
     const products = await fetchAllProducts();
-    if(products.length === 0) {
-      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">등록된 상품이 없습니다.</div>';
-      return;
-    }
-    tableEl.innerHTML = `
-      <table>
-        <thead><tr>
-          <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
-          <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>관리</th>
-        </tr></thead>
-        <tbody>${products.map(p => renderProductRow(p, false)).join('')}</tbody>
-      </table>`;
+    window._allAdminProducts = products; // 검색/수정 모달에서 재사용
+    applyAdminProductSearch();
   } catch(e) {
     tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
   }
+}
+
+function applyAdminProductSearch() {
+  const tableEl = document.getElementById('allProductsTable');
+  const products = window._allAdminProducts || [];
+  const keyword = (document.getElementById('adminProductSearchInput')?.value || '').trim().toLowerCase();
+
+  const filtered = keyword
+    ? products.filter(p =>
+        (p.modelName||'').toLowerCase().includes(keyword) ||
+        (p.barcode||'').toLowerCase().includes(keyword) ||
+        (p.brandName||'').toLowerCase().includes(keyword) ||
+        (p.color||'').toLowerCase().includes(keyword)
+      )
+    : products;
+
+  if(products.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">등록된 상품이 없습니다.</div>';
+    return;
+  }
+  if(filtered.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">검색 결과가 없습니다.</div>';
+    return;
+  }
+  tableEl.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
+        <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>관리</th>
+      </tr></thead>
+      <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
+    </table>`;
 }
 
 // ===================== 정산 관리 (마스터 전용) =====================
@@ -1331,6 +1470,169 @@ async function deleteProductAdmin(pid, fromModal=false) {
   }
 }
 
+
+// ===================== 상품 전체수정 모달 (마스터 전용) =====================
+const ADMIN_EDIT_IMAGE_SLOTS = [
+  {key:'main', label:'메인', tag:true},
+  {key:'detail1', label:'상세1'},
+  {key:'detail2', label:'상세2'},
+  {key:'detail3', label:'상세3'},
+  {key:'detail4', label:'상세4'}
+];
+let adminEditingProductId = null;
+let adminEditingProductData = null;
+let adminEditImageChanges = {};
+let adminEditImageRemoved = {};
+
+function startAdminEditRow(pid) {
+  const product = (window._allAdminProducts || []).find(p => p.id === pid);
+  if(!product) { showToast('상품 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.', 'error'); return; }
+
+  adminEditingProductId = pid;
+  adminEditingProductData = product;
+  adminEditImageChanges = {};
+  adminEditImageRemoved = {};
+
+  document.getElementById('aEditModelName').value = product.modelName || '';
+  document.getElementById('aEditBarcode').value = product.barcode || '';
+  document.getElementById('aEditSize').value = product.size || '';
+  document.getElementById('aEditColor').value = product.color || '';
+  document.getElementById('aEditCategory').value = product.category || '';
+  document.getElementById('aEditType').value = product.type || '';
+  document.getElementById('aEditPrice').value = product.price || 0;
+  document.getElementById('aEditStock').value = product.stock || 0;
+  document.getElementById('aEditBrandDisplay').value = product.brandName || '-';
+
+  renderAdminEditImageSlots();
+  document.getElementById('adminEditModalOverlay').classList.add('open');
+}
+
+function renderAdminEditImageSlots() {
+  const wrap = document.getElementById('aEditImgSlotRow');
+  const urlMap = {
+    main: adminEditingProductData.mainImageUrl,
+    detail1: adminEditingProductData.detailImageUrls?.[0],
+    detail2: adminEditingProductData.detailImageUrls?.[1],
+    detail3: adminEditingProductData.detailImageUrls?.[2],
+    detail4: adminEditingProductData.detailImageUrls?.[3]
+  };
+
+  wrap.innerHTML = ADMIN_EDIT_IMAGE_SLOTS.map(slot => {
+    const newFile = adminEditImageChanges[slot.key];
+    const removed = adminEditImageRemoved[slot.key];
+    const existingUrl = urlMap[slot.key];
+
+    let previewSrc = null;
+    if(newFile) previewSrc = newFile.previewUrl;
+    else if(existingUrl && !removed) previewSrc = existingUrl;
+
+    const hasImage = !!previewSrc;
+    return `
+      <button type="button" class="edit-img-thumb-btn ${hasImage ? 'filled' : ''}" title="${slot.label}" onclick="triggerAdminEditImageUpload('${slot.key}')">
+        ${hasImage ? `<img src="${previewSrc}">` : (slot.tag ? '★' : slot.label[2])}
+        ${slot.tag ? '<span class="main-tag">MAIN</span>' : ''}
+        ${hasImage ? `<span class="del-x" onclick="event.stopPropagation();removeAdminEditImage('${slot.key}')">✕</span>` : ''}
+      </button>`;
+  }).join('');
+}
+
+let currentAdminEditUploadSlot = null;
+function triggerAdminEditImageUpload(slotKey) {
+  currentAdminEditUploadSlot = slotKey;
+  document.getElementById('aEditImgFileInput').click();
+}
+
+document.getElementById('aEditImgFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if(!file || !currentAdminEditUploadSlot) return;
+  if(file.size > 8 * 1024 * 1024) {
+    showToast('이미지는 8MB 이하만 가능합니다.', 'error');
+    e.target.value = '';
+    return;
+  }
+  adminEditImageChanges[currentAdminEditUploadSlot] = { file, previewUrl: URL.createObjectURL(file) };
+  delete adminEditImageRemoved[currentAdminEditUploadSlot];
+  renderAdminEditImageSlots();
+  e.target.value = '';
+  currentAdminEditUploadSlot = null;
+});
+
+function removeAdminEditImage(slotKey) {
+  delete adminEditImageChanges[slotKey];
+  adminEditImageRemoved[slotKey] = true;
+  renderAdminEditImageSlots();
+}
+
+function closeAdminEditModal() {
+  document.getElementById('adminEditModalOverlay').classList.remove('open');
+  adminEditingProductId = null;
+  adminEditingProductData = null;
+  adminEditImageChanges = {};
+  adminEditImageRemoved = {};
+}
+
+document.getElementById('adminEditModalOverlay').addEventListener('click', function(e) {
+  if(e.target === this) closeAdminEditModal();
+});
+
+async function saveAdminProductEdit() {
+  if(!adminEditingProductId) return;
+  const modelName = document.getElementById('aEditModelName').value.trim();
+  const price = Number(document.getElementById('aEditPrice').value) || 0;
+
+  if(!modelName) { showToast('모델명을 입력해주세요.', 'error'); return; }
+  if(price <= 0) { showToast('도매가는 0보다 커야 합니다.', 'error'); return; }
+
+  const btn = document.getElementById('aEditModalSaveBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  try {
+    const urlMap = {
+      main: adminEditingProductData.mainImageUrl || '',
+      detail1: adminEditingProductData.detailImageUrls?.[0] || '',
+      detail2: adminEditingProductData.detailImageUrls?.[1] || '',
+      detail3: adminEditingProductData.detailImageUrls?.[2] || '',
+      detail4: adminEditingProductData.detailImageUrls?.[3] || ''
+    };
+
+    for(const slot of ADMIN_EDIT_IMAGE_SLOTS) {
+      if(adminEditImageChanges[slot.key]) {
+        const file = adminEditImageChanges[slot.key].file;
+        const path = `products/${adminEditingProductData.brandOwnerUid || 'admin'}/${Date.now()}_${slot.key}_${file.name}`;
+        const fileRef = window._ref(window._storage, path);
+        await window._uploadBytes(fileRef, file);
+        urlMap[slot.key] = await window._getDownloadURL(fileRef);
+      } else if(adminEditImageRemoved[slot.key]) {
+        urlMap[slot.key] = '';
+      }
+    }
+
+    await window._updateDoc(window._doc(window._db, 'products', adminEditingProductId), {
+      modelName,
+      barcode: document.getElementById('aEditBarcode').value.trim(),
+      size: document.getElementById('aEditSize').value.trim(),
+      color: document.getElementById('aEditColor').value.trim(),
+      category: document.getElementById('aEditCategory').value,
+      type: document.getElementById('aEditType').value,
+      price,
+      stock: Number(document.getElementById('aEditStock').value) || 0,
+      mainImageUrl: urlMap.main,
+      detailImageUrls: [urlMap.detail1, urlMap.detail2, urlMap.detail3, urlMap.detail4].filter(Boolean)
+    });
+
+    showToast('✅ 상품 정보가 수정되었습니다.', 'success');
+    closeAdminEditModal();
+    loadAllProducts();
+    loadDashboard();
+  } catch(e) {
+    console.error(e);
+    showToast('저장 중 오류가 발생했습니다: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장하기';
+  }
+}
 </script>
 </body>
 </html>
