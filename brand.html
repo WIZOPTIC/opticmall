@@ -163,6 +163,40 @@ table.reg-table select{width:100%;padding:8px 6px;border:1.5px solid var(--g2);b
 .product-search-bar{margin-bottom:14px;}
 .product-search-bar input{width:100%;max-width:360px;padding:10px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color 0.2s;}
 .product-search-bar input:focus{border-color:var(--sky);}
+
+/* 상품 등록 카드 */
+.product-reg-card{background:var(--white);border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);border:1.5px solid var(--g2);}
+.product-reg-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--g1);}
+.product-reg-card-num{font-size:12px;font-weight:700;color:var(--g3);background:var(--g1);padding:4px 10px;border-radius:100px;}
+.product-reg-common{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.product-reg-common .reg-field label{display:block;font-size:11px;font-weight:700;color:var(--g4);margin-bottom:5px;}
+.product-reg-common .reg-field input,
+.product-reg-common .reg-field select{width:100%;padding:9px 12px;border:1.5px solid var(--g2);border-radius:7px;font-size:13px;font-family:inherit;outline:none;transition:border-color 0.15s;}
+.product-reg-common .reg-field input:focus,
+.product-reg-common .reg-field select:focus{border-color:var(--sky);}
+
+/* 색상 섹션 */
+.color-section-label{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.color-card{background:var(--g1);border-radius:10px;padding:16px;margin-bottom:10px;border:1.5px solid var(--g2);}
+.color-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.color-card-label{font-size:11px;font-weight:700;color:var(--g3);}
+.color-card-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.color-card-fields label{display:block;font-size:11px;font-weight:700;color:var(--g4);margin-bottom:4px;}
+.color-card-fields input{width:100%;padding:8px 10px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);}
+.color-card-fields input:focus{border-color:var(--sky);}
+.color-img-row{display:flex;gap:8px;flex-wrap:wrap;}
+.color-img-slot{width:56px;height:56px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
+.color-img-slot:hover{border-color:var(--sky);color:var(--sky);}
+.color-img-slot.filled{border-style:solid;border-color:var(--green);}
+.color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.color-img-slot .slot-main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:7px;text-align:center;padding:1px 0;font-weight:700;}
+.color-img-slot .slot-del{position:absolute;top:1px;right:1px;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;}
+.add-color-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;background:var(--white);color:var(--sky);border:1.5px dashed var(--sky);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:4px;}
+.add-color-btn:hover{background:var(--sky-lt);}
+.del-color-btn{padding:5px 10px;background:var(--white);color:var(--red);border:1px solid var(--red);border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;margin-left:auto;}
+.del-product-btn{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.add-product-btn{padding:12px 24px;background:var(--white);color:var(--navy);border:1.5px dashed var(--navy);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;width:100%;}
+.add-product-btn:hover{background:var(--g1);}
 .table-wrap{background:var(--white);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 table{width:100%;border-collapse:collapse;}
 thead{background:var(--g1);}
@@ -310,14 +344,14 @@ tr:hover td{background:#FAFBFC;}
       </div>
     </div>
 
-    <!-- 상품 일괄등록 -->
+    <!-- 상품 등록 -->
     <div class="page" id="page-register">
       <div class="section-header">
         <div class="section-title">상품 등록</div>
         <div style="font-size:12px;color:var(--g3);">등록한 상품은 관리자 승인 후 노출됩니다</div>
       </div>
 
-      <!-- 등록할 브랜드 선택 -->
+      <!-- 브랜드 선택 -->
       <div class="bulk-brand-select" id="bulkBrandSelectWrap">
         <label>등록할 브랜드 <span style="color:var(--red);">*</span></label>
         <select id="bulkBrandSelect" onchange="onBulkBrandChange()">
@@ -326,35 +360,16 @@ tr:hover td{background:#FAFBFC;}
         <span class="bulk-brand-hint">선택한 브랜드로 아래 상품 전체가 등록됩니다.</span>
       </div>
 
-      <div class="reg-card">
-        <div class="reg-table-wrap">
-          <table class="reg-table">
-            <thead>
-              <tr id="regTableHeader">
-                <th class="col-model">모델명 <span style="color:var(--red);">*</span></th>
-                <th class="col-barcode">바코드</th>
-                <th class="col-size">사이즈</th>
-                <th class="col-color">색상</th>
-                <th class="col-category">카테고리</th>
-                <th class="col-type">타입</th>
-                <th class="col-price">정가 <span style="color:var(--red);">*</span></th>
-                <th class="col-discount">할인율(%)</th>
-                <th class="col-stock">재고</th>
-                <th class="col-img">이미지 (메인+상세4)</th>
-                <th class="col-del"></th>
-              </tr>
-            </thead>
-            <tbody id="regTableBody">
-              <!-- 행은 JS로 동적 생성 -->
-            </tbody>
-          </table>
-        </div>
-        <button class="add-row-btn" onclick="addRegRow()">+ 행 추가</button>
+      <!-- 상품 카드 목록 -->
+      <div id="productCardList"></div>
 
-        <div class="reg-footer">
-          <button class="btn-sm btn-ghost" onclick="clearAllRows()">전체 비우기</button>
-          <button class="btn-bulk-save" id="bulkSaveBtn" onclick="submitBulkRegister()">상품 등록하기</button>
-        </div>
+      <div style="display:flex;gap:12px;margin-bottom:24px;">
+        <button class="add-product-btn" onclick="addProductCard()">+ 상품 추가</button>
+      </div>
+
+      <div class="reg-footer" style="justify-content:flex-end;">
+        <button class="btn-sm btn-ghost" onclick="clearAllProductCards()">전체 비우기</button>
+        <button class="btn-bulk-save" id="bulkSaveBtn" onclick="submitBulkRegister()">상품 등록하기</button>
       </div>
     </div>
 
@@ -460,6 +475,7 @@ tr:hover td{background:#FAFBFC;}
 
 <!-- 토스트 -->
 <div class="toast" id="toast"></div>
+<input type="file" id="colorImgFileInput" accept="image/*" style="display:none;">
 
 <!-- 상품 수정 모달 -->
 <div class="edit-modal-overlay" id="editModalOverlay">
@@ -1015,19 +1031,13 @@ async function deleteProduct(productId) {
   }
 }
 
-// ===================== 상품 등록 (단일 브랜드 고정) =====================
-// 행 데이터 구조: { rowId, images: { main:File, detail1:File, detail2:File, detail3:File, detail4:File } }
-let regRows = [];
-let rowIdCounter = 0;
-let myBrandsForRegister = []; // 등록 화면 드롭다운용 내 브랜드 목록
-let selectedBulkBrandId = ''; // 현재 등록 작업에서 고정된 브랜드
-const IMAGE_SLOTS = [
-  {key:'main', label:'메인', tag:true},
-  {key:'detail1', label:'상세1'},
-  {key:'detail2', label:'상세2'},
-  {key:'detail3', label:'상세3'},
-  {key:'detail4', label:'상세4'}
-];
+// ===================== 상품 등록 (카드 방식, 다중 색상 지원) =====================
+let myBrandsForRegister = [];
+let selectedBulkBrandId = '';
+let productCards = []; // [{cardId, modelName, barcode, size, category, type, price, discountRate, colors:[{colorId, colorName, stock, images:{main,detail1..4}}]}]
+let cardIdCounter = 0;
+let colorIdCounter = 0;
+let currentImgUploadTarget = null; // {cardId, colorId, slotKey}
 
 async function loadMyBrandsForRegister() {
   try {
@@ -1039,23 +1049,16 @@ async function loadMyBrandsForRegister() {
     myBrandsForRegister = [];
     snap.forEach(d => myBrandsForRegister.push({ id: d.id, ...d.data() }));
     renderBulkBrandSelect();
-  } catch(e) {
-    console.error('브랜드 목록 로드 실패:', e);
-  }
+  } catch(e) { console.error('브랜드 목록 로드 실패:', e); }
 }
 
 function renderBulkBrandSelect() {
   const sel = document.getElementById('bulkBrandSelect');
   if(!sel) return;
-  const prevValue = sel.value;
+  const prev = sel.value;
   sel.innerHTML = `<option value="">브랜드를 선택해주세요</option>` +
     myBrandsForRegister.map(b => `<option value="${b.id}">${b.brandName}</option>`).join('');
-  // 이전 선택값이 여전히 유효하면 유지
-  if(prevValue && myBrandsForRegister.some(b => b.id === prevValue)) {
-    sel.value = prevValue;
-  } else if(myBrandsForRegister.length === 0) {
-    selectedBulkBrandId = '';
-  }
+  if(prev && myBrandsForRegister.some(b => b.id === prev)) sel.value = prev;
 }
 
 function onBulkBrandChange() {
@@ -1063,136 +1066,249 @@ function onBulkBrandChange() {
 }
 
 function initRegisterTable() {
-  if(regRows.length === 0) {
-    addRegRow();
-    addRegRow();
-    addRegRow();
-  }
+  if(productCards.length === 0) addProductCard();
   loadMyBrandsForRegister();
 }
 
-function addRegRow() {
-  const rowId = 'row' + (rowIdCounter++);
-  regRows.push({ rowId, images: {} });
-  renderRegTable();
+function addProductCard() {
+  const cardId = ++cardIdCounter;
+  productCards.push({
+    cardId, modelName:'', barcode:'', size:'', category:'', type:'',
+    price:'', discountRate:'', colors:[]
+  });
+  const card = productCards[productCards.length - 1];
+  addColorToCard(card, false); // 기본 색상 1개 자동 추가
+  renderProductCards();
+  // 새 카드로 스크롤
+  setTimeout(() => {
+    const el = document.getElementById('pcard-' + cardId);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 100);
 }
 
-function removeRegRow(rowId) {
-  regRows = regRows.filter(r => r.rowId !== rowId);
-  if(regRows.length === 0) addRegRow();
-  renderRegTable();
+function removeProductCard(cardId) {
+  if(productCards.length <= 1) { showToast('최소 1개의 상품이 필요합니다.', 'error'); return; }
+  productCards = productCards.filter(c => c.cardId !== cardId);
+  renderProductCards();
 }
 
-function clearAllRows() {
-  if(!confirm('입력한 내용을 모두 비우시겠습니까?')) return;
-  regRows = [];
-  addRegRow();
-  addRegRow();
-  addRegRow();
-  renderRegTable();
-  showToast('초기화되었습니다.');
+function addColorToCard(card, rerender=true) {
+  if(card.colors.length >= 10) { showToast('색상은 최대 10개까지 추가할 수 있습니다.', 'error'); return; }
+  card.colors.push({
+    colorId: ++colorIdCounter,
+    colorName: '',
+    stock: '',
+    images: { main:null, detail1:null, detail2:null, detail3:null, detail4:null }
+  });
+  if(rerender) renderProductCards();
 }
 
-function renderRegTable() {
-  const tbody = document.getElementById('regTableBody');
-  tbody.innerHTML = regRows.map(row => `
-    <tr data-row-id="${row.rowId}">
-      <td class="col-model"><input type="text" data-field="modelName" placeholder="예) K9191" value="${row.modelName||''}" onchange="updateRowField('${row.rowId}','modelName',this.value)"></td>
-      <td class="col-barcode"><input type="text" data-field="barcode" placeholder="바코드" value="${row.barcode||''}" onchange="updateRowField('${row.rowId}','barcode',this.value)"></td>
-      <td class="col-size"><input type="text" data-field="size" placeholder="53-20-149" value="${row.size||''}" onchange="updateRowField('${row.rowId}','size',this.value)"></td>
-      <td class="col-color"><input type="text" data-field="color" placeholder="블랙" value="${row.color||''}" onchange="updateRowField('${row.rowId}','color',this.value)"></td>
-      <td class="col-category">
-        <select data-field="category" onchange="updateRowField('${row.rowId}','category',this.value)">
-          <option value="">선택</option>
-          <option value="하금테" ${row.category==='하금테'?'selected':''}>하금테</option>
-          <option value="뿔테" ${row.category==='뿔테'?'selected':''}>뿔테</option>
-          <option value="메탈" ${row.category==='메탈'?'selected':''}>메탈</option>
-          <option value="선글라스" ${row.category==='선글라스'?'selected':''}>선글라스</option>
-        </select>
-      </td>
-      <td class="col-type">
-        <select data-field="type" onchange="updateRowField('${row.rowId}','type',this.value)">
-          <option value="">선택</option>
-          <option value="하프" ${row.type==='하프'?'selected':''}>하프</option>
-          <option value="온" ${row.type==='온'?'selected':''}>온</option>
-          <option value="림리스" ${row.type==='림리스'?'selected':''}>림리스</option>
-        </select>
-      </td>
-      <td class="col-price"><input type="number" data-field="price" placeholder="정가" value="${row.price||''}" onchange="updateRowField('${row.rowId}','price',this.value)"></td>
-      <td class="col-discount"><input type="number" data-field="discountRate" placeholder="0" min="0" max="99" value="${row.discountRate||''}" onchange="updateRowField('${row.rowId}','discountRate',this.value)" style="text-align:center;"></td>
-      <td class="col-stock"><input type="number" data-field="stock" placeholder="재고" value="${row.stock||''}" onchange="updateRowField('${row.rowId}','stock',this.value)"></td>
-      <td class="col-img">
-        <div class="img-slot-row">
-          ${IMAGE_SLOTS.map(slot => `
-            <button class="img-thumb-btn ${row.images[slot.key] ? 'filled' : ''}" title="${slot.label}" onclick="triggerImageUpload('${row.rowId}','${slot.key}')">
-              ${row.images[slot.key] ? `<img src="${row.images[slot.key].previewUrl}">` : (slot.tag ? '★' : slot.label[2])}
-              ${slot.tag ? '<span class="main-tag">MAIN</span>' : ''}
-            </button>
-          `).join('')}
+function removeColorFromCard(cardId, colorId) {
+  const card = productCards.find(c => c.cardId === cardId);
+  if(!card) return;
+  if(card.colors.length <= 1) { showToast('색상은 최소 1개 필요합니다.', 'error'); return; }
+  card.colors = card.colors.filter(c => c.colorId !== colorId);
+  renderProductCards();
+}
+
+function updateCardField(cardId, field, value) {
+  const card = productCards.find(c => c.cardId === cardId);
+  if(card) {
+    card[field] = value;
+    if(field === 'price' || field === 'discountRate') updateCardSalePreview(cardId);
+  }
+}
+
+function updateCardSalePreview(cardId) {
+  const card = productCards.find(c => c.cardId === cardId);
+  if(!card) return;
+  const price = Number(card.price) || 0;
+  const rate = Number(card.discountRate) || 0;
+  const el = document.getElementById(`sale-preview-${cardId}`);
+  if(el) el.textContent = rate > 0 && price > 0 ? `→ 할인가 ₩${Math.round(price*(1-rate/100)).toLocaleString()}` : '';
+}
+
+function updateColorField(cardId, colorId, field, value) {
+  const card = productCards.find(c => c.cardId === cardId);
+  if(!card) return;
+  const color = card.colors.find(c => c.colorId === colorId);
+  if(color) color[field] = value;
+}
+
+const SLOT_KEYS = ['main','detail1','detail2','detail3','detail4'];
+const SLOT_LABELS = {main:'메인', detail1:'상세1', detail2:'상세2', detail3:'상세3', detail4:'상세4'};
+
+function triggerColorImgUpload(cardId, colorId, slotKey) {
+  currentImgUploadTarget = {cardId, colorId, slotKey};
+  document.getElementById('colorImgFileInput').click();
+}
+
+function removeColorImg(cardId, colorId, slotKey) {
+  const card = productCards.find(c => c.cardId === cardId);
+  if(!card) return;
+  const color = card.colors.find(c => c.colorId === colorId);
+  if(color) color.images[slotKey] = null;
+  renderProductCards();
+}
+
+function clearAllProductCards() {
+  if(!confirm('모든 입력 내용을 초기화하시겠습니까?')) return;
+  productCards = [];
+  cardIdCounter = 0;
+  colorIdCounter = 0;
+  addProductCard();
+}
+
+function renderProductCards() {
+  const container = document.getElementById('productCardList');
+  if(!container) return;
+  container.innerHTML = productCards.map((card, idx) => `
+    <div class="product-reg-card" id="pcard-${card.cardId}">
+      <div class="product-reg-card-header">
+        <span class="product-reg-card-num">상품 ${idx+1}</span>
+        <button class="del-product-btn" onclick="removeProductCard(${card.cardId})">✕ 삭제</button>
+      </div>
+
+      <!-- 공통 정보 -->
+      <div class="product-reg-common">
+        <div class="reg-field">
+          <label>모델명 <span style="color:var(--red);">*</span></label>
+          <input type="text" placeholder="예) S14118" value="${card.modelName||''}"
+            onchange="updateCardField(${card.cardId},'modelName',this.value)">
         </div>
-      </td>
-      <td class="col-del"><button class="row-del-btn" onclick="removeRegRow('${row.rowId}')" title="행 삭제">✕</button></td>
-    </tr>
+        <div class="reg-field">
+          <label>바코드</label>
+          <input type="text" placeholder="바코드" value="${card.barcode||''}"
+            onchange="updateCardField(${card.cardId},'barcode',this.value)">
+        </div>
+        <div class="reg-field">
+          <label>사이즈</label>
+          <input type="text" placeholder="53-20-149" value="${card.size||''}"
+            onchange="updateCardField(${card.cardId},'size',this.value)">
+        </div>
+        <div class="reg-field">
+          <label>카테고리</label>
+          <select onchange="updateCardField(${card.cardId},'category',this.value)">
+            <option value="" ${!card.category?'selected':''}>선택</option>
+            <option value="하금테" ${card.category==='하금테'?'selected':''}>하금테</option>
+            <option value="뿔테" ${card.category==='뿔테'?'selected':''}>뿔테</option>
+            <option value="메탈" ${card.category==='메탈'?'selected':''}>메탈</option>
+            <option value="선글라스" ${card.category==='선글라스'?'selected':''}>선글라스</option>
+          </select>
+        </div>
+        <div class="reg-field">
+          <label>타입</label>
+          <select onchange="updateCardField(${card.cardId},'type',this.value)">
+            <option value="" ${!card.type?'selected':''}>선택</option>
+            <option value="하프" ${card.type==='하프'?'selected':''}>하프</option>
+            <option value="온" ${card.type==='온'?'selected':''}>온</option>
+            <option value="림리스" ${card.type==='림리스'?'selected':''}>림리스</option>
+          </select>
+        </div>
+        <div class="reg-field">
+          <label>정가 <span style="color:var(--red);">*</span></label>
+          <input type="number" placeholder="정가" value="${card.price||''}"
+            onchange="updateCardField(${card.cardId},'price',this.value)">
+        </div>
+        <div class="reg-field">
+          <label>할인율 (%)</label>
+          <input type="number" placeholder="0" min="0" max="99" value="${card.discountRate||''}"
+            onchange="updateCardField(${card.cardId},'discountRate',this.value)">
+        </div>
+        <div class="reg-field" style="grid-column:span 2;display:flex;align-items:flex-end;">
+          <span id="sale-preview-${card.cardId}" style="font-size:13px;color:var(--sky);font-weight:700;padding-bottom:10px;">
+            ${Number(card.discountRate)>0&&Number(card.price)>0?`→ 할인가 ₩${Math.round(Number(card.price)*(1-Number(card.discountRate)/100)).toLocaleString()}`:''}
+          </span>
+        </div>
+      </div>
+
+      <!-- 색상별 정보 -->
+      <div class="color-section-label">
+        🎨 색상별 등록
+        <span style="font-size:11px;color:var(--g3);font-weight:400;">${card.colors.length}개 / 최대 10개</span>
+      </div>
+
+      ${card.colors.map((color, ci) => `
+        <div class="color-card" id="color-${card.cardId}-${color.colorId}">
+          <div class="color-card-header">
+            <span class="color-card-label">색상 ${ci+1}</span>
+            ${card.colors.length > 1 ? `<button class="del-color-btn" onclick="removeColorFromCard(${card.cardId},${color.colorId})">✕ 색상 삭제</button>` : ''}
+          </div>
+          <div class="color-card-fields">
+            <div>
+              <label>색상명 <span style="color:var(--red);">*</span></label>
+              <input type="text" placeholder="블랙, 실버, 골드..." value="${color.colorName||''}"
+                onchange="updateColorField(${card.cardId},${color.colorId},'colorName',this.value)">
+            </div>
+            <div>
+              <label>재고 <span style="color:var(--red);">*</span></label>
+              <input type="number" placeholder="재고수량" value="${color.stock||''}"
+                onchange="updateColorField(${card.cardId},${color.colorId},'stock',this.value)">
+            </div>
+            <div></div>
+          </div>
+          <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
+          <div class="color-img-row">
+            ${SLOT_KEYS.map(slot => {
+              const img = color.images[slot];
+              const hasImg = !!img;
+              return `<div class="color-img-slot ${hasImg?'filled':''}" title="${SLOT_LABELS[slot]}"
+                  onclick="triggerColorImgUpload(${card.cardId},${color.colorId},'${slot}')">
+                ${hasImg ? `<img src="${img.previewUrl}">` : `<span style="font-size:9px;text-align:center;">${SLOT_LABELS[slot]}</span>`}
+                ${slot==='main' ? `<span class="slot-main-tag">MAIN</span>` : ''}
+                ${hasImg ? `<span class="slot-del" onclick="event.stopPropagation();removeColorImg(${card.cardId},${color.colorId},'${slot}')">✕</span>` : ''}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      `).join('')}
+
+      ${card.colors.length < 10 ? `
+        <button class="add-color-btn" onclick="addColorToCard(productCards.find(c=>c.cardId===${card.cardId}))">
+          + 색상 추가
+        </button>` : ''}
+    </div>
   `).join('');
 }
 
-function updateRowField(rowId, field, value) {
-  const row = regRows.find(r => r.rowId === rowId);
-  if(row) row[field] = value;
-}
-
-let currentUploadTarget = null; // {rowId, slotKey}
-
-function triggerImageUpload(rowId, slotKey) {
-  currentUploadTarget = {rowId, slotKey};
-  document.getElementById('hiddenFileInput').click();
-}
-
-document.getElementById('hiddenFileInput').addEventListener('change', function(e) {
+// 이미지 파일 선택 처리
+document.getElementById('colorImgFileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
-  if(!file || !currentUploadTarget) return;
+  if(!file || !currentImgUploadTarget) return;
   if(file.size > 8 * 1024 * 1024) {
     showToast('이미지는 8MB 이하만 가능합니다.', 'error');
     e.target.value = '';
     return;
   }
-  const row = regRows.find(r => r.rowId === currentUploadTarget.rowId);
-  if(row) {
-    row.images[currentUploadTarget.slotKey] = {
-      file: file,
-      previewUrl: URL.createObjectURL(file)
-    };
-    renderRegTable();
-  }
+  const { cardId, colorId, slotKey } = currentImgUploadTarget;
+  const card = productCards.find(c => c.cardId === cardId);
+  if(!card) return;
+  const color = card.colors.find(c => c.colorId === colorId);
+  if(!color) return;
+  color.images[slotKey] = { file, previewUrl: URL.createObjectURL(file) };
+  renderProductCards();
   e.target.value = '';
-  currentUploadTarget = null;
+  currentImgUploadTarget = null;
 });
 
-// 일괄 등록 제출
 async function submitBulkRegister() {
-  const validRows = regRows.filter(r => r.modelName && r.modelName.trim());
-
-  if(validRows.length === 0) {
-    showToast('모델명을 입력한 상품이 없습니다.', 'error');
-    return;
-  }
-  if(myBrandsForRegister.length === 0) {
-    showToast('먼저 "내 브랜드 관리"에서 브랜드를 1개 이상 등록해주세요.', 'error');
-    return;
-  }
   if(!selectedBulkBrandId) {
-    showToast('상단에서 등록할 브랜드를 먼저 선택해주세요.', 'error');
-    return;
+    showToast('상단에서 등록할 브랜드를 먼저 선택해주세요.', 'error'); return;
   }
-  for(const row of validRows) {
-    if(!row.price) {
-      showToast(`[${row.modelName}] 도매가를 입력해주세요.`, 'error');
-      return;
+  const validCards = productCards.filter(c => c.modelName && c.modelName.trim());
+  if(validCards.length === 0) {
+    showToast('모델명을 입력한 상품이 없습니다.', 'error'); return;
+  }
+  for(const card of validCards) {
+    if(!card.price) { showToast(`[${card.modelName}] 정가를 입력해주세요.`, 'error'); return; }
+    for(const color of card.colors) {
+      if(!color.colorName) { showToast(`[${card.modelName}] 색상명을 입력해주세요.`, 'error'); return; }
+      if(!color.images.main) { showToast(`[${card.modelName} · ${color.colorName}] 메인 이미지를 등록해주세요.`, 'error'); return; }
     }
   }
 
   const brandInfo = myBrandsForRegister.find(b => b.id === selectedBulkBrandId);
-  if(!confirm(`[${brandInfo?.brandName}] 브랜드로 ${validRows.length}건의 상품을 등록하시겠습니까?\n등록 후 관리자 승인 절차를 거쳐 노출됩니다.`)) return;
+  if(!confirm(`[${brandInfo?.brandName}] 브랜드로 ${validCards.length}건 상품 등록하시겠습니까?\n등록 후 관리자 승인 절차를 거쳐 노출됩니다.`)) return;
 
   const btn = document.getElementById('bulkSaveBtn');
   btn.disabled = true;
@@ -1202,39 +1318,49 @@ async function submitBulkRegister() {
   let successCount = 0;
 
   try {
-    for(const row of validRows) {
-      // 이미지 업로드
-      const imageUrls = {};
-      for(const slot of IMAGE_SLOTS) {
-        const imgData = row.images[slot.key];
-        if(imgData && imgData.file) {
-          const path = `products/${uid}/${Date.now()}_${slot.key}_${imgData.file.name}`;
-          const fileRef = window._ref(window._storage, path);
-          await window._uploadBytes(fileRef, imgData.file);
-          const url = await window._getDownloadURL(fileRef);
-          imageUrls[slot.key] = url;
+    for(const card of validCards) {
+      const price = Number(card.price) || 0;
+      const discountRate = Number(card.discountRate) || 0;
+      const salePrice = discountRate > 0 ? Math.round(price * (1 - discountRate/100)) : 0;
+
+      // 색상별 이미지 업로드
+      const uploadedColors = [];
+      for(const color of card.colors) {
+        const imgUrls = {};
+        for(const slot of SLOT_KEYS) {
+          const img = color.images[slot];
+          if(img && img.file) {
+            const path = `products/${uid}/${Date.now()}_${slot}_${img.file.name}`;
+            const fileRef = window._ref(window._storage, path);
+            await window._uploadBytes(fileRef, img.file);
+            imgUrls[slot] = await window._getDownloadURL(fileRef);
+          }
         }
+        uploadedColors.push({
+          colorName: color.colorName.trim(),
+          stock: Number(color.stock) || 0,
+          mainImageUrl: imgUrls.main || '',
+          detailImageUrls: [imgUrls.detail1, imgUrls.detail2, imgUrls.detail3, imgUrls.detail4].filter(Boolean)
+        });
       }
 
       await window._addDoc(window._collection(window._db, 'products'), {
-        brandId: selectedBulkBrandId, // brands 컬렉션 문서ID (서브 브랜드 단위), 이 등록작업 전체에 고정
+        brandId: selectedBulkBrandId,
         brandName: brandInfo?.brandName || '',
-        brandOwnerUid: uid, // 회사 계정 (권한/조회용)
-        modelName: row.modelName.trim(),
-        barcode: row.barcode || '',
-        size: row.size || '',
-        color: row.color || '',
-        category: row.category || '',
-        type: row.type || '',
-        price: Number(row.price) || 0,
-        discountRate: Number(row.discountRate) || 0,
-        salePrice: Number(row.discountRate) > 0
-          ? Math.round((Number(row.price)||0) * (1 - Number(row.discountRate)/100))
-          : 0,
-        stock: Number(row.stock) || 0,
-        mainImageUrl: imageUrls.main || '',
-        detailImageUrls: [imageUrls.detail1, imageUrls.detail2, imageUrls.detail3, imageUrls.detail4].filter(Boolean),
-        status: 'pending', // 마스터 승인 전
+        brandOwnerUid: uid,
+        modelName: card.modelName.trim(),
+        barcode: card.barcode || '',
+        size: card.size || '',
+        category: card.category || '',
+        type: card.type || '',
+        price,
+        discountRate,
+        salePrice,
+        colors: uploadedColors, // 색상 배열 저장
+        // 목록/상세에서 빠르게 보여줄 대표 이미지 (첫 번째 색상 기준)
+        mainImageUrl: uploadedColors[0]?.mainImageUrl || '',
+        colorNames: uploadedColors.map(c => c.colorName), // 목록 카드 색상 칩용
+        status: 'pending',
         createdAt: window._serverTimestamp(),
         approvedAt: null
       });
@@ -1242,17 +1368,17 @@ async function submitBulkRegister() {
     }
 
     showToast(`✅ [${brandInfo?.brandName}] 브랜드로 ${successCount}건 등록 완료! 관리자 승인 후 노출됩니다.`, 'success');
-    regRows = [];
-    addRegRow(); addRegRow(); addRegRow();
-    renderRegTable();
+    productCards = [];
+    cardIdCounter = 0;
+    colorIdCounter = 0;
+    addProductCard();
     loadDashboard();
-
   } catch(e) {
     console.error(e);
     showToast('등록 중 오류 발생: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '일괄 등록하기';
+    btn.textContent = '상품 등록하기';
   }
 }
 

@@ -769,17 +769,82 @@ function renderProduct(p) {
     thumbList.innerHTML = `<div class="thumb active placeholder-emoji">👓</div>`;
   }
 
-  // 색상 (단일 색상 표시)
+  // 색상 선택 버튼 렌더링 (새 colors 배열 구조)
   const colorList = document.getElementById('colorList');
-  if(p.color) {
+  const colorSection = document.getElementById('colorSection');
+
+  if(p.colors && p.colors.length > 0) {
+    colorSection.style.display = 'block';
+    renderColorButtons(p, 0); // 첫 번째 색상 선택
+  } else if(p.color) {
+    // 구버전 호환 (단일 color 필드)
     colorList.innerHTML = `<button class="color-btn active"><div class="color-dot" style="background:#888;"></div> ${p.color}</button>`;
     document.getElementById('selected-color').textContent = p.color;
+    const stock = Number(p.stock || 0);
+    updateStockDisplay(stock);
+    if(p.detailImageUrls && p.detailImageUrls.length > 0) {
+      document.getElementById('detailImagesWrap').innerHTML = p.detailImageUrls.map(url =>
+        `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
+      ).join('');
+    }
   } else {
-    document.getElementById('colorSection').style.display = 'none';
+    colorSection.style.display = 'none';
+    const stock = Number(p.stock || 0);
+    updateStockDisplay(stock);
   }
 
-  // 재고/품절 처리
-  const stock = Number(p.stock || 0);
+  updatePriceDisplay();
+  loadRelatedProducts(p);
+  checkWishAndRestockStatus(p);
+}
+
+// 색상 버튼 렌더링 + 클릭 시 사진 전환
+function renderColorButtons(p, selectedIdx) {
+  const colorList = document.getElementById('colorList');
+  const colors = p.colors;
+  colorList.innerHTML = colors.map((c, i) => `
+    <button class="color-btn ${i === selectedIdx ? 'active' : ''}" onclick="selectColor(${i})">
+      <div class="color-dot" style="background:${getColorDot(c.colorName)};"></div>
+      ${c.colorName}
+    </button>
+  `).join('');
+  document.getElementById('selected-color').textContent = colors[selectedIdx].colorName;
+
+  // 선택한 색상의 이미지로 교체
+  const selected = colors[selectedIdx];
+  applyColorImages(selected);
+  updateStockDisplay(Number(selected.stock || 0));
+}
+
+function selectColor(idx) {
+  if(!currentProduct || !currentProduct.colors) return;
+  renderColorButtons(currentProduct, idx);
+}
+
+function applyColorImages(color) {
+  // 메인 이미지 교체
+  const mainImg = document.getElementById('mainProductImg');
+  if(mainImg) mainImg.src = color.mainImageUrl || '';
+
+  // 썸네일 교체
+  const allUrls = [color.mainImageUrl, ...(color.detailImageUrls||[])].filter(Boolean);
+  const thumbWrap = document.getElementById('thumbWrap');
+  if(thumbWrap) {
+    thumbWrap.innerHTML = allUrls.map((url, i) =>
+      `<img src="${url}" class="thumb-img ${i===0?'active':''}" onclick="selectMainImg(this,'${url}')">`
+    ).join('');
+  }
+
+  // 상세 이미지 교체
+  const detailWrap = document.getElementById('detailImagesWrap');
+  if(detailWrap) {
+    detailWrap.innerHTML = (color.detailImageUrls||[]).map(url =>
+      `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
+    ).join('');
+  }
+}
+
+function updateStockDisplay(stock) {
   if(stock <= 0) {
     document.getElementById('stock-status').innerHTML = '<div class="stock-dot out"></div><span style="color:var(--red);font-weight:600;">품절</span>';
     document.getElementById('qty-wrap').style.display = 'none';
@@ -787,18 +852,27 @@ function renderProduct(p) {
     document.getElementById('restock-btn').style.display = 'flex';
   } else {
     document.getElementById('stock-status').innerHTML = `<div class="stock-dot"></div><span style="color:var(--green);font-weight:600;">재고 있음</span> <span style="color:var(--g3);">(잔여 ${stock}개)</span>`;
+    document.getElementById('qty-wrap').style.display = 'flex';
+    document.getElementById('buy-btns').style.display = 'flex';
+    document.getElementById('restock-btn').style.display = 'none';
   }
+  updateTotal();
+}
 
-  // 상세 이미지 탭
-  if(p.detailImageUrls && p.detailImageUrls.length > 0) {
-    document.getElementById('detailImagesWrap').innerHTML = p.detailImageUrls.map(url =>
-      `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
-    ).join('');
-  }
-
-  updatePriceDisplay();
-  loadRelatedProducts(p);
-  checkWishAndRestockStatus(p);
+// 색상명으로 대략적인 색상 표시
+function getColorDot(colorName) {
+  const name = (colorName || '').toLowerCase();
+  if(name.includes('블랙') || name.includes('black')) return '#222';
+  if(name.includes('화이트') || name.includes('white')) return '#f5f5f5';
+  if(name.includes('실버') || name.includes('silver')) return '#C0C0C0';
+  if(name.includes('골드') || name.includes('gold')) return '#C9A84C';
+  if(name.includes('브라운') || name.includes('brown')) return '#8B4513';
+  if(name.includes('레드') || name.includes('red')) return '#E53935';
+  if(name.includes('블루') || name.includes('blue')) return '#1976D2';
+  if(name.includes('핑크') || name.includes('pink')) return '#E91E8C';
+  if(name.includes('그린') || name.includes('green')) return '#388E3C';
+  if(name.includes('퍼플') || name.includes('purple')) return '#7B1FA2';
+  return '#888';
 }
 
 async function checkWishAndRestockStatus(p) {
@@ -952,12 +1026,24 @@ async function addCart() {
   if(!currentProduct) return;
   const qty = parseInt(document.getElementById('qty').value) || 1;
 
+  // 선택된 색상 확인
+  let selectedColorName = '';
+  let selectedColorIdx = 0;
+  if(currentProduct.colors && currentProduct.colors.length > 0) {
+    const activeBtn = document.querySelector('#colorList .color-btn.active');
+    if(activeBtn) {
+      selectedColorIdx = [...document.querySelectorAll('#colorList .color-btn')].indexOf(activeBtn);
+      selectedColorName = currentProduct.colors[selectedColorIdx]?.colorName || '';
+    }
+  } else {
+    selectedColorName = currentProduct.color || '';
+  }
+
   const overlay = document.getElementById('cartOverlay');
   const overlayIcon = document.getElementById('cartOverlayIcon');
   const overlayText = document.getElementById('cartOverlayText');
   const overlaySub = document.getElementById('cartOverlaySub');
 
-  // 1. 담는 중 표시
   overlayIcon.innerHTML = '<div class="cart-spinner"></div>';
   overlayText.textContent = '장바구니에 담는 중...';
   overlaySub.textContent = '';
@@ -965,7 +1051,9 @@ async function addCart() {
 
   try {
     const uid = _auth.currentUser.uid;
-    const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(currentProduct.id);
+    // 같은 상품 + 같은 색상이면 수량 합산, 다른 색상이면 별도 아이템
+    const cartItemId = currentProduct.id + (selectedColorName ? '_' + selectedColorName : '');
+    const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
     const existing = await cartItemRef.get();
     if(existing.exists) {
       const newQty = (existing.data().qty || 1) + qty;
@@ -973,6 +1061,8 @@ async function addCart() {
     } else {
       await cartItemRef.set({
         productId: currentProduct.id,
+        selectedColor: selectedColorName,
+        selectedColorIdx,
         qty: qty,
         addedAt: firebase.firestore.FieldValue.serverTimestamp()
       });

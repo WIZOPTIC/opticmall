@@ -229,6 +229,7 @@ function renderCart() {
         <div class="item-info">
           <div class="item-cat">${p.type || p.brandName || '안경테'}</div>
           <div class="item-name">${p.modelName||'-'}${isSoldOut ? `<span class="soldout-badge">품절</span>` : ''}</div>
+          ${item.selectedColor ? `<div style="font-size:12px;color:var(--g3);margin-bottom:4px;">색상: ${item.selectedColor}</div>` : ''}
           <div class="item-option">색상: ${p.color||'-'} | 코드: ${p.barcode||'-'}</div>
         </div>
         <div class="item-qty">
