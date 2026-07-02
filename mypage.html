@@ -1015,12 +1015,15 @@ async function submitCancelRequest() {
   try {
     const newStatus = cancelType === 'before_ship' ? 'cancel_requested' : 'return_requested';
 
+    // 취소/반품 신청 시점의 원래 상태를 저장해둬야, 관리자가 반려했을 때 정확히 그 상태로 복구할 수 있음
+    const orderSnap1 = await _db.collection('orders').doc(cancelTargetOrderId).get();
+    const previousStatus = orderSnap1.data()?.status || 'paid';
+
     // 반품 시 택배비/환불액 계산해서 같이 저장
     let returnShippingFee = 0;
     let expectedRefund = 0;
     if(cancelType === 'after_ship') {
-      const orderSnap2 = await _db.collection('orders').doc(cancelTargetOrderId).get();
-      const o2 = orderSnap2.data();
+      const o2 = orderSnap1.data();
       const total2 = Number(o2?.totalAmount || 0);
       const addr2 = o2?.shippingAddress?.address || o2?.shippingAddress?.roadAddress || '';
       const isFreeReturn = finalReason === '상품불량' || finalReason === '오배송';
@@ -1035,6 +1038,7 @@ async function submitCancelRequest() {
 
     await _db.collection('orders').doc(cancelTargetOrderId).update({
       status: newStatus,
+      previousStatus,
       cancelReason: finalReason,
       cancelType,
       returnShippingFee,
