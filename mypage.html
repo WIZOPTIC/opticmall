@@ -131,11 +131,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 /* 배송조회 모달 (네이버 스타일, 자체 제작) */
 .track-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
 .track-modal-overlay.open{display:flex;}
-.track-modal-box{background:var(--white);border-radius:16px;width:420px;max-width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.2);}
-.track-modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--g2);position:sticky;top:0;background:var(--white);z-index:1;}
+.track-modal-box{background:var(--white);border-radius:16px;width:420px;max-width:100%;max-height:88vh;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.2);display:flex;flex-direction:column;}
+.track-modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--g2);background:var(--white);flex-shrink:0;}
 .track-modal-title{font-size:15px;font-weight:700;color:var(--navy);}
 .track-modal-close{width:28px;height:28px;border:none;background:var(--g1);border-radius:50%;cursor:pointer;font-size:14px;}
-.track-modal-body{padding:24px 20px;}
+.track-modal-body{padding:24px 20px;overflow-y:auto;flex:1;}
 .track-headline{font-size:19px;font-weight:800;color:var(--navy);text-align:center;margin-bottom:22px;}
 .track-timeline{background:var(--g1);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
 .track-timeline-item{display:flex;gap:12px;padding:8px 0;}
