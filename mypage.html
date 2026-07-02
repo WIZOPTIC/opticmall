@@ -705,11 +705,14 @@ let allOrdersCache = [];
 let currentOrderFilter = null; // null = 전체, 'paid'|'shipping'|'done'|'cancel'
 let currentPeriodFilter = '3m'; // '3m'|'6m'|'1y'|'all'
 const orderFilterGroups = {
-  paid: ['payment_window_passed', 'paid', 'preparing'],
+  // 결제완료 = "결제내역" 개념. 배송중/배송완료로 넘어가도 계속 여기 포함됨(취소된 건 제외)
+  paid: ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered'],
   shipping: ['shipping'],
   done: ['delivered'],
   cancel: ['cancel_requested', 'return_requested', 'cancel_completed', 'cancelled']
 };
+// 아직 완결되지 않은(진행중) 주문 상태 - 기간 필터와 무관하게 항상 리스트에 노출
+const ACTIVE_STATUSES = ['payment_window_passed', 'paid', 'preparing', 'shipping'];
 
 const WEEKDAYS = ['일','월','화','수','목','금','토'];
 function formatDateOnly(ts) {
@@ -784,8 +787,8 @@ function toggleOrderFilter(filterKey, el) {
 }
 
 function isActiveOrder(order) {
-  // 결제완료/배송중 등 진행중인 주문은 기간 필터와 무관하게 항상 노출
-  return orderFilterGroups.paid.includes(order.status) || orderFilterGroups.shipping.includes(order.status);
+  // 아직 완결되지 않은 주문(결제완료~배송중)은 기간 필터와 무관하게 항상 노출
+  return ACTIVE_STATUSES.includes(order.status);
 }
 
 function isWithinPeriod(order, period) {
