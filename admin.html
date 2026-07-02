@@ -316,6 +316,18 @@ tr:hover td{background:#FAFBFC;}
       </div>
     </div>
 
+    <!-- 취소/반품 상세 모달 -->
+    <div class="modal-bg" id="cancelDetailModal" style="display:none;">
+      <div class="modal" style="max-width:560px;width:92vw;">
+        <div class="modal-header">
+          <div class="modal-title" id="cancelDetailTitle">취소 상세</div>
+          <button class="modal-close" onclick="closeCancelDetail()">✕</button>
+        </div>
+        <div class="modal-body" id="cancelDetailBody" style="max-height:70vh;overflow-y:auto;"></div>
+        <div class="modal-footer" id="cancelDetailFooter"></div>
+      </div>
+    </div>
+
     <!-- 이벤트 승인 관리 -->
     <div class="page" id="page-promoApproval">
       <div class="section-header">
@@ -487,7 +499,7 @@ tr:hover td{background:#FAFBFC;}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const firebaseConfig = {
@@ -526,6 +538,7 @@ window._query = query;
 window._orderBy = orderBy;
 window._where = where;
 window._serverTimestamp = serverTimestamp;
+window._runTransaction = runTransaction;
 
 // 로그인 상태 + 권한 감지
 let currentAdminRole = null;
@@ -1707,7 +1720,8 @@ async function saveAdminProductEdit() {
 }
 
 // ===================== 취소/반품 관리 =====================
-const RETURN_SHIPPING_FEE = 6000; // 왕복 택배비
+const RETURN_SHIPPING_FEE_DEFAULT = 7000;
+let cancelOrdersCache = [];
 
 async function loadCancelManage() {
   const tableEl = document.getElementById('cancelManageTable');
@@ -1724,9 +1738,10 @@ async function loadCancelManage() {
       const db2 = b.cancelRequestedAt?.toDate?.() || new Date(0);
       return db2 - da;
     });
+    cancelOrdersCache = orders;
 
-    // 뱃지 업데이트
-    document.getElementById('pendingCancelBadge').textContent = orders.length || '';
+    const badge = document.getElementById('pendingCancelBadge');
+    if(badge) badge.textContent = orders.length || '';
 
     if(orders.length === 0) {
       tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);">취소/반품 신청이 없습니다.</div>';
@@ -1736,8 +1751,8 @@ async function loadCancelManage() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>주문번호</th><th>회원</th><th>상품</th><th>결제금액</th>
-          <th>신청유형</th><th>취소사유</th><th>배송지</th><th>환불예정액</th><th>신청일</th><th>처리</th>
+          <th>주문번호</th><th>회원</th><th>상품 요약</th><th>결제금액</th>
+          <th>신청유형</th><th>취소사유</th><th>환불예정액</th><th>신청일</th><th>처리</th>
         </tr></thead>
         <tbody>
           ${orders.map(o => {
@@ -1746,32 +1761,23 @@ async function loadCancelManage() {
             const returnFee = Number(o.returnShippingFee || 0);
             const expectedRefund = o.expectedRefund !== undefined
               ? Number(o.expectedRefund)
-              : (isReturn ? Math.max(0, total - 7000) : total);
-
+              : (isReturn ? Math.max(0, total - RETURN_SHIPPING_FEE_DEFAULT) : total);
             const items = Array.isArray(o.items) ? o.items : [];
-            const itemSummary = items.map(i => `${i.productName||'-'} x${i.qty}`).join(', ');
-            const addr = o.shippingAddress?.address || o.shippingAddress?.roadAddress || '-';
-
-            return `<tr>
-              <td style="font-size:11px;">${o.orderId||o.id}</td>
-              <td>${o.userName||o.userEmail||'-'}</td>
-              <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemSummary}">${itemSummary}</td>
-              <td>₩${total.toLocaleString()}</td>
-              <td><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품신청' : '취소신청'}</span></td>
-              <td style="font-size:12px;">${o.cancelReason||'-'}</td>
-              <td style="font-size:12px;color:var(--g3);">${addr}</td>
-              <td>
-                <div style="font-weight:700;color:var(--sky);">₩${expectedRefund.toLocaleString()}</div>
-                ${isReturn ? `<div style="font-size:10px;color:var(--red);">택배비 -₩${returnFee.toLocaleString()}</div>` : '<div style="font-size:10px;color:var(--green);">전액환불</div>'}
+            const firstItem = items[0] ? items[0].productName||'-' : '-';
+            const itemSummary = items.length > 1 ? firstItem + ' 외 ' + (items.length-1) + '건' : firstItem;
+            return \`<tr style="cursor:pointer;" onclick="openCancelDetail('\${o.id}')">
+              <td style="font-size:11px;color:var(--sky);">\${o.orderId||o.id}</td>
+              <td>\${o.userName||o.userEmail||'-'}</td>
+              <td style="font-size:12px;">\${itemSummary}</td>
+              <td>₩\${total.toLocaleString()}</td>
+              <td><span class="badge \${isReturn ? 'pending' : 'reject'}">\${isReturn ? '반품' : '취소'}</span></td>
+              <td style="font-size:12px;">\${o.cancelReason||'-'}</td>
+              <td style="font-weight:700;color:var(--sky);">₩\${expectedRefund.toLocaleString()}</td>
+              <td style="font-size:11px;">\${formatDate(o.cancelRequestedAt)}</td>
+              <td onclick="event.stopPropagation()">
+                <button class="btn-approve" onclick="openCancelDetail('\${o.id}')">📄 상세/처리</button>
               </td>
-              <td style="font-size:11px;">${formatDate(o.cancelRequestedAt)}</td>
-              <td>
-                <div class="action-btns" style="flex-direction:column;gap:4px;">
-                  <button class="btn-approve" onclick="processCancel('${o.id}','${o.cancelType||'before_ship'}',${expectedRefund})">✅ 환불완료</button>
-                  <button class="btn-reject" onclick="rejectCancel('${o.id}')">❌ 반려</button>
-                </div>
-              </td>
-            </tr>`;
+            </tr>\`;
           }).join('')}
         </tbody>
       </table>`;
@@ -1780,6 +1786,88 @@ async function loadCancelManage() {
   }
 }
 
+function openCancelDetail(orderId) {
+  const o = cancelOrdersCache.find(x => x.id === orderId);
+  if(!o) return;
+
+  const isReturn = o.cancelType === 'after_ship';
+  const total = Number(o.totalAmount || 0);
+  const returnFee = Number(o.returnShippingFee || 0);
+  const expectedRefund = o.expectedRefund !== undefined
+    ? Number(o.expectedRefund)
+    : (isReturn ? Math.max(0, total - RETURN_SHIPPING_FEE_DEFAULT) : total);
+  const items = Array.isArray(o.items) ? o.items : [];
+  const addr = o.shippingAddress || {};
+  const addrStr = [addr.addr1, addr.addr2].filter(Boolean).join(' ') || '-';
+
+  document.getElementById('cancelDetailTitle').textContent = isReturn ? '반품 신청 상세' : '취소 신청 상세';
+
+  document.getElementById('cancelDetailBody').innerHTML = `
+    <div style="padding:14px;background:var(--g1);border-radius:10px;margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+        <div><span style="color:var(--g3);font-size:11px;">주문번호</span><br><strong style="font-size:11px;">${o.orderId||o.id}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">회원명</span><br><strong>${o.userName||'-'}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">신청유형</span><br><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품신청' : '취소신청'}</span></div>
+        <div><span style="color:var(--g3);font-size:11px;">취소사유</span><br><strong>${o.cancelReason||'-'}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">신청일시</span><br><strong style="font-size:11px;">${formatDate(o.cancelRequestedAt)}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">주문일시</span><br><strong style="font-size:11px;">${formatDate(o.createdAt)}</strong></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:6px;">📦 배송지</div>
+      <div style="font-size:12px;padding:10px;border:1px solid var(--g2);border-radius:8px;">
+        ${o.receiver?.name||o.userName||'-'} / ${o.receiver?.phone||'-'}<br>
+        ${addr.zipcode ? '['+addr.zipcode+'] ' : ''}${addrStr}
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:6px;">🛍️ 주문 상품 (${items.length}건)</div>
+      ${items.map(it => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g1);">
+          <div style="width:44px;height:44px;border-radius:6px;background:var(--g1);overflow:hidden;flex-shrink:0;">
+            ${it.mainImageUrl ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">👓</div>'}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;">${it.productName||'-'}</div>
+            <div style="font-size:11px;color:var(--g3);">${it.selectedColor ? it.selectedColor+' · ' : ''}${it.qty}개</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;">₩${Number(it.subtotal||0).toLocaleString()}</div>
+        </div>`).join('')}
+    </div>
+
+    <div style="background:${isReturn ? '#FFF3E0' : '#EBF8F0'};border-radius:10px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:10px;">💰 환불 금액</div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+        <span>결제 금액</span><span>₩${total.toLocaleString()}</span>
+      </div>
+      ${isReturn ? `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:var(--red);">
+        <span>왕복 택배비 공제</span><span>-₩${returnFee.toLocaleString()}</span>
+      </div>` : `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:var(--green);">
+        <span>배송비 공제</span><span>없음</span>
+      </div>`}
+      <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--sky);padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);">
+        <span>환불 예정액</span><span>₩${expectedRefund.toLocaleString()}</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('cancelDetailFooter').innerHTML = `
+    <div style="display:flex;gap:8px;justify-content:flex-end;width:100%;">
+      <button class="btn-sm btn-ghost" onclick="closeCancelDetail()">닫기</button>
+      <button class="btn-reject" style="padding:9px 18px;" onclick="closeCancelDetail();rejectCancel('${o.id}')">❌ 반려</button>
+      <button class="btn-approve" style="padding:9px 18px;" onclick="closeCancelDetail();processCancel('${o.id}','${o.cancelType||'before_ship'}',${expectedRefund})">✅ 환불완료</button>
+    </div>`;
+
+  document.getElementById('cancelDetailModal').style.display = 'flex';
+}
+
+function closeCancelDetail() {
+  document.getElementById('cancelDetailModal').style.display = 'none';
+}
+
+
 async function processCancel(orderId, cancelType, expectedRefund) {
   const refundAmt = Number(expectedRefund || 0);
   const note = prompt(`관리자 메모 (선택사항)\n환불 예정액: ₩${refundAmt.toLocaleString()}\n금액 조정이 필요하면 메모에 기재해주세요:`) ?? '';
@@ -1787,15 +1875,16 @@ async function processCancel(orderId, cancelType, expectedRefund) {
 
   try {
     const orderRef = window._doc(window._db, 'orders', orderId);
-    const orderSnap = await orderRef.get ? await orderRef.get() : await window._getDoc(orderRef);
-    const orderData = orderSnap.data ? orderSnap.data() : orderSnap;
+    const orderSnap = await window._getDoc(orderRef);
+    if(!orderSnap.exists()) { showToast('주문 정보를 찾을 수 없습니다.', 'error'); return; }
+    const orderData = orderSnap.data();
 
     // 트랜잭션: 주문 상태 변경 + 재고 복구
-    await window._db.runTransaction(async (tx) => {
+    await window._runTransaction(window._db, async (tx) => {
       for(const item of (orderData.items || [])) {
         const productRef = window._doc(window._db, 'products', item.productId);
         const productSnap = await tx.get(productRef);
-        if(!productSnap.exists) continue;
+        if(!productSnap.exists()) continue;
         const pData = productSnap.data();
         const colorIdx = Number(item.selectedColorIdx) || 0;
         const qty = Number(item.qty) || 0;
