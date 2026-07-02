@@ -342,6 +342,13 @@ _auth.onAuthStateChanged(async (user) => {
     document.getElementById('loadingArea').style.display = 'none';
     document.getElementById('mypageMain').style.display = 'flex';
     loadOrders();
+
+    // URL 파라미터로 탭 자동 이동 (?tab=wish, ?tab=restock)
+    const urlTab = new URLSearchParams(location.search).get('tab');
+    if(urlTab === 'wish' || urlTab === 'restock') {
+      const tabEl = document.querySelector(`[onclick*="showSection('${urlTab}"]`);
+      if(tabEl) tabEl.click();
+    }
   } catch(e) {
     console.error(e);
     alert('회원 정보를 불러오지 못했습니다.');
