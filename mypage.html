@@ -47,7 +47,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
 /* 요약 카드 */
 .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-.sum-card{background:var(--white);border-radius:10px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.sum-card{background:var(--white);border-radius:10px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;border:2px solid transparent;transition:all 0.15s;}
+.sum-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.sum-card.active{border-color:var(--sky);background:var(--sky-lt);}
 .sum-num{font-family:'Inter',sans-serif;font-size:26px;font-weight:800;color:var(--navy);}
 .sum-label{font-size:11px;color:var(--g3);margin-top:4px;}
 
@@ -198,15 +200,18 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
     <!-- 주문 요약 -->
     <div class="summary-grid">
-      <div class="sum-card"><div class="sum-num" style="color:var(--sky);" id="cntPaid">-</div><div class="sum-label">결제완료</div></div>
-      <div class="sum-card"><div class="sum-num" style="color:var(--orange);" id="cntShipping">-</div><div class="sum-label">배송중</div></div>
-      <div class="sum-card"><div class="sum-num" style="color:var(--green);" id="cntDone">-</div><div class="sum-label">배송완료</div></div>
-      <div class="sum-card"><div class="sum-num" style="color:var(--red);" id="cntCancel">-</div><div class="sum-label">취소/반품</div></div>
+      <div class="sum-card" id="cardPaid" onclick="toggleOrderFilter('paid')"><div class="sum-num" style="color:var(--sky);" id="cntPaid">-</div><div class="sum-label">결제완료</div></div>
+      <div class="sum-card" id="cardShipping" onclick="toggleOrderFilter('shipping')"><div class="sum-num" style="color:var(--orange);" id="cntShipping">-</div><div class="sum-label">배송중</div></div>
+      <div class="sum-card" id="cardDone" onclick="toggleOrderFilter('done')"><div class="sum-num" style="color:var(--green);" id="cntDone">-</div><div class="sum-label">배송완료</div></div>
+      <div class="sum-card" id="cardCancel" onclick="toggleOrderFilter('cancel')"><div class="sum-num" style="color:var(--red);" id="cntCancel">-</div><div class="sum-label">취소/반품</div></div>
     </div>
 
     <!-- 주문 내역 -->
     <div id="section-orders">
-      <div class="section-title">주문 내역</div>
+      <div class="section-title" id="ordersSectionTitle" style="display:flex;align-items:center;gap:10px;">
+        주문 내역
+        <button id="clearFilterBtn" onclick="toggleOrderFilter(null)" style="display:none;font-size:11px;font-weight:600;color:var(--sky);background:var(--sky-lt);border:none;border-radius:100px;padding:4px 12px;cursor:pointer;font-family:inherit;">전체보기 ✕</button>
+      </div>
       <div id="ordersList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
 
@@ -662,6 +667,16 @@ function getOrderItems(order) {
   return [];
 }
 
+let allOrdersCache = [];
+let currentOrderFilter = null; // null = 전체, 'paid'|'shipping'|'done'|'cancel'
+const orderFilterGroups = {
+  paid: ['payment_window_passed', 'paid', 'preparing'],
+  shipping: ['shipping'],
+  done: ['delivered'],
+  cancel: ['cancel_requested', 'return_requested', 'cancel_completed', 'cancelled']
+};
+const orderFilterLabels = { paid: '결제완료', shipping: '배송중', done: '배송완료', cancel: '취소/반품' };
+
 async function loadOrders() {
   const listEl = document.getElementById('ordersList');
   try {
@@ -673,74 +688,133 @@ async function loadOrders() {
       const dbb = b.createdAt?.toDate?.() || new Date(0);
       return dbb - da;
     });
+    allOrdersCache = orders;
 
     // 요약 카운트
     let paid=0, shipping=0, done=0, cancel=0;
     orders.forEach(o => {
       const st = o.status;
-      if(st === 'payment_window_passed' || st === 'paid' || st === 'preparing') paid++;
-      else if(st === 'shipping') shipping++;
-      else if(st === 'delivered') done++;
-      else if(['cancel_requested','return_requested','cancel_completed','cancelled'].includes(st)) cancel++;
+      if(orderFilterGroups.paid.includes(st)) paid++;
+      else if(orderFilterGroups.shipping.includes(st)) shipping++;
+      else if(orderFilterGroups.done.includes(st)) done++;
+      else if(orderFilterGroups.cancel.includes(st)) cancel++;
     });
     document.getElementById('cntPaid').textContent = paid;
     document.getElementById('cntShipping').textContent = shipping;
     document.getElementById('cntDone').textContent = done;
     document.getElementById('cntCancel').textContent = cancel;
 
-    if(orders.length === 0) {
-      listEl.innerHTML = `<div class="empty-box">아직 주문 내역이 없습니다.</div>`;
-      return;
-    }
+    // 옛 주문 중 상품 사진이 비어있는 항목은 현재 상품DB에서 대표이미지로 보완
+    await fillMissingOrderImages(orders);
 
-    listEl.innerHTML = orders.map(o => {
-      const statusInfo = orderStatusMap[o.status] || { label: o.status||'대기', cls: 'status-pending' };
-      const items = getOrderItems(o);
-
-      // 취소/반품 버튼 상태별 분기
-      const canCancel = ['payment_window_passed', 'paid', 'preparing'].includes(o.status);
-      const canReturn = o.status === 'shipping' || o.status === 'delivered';
-      const isPendingCancel = o.status === 'cancel_requested' || o.status === 'return_requested';
-
-      return `
-        <div class="order-card">
-          <div class="order-header">
-            <div>
-              <div class="order-num">${o.orderId || o.id}</div>
-              <div class="order-date">${formatDate(o.createdAt)}</div>
-            </div>
-            <span class="order-status ${statusInfo.cls}">${statusInfo.label}</span>
-          </div>
-          ${items.map(it => `
-            <div class="order-item">
-              <div class="order-img">
-                ${it.mainImageUrl
-                  ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
-                  : `<span style="font-size:24px;opacity:0.3;">👓</span>`}
-              </div>
-              <div class="order-item-info">
-                <div class="order-item-name">${it.productName||'-'}</div>
-                <div class="order-item-opt">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
-              </div>
-              <div class="order-item-price">₩${Number(it.subtotal||0).toLocaleString()}</div>
-            </div>
-          `).join('')}
-          <div class="order-footer">
-            <div class="order-total">합계 <span>₩${Number(o.totalAmount||0).toLocaleString()}</span></div>
-            <div class="order-actions">
-              ${canCancel ? `<button class="btn-sm btn-cancel" onclick="openCancelModal('${o.id}','before_ship')">주문 취소</button>` : ''}
-              ${canReturn ? `<button class="btn-sm btn-cancel" onclick="openCancelModal('${o.id}','after_ship')">반품 신청</button>` : ''}
-              ${isPendingCancel ? `<span style="font-size:12px;color:var(--orange);font-weight:600;">처리 대기중</span>` : ''}
-            </div>
-          </div>
-          ${o.cancelReason ? `<div style="font-size:12px;color:var(--g3);padding:0 4px 4px;">취소사유: ${o.cancelReason}</div>` : ''}
-          ${o.cancelNote ? `<div style="font-size:12px;color:var(--red);padding:0 4px 4px;">관리자 메모: ${o.cancelNote}</div>` : ''}
-        </div>`;
-    }).join('');
+    renderOrdersList();
   } catch(e) {
     console.error(e);
     listEl.innerHTML = `<div class="empty-box" style="color:var(--red);">주문 내역을 불러오지 못했습니다.</div>`;
   }
+}
+
+async function fillMissingOrderImages(orders) {
+  const missingProductIds = new Set();
+  orders.forEach(o => {
+    getOrderItems(o).forEach(it => {
+      if(!it.mainImageUrl && it.productId) missingProductIds.add(it.productId);
+    });
+  });
+  if(missingProductIds.size === 0) return;
+
+  const idList = Array.from(missingProductIds);
+  const imageMap = {};
+  await Promise.all(idList.map(async pid => {
+    try {
+      const pSnap = await _db.collection('products').doc(pid).get();
+      if(pSnap.exists) imageMap[pid] = pSnap.data().mainImageUrl || null;
+    } catch(e) { /* 상품이 삭제된 경우 등은 무시 */ }
+  }));
+
+  orders.forEach(o => {
+    getOrderItems(o).forEach(it => {
+      if(!it.mainImageUrl && it.productId && imageMap[it.productId]) {
+        it.mainImageUrl = imageMap[it.productId];
+      }
+    });
+  });
+}
+
+function toggleOrderFilter(filterKey) {
+  currentOrderFilter = (currentOrderFilter === filterKey) ? null : filterKey;
+  renderOrdersList();
+}
+
+function renderOrdersList() {
+  const listEl = document.getElementById('ordersList');
+  const titleEl = document.getElementById('ordersSectionTitle');
+  const clearBtn = document.getElementById('clearFilterBtn');
+
+  document.querySelectorAll('.sum-card').forEach(c => c.classList.remove('active'));
+  const cardIdMap = { paid: 'cardPaid', shipping: 'cardShipping', done: 'cardDone', cancel: 'cardCancel' };
+  if(currentOrderFilter) {
+    document.getElementById(cardIdMap[currentOrderFilter])?.classList.add('active');
+    titleEl.childNodes[0].textContent = `주문 내역 · ${orderFilterLabels[currentOrderFilter]} `;
+    clearBtn.style.display = 'inline-block';
+  } else {
+    titleEl.childNodes[0].textContent = '주문 내역 ';
+    clearBtn.style.display = 'none';
+  }
+
+  const orders = currentOrderFilter
+    ? allOrdersCache.filter(o => orderFilterGroups[currentOrderFilter].includes(o.status))
+    : allOrdersCache;
+
+  if(orders.length === 0) {
+    listEl.innerHTML = `<div class="empty-box">${currentOrderFilter ? '해당하는 주문이 없습니다.' : '아직 주문 내역이 없습니다.'}</div>`;
+    return;
+  }
+
+  listEl.innerHTML = orders.map(o => {
+    const statusInfo = orderStatusMap[o.status] || { label: o.status||'대기', cls: 'status-pending' };
+    const items = getOrderItems(o);
+
+    // 취소/반품 버튼 상태별 분기
+    const canCancel = ['payment_window_passed', 'paid', 'preparing'].includes(o.status);
+    const canReturn = o.status === 'shipping' || o.status === 'delivered';
+    const isPendingCancel = o.status === 'cancel_requested' || o.status === 'return_requested';
+
+    return `
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-num">${o.orderId || o.id}</div>
+            <div class="order-date">${formatDate(o.createdAt)}</div>
+          </div>
+          <span class="order-status ${statusInfo.cls}">${statusInfo.label}</span>
+        </div>
+        ${items.map(it => `
+          <div class="order-item">
+            <div class="order-img">
+              ${it.mainImageUrl
+                ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                : `<span style="font-size:24px;opacity:0.3;">👓</span>`}
+            </div>
+            <div class="order-item-info">
+              <div class="order-item-name">${it.productName||'-'}</div>
+              <div class="order-item-opt">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
+            </div>
+            <div class="order-item-price">₩${Number(it.subtotal||0).toLocaleString()}</div>
+          </div>
+        `).join('')}
+        <div class="order-footer">
+          <div class="order-total">합계 <span>₩${Number(o.totalAmount||0).toLocaleString()}</span></div>
+          <div class="order-actions">
+            ${canCancel ? `<button class="btn-sm btn-cancel" onclick="openCancelModal('${o.id}','before_ship')">주문 취소</button>` : ''}
+            ${canReturn ? `<button class="btn-sm btn-cancel" onclick="openCancelModal('${o.id}','after_ship')">반품 신청</button>` : ''}
+            ${isPendingCancel ? `<span style="font-size:12px;color:var(--orange);font-weight:600;">처리 대기중</span>` : ''}
+          </div>
+        </div>
+        ${o.cancelReason ? `<div style="font-size:12px;color:var(--g3);padding:0 4px 4px;">취소사유: ${o.cancelReason}</div>` : ''}
+        ${o.cancelNote ? `<div style="font-size:12px;color:var(--red);padding:0 4px 4px;">관리자 메모: ${o.cancelNote}</div>` : ''}
+      </div>`;
+  }).join('');
 }
 
 // ===================== 취소/반품 신청 모달 =====================
