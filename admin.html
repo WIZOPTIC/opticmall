@@ -1765,19 +1765,21 @@ async function loadCancelManage() {
             const items = Array.isArray(o.items) ? o.items : [];
             const firstItem = items[0] ? items[0].productName||'-' : '-';
             const itemSummary = items.length > 1 ? firstItem + ' 외 ' + (items.length-1) + '건' : firstItem;
-            return `<tr style="cursor:pointer;" onclick="openCancelDetail('\${o.id}')">
-              <td style="font-size:11px;color:var(--sky);">\${o.orderId||o.id}</td>
-              <td>\${o.userName||o.userEmail||'-'}</td>
-              <td style="font-size:12px;">\${itemSummary}</td>
-              <td>₩\${total.toLocaleString()}</td>
-              <td><span class="badge \${isReturn ? 'pending' : 'reject'}">\${isReturn ? '반품' : '취소'}</span></td>
-              <td style="font-size:12px;">\${o.cancelReason||'-'}</td>
-              <td style="font-weight:700;color:var(--sky);">₩\${expectedRefund.toLocaleString()}</td>
-              <td style="font-size:11px;">\${formatDate(o.cancelRequestedAt)}</td>
-              <td onclick="event.stopPropagation()">
-                <button class="btn-approve" onclick="openCancelDetail('\${o.id}')">📄 상세/처리</button>
-              </td>
-            </tr>`;
+            const row = document.createElement('tr');
+            row.style.cursor = 'pointer';
+            row.onclick = () => openCancelDetail(o.id);
+            row.innerHTML = `
+              <td style="font-size:11px;color:var(--sky);">${o.orderId||o.id}</td>
+              <td>${o.userName||o.userEmail||'-'}</td>
+              <td style="font-size:12px;">${itemSummary}</td>
+              <td>₩${total.toLocaleString()}</td>
+              <td><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품' : '취소'}</span></td>
+              <td style="font-size:12px;">${o.cancelReason||'-'}</td>
+              <td style="font-weight:700;color:var(--sky);">₩${expectedRefund.toLocaleString()}</td>
+              <td style="font-size:11px;">${formatDate(o.cancelRequestedAt)}</td>
+              <td><button class="btn-approve" onclick="event.stopPropagation();openCancelDetail('${o.id}')">📄 상세</button></td>
+            `;
+            return row.outerHTML;
           }).join('')}
         </tbody>
       </table>`;
