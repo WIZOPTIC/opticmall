@@ -2134,8 +2134,15 @@ async function rejectCancel(orderId) {
   if(reason === null) return;
 
   try {
-    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
-      status: 'paid', // 원래 상태로 복구 (배송 전 가정)
+    const orderRef = window._doc(window._db, 'orders', orderId);
+    const orderSnap = await window._getDoc(orderRef);
+    if(!orderSnap.exists()) { showToast('주문 정보를 찾을 수 없습니다.', 'error'); return; }
+    const orderData = orderSnap.data();
+    // 취소/반품 신청 이전의 실제 상태로 복구 (배송완료 건이었다면 배송완료로, 없으면 결제완료로 안전하게 폴백)
+    const restoreStatus = orderData.previousStatus || 'paid';
+
+    await window._updateDoc(orderRef, {
+      status: restoreStatus,
       cancelNote: '취소 반려: ' + reason,
       cancelRejectedAt: window._serverTimestamp()
     });
