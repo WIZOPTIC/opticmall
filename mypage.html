@@ -208,9 +208,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
     <!-- 주문 내역 -->
     <div id="section-orders">
-      <div class="section-title" id="ordersSectionTitle" style="display:flex;align-items:center;gap:10px;">
-        주문 내역
-        <button id="clearFilterBtn" onclick="toggleOrderFilter(null)" style="display:none;font-size:11px;font-weight:600;color:var(--sky);background:var(--sky-lt);border:none;border-radius:100px;padding:4px 12px;cursor:pointer;font-family:inherit;">전체보기 ✕</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+        <div class="section-title" id="ordersSectionTitle" style="display:flex;align-items:center;gap:10px;margin-bottom:0;">
+          주문 내역
+          <button id="clearFilterBtn" onclick="toggleOrderFilter(null)" style="display:none;font-size:11px;font-weight:600;color:var(--sky);background:var(--sky-lt);border:none;border-radius:100px;padding:4px 12px;cursor:pointer;font-family:inherit;">전체보기 ✕</button>
+        </div>
+        <select id="orderPeriodFilter" onchange="changeOrderPeriod(this.value)" style="padding:8px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:12px;font-family:inherit;color:var(--navy);background:var(--white);cursor:pointer;outline:none;">
+          <option value="3m">최근 3개월</option>
+          <option value="6m">최근 6개월</option>
+          <option value="1y">최근 1년</option>
+          <option value="all">전체 기간</option>
+        </select>
       </div>
       <div id="ordersList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
@@ -669,6 +677,7 @@ function getOrderItems(order) {
 
 let allOrdersCache = [];
 let currentOrderFilter = null; // null = 전체, 'paid'|'shipping'|'done'|'cancel'
+let currentPeriodFilter = '3m'; // '3m'|'6m'|'1y'|'all'
 const orderFilterGroups = {
   paid: ['payment_window_passed', 'paid', 'preparing'],
   shipping: ['shipping'],
@@ -689,20 +698,6 @@ async function loadOrders() {
       return dbb - da;
     });
     allOrdersCache = orders;
-
-    // 요약 카운트
-    let paid=0, shipping=0, done=0, cancel=0;
-    orders.forEach(o => {
-      const st = o.status;
-      if(orderFilterGroups.paid.includes(st)) paid++;
-      else if(orderFilterGroups.shipping.includes(st)) shipping++;
-      else if(orderFilterGroups.done.includes(st)) done++;
-      else if(orderFilterGroups.cancel.includes(st)) cancel++;
-    });
-    document.getElementById('cntPaid').textContent = paid;
-    document.getElementById('cntShipping').textContent = shipping;
-    document.getElementById('cntDone').textContent = done;
-    document.getElementById('cntCancel').textContent = cancel;
 
     // 옛 주문 중 상품 사진이 비어있는 항목은 현재 상품DB에서 대표이미지로 보완
     await fillMissingOrderImages(orders);
@@ -746,10 +741,46 @@ function toggleOrderFilter(filterKey) {
   renderOrdersList();
 }
 
+function changeOrderPeriod(val) {
+  currentPeriodFilter = val;
+  renderOrdersList();
+}
+
+function isActiveOrder(order) {
+  // 결제완료/배송중 등 진행중인 주문은 기간 필터와 무관하게 항상 노출
+  return orderFilterGroups.paid.includes(order.status) || orderFilterGroups.shipping.includes(order.status);
+}
+
+function isWithinPeriod(order, period) {
+  if(period === 'all') return true;
+  const created = order.createdAt?.toDate?.() || new Date(order.createdAt || 0);
+  const now = new Date();
+  const months = period === '3m' ? 3 : period === '6m' ? 6 : 12;
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - months, now.getDate());
+  return created >= cutoff;
+}
+
 function renderOrdersList() {
   const listEl = document.getElementById('ordersList');
   const titleEl = document.getElementById('ordersSectionTitle');
   const clearBtn = document.getElementById('clearFilterBtn');
+
+  // 진행중 주문(결제완료/배송중)은 항상 포함, 완료/취소 주문만 기간 필터 적용
+  const periodScoped = allOrdersCache.filter(o => isActiveOrder(o) || isWithinPeriod(o, currentPeriodFilter));
+
+  // 요약 카운트 (기간 범위 내 기준)
+  let paid=0, shipping=0, done=0, cancel=0;
+  periodScoped.forEach(o => {
+    const st = o.status;
+    if(orderFilterGroups.paid.includes(st)) paid++;
+    else if(orderFilterGroups.shipping.includes(st)) shipping++;
+    else if(orderFilterGroups.done.includes(st)) done++;
+    else if(orderFilterGroups.cancel.includes(st)) cancel++;
+  });
+  document.getElementById('cntPaid').textContent = paid;
+  document.getElementById('cntShipping').textContent = shipping;
+  document.getElementById('cntDone').textContent = done;
+  document.getElementById('cntCancel').textContent = cancel;
 
   document.querySelectorAll('.sum-card').forEach(c => c.classList.remove('active'));
   const cardIdMap = { paid: 'cardPaid', shipping: 'cardShipping', done: 'cardDone', cancel: 'cardCancel' };
@@ -763,8 +794,8 @@ function renderOrdersList() {
   }
 
   const orders = currentOrderFilter
-    ? allOrdersCache.filter(o => orderFilterGroups[currentOrderFilter].includes(o.status))
-    : allOrdersCache;
+    ? periodScoped.filter(o => orderFilterGroups[currentOrderFilter].includes(o.status))
+    : periodScoped;
 
   if(orders.length === 0) {
     listEl.innerHTML = `<div class="empty-box">${currentOrderFilter ? '해당하는 주문이 없습니다.' : '아직 주문 내역이 없습니다.'}</div>`;
