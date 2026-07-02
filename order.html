@@ -582,17 +582,28 @@ async function startPayment() {
       orderId,
       userId: currentUser.uid,
       userName: currentUserData.name || '',
-      items: orderItems.map(item => ({
-        productId: item.product.id,
-        productName: item.product.modelName || '',
-        brandId: item.product.brandId || '',
-        brandName: item.product.brandName || '',
-        qty: item.qty,
-        unitPrice: Number(item.product.effectivePrice || item.product.price || 0),
-        originalUnitPrice: Number(item.product.price || 0),
-        discountRate: item.product.discountRate || 0,
-        subtotal: Number(item.product.effectivePrice || item.product.price || 0) * item.qty
-      })),
+      items: orderItems.map(item => {
+        // 색상별 이미지 처리 (새 구조 우선)
+        const p = item.product;
+        const colorIdx = Number(item.selectedColorIdx) || 0;
+        const colorData = p.colors && p.colors.length > colorIdx ? p.colors[colorIdx] : null;
+        const thumbUrl = colorData ? colorData.mainImageUrl : (p.mainImageUrl || '');
+
+        return {
+          productId: p.id,
+          productName: p.modelName || '',
+          brandId: p.brandId || '',
+          brandName: p.brandName || '',
+          mainImageUrl: thumbUrl,
+          selectedColor: item.selectedColor || '',
+          selectedColorIdx: colorIdx,
+          qty: item.qty,
+          unitPrice: Number(p.effectivePrice || p.price || 0),
+          originalUnitPrice: Number(p.price || 0),
+          discountRate: p.discountRate || 0,
+          subtotal: Number(p.effectivePrice || p.price || 0) * item.qty
+        };
+      }),
       itemCount: totalItemCount,
       productAmount: totalAmount,
       shippingFee: currentShippingFee,

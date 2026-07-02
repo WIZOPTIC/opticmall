@@ -84,7 +84,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .cancel-submit-btn:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;}
 .order-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--g1);}
 .order-item:last-child{border-bottom:none;}
-.order-img{width:56px;height:56px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0.15;flex-shrink:0;overflow:hidden;}
+.order-img{width:56px;height:56px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;}
 .order-img img{width:100%;height:100%;object-fit:cover;}
 .order-item-info{flex:1;}
 .order-item-name{font-size:13px;font-weight:600;color:var(--navy);}
@@ -713,10 +713,14 @@ async function loadOrders() {
           </div>
           ${items.map(it => `
             <div class="order-item">
-              <div class="order-img">👓</div>
+              <div class="order-img">
+                ${it.mainImageUrl
+                  ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                  : `<span style="font-size:24px;opacity:0.3;">👓</span>`}
+              </div>
               <div class="order-item-info">
                 <div class="order-item-name">${it.productName||'-'}</div>
-                <div class="order-item-opt">${it.qty}개</div>
+                <div class="order-item-opt">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
               </div>
               <div class="order-item-price">₩${Number(it.subtotal||0).toLocaleString()}</div>
             </div>
