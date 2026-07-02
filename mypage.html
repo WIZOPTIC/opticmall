@@ -875,6 +875,23 @@ async function openTrackModal(orderId) {
       const res = await fetch(url);
       const data = await res.json();
       if(data && Array.isArray(data.trackingDetails) && data.trackingDetails.length > 0) {
+        // 실제 택배사가 "배송완료"라고 알려주면, 우리 주문 상태도 자동으로 맞춰줌
+        const stillOpenStatus = ['payment_window_passed', 'paid', 'preparing', 'shipping'].includes(o.status);
+        if(data.complete === true && stillOpenStatus) {
+          try {
+            await _db.collection('orders').doc(o.id).update({
+              status: 'delivered',
+              deliveredAt: firebase.firestore.FieldValue.serverTimestamp(),
+              deliveredAutoDetected: true
+            });
+            o.status = 'delivered';
+            o.deliveredAt = { toDate: () => new Date() }; // 화면 즉시 반영용 (다음 새로고침 시 정확한 값으로 교체됨)
+            headline = '배송이 완료됐어요';
+            renderOrdersList(); // 뒤에 있는 주문 목록 화면도 같이 갱신
+          } catch(e) {
+            console.log('배송완료 자동 갱신 실패(권한 등):', e.message);
+          }
+        }
         const realDisclaimer = `<div class="track-disclaimer">ℹ️ 택배사 실시간 조회 정보예요. 실제 상황과 약간 다를 수 있습니다.</div>`;
         renderBody(renderTimelineHtml(renderRealTimeline(data)), realDisclaimer);
       }
