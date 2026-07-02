@@ -45,7 +45,39 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .content{flex:1;}
 .section-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:16px;}
 
-/* 요약 카드 */
+/* 주문 검색 & 필터 칩 (쿠팡 스타일) */
+.order-search-bar{position:relative;margin-bottom:16px;}
+.order-search-bar input{width:100%;padding:14px 44px 14px 16px;border:1.5px solid var(--g2);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.order-search-bar input:focus{border-color:var(--sky);}
+.order-search-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--g3);font-size:14px;pointer-events:none;}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.filter-chip{padding:9px 18px;border-radius:100px;border:1.5px solid var(--g2);background:var(--white);color:var(--g4);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.filter-chip:hover{border-color:var(--sky);color:var(--sky);}
+.filter-chip.active{background:var(--sky);border-color:var(--sky);color:var(--white);}
+
+/* 주문 블록 (쿠팡 스타일: 날짜별 그룹) */
+.order-block{background:var(--white);border-radius:12px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;}
+.order-block-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--g1);}
+.order-block-date{font-size:15px;font-weight:800;color:var(--navy);}
+.order-block-num{font-size:11px;color:var(--g3);font-family:'Inter',sans-serif;}
+.order-block-body{padding:16px 20px 20px;}
+.order-status-line{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;}
+.status-pill{font-size:14px;font-weight:800;}
+.status-pill.c-pay{color:var(--sky);}
+.status-pill.c-ready{color:var(--orange);}
+.status-pill.c-ship{color:var(--sky-dk);}
+.status-pill.c-done{color:var(--green);}
+.status-pill.c-cancel{color:var(--red);}
+.status-sub{font-size:12px;color:var(--g4);}
+.order-block-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--g1);}
+.chip-action-btn{padding:9px 16px;border-radius:8px;border:1.5px solid var(--g2);background:var(--white);color:var(--g4);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;}
+.chip-action-btn:hover{border-color:var(--navy);color:var(--navy);}
+.chip-action-btn.primary{border-color:var(--sky);color:var(--sky);}
+.chip-action-btn.primary:hover{background:var(--sky);color:var(--white);}
+.chip-action-btn.danger{border-color:var(--g2);color:var(--g4);}
+.chip-action-btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+/* 요약 카드 (레거시, 미사용) */
 .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
 .sum-card{background:var(--white);border-radius:10px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;border:2px solid transparent;transition:all 0.15s;}
 .sum-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
@@ -198,28 +230,24 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
   <!-- 컨텐츠 -->
   <div class="content">
 
-    <!-- 주문 요약 -->
-    <div class="summary-grid">
-      <div class="sum-card" id="cardPaid" onclick="toggleOrderFilter('paid')"><div class="sum-num" style="color:var(--sky);" id="cntPaid">-</div><div class="sum-label">결제완료</div></div>
-      <div class="sum-card" id="cardShipping" onclick="toggleOrderFilter('shipping')"><div class="sum-num" style="color:var(--orange);" id="cntShipping">-</div><div class="sum-label">배송중</div></div>
-      <div class="sum-card" id="cardDone" onclick="toggleOrderFilter('done')"><div class="sum-num" style="color:var(--green);" id="cntDone">-</div><div class="sum-label">배송완료</div></div>
-      <div class="sum-card" id="cardCancel" onclick="toggleOrderFilter('cancel')"><div class="sum-num" style="color:var(--red);" id="cntCancel">-</div><div class="sum-label">취소/반품</div></div>
-    </div>
-
     <!-- 주문 내역 -->
     <div id="section-orders">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-        <div class="section-title" id="ordersSectionTitle" style="display:flex;align-items:center;gap:10px;margin-bottom:0;">
-          주문 내역
-          <button id="clearFilterBtn" onclick="toggleOrderFilter(null)" style="display:none;font-size:11px;font-weight:600;color:var(--sky);background:var(--sky-lt);border:none;border-radius:100px;padding:4px 12px;cursor:pointer;font-family:inherit;">전체보기 ✕</button>
-        </div>
-        <select id="orderPeriodFilter" onchange="changeOrderPeriod(this.value)" style="padding:8px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:12px;font-family:inherit;color:var(--navy);background:var(--white);cursor:pointer;outline:none;">
-          <option value="3m">최근 3개월</option>
-          <option value="6m">최근 6개월</option>
-          <option value="1y">최근 1년</option>
-          <option value="all">전체 기간</option>
-        </select>
+      <div class="section-title">주문 내역</div>
+
+      <div class="order-search-bar">
+        <input type="text" id="orderSearchInput" placeholder="주문한 상품을 검색할 수 있어요!" oninput="renderOrdersList()">
+        <span class="order-search-icon">🔍</span>
       </div>
+
+      <div class="chip-row" id="periodChips"></div>
+      <div class="chip-row" id="statusChips" style="margin-bottom:20px;">
+        <button class="filter-chip status-chip active" data-status="all" onclick="toggleOrderFilter(null,this)">전체</button>
+        <button class="filter-chip status-chip" data-status="paid" onclick="toggleOrderFilter('paid',this)">결제완료</button>
+        <button class="filter-chip status-chip" data-status="shipping" onclick="toggleOrderFilter('shipping',this)">배송중</button>
+        <button class="filter-chip status-chip" data-status="done" onclick="toggleOrderFilter('done',this)">배송완료</button>
+        <button class="filter-chip status-chip" data-status="cancel" onclick="toggleOrderFilter('cancel',this)">취소/반품</button>
+      </div>
+
       <div id="ordersList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
 
@@ -677,14 +705,23 @@ function getOrderItems(order) {
 
 let allOrdersCache = [];
 let currentOrderFilter = null; // null = 전체, 'paid'|'shipping'|'done'|'cancel'
-let currentPeriodFilter = '3m'; // '3m'|'6m'|'1y'|'all'
+let currentPeriodFilter = 'recent6'; // 'recent6' 또는 연도(예: '2026')
 const orderFilterGroups = {
   paid: ['payment_window_passed', 'paid', 'preparing'],
   shipping: ['shipping'],
   done: ['delivered'],
   cancel: ['cancel_requested', 'return_requested', 'cancel_completed', 'cancelled']
 };
-const orderFilterLabels = { paid: '결제완료', shipping: '배송중', done: '배송완료', cancel: '취소/반품' };
+
+const WEEKDAYS = ['일','월','화','수','목','금','토'];
+function formatDateOnly(ts) {
+  const d = ts?.toDate ? ts.toDate() : new Date(ts || 0);
+  return `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}`;
+}
+function formatShortDate(ts) {
+  const d = ts?.toDate ? ts.toDate() : new Date(ts || 0);
+  return `${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]})`;
+}
 
 async function loadOrders() {
   const listEl = document.getElementById('ordersList');
@@ -702,6 +739,7 @@ async function loadOrders() {
     // 옛 주문 중 상품 사진이 비어있는 항목은 현재 상품DB에서 대표이미지로 보완
     await fillMissingOrderImages(orders);
 
+    buildPeriodChips();
     renderOrdersList();
   } catch(e) {
     console.error(e);
@@ -736,13 +774,35 @@ async function fillMissingOrderImages(orders) {
   });
 }
 
-function toggleOrderFilter(filterKey) {
-  currentOrderFilter = (currentOrderFilter === filterKey) ? null : filterKey;
+// 쿠팡처럼 "최근 6개월" + 연도별 칩을 데이터 범위에 맞춰 생성
+function buildPeriodChips() {
+  const chipRow = document.getElementById('periodChips');
+  const currentYear = new Date().getFullYear();
+  let minYear = currentYear - 5;
+  allOrdersCache.forEach(o => {
+    const d = o.createdAt?.toDate?.() || new Date(o.createdAt || 0);
+    if(d.getFullYear() && d.getFullYear() < minYear) minYear = d.getFullYear();
+  });
+  const years = [];
+  for(let y = currentYear; y >= minYear; y--) years.push(y);
+
+  chipRow.innerHTML = `
+    <button class="filter-chip period-chip ${currentPeriodFilter==='recent6' ? 'active' : ''}" onclick="changeOrderPeriod('recent6',this)">최근 6개월</button>
+    ${years.map(y => `<button class="filter-chip period-chip ${currentPeriodFilter===String(y) ? 'active' : ''}" onclick="changeOrderPeriod('${y}',this)">${y}</button>`).join('')}
+  `;
+}
+
+function changeOrderPeriod(val, el) {
+  currentPeriodFilter = val;
+  document.querySelectorAll('.period-chip').forEach(c => c.classList.remove('active'));
+  if(el) el.classList.add('active');
   renderOrdersList();
 }
 
-function changeOrderPeriod(val) {
-  currentPeriodFilter = val;
+function toggleOrderFilter(filterKey, el) {
+  currentOrderFilter = filterKey;
+  document.querySelectorAll('.status-chip').forEach(c => c.classList.remove('active'));
+  if(el) el.classList.add('active');
   renderOrdersList();
 }
 
@@ -752,107 +812,98 @@ function isActiveOrder(order) {
 }
 
 function isWithinPeriod(order, period) {
-  if(period === 'all') return true;
   const created = order.createdAt?.toDate?.() || new Date(order.createdAt || 0);
-  const now = new Date();
-  const months = period === '3m' ? 3 : period === '6m' ? 6 : 12;
-  const cutoff = new Date(now.getFullYear(), now.getMonth() - months, now.getDate());
-  return created >= cutoff;
+  if(period === 'recent6') {
+    const now = new Date();
+    const cutoff = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+    return created >= cutoff;
+  }
+  return created.getFullYear() === Number(period);
+}
+
+function matchesSearch(order, keyword) {
+  if(!keyword) return true;
+  const kw = keyword.toLowerCase();
+  if((order.orderId||order.id||'').toLowerCase().includes(kw)) return true;
+  return getOrderItems(order).some(it => (it.productName||'').toLowerCase().includes(kw));
 }
 
 function renderOrdersList() {
   const listEl = document.getElementById('ordersList');
-  const titleEl = document.getElementById('ordersSectionTitle');
-  const clearBtn = document.getElementById('clearFilterBtn');
+  const searchKw = document.getElementById('orderSearchInput')?.value.trim() || '';
 
-  // 진행중 주문(결제완료/배송중)은 항상 포함, 완료/취소 주문만 기간 필터 적용
+  // 진행중 주문(결제완료/배송중)은 기간 필터와 무관하게 항상 포함
   const periodScoped = allOrdersCache.filter(o => isActiveOrder(o) || isWithinPeriod(o, currentPeriodFilter));
-
-  // 요약 카운트 (기간 범위 내 기준)
-  let paid=0, shipping=0, done=0, cancel=0;
-  periodScoped.forEach(o => {
-    const st = o.status;
-    if(orderFilterGroups.paid.includes(st)) paid++;
-    else if(orderFilterGroups.shipping.includes(st)) shipping++;
-    else if(orderFilterGroups.done.includes(st)) done++;
-    else if(orderFilterGroups.cancel.includes(st)) cancel++;
-  });
-  document.getElementById('cntPaid').textContent = paid;
-  document.getElementById('cntShipping').textContent = shipping;
-  document.getElementById('cntDone').textContent = done;
-  document.getElementById('cntCancel').textContent = cancel;
-
-  document.querySelectorAll('.sum-card').forEach(c => c.classList.remove('active'));
-  const cardIdMap = { paid: 'cardPaid', shipping: 'cardShipping', done: 'cardDone', cancel: 'cardCancel' };
-  if(currentOrderFilter) {
-    document.getElementById(cardIdMap[currentOrderFilter])?.classList.add('active');
-    titleEl.childNodes[0].textContent = `주문 내역 · ${orderFilterLabels[currentOrderFilter]} `;
-    clearBtn.style.display = 'inline-block';
-  } else {
-    titleEl.childNodes[0].textContent = '주문 내역 ';
-    clearBtn.style.display = 'none';
-  }
-
-  const orders = currentOrderFilter
+  const statusScoped = currentOrderFilter
     ? periodScoped.filter(o => orderFilterGroups[currentOrderFilter].includes(o.status))
     : periodScoped;
+  const orders = statusScoped.filter(o => matchesSearch(o, searchKw));
 
   if(orders.length === 0) {
-    listEl.innerHTML = `<div class="empty-box">${currentOrderFilter ? '해당하는 주문이 없습니다.' : '아직 주문 내역이 없습니다.'}</div>`;
+    listEl.innerHTML = `<div class="empty-box">${searchKw || currentOrderFilter ? '해당하는 주문이 없습니다.' : '아직 주문 내역이 없습니다.'}</div>`;
     return;
   }
 
   listEl.innerHTML = orders.map(o => {
-    const statusInfo = orderStatusMap[o.status] || { label: o.status||'대기', cls: 'status-pending' };
     const items = getOrderItems(o);
+    const st = o.status;
 
     // 취소/반품 버튼 상태별 분기
-    const canCancel = ['payment_window_passed', 'paid', 'preparing'].includes(o.status);
-    const canReturn = o.status === 'shipping' || o.status === 'delivered';
-    const isPendingCancel = o.status === 'cancel_requested' || o.status === 'return_requested';
+    const canCancel = ['payment_window_passed', 'paid', 'preparing'].includes(st);
+    const canReturn = st === 'shipping' || st === 'delivered';
+    const isPendingCancel = st === 'cancel_requested' || st === 'return_requested';
+    const isDone = st === 'delivered';
+
+    // 상태 표시줄 (쿠팡처럼 "배송완료 · 6/27(토) 도착" 형태)
+    let pillCls = 'c-pay', pillLabel = '결제완료', subText = '주문이 접수되었어요';
+    if(st === 'preparing') { pillCls='c-ready'; pillLabel='출고준비중'; subText='상품을 준비하고 있어요'; }
+    else if(st === 'shipping') { pillCls='c-ship'; pillLabel='배송중'; subText = o.trackingNumber ? `${o.trackingCompany||'택배'} ${o.trackingNumber}` : '배송을 준비하고 있어요'; }
+    else if(st === 'delivered') { pillCls='c-done'; pillLabel='배송완료'; subText = o.deliveredAt ? `${formatShortDate(o.deliveredAt)} 도착` : ''; }
+    else if(st === 'cancel_requested') { pillCls='c-cancel'; pillLabel='취소신청'; subText='취소 처리를 기다리고 있어요'; }
+    else if(st === 'return_requested') { pillCls='c-cancel'; pillLabel='반품신청'; subText='반품 처리를 기다리고 있어요'; }
+    else if(st === 'cancel_completed') { pillCls='c-cancel'; pillLabel='취소/환불완료'; subText = o.cancelCompletedAt ? `${formatShortDate(o.cancelCompletedAt)} 환불완료` : ''; }
+    else if(st === 'cancelled') { pillCls='c-cancel'; pillLabel='취소됨'; subText=''; }
+
+    const firstProductId = items[0]?.productId || '';
 
     return `
-      <div class="order-card">
-        <div class="order-header">
-          <div>
-            <div class="order-num">${o.orderId || o.id}</div>
-            <div class="order-date">${formatDate(o.createdAt)}</div>
-          </div>
-          <span class="order-status ${statusInfo.cls}">${statusInfo.label}</span>
+      <div class="order-block">
+        <div class="order-block-header">
+          <div class="order-block-date">${formatDateOnly(o.createdAt)} 주문</div>
+          <div class="order-block-num">${o.orderId || o.id}</div>
         </div>
-        ${o.trackingNumber && (o.status === 'shipping' || o.status === 'delivered') ? `
-          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--sky-lt);border-radius:8px;padding:10px 14px;margin-bottom:14px;">
-            <div style="font-size:12px;color:var(--navy);">
-              <span style="font-weight:700;">🚚 ${o.trackingCompany||'택배사'}</span>
-              <span style="color:var(--g4);margin-left:8px;">운송장번호 ${o.trackingNumber}</span>
-            </div>
-            <button class="btn-sm" style="background:var(--white);color:var(--sky);border:1px solid var(--sky);padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="copyTrackingNumber('${o.trackingNumber}')">번호 복사</button>
+        <div class="order-block-body">
+          <div class="order-status-line">
+            <span class="status-pill ${pillCls}">${pillLabel}</span>
+            ${subText ? `<span class="status-sub">· ${subText}</span>` : ''}
           </div>
-        ` : ''}
-        ${items.map(it => `
-          <div class="order-item">
-            <div class="order-img">
-              ${it.mainImageUrl
-                ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
-                : `<span style="font-size:24px;opacity:0.3;">👓</span>`}
+          ${items.map(it => `
+            <div class="order-item">
+              <div class="order-img">
+                ${it.mainImageUrl
+                  ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                  : `<span style="font-size:24px;opacity:0.3;">👓</span>`}
+              </div>
+              <div class="order-item-info">
+                <div class="order-item-name">${it.productName||'-'}</div>
+                <div class="order-item-opt">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
+              </div>
+              <div class="order-item-price">₩${Number(it.subtotal||0).toLocaleString()}</div>
             </div>
-            <div class="order-item-info">
-              <div class="order-item-name">${it.productName||'-'}</div>
-              <div class="order-item-opt">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
-            </div>
-            <div class="order-item-price">₩${Number(it.subtotal||0).toLocaleString()}</div>
+          `).join('')}
+          <div style="text-align:right;font-size:12px;color:var(--g3);margin-top:8px;">합계 <strong style="color:var(--navy);font-size:14px;">₩${Number(o.totalAmount||0).toLocaleString()}</strong></div>
+
+          <div class="order-block-actions">
+            ${o.trackingNumber && (st==='shipping'||st==='delivered') ? `<button class="chip-action-btn primary" onclick="copyTrackingNumber('${o.trackingNumber}')">🚚 배송조회</button>` : ''}
+            ${canCancel ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','before_ship')">주문취소</button>` : ''}
+            ${canReturn ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','after_ship')">교환, 반품 신청</button>` : ''}
+            ${isPendingCancel ? `<span style="font-size:12px;color:var(--orange);font-weight:600;align-self:center;">처리 대기중</span>` : ''}
+            ${isDone ? `<button class="chip-action-btn" onclick="alert('리뷰 작성 기능은 준비 중입니다 🙏')">리뷰 작성하기</button>` : ''}
+            ${firstProductId ? `<button class="chip-action-btn" onclick="location.href='product.html?id=${firstProductId}'">재주문</button>` : ''}
           </div>
-        `).join('')}
-        <div class="order-footer">
-          <div class="order-total">합계 <span>₩${Number(o.totalAmount||0).toLocaleString()}</span></div>
-          <div class="order-actions">
-            ${canCancel ? `<button class="btn-sm btn-cancel" onclick="openCancelModal('${o.id}','before_ship')">주문 취소</button>` : ''}
-            ${canReturn ? `<button class="btn-sm btn-cancel" onclick="openCancelModal('${o.id}','after_ship')">반품 신청</button>` : ''}
-            ${isPendingCancel ? `<span style="font-size:12px;color:var(--orange);font-weight:600;">처리 대기중</span>` : ''}
-          </div>
+          ${o.cancelReason ? `<div style="font-size:12px;color:var(--g3);margin-top:10px;">취소사유: ${o.cancelReason}</div>` : ''}
+          ${o.cancelNote ? `<div style="font-size:12px;color:var(--red);margin-top:4px;">관리자 메모: ${o.cancelNote}</div>` : ''}
         </div>
-        ${o.cancelReason ? `<div style="font-size:12px;color:var(--g3);padding:0 4px 4px;">취소사유: ${o.cancelReason}</div>` : ''}
-        ${o.cancelNote ? `<div style="font-size:12px;color:var(--red);padding:0 4px 4px;">관리자 메모: ${o.cancelNote}</div>` : ''}
       </div>`;
   }).join('');
 }
