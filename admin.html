@@ -1765,7 +1765,7 @@ async function loadCancelManage() {
             const items = Array.isArray(o.items) ? o.items : [];
             const firstItem = items[0] ? items[0].productName||'-' : '-';
             const itemSummary = items.length > 1 ? firstItem + ' 외 ' + (items.length-1) + '건' : firstItem;
-            return \`<tr style="cursor:pointer;" onclick="openCancelDetail('\${o.id}')">
+            return `<tr style="cursor:pointer;" onclick="openCancelDetail('\${o.id}')">
               <td style="font-size:11px;color:var(--sky);">\${o.orderId||o.id}</td>
               <td>\${o.userName||o.userEmail||'-'}</td>
               <td style="font-size:12px;">\${itemSummary}</td>
@@ -1777,7 +1777,7 @@ async function loadCancelManage() {
               <td onclick="event.stopPropagation()">
                 <button class="btn-approve" onclick="openCancelDetail('\${o.id}')">📄 상세/처리</button>
               </td>
-            </tr>\`;
+            </tr>`;
           }).join('')}
         </tbody>
       </table>`;
