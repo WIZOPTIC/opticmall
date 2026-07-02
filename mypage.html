@@ -65,6 +65,19 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .status-pill.c-done{color:var(--green);}
 .status-pill.c-cancel{color:var(--red);}
 .status-sub{font-size:12px;color:var(--g4);}
+
+/* 배송 진행 상태 바 (네이버 스타일) */
+.ship-progress{position:relative;margin:16px 6px 20px;}
+.ship-line{position:absolute;top:5px;left:12.5%;right:12.5%;height:3px;background:var(--g2);border-radius:2px;z-index:0;}
+.ship-line-fill{height:100%;background:var(--sky);border-radius:2px;transition:width 0.3s;}
+.ship-dots{display:flex;justify-content:space-between;position:relative;z-index:1;}
+.ship-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+.ship-dot{width:11px;height:11px;border-radius:50%;background:var(--white);border:2.5px solid var(--g2);}
+.ship-dot-wrap.done .ship-dot{background:var(--sky);border-color:var(--sky);}
+.ship-dot-wrap.current .ship-dot{background:var(--white);border-color:var(--sky);box-shadow:0 0 0 4px var(--sky-lt);}
+.ship-dot-label{font-size:10.5px;color:var(--g3);font-weight:600;white-space:nowrap;}
+.ship-dot-wrap.done .ship-dot-label{color:var(--navy);}
+.ship-dot-wrap.current .ship-dot-label{color:var(--sky);font-weight:800;}
 .order-block-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--g1);}
 .chip-action-btn{padding:9px 16px;border-radius:8px;border:1.5px solid var(--g2);background:var(--white);color:var(--g4);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;}
 .chip-action-btn:hover{border-color:var(--navy);color:var(--navy);}
@@ -724,6 +737,32 @@ function formatShortDate(ts) {
   return `${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]})`;
 }
 
+const SHIP_STEPS = ['결제완료', '출고준비중', '배송중', '배송완료'];
+function buildShipStepper(status) {
+  const stepIndexMap = {
+    payment_window_passed: 0, paid: 0,
+    preparing: 1,
+    shipping: 2,
+    delivered: 3
+  };
+  if(!(status in stepIndexMap)) return ''; // 취소/반품 건은 진행 바를 표시하지 않음
+  const stepIndex = stepIndexMap[status];
+  const fillPct = (stepIndex / (SHIP_STEPS.length - 1)) * 100;
+
+  return `
+    <div class="ship-progress">
+      <div class="ship-line"><div class="ship-line-fill" style="width:${fillPct}%;"></div></div>
+      <div class="ship-dots">
+        ${SHIP_STEPS.map((label, i) => `
+          <div class="ship-dot-wrap ${i < stepIndex ? 'done' : ''} ${i === stepIndex ? 'current' : ''}">
+            <div class="ship-dot"></div>
+            <div class="ship-dot-label">${label}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
 async function loadOrders() {
   const listEl = document.getElementById('ordersList');
   try {
@@ -833,6 +872,8 @@ function renderOrdersList() {
     else if(st === 'cancel_completed') { pillCls='c-cancel'; pillLabel='취소/환불완료'; subText = o.cancelCompletedAt ? `${formatShortDate(o.cancelCompletedAt)} 환불완료` : ''; }
     else if(st === 'cancelled') { pillCls='c-cancel'; pillLabel='취소됨'; subText=''; }
 
+    const stepperHtml = buildShipStepper(st);
+
     return `
       <div class="order-block">
         <div class="order-block-header">
@@ -844,6 +885,7 @@ function renderOrdersList() {
             <span class="status-pill ${pillCls}">${pillLabel}</span>
             ${subText ? `<span class="status-sub">· ${subText}</span>` : ''}
           </div>
+          ${stepperHtml}
           ${items.map(it => `
             <div class="order-item">
               <div class="order-img">
