@@ -352,6 +352,46 @@ tr:hover td{background:#FAFBFC;}
       </div>
     </div>
 
+    <!-- 배송 시작 처리 모달 -->
+    <div class="modal-bg" id="shipStartModal">
+      <div class="modal" style="max-width:420px;width:92vw;">
+        <div class="modal-header">
+          <div class="modal-title">🚚 배송 시작 처리</div>
+          <button class="modal-close" onclick="closeShipStartModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:12px;font-weight:700;color:var(--g4);margin-bottom:6px;">택배사</label>
+            <select id="shipCourierSelect" onchange="onShipCourierChange()" style="width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+              <option value="04">CJ대한통운</option>
+              <option value="01">우체국택배</option>
+              <option value="08">롯데택배</option>
+              <option value="05">한진택배</option>
+              <option value="06">로젠택배</option>
+              <option value="24">GS Postbox 택배</option>
+              <option value="46">CU 편의점택배</option>
+              <option value="22">대신택배</option>
+              <option value="23">경동택배</option>
+              <option value="etc">기타(직접입력)</option>
+            </select>
+          </div>
+          <div id="shipCourierEtcWrap" style="display:none;margin-bottom:16px;">
+            <label style="display:block;font-size:12px;font-weight:700;color:var(--g4);margin-bottom:6px;">택배사명 직접입력</label>
+            <input type="text" id="shipCourierEtc" placeholder="택배사명을 입력하세요" style="width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:var(--g4);margin-bottom:6px;">운송장 번호</label>
+            <input type="text" id="shipTrackingNumberInput" placeholder="운송장 번호를 입력하세요" style="width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+          </div>
+          <div style="font-size:11px;color:var(--g3);margin-top:12px;line-height:1.6;">💡 택배사를 정확히 선택해두면, 추후 택배사 자동조회 연동 시 별도 작업 없이 바로 배송상태가 자동으로 갱신돼요.</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-sm btn-ghost" onclick="closeShipStartModal()">취소</button>
+          <button class="btn-sm btn-primary" onclick="confirmShipStart()">배송시작 처리</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 이벤트 승인 관리 -->
     <div class="page" id="page-promoApproval">
       <div class="section-header">
@@ -1891,25 +1931,64 @@ async function advanceToPreparing(orderId) {
   }
 }
 
-async function advanceToShipping(orderId) {
-  const trackingCompany = prompt('택배사를 입력해주세요 (예: CJ대한통운, 우체국택배 등):');
-  if(trackingCompany === null) return;
-  const trackingNumber = prompt('운송장 번호를 입력해주세요:');
-  if(trackingNumber === null) return;
+const COURIER_CODE_MAP = {
+  '04': 'CJ대한통운', '01': '우체국택배', '08': '롯데택배', '05': '한진택배',
+  '06': '로젠택배', '24': 'GS Postbox 택배', '46': 'CU 편의점택배',
+  '22': '대신택배', '23': '경동택배'
+};
+let shipStartTargetOrderId = null;
+
+function onShipCourierChange() {
+  const val = document.getElementById('shipCourierSelect').value;
+  document.getElementById('shipCourierEtcWrap').style.display = (val === 'etc') ? 'block' : 'none';
+}
+
+function openShipStartModal(orderId) {
+  shipStartTargetOrderId = orderId;
+  document.getElementById('shipCourierSelect').value = '04';
+  document.getElementById('shipCourierEtcWrap').style.display = 'none';
+  document.getElementById('shipCourierEtc').value = '';
+  document.getElementById('shipTrackingNumberInput').value = '';
+  document.getElementById('shipStartModal').classList.add('open');
+}
+
+function closeShipStartModal() {
+  document.getElementById('shipStartModal').classList.remove('open');
+  shipStartTargetOrderId = null;
+}
+
+async function confirmShipStart() {
+  const orderId = shipStartTargetOrderId;
+  if(!orderId) return;
+
+  const courierCode = document.getElementById('shipCourierSelect').value;
+  const trackingCompany = courierCode === 'etc'
+    ? document.getElementById('shipCourierEtc').value.trim()
+    : COURIER_CODE_MAP[courierCode];
+  const trackingNumber = document.getElementById('shipTrackingNumberInput').value.trim();
+
+  if(!trackingCompany) { showToast('택배사를 입력해주세요.', 'error'); return; }
+  if(!trackingNumber) { showToast('운송장 번호를 입력해주세요.', 'error'); return; }
 
   try {
     await window._updateDoc(window._doc(window._db, 'orders', orderId), {
       status: 'shipping',
-      trackingCompany: trackingCompany.trim(),
-      trackingNumber: trackingNumber.trim(),
+      trackingCompany,
+      trackingCompanyCode: courierCode === 'etc' ? null : courierCode,
+      trackingNumber,
       shippingStartedAt: window._serverTimestamp()
     });
+    closeShipStartModal();
     showToast('✅ 배송중 상태로 변경되었습니다.', 'success');
     loadOrderManage();
     loadDashboard();
   } catch(e) {
     showToast('처리 중 오류: ' + e.message, 'error');
   }
+}
+
+async function advanceToShipping(orderId) {
+  openShipStartModal(orderId);
 }
 
 async function advanceToDelivered(orderId) {
