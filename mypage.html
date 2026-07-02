@@ -681,7 +681,7 @@ async function loadOrders() {
       if(st === 'payment_window_passed' || st === 'paid' || st === 'preparing') paid++;
       else if(st === 'shipping') shipping++;
       else if(st === 'delivered') done++;
-      else if(st === 'cancelled') cancel++;
+      else if(['cancel_requested','return_requested','cancel_completed','cancelled'].includes(st)) cancel++;
     });
     document.getElementById('cntPaid').textContent = paid;
     document.getElementById('cntShipping').textContent = shipping;

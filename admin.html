@@ -82,6 +82,11 @@ tr:hover td{background:#FAFBFC;}
 .btn-role-save{padding:9px 16px;background:var(--navy);color:var(--white);border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background 0.15s;}
 .btn-role-save:hover{background:var(--sky);}
 .action-btns{display:flex;gap:6px;flex-wrap:nowrap;}
+.om-filter-btn{padding:8px 16px;border:1.5px solid var(--g2);background:var(--white);color:var(--g4);border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.om-filter-btn:hover{border-color:var(--sky);color:var(--sky);}
+.om-filter-btn.active{background:var(--navy);border-color:var(--navy);color:var(--white);}
+.btn-ship{padding:5px 12px;background:#E6F5FB;color:var(--sky);border:1px solid #A8D8EA;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-ship:hover{background:var(--sky);color:var(--white);}
 /* 상품 테이블 행 높이 고정 */
 #allProductsTable table td, #productApprovalTable table td { vertical-align:middle; white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis; padding:8px 10px; }
 #allProductsTable table td:first-child, #productApprovalTable table td:first-child { width:52px; max-width:52px; overflow:visible; }
@@ -196,6 +201,7 @@ tr:hover td{background:#FAFBFC;}
     <button class="menu-item" onclick="showPage('promoApproval',this)"><span>🎉</span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge">0</span></button>
     <button class="menu-item" onclick="showPage('allPromos',this)"><span>🏷️</span> 전체 이벤트 목록</button>
     <div class="menu-section">운영</div>
+    <button class="menu-item" onclick="showPage('orderManage',this)"><span>🚚</span> 주문/배송 관리 <span class="menu-badge" id="pendingShipBadge">0</span></button>
     <button class="menu-item" onclick="showPage('cancelManage',this)"><span>🔄</span> 취소/반품 관리 <span class="menu-badge" id="pendingCancelBadge">0</span></button>
     <button class="menu-item" id="settlementMenuItem" onclick="showPage('settlement',this)"><span>💰</span> 정산 관리</button>
     <button class="menu-item" onclick="showPage('dashboard',this)"><span>⚙️</span> 설정</button>
@@ -301,6 +307,24 @@ tr:hover td{background:#FAFBFC;}
         <input type="text" id="adminProductSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyAdminProductSearch()">
       </div>
       <div class="table-wrap" id="allProductsTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 주문/배송 관리 -->
+    <div class="page" id="page-orderManage">
+      <div class="section-header">
+        <div class="section-title">주문/배송 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadOrderManage()">🔄 새로고침</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;" id="orderManageFilters">
+        <button class="om-filter-btn active" data-status="all" onclick="filterOrderManage('all',this)">전체</button>
+        <button class="om-filter-btn" data-status="paid" onclick="filterOrderManage('paid',this)">결제완료</button>
+        <button class="om-filter-btn" data-status="preparing" onclick="filterOrderManage('preparing',this)">출고준비중</button>
+        <button class="om-filter-btn" data-status="shipping" onclick="filterOrderManage('shipping',this)">배송중</button>
+        <button class="om-filter-btn" data-status="delivered" onclick="filterOrderManage('delivered',this)">배송완료</button>
+      </div>
+      <div class="table-wrap" id="orderManageTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
     </div>
@@ -642,7 +666,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', cancelManage:'취소/반품 관리', settlement:'정산 관리'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
@@ -650,6 +674,7 @@ function showPage(name, el) {
   if(name === 'allProducts') loadAllProducts();
   if(name === 'promoApproval') loadPromoApproval();
   if(name === 'allPromos') loadAllPromos();
+  if(name === 'orderManage') loadOrderManage();
   if(name === 'cancelManage') loadCancelManage();
   if(name === 'settlement') loadSettlement();
 }
@@ -710,6 +735,17 @@ async function loadDashboard() {
       const badge = document.getElementById('pendingCancelBadge');
       if(badge) badge.textContent = cancelCount || '';
     } catch(e) { console.error('취소 카운트 로드 실패', e); }
+
+    // 배송 처리 필요 건수 (결제완료~출고준비중)
+    try {
+      const shipSnap = await window._getDocs(window._query(
+        window._collection(window._db, 'orders'),
+        window._where('status', 'in', ['payment_window_passed', 'paid', 'preparing'])
+      ));
+      const shipCount = shipSnap.size || 0;
+      const shipBadge = document.getElementById('pendingShipBadge');
+      if(shipBadge) shipBadge.textContent = shipCount || '';
+    } catch(e) { console.error('배송 카운트 로드 실패', e); }
 
     // 대시보드 최근 대기 목록
     const tableEl = document.getElementById('dashPendingTable');
@@ -1720,6 +1756,156 @@ async function saveAdminProductEdit() {
 }
 
 // ===================== 취소/반품 관리 =====================
+// ===================== 주문/배송 관리 =====================
+const ORDER_MANAGE_STATUSES = ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered'];
+const orderManageStatusLabel = {
+  payment_window_passed: { label: '결제완료(승인대기)', cls: 'pending' },
+  paid:      { label: '결제완료',   cls: 'approved' },
+  preparing: { label: '출고준비중', cls: 'pending' },
+  shipping:  { label: '배송중',     cls: 'role-optician' },
+  delivered: { label: '배송완료',   cls: 'approved' }
+};
+let orderManageCache = [];
+let orderManageCurrentFilter = 'all';
+
+async function loadOrderManage() {
+  const tableEl = document.getElementById('orderManageTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'orders'),
+      window._where('status', 'in', ORDER_MANAGE_STATUSES)
+    ));
+    const orders = [];
+    snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+    orders.sort((a,b) => {
+      const da = a.createdAt?.toDate?.() || new Date(0);
+      const db2 = b.createdAt?.toDate?.() || new Date(0);
+      return db2 - da;
+    });
+    orderManageCache = orders;
+    renderOrderManageTable();
+  } catch(e) {
+    console.error(e);
+    tableEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ${e.message}</div>`;
+  }
+}
+
+function filterOrderManage(status, el) {
+  orderManageCurrentFilter = status;
+  document.querySelectorAll('.om-filter-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderOrderManageTable();
+}
+
+function renderOrderManageTable() {
+  const tableEl = document.getElementById('orderManageTable');
+  const orders = orderManageCurrentFilter === 'all'
+    ? orderManageCache
+    : orderManageCache.filter(o => {
+        if(orderManageCurrentFilter === 'paid') return o.status === 'paid' || o.status === 'payment_window_passed';
+        return o.status === orderManageCurrentFilter;
+      });
+
+  if(orders.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);">해당하는 주문이 없습니다.</div>';
+    return;
+  }
+
+  tableEl.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>주문번호</th><th>회원</th><th>상품 요약</th><th>결제금액</th>
+        <th>상태</th><th>배송정보</th><th>주문일</th><th>처리</th>
+      </tr></thead>
+      <tbody>
+        ${orders.map(o => {
+          const items = Array.isArray(o.items) ? o.items : [];
+          const firstItem = items[0] ? items[0].productName||'-' : '-';
+          const itemSummary = items.length > 1 ? firstItem + ' 외 ' + (items.length-1) + '건' : firstItem;
+          const statusInfo = orderManageStatusLabel[o.status] || { label: o.status, cls: 'pending' };
+          const shipInfo = o.trackingNumber
+            ? `${o.trackingCompany||''} ${o.trackingNumber}`
+            : '-';
+
+          let actionBtn = '';
+          if(o.status === 'payment_window_passed' || o.status === 'paid') {
+            actionBtn = `<button class="btn-approve" onclick="advanceToPreparing('${o.id}')">📦 출고준비</button>`;
+          } else if(o.status === 'preparing') {
+            actionBtn = `<button class="btn-ship" onclick="advanceToShipping('${o.id}')">🚚 배송시작</button>`;
+          } else if(o.status === 'shipping') {
+            actionBtn = `<button class="btn-approve" onclick="advanceToDelivered('${o.id}')">✅ 배송완료</button>`;
+          } else if(o.status === 'delivered') {
+            actionBtn = `<span style="font-size:11px;color:var(--g3);">처리 완료</span>`;
+          }
+
+          return `
+            <tr>
+              <td style="font-size:11px;color:var(--sky);">${o.orderId||o.id}</td>
+              <td>${o.userName||o.userEmail||'-'}</td>
+              <td style="font-size:12px;">${itemSummary}</td>
+              <td>₩${Number(o.totalAmount||0).toLocaleString()}</td>
+              <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
+              <td style="font-size:11px;">${shipInfo}</td>
+              <td style="font-size:11px;">${formatDate(o.createdAt)}</td>
+              <td>${actionBtn}</td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function advanceToPreparing(orderId) {
+  if(!confirm('이 주문을 출고준비중 상태로 변경하시겠습니까?')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
+      status: 'preparing',
+      preparingAt: window._serverTimestamp()
+    });
+    showToast('✅ 출고준비중으로 변경되었습니다.', 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+async function advanceToShipping(orderId) {
+  const trackingCompany = prompt('택배사를 입력해주세요 (예: CJ대한통운, 우체국택배 등):');
+  if(trackingCompany === null) return;
+  const trackingNumber = prompt('운송장 번호를 입력해주세요:');
+  if(trackingNumber === null) return;
+
+  try {
+    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
+      status: 'shipping',
+      trackingCompany: trackingCompany.trim(),
+      trackingNumber: trackingNumber.trim(),
+      shippingStartedAt: window._serverTimestamp()
+    });
+    showToast('✅ 배송중 상태로 변경되었습니다.', 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+async function advanceToDelivered(orderId) {
+  if(!confirm('이 주문을 배송완료 상태로 변경하시겠습니까?')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
+      status: 'delivered',
+      deliveredAt: window._serverTimestamp()
+    });
+    showToast('✅ 배송완료로 변경되었습니다.', 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
 const RETURN_SHIPPING_FEE_DEFAULT = 7000;
 let cancelOrdersCache = [];
 
