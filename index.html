@@ -464,7 +464,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;">
           <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
         </label>
-        <span style="font-size:12px;color:#999;cursor:pointer;text-decoration:underline;">비밀번호 찾기</span>
+        <span onclick="openForgotPw()" style="font-size:12px;color:#999;cursor:pointer;text-decoration:underline;">비밀번호 찾기</span>
       </div>
       <div style="border-top:1px solid #f0f0f0;margin:20px 0;"></div>
       <p style="font-size:12px;color:#bbb;line-height:1.9;margin-bottom:14px;">
@@ -472,6 +472,24 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
         아직 회원이 아니시라면 회원가입 후 이용해 주세요.
       </p>
       <a href="join.html" style="font-size:13px;color:#1A2D4A;font-weight:600;text-decoration:underline;">회원가입 →</a>
+    </div>
+  </div>
+</div>
+
+<!-- 비밀번호 찾기 팝업 -->
+<div id="forgotPwOverlay" style="display:none;position:fixed;inset:0;z-index:1100;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeForgotPw()"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:400px;max-width:90vw;border-radius:6px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <button onclick="closeForgotPw()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:none;font-size:20px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="padding:44px 40px 36px;">
+      <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:14px;">비밀번호 찾기</div>
+      <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:24px;">가입하신 이메일을 입력하시면<br>비밀번호 재설정 링크를 보내드려요.</p>
+      <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <input type="email" id="forgotPwEmail" placeholder="가입한 이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')sendResetEmail()"/>
+      </div>
+      <div id="forgotPwMsg" style="display:none;font-size:12px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
+      <button id="forgotPwSubmitBtn" onclick="sendResetEmail()" style="width:100%;padding:13px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#1B9FD8'" onmouseout="this.style.background='#1A2D4A'">재설정 링크 보내기</button>
     </div>
   </div>
 </div>
@@ -874,6 +892,52 @@ async function doLogin() {
 async function doLogout() {
   await _auth.signOut();
   showToastMain('로그아웃되었습니다.');
+}
+
+// 비밀번호 찾기
+function openForgotPw() {
+  document.getElementById('forgotPwEmail').value = document.getElementById('loginEmail').value.trim();
+  document.getElementById('forgotPwMsg').style.display = 'none';
+  document.getElementById('forgotPwOverlay').style.display = 'block';
+}
+function closeForgotPw() {
+  document.getElementById('forgotPwOverlay').style.display = 'none';
+}
+async function sendResetEmail() {
+  const email = document.getElementById('forgotPwEmail').value.trim();
+  const msgEl = document.getElementById('forgotPwMsg');
+  const btn = document.getElementById('forgotPwSubmitBtn');
+  msgEl.style.display = 'none';
+
+  if(!email) {
+    msgEl.textContent = '이메일을 입력해주세요.';
+    msgEl.style.color = '#FF4444';
+    msgEl.style.display = 'block';
+    return;
+  }
+
+  btn.textContent = '전송 중...';
+  btn.disabled = true;
+  try {
+    await _auth.sendPasswordResetEmail(email);
+    msgEl.textContent = '입력하신 이메일로 재설정 링크를 보냈어요. 메일함(스팸함 포함)을 확인해주세요.';
+    msgEl.style.color = '#1B9FD8';
+    msgEl.style.display = 'block';
+    btn.textContent = '다시 보내기';
+    btn.disabled = false;
+  } catch(e) {
+    if(e.code === 'auth/user-not-found') {
+      msgEl.textContent = '가입된 회원 정보를 찾을 수 없습니다. 이메일을 다시 확인해주세요.';
+    } else if(e.code === 'auth/invalid-email') {
+      msgEl.textContent = '올바른 이메일 형식이 아닙니다.';
+    } else {
+      msgEl.textContent = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    }
+    msgEl.style.color = '#FF4444';
+    msgEl.style.display = 'block';
+    btn.textContent = '재설정 링크 보내기';
+    btn.disabled = false;
+  }
 }
 
 // 헤더 로그인 상태 변경
