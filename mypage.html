@@ -689,14 +689,13 @@ async function loadOrders() {
     listEl.innerHTML = orders.map(o => {
       const statusInfo = orderStatusMap[o.status] || { label: o.status||'대기', cls: 'status-pending' };
       const items = getOrderItems(o);
-      const canCancel = o.status === 'payment_window_passed' || o.status === 'paid';
 
-    // 취소/반품 버튼 상태별 분기
-    const canCancel = ['payment_window_passed', 'paid', 'preparing'].includes(o.status);
-    const canReturn = o.status === 'shipping' || o.status === 'delivered';
-    const isPendingCancel = o.status === 'cancel_requested' || o.status === 'return_requested';
+      // 취소/반품 버튼 상태별 분기
+      const canCancel = ['payment_window_passed', 'paid', 'preparing'].includes(o.status);
+      const canReturn = o.status === 'shipping' || o.status === 'delivered';
+      const isPendingCancel = o.status === 'cancel_requested' || o.status === 'return_requested';
 
-    return `
+      return `
         <div class="order-card">
           <div class="order-header">
             <div>
@@ -805,25 +804,8 @@ function openCancelModal(orderId, type) {
         해당 사유 선택 시 전액(₩${totalAmount.toLocaleString()}) 환불됩니다.<br>
         반품 주소는 관리자 확인 후 안내드립니다.`;
 
-      // 사유 변경 시 환불액 재계산
-      document.getElementById('cancelReasonSelect').onchange = () => {
-        onCancelReasonChange();
-        const reason = document.getElementById('cancelReasonSelect').value;
-        const isFreeReturn = reason === '상품불량' || reason === '오배송';
-        const actualFee = isFreeReturn ? 0 : returnFee;
-        const actualRefund = Math.max(0, totalAmount - actualFee);
-        refundInfo.innerHTML = `
-          <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">💰 환불 예정 금액</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>결제 금액</span><span>₩${totalAmount.toLocaleString()}</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:${isFreeReturn ? 'var(--green)' : 'var(--red)'};">
-            <span>왕복 택배비 공제 <span style="font-size:11px;color:var(--g3);">(${regionLabel})</span></span>
-            <span>${isFreeReturn ? '없음 (판매자 귀책)' : '-₩' + actualFee.toLocaleString()}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--sky);margin-top:8px;border-top:1px solid var(--g2);padding-top:8px;font-size:15px;">
-            <span>환불 예정액</span><span>₩${actualRefund.toLocaleString()}</span>
-          </div>
-          <div style="font-size:11px;color:var(--g3);margin-top:6px;">배송지: ${addr || '정보 없음'}</div>`;
-      };
+      // 반품 택배비 정보를 전역으로 저장 (onCancelReasonChange에서 사용)
+      window._returnFeeInfo = { returnFee, regionLabel, totalAmount, addr };
 
       submitBtn.textContent = '반품 신청';
       submitBtn.style.background = '#E65100';
@@ -837,11 +819,34 @@ function closeCancelModal() {
   document.getElementById('cancelModalOverlay').classList.remove('open');
   cancelTargetOrderId = null;
   cancelType = null;
+  window._returnFeeInfo = null;
 }
 
 function onCancelReasonChange() {
   const val = document.getElementById('cancelReasonSelect').value;
   document.getElementById('cancelReasonEtcWrap').style.display = val === '기타' ? 'block' : 'none';
+
+  // 반품 모달일 때 사유에 따라 환불액 재계산
+  if(cancelType === 'after_ship' && window._returnFeeInfo) {
+    const { returnFee, regionLabel, totalAmount, addr } = window._returnFeeInfo;
+    const isFreeReturn = val === '상품불량' || val === '오배송';
+    const actualFee = isFreeReturn ? 0 : returnFee;
+    const actualRefund = Math.max(0, totalAmount - actualFee);
+    const refundInfo = document.getElementById('cancelRefundInfo');
+    if(refundInfo) {
+      refundInfo.innerHTML = `
+        <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">💰 환불 예정 금액</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>결제 금액</span><span>₩${totalAmount.toLocaleString()}</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:${isFreeReturn ? 'var(--green)' : 'var(--red)'};">
+          <span>왕복 택배비 공제 <span style="font-size:11px;color:var(--g3);">(${regionLabel})</span></span>
+          <span>${isFreeReturn ? '없음 (판매자 귀책)' : '-₩' + actualFee.toLocaleString()}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--sky);margin-top:8px;border-top:1px solid var(--g2);padding-top:8px;font-size:15px;">
+          <span>환불 예정액</span><span>₩${actualRefund.toLocaleString()}</span>
+        </div>
+        <div style="font-size:11px;color:var(--g3);margin-top:6px;">배송지: ${addr || '정보 없음'}</div>`;
+    }
+  }
 }
 
 async function submitCancelRequest() {
