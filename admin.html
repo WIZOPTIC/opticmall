@@ -1832,11 +1832,17 @@ function renderOrderManageTable() {
           if(o.status === 'payment_window_passed' || o.status === 'paid') {
             actionBtn = `<button class="btn-approve" onclick="advanceToPreparing('${o.id}')">📦 출고준비</button>`;
           } else if(o.status === 'preparing') {
-            actionBtn = `<button class="btn-ship" onclick="advanceToShipping('${o.id}')">🚚 배송시작</button>`;
+            actionBtn = `
+              <button class="btn-ship" onclick="advanceToShipping('${o.id}')">🚚 배송시작</button>
+              <button class="btn-view" onclick="revertOrderStatus('${o.id}','paid','결제완료')">↩ 되돌리기</button>`;
           } else if(o.status === 'shipping') {
-            actionBtn = `<button class="btn-approve" onclick="advanceToDelivered('${o.id}')">✅ 배송완료</button>`;
+            actionBtn = `
+              <button class="btn-approve" onclick="advanceToDelivered('${o.id}')">✅ 배송완료</button>
+              <button class="btn-view" onclick="revertOrderStatus('${o.id}','preparing','출고준비중')">↩ 되돌리기</button>`;
           } else if(o.status === 'delivered') {
-            actionBtn = `<span style="font-size:11px;color:var(--g3);">처리 완료</span>`;
+            actionBtn = `
+              <span style="font-size:11px;color:var(--g3);">처리 완료</span>
+              <button class="btn-view" onclick="revertOrderStatus('${o.id}','shipping','배송중')">↩ 되돌리기</button>`;
           }
 
           return `
@@ -1848,11 +1854,26 @@ function renderOrderManageTable() {
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>
               <td style="font-size:11px;">${formatDate(o.createdAt)}</td>
-              <td>${actionBtn}</td>
+              <td><div class="action-btns">${actionBtn}</div></td>
             </tr>`;
         }).join('')}
       </tbody>
     </table>`;
+}
+
+async function revertOrderStatus(orderId, targetStatus, targetLabel) {
+  if(!confirm(`이 주문을 '${targetLabel}' 상태로 되돌리시겠습니까?\n(운송장 정보는 그대로 유지됩니다. 필요시 다시 배송시작 처리 시 새로 입력할 수 있습니다.)`)) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
+      status: targetStatus,
+      statusRevertedAt: window._serverTimestamp()
+    });
+    showToast(`↩ '${targetLabel}' 상태로 되돌렸습니다.`, 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
 }
 
 async function advanceToPreparing(orderId) {

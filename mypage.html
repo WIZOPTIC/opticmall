@@ -789,6 +789,15 @@ function renderOrdersList() {
           </div>
           <span class="order-status ${statusInfo.cls}">${statusInfo.label}</span>
         </div>
+        ${o.trackingNumber && (o.status === 'shipping' || o.status === 'delivered') ? `
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--sky-lt);border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+            <div style="font-size:12px;color:var(--navy);">
+              <span style="font-weight:700;">🚚 ${o.trackingCompany||'택배사'}</span>
+              <span style="color:var(--g4);margin-left:8px;">운송장번호 ${o.trackingNumber}</span>
+            </div>
+            <button class="btn-sm" style="background:var(--white);color:var(--sky);border:1px solid var(--sky);padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="copyTrackingNumber('${o.trackingNumber}')">번호 복사</button>
+          </div>
+        ` : ''}
         ${items.map(it => `
           <div class="order-item">
             <div class="order-img">
@@ -815,6 +824,14 @@ function renderOrdersList() {
         ${o.cancelNote ? `<div style="font-size:12px;color:var(--red);padding:0 4px 4px;">관리자 메모: ${o.cancelNote}</div>` : ''}
       </div>`;
   }).join('');
+}
+
+function copyTrackingNumber(num) {
+  navigator.clipboard.writeText(num).then(() => {
+    alert('운송장번호가 복사되었습니다: ' + num);
+  }).catch(() => {
+    alert('운송장번호: ' + num);
+  });
 }
 
 // ===================== 취소/반품 신청 모달 =====================
