@@ -799,23 +799,28 @@ function formatFullDateTime(ts) {
   return `${d.getMonth()+1}.${d.getDate()}(${WEEKDAYS[d.getDay()]}) ${ampm} ${h12}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-function openTrackModal(orderId) {
-  const o = allOrdersCache.find(x => x.id === orderId);
-  if(!o) return;
+// 배송조회 프록시 함수 주소 (Firebase Functions 배포 후 실제 데이터 연동됨)
+const TRACKING_FUNCTION_URL = 'https://asia-northeast3-opticmall.cloudfunctions.net/getTrackingInfo';
 
-  let headline = '배송을 준비하고 있어요';
-  if(o.status === 'preparing') headline = '상품을 준비하고 있어요';
-  else if(o.status === 'shipping') headline = '배송이 시작됐어요';
-  else if(o.status === 'delivered') headline = '배송이 완료됐어요';
-
-  // 우리가 실제로 기록한 상태 변경 시각을 타임라인으로 구성 (최신순)
+function renderInternalTimeline(o) {
+  // 우리가 실제로 기록한 상태 변경 시각을 타임라인으로 구성 (최신순, Functions 미배포/실패 시 폴백)
   const timeline = [];
   if(o.deliveredAt) timeline.push({ place: '배송완료', meta: formatFullDateTime(o.deliveredAt) });
   if(o.shippingStartedAt) timeline.push({ place: `${o.trackingCompany||'택배'} 접수`, meta: formatFullDateTime(o.shippingStartedAt) });
   if(o.preparingAt) timeline.push({ place: '출고 준비 시작', meta: formatFullDateTime(o.preparingAt) });
   if(o.createdAt) timeline.push({ place: '주문/결제 완료', meta: formatFullDateTime(o.createdAt) });
+  return timeline;
+}
 
-  const timelineHtml = timeline.map((t, i) => `
+function renderRealTimeline(data) {
+  // 스마트택배 API 응답(trackingDetails)을 우리 타임라인 형식으로 변환 (최신순)
+  const details = Array.isArray(data.trackingDetails) ? [...data.trackingDetails] : [];
+  details.reverse(); // API는 오래된순 → 최신순으로 뒤집기
+  return details.map(d => ({ place: `${d.where||''} · ${d.kind||''}`, meta: d.timeString || '' }));
+}
+
+function renderTimelineHtml(timeline) {
+  return timeline.map((t, i) => `
     <div class="track-timeline-item ${i===0 ? 'latest' : ''}">
       <div class="track-timeline-dot-col">
         <div class="track-timeline-dot"></div>
@@ -827,6 +832,16 @@ function openTrackModal(orderId) {
       </div>
     </div>
   `).join('');
+}
+
+async function openTrackModal(orderId) {
+  const o = allOrdersCache.find(x => x.id === orderId);
+  if(!o) return;
+
+  let headline = '배송을 준비하고 있어요';
+  if(o.status === 'preparing') headline = '상품을 준비하고 있어요';
+  else if(o.status === 'shipping') headline = '배송이 시작됐어요';
+  else if(o.status === 'delivered') headline = '배송이 완료됐어요';
 
   const courierRowHtml = o.trackingNumber ? `
     <div class="track-courier-row">
@@ -837,15 +852,37 @@ function openTrackModal(orderId) {
   const externalBtnHtml = o.trackingNumber ? `
     <button class="track-external-btn" onclick='openTrackingPage(${JSON.stringify(o.trackingCompanyCode||"")}, ${JSON.stringify(o.trackingCompany||"")}, ${JSON.stringify(o.trackingNumber)})'>택배사 사이트에서 상세 위치 확인하기</button>` : '';
 
-  document.getElementById('trackModalBody').innerHTML = `
-    <div class="track-headline">${headline}</div>
-    ${buildShipStepper(o.status)}
-    <div class="track-timeline">${timelineHtml}</div>
-    ${courierRowHtml}
-    ${externalBtnHtml}
-    <div class="track-disclaimer">ℹ️ 확인해주세요<br>현재 배송 단계는 판매자가 직접 기록한 정보예요. 실시간 택배 위치 조회는 준비 중이며, 정확한 현재 위치는 위 "택배사 사이트에서 상세 위치 확인하기" 버튼으로 확인하실 수 있어요.</div>
-  `;
+  const renderBody = (timelineHtml, disclaimerHtml) => {
+    document.getElementById('trackModalBody').innerHTML = `
+      <div class="track-headline">${headline}</div>
+      ${buildShipStepper(o.status)}
+      <div class="track-timeline">${timelineHtml}</div>
+      ${courierRowHtml}
+      ${externalBtnHtml}
+      ${disclaimerHtml}
+    `;
+  };
+
+  // 1단계: 우리 기록 기반 타임라인으로 즉시 표시 (로딩 지연 없이)
+  const fallbackDisclaimer = `<div class="track-disclaimer">ℹ️ 확인해주세요<br>현재 배송 단계는 판매자가 직접 기록한 정보예요. 실시간 택배 위치 조회는 준비 중이며, 정확한 현재 위치는 위 "택배사 사이트에서 상세 위치 확인하기" 버튼으로 확인하실 수 있어요.</div>`;
+  renderBody(renderTimelineHtml(renderInternalTimeline(o)), fallbackDisclaimer);
   document.getElementById('trackModalOverlay').classList.add('open');
+
+  // 2단계: 실시간 데이터 시도 (Functions 배포 전이거나 실패하면 위 화면 그대로 유지됨)
+  if(o.trackingNumber && o.trackingCompanyCode) {
+    try {
+      const url = `${TRACKING_FUNCTION_URL}?t_code=${encodeURIComponent(o.trackingCompanyCode||'')}&t_invoice=${encodeURIComponent(o.trackingNumber)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if(data && Array.isArray(data.trackingDetails) && data.trackingDetails.length > 0) {
+        const realDisclaimer = `<div class="track-disclaimer">ℹ️ 택배사 실시간 조회 정보예요. 실제 상황과 약간 다를 수 있습니다.</div>`;
+        renderBody(renderTimelineHtml(renderRealTimeline(data)), realDisclaimer);
+      }
+    } catch(e) {
+      // 조용히 실패 - 이미 표시된 우리 기록 타임라인을 그대로 둠
+      console.log('실시간 배송조회 연동 전이거나 일시적 오류:', e.message);
+    }
+  }
 }
 
 function closeTrackModal() {
