@@ -903,7 +903,10 @@ function renderOrdersList() {
           <div style="text-align:right;font-size:12px;color:var(--g3);margin-top:8px;">합계 <strong style="color:var(--navy);font-size:14px;">₩${Number(o.totalAmount||0).toLocaleString()}</strong></div>
 
           <div class="order-block-actions">
-            ${o.trackingNumber && (st==='shipping'||st==='delivered') ? `<button class="chip-action-btn primary" onclick="copyTrackingNumber('${o.trackingNumber}')">🚚 배송조회</button>` : ''}
+            ${o.trackingNumber && (st==='shipping'||st==='delivered') ? `
+              <button class="chip-action-btn primary" onclick='openTrackingPage(${JSON.stringify(o.trackingCompanyCode||"")}, ${JSON.stringify(o.trackingCompany||"")}, ${JSON.stringify(o.trackingNumber)})'>🚚 배송조회</button>
+              <button class="chip-action-btn" onclick="copyTrackingNumber('${o.trackingNumber}')">번호 복사</button>
+            ` : ''}
             ${canCancel ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','before_ship')">주문취소</button>` : ''}
             ${canReturn ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','after_ship')">교환, 반품 신청</button>` : ''}
             ${isPendingCancel ? `<span style="font-size:12px;color:var(--orange);font-weight:600;align-self:center;">처리 대기중</span>` : ''}
@@ -913,6 +916,42 @@ function renderOrdersList() {
         </div>
       </div>`;
   }).join('');
+}
+
+// 택배사 코드/이름 → 배송조회 페이지 URL
+const COURIER_TRACK_URL_BY_CODE = {
+  '04': n => `https://trace.cjlogistics.com/next/tracking.html?wblNo=${n}`,
+  '01': n => `https://service.epost.go.kr/trace.RetrieveDomRigiTraceList.comm?displayHeader=N&sid1=${n}`,
+  '08': n => `https://www.lotteglogis.com/home/reservation/tracking/linkView?InvNo=${n}`,
+  '05': n => `https://www.hanjin.com/kor/CMS/DeliveryMgr/WaybillResult.do?mCode=MN038&schLang=KR&wblnumText2=${n}`,
+  '06': n => `https://www.ilogen.com/m/personal/trace.pop/${n}`,
+  '24': n => `https://www.cvsnet.co.kr/invoice/tracking.do?invoice_no=${n}`,
+  '46': n => `https://www.cupost.co.kr/postbox/delivery/localResult.cupost?invoice_no=${n}`,
+  '22': n => `https://www.ds3211.co.kr/freight/internalFreightSearch.ht?billno=${n}`,
+  '23': n => `https://kdexp.com/service/delivery/etc/delivery.do?barcode=${n}`
+};
+// 옛 주문 등 코드가 없을 때, 택배사 이름으로 매칭
+const COURIER_TRACK_URL_BY_NAME = {
+  'CJ대한통운': COURIER_TRACK_URL_BY_CODE['04'],
+  '우체국택배': COURIER_TRACK_URL_BY_CODE['01'],
+  '롯데택배': COURIER_TRACK_URL_BY_CODE['08'],
+  '한진택배': COURIER_TRACK_URL_BY_CODE['05'],
+  '로젠택배': COURIER_TRACK_URL_BY_CODE['06'],
+  'GS Postbox 택배': COURIER_TRACK_URL_BY_CODE['24'],
+  'CU 편의점택배': COURIER_TRACK_URL_BY_CODE['46'],
+  '대신택배': COURIER_TRACK_URL_BY_CODE['22'],
+  '경동택배': COURIER_TRACK_URL_BY_CODE['23']
+};
+
+function openTrackingPage(courierCode, courierName, trackingNumber) {
+  const num = encodeURIComponent(trackingNumber);
+  let urlBuilder = COURIER_TRACK_URL_BY_CODE[courierCode] || COURIER_TRACK_URL_BY_NAME[courierName];
+  if(urlBuilder) {
+    window.open(urlBuilder(num), '_blank');
+  } else {
+    // 매칭되는 택배사를 못 찾으면 검색으로 안내
+    window.open(`https://search.naver.com/search.naver?query=${encodeURIComponent((courierName||'택배')+' 배송조회 '+trackingNumber)}`, '_blank');
+  }
 }
 
 function copyTrackingNumber(num) {
