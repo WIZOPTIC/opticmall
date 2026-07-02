@@ -196,6 +196,7 @@ tr:hover td{background:#FAFBFC;}
     <button class="menu-item" onclick="showPage('promoApproval',this)"><span>🎉</span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge">0</span></button>
     <button class="menu-item" onclick="showPage('allPromos',this)"><span>🏷️</span> 전체 이벤트 목록</button>
     <div class="menu-section">운영</div>
+    <button class="menu-item" onclick="showPage('cancelManage',this)"><span>🔄</span> 취소/반품 관리 <span class="menu-badge" id="pendingCancelBadge">0</span></button>
     <button class="menu-item" id="settlementMenuItem" onclick="showPage('settlement',this)"><span>💰</span> 정산 관리</button>
     <button class="menu-item" onclick="showPage('dashboard',this)"><span>⚙️</span> 설정</button>
   </nav>
@@ -300,6 +301,17 @@ tr:hover td{background:#FAFBFC;}
         <input type="text" id="adminProductSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyAdminProductSearch()">
       </div>
       <div class="table-wrap" id="allProductsTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 취소/반품 관리 -->
+    <div class="page" id="page-cancelManage">
+      <div class="section-header">
+        <div class="section-title">취소/반품 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadCancelManage()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="cancelManageTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
     </div>
@@ -617,7 +629,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', settlement:'정산 관리'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', cancelManage:'취소/반품 관리', settlement:'정산 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
@@ -625,6 +637,7 @@ function showPage(name, el) {
   if(name === 'allProducts') loadAllProducts();
   if(name === 'promoApproval') loadPromoApproval();
   if(name === 'allPromos') loadAllPromos();
+  if(name === 'cancelManage') loadCancelManage();
   if(name === 'settlement') loadSettlement();
 }
 
@@ -673,6 +686,17 @@ async function loadDashboard() {
       promoSnap.forEach(d => { if(d.data().status === 'pending') pendingPromoCount++; });
       document.getElementById('pendingPromoBadge').textContent = pendingPromoCount;
     } catch(e) { console.error('이벤트 카운트 로드 실패', e); }
+
+    // 취소/반품 신청 건수
+    try {
+      const cancelSnap = await window._getDocs(window._query(
+        window._collection(window._db, 'orders'),
+        window._where('status', 'in', ['cancel_requested', 'return_requested'])
+      ));
+      const cancelCount = cancelSnap.size || 0;
+      const badge = document.getElementById('pendingCancelBadge');
+      if(badge) badge.textContent = cancelCount || '';
+    } catch(e) { console.error('취소 카운트 로드 실패', e); }
 
     // 대시보드 최근 대기 목록
     const tableEl = document.getElementById('dashPendingTable');
@@ -1679,6 +1703,141 @@ async function saveAdminProductEdit() {
   } finally {
     btn.disabled = false;
     btn.textContent = '저장하기';
+  }
+}
+
+// ===================== 취소/반품 관리 =====================
+const RETURN_SHIPPING_FEE = 6000; // 왕복 택배비
+
+async function loadCancelManage() {
+  const tableEl = document.getElementById('cancelManageTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'orders'),
+      window._where('status', 'in', ['cancel_requested', 'return_requested'])
+    ));
+    const orders = [];
+    snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+    orders.sort((a,b) => {
+      const da = a.cancelRequestedAt?.toDate?.() || new Date(0);
+      const db2 = b.cancelRequestedAt?.toDate?.() || new Date(0);
+      return db2 - da;
+    });
+
+    // 뱃지 업데이트
+    document.getElementById('pendingCancelBadge').textContent = orders.length || '';
+
+    if(orders.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);">취소/반품 신청이 없습니다.</div>';
+      return;
+    }
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>주문번호</th><th>회원</th><th>상품</th><th>결제금액</th>
+          <th>신청유형</th><th>취소사유</th><th>배송지</th><th>환불예정액</th><th>신청일</th><th>처리</th>
+        </tr></thead>
+        <tbody>
+          ${orders.map(o => {
+            const isReturn = o.cancelType === 'after_ship';
+            const total = Number(o.totalAmount || 0);
+            const returnFee = Number(o.returnShippingFee || 0);
+            const expectedRefund = o.expectedRefund !== undefined
+              ? Number(o.expectedRefund)
+              : (isReturn ? Math.max(0, total - 7000) : total);
+
+            const items = Array.isArray(o.items) ? o.items : [];
+            const itemSummary = items.map(i => `${i.productName||'-'} x${i.qty}`).join(', ');
+            const addr = o.shippingAddress?.address || o.shippingAddress?.roadAddress || '-';
+
+            return `<tr>
+              <td style="font-size:11px;">${o.orderId||o.id}</td>
+              <td>${o.userName||o.userEmail||'-'}</td>
+              <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemSummary}">${itemSummary}</td>
+              <td>₩${total.toLocaleString()}</td>
+              <td><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품신청' : '취소신청'}</span></td>
+              <td style="font-size:12px;">${o.cancelReason||'-'}</td>
+              <td style="font-size:12px;color:var(--g3);">${addr}</td>
+              <td>
+                <div style="font-weight:700;color:var(--sky);">₩${expectedRefund.toLocaleString()}</div>
+                ${isReturn ? `<div style="font-size:10px;color:var(--red);">택배비 -₩${returnFee.toLocaleString()}</div>` : '<div style="font-size:10px;color:var(--green);">전액환불</div>'}
+              </td>
+              <td style="font-size:11px;">${formatDate(o.cancelRequestedAt)}</td>
+              <td>
+                <div class="action-btns" style="flex-direction:column;gap:4px;">
+                  <button class="btn-approve" onclick="processCancel('${o.id}','${o.cancelType||'before_ship'}',${expectedRefund})">✅ 환불완료</button>
+                  <button class="btn-reject" onclick="rejectCancel('${o.id}')">❌ 반려</button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ${e.message}</div>`;
+  }
+}
+
+async function processCancel(orderId, cancelType, expectedRefund) {
+  const refundAmt = Number(expectedRefund || 0);
+  const note = prompt(`관리자 메모 (선택사항)\n환불 예정액: ₩${refundAmt.toLocaleString()}\n금액 조정이 필요하면 메모에 기재해주세요:`) ?? '';
+  if(!confirm(`환불 완료 처리하시겠습니까?\n환불액: ₩${refundAmt.toLocaleString()}\n\n⚠️ 토스페이먼츠 콘솔에서 먼저 환불을 완료하신 후 클릭해주세요.`)) return;
+
+  try {
+    const orderRef = window._doc(window._db, 'orders', orderId);
+    const orderSnap = await orderRef.get ? await orderRef.get() : await window._getDoc(orderRef);
+    const orderData = orderSnap.data ? orderSnap.data() : orderSnap;
+
+    // 트랜잭션: 주문 상태 변경 + 재고 복구
+    await window._db.runTransaction(async (tx) => {
+      for(const item of (orderData.items || [])) {
+        const productRef = window._doc(window._db, 'products', item.productId);
+        const productSnap = await tx.get(productRef);
+        if(!productSnap.exists) continue;
+        const pData = productSnap.data();
+        const colorIdx = Number(item.selectedColorIdx) || 0;
+        const qty = Number(item.qty) || 0;
+
+        if(pData.colors && pData.colors.length > colorIdx) {
+          const colors = [...pData.colors];
+          colors[colorIdx] = { ...colors[colorIdx], stock: Number(colors[colorIdx].stock||0) + qty };
+          tx.update(productRef, { colors });
+        } else {
+          tx.update(productRef, { stock: Number(pData.stock||0) + qty });
+        }
+      }
+      tx.update(orderRef, {
+        status: 'cancel_completed',
+        cancelNote: note,
+        cancelCompletedAt: window._serverTimestamp()
+      });
+    });
+
+    showToast('✅ 환불 완료 처리되었습니다. 재고가 복구되었습니다.', 'success');
+    loadCancelManage();
+    loadDashboard();
+  } catch(e) {
+    console.error(e);
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+async function rejectCancel(orderId) {
+  const reason = prompt('반려 사유를 입력해주세요:');
+  if(reason === null) return;
+
+  try {
+    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
+      status: 'paid', // 원래 상태로 복구 (배송 전 가정)
+      cancelNote: '취소 반려: ' + reason,
+      cancelRejectedAt: window._serverTimestamp()
+    });
+    showToast('취소 신청이 반려되었습니다.', 'success');
+    loadCancelManage();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
   }
 }
 </script>
