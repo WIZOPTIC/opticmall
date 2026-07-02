@@ -78,6 +78,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .ship-dot-label{font-size:10.5px;color:var(--g3);font-weight:600;white-space:nowrap;}
 .ship-dot-wrap.done .ship-dot-label{color:var(--navy);}
 .ship-dot-wrap.current .ship-dot-label{color:var(--sky);font-weight:800;}
+.ship-track-btn{display:block;width:100%;padding:13px;margin:2px 0 18px;background:var(--g1);border:none;border-radius:8px;font-size:13.5px;font-weight:700;color:var(--navy);cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.ship-track-btn:hover{background:var(--g2);}
 .order-block-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--g1);}
 .chip-action-btn{padding:9px 16px;border-radius:8px;border:1.5px solid var(--g2);background:var(--white);color:var(--g4);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;}
 .chip-action-btn:hover{border-color:var(--navy);color:var(--navy);}
@@ -873,6 +875,9 @@ function renderOrdersList() {
     else if(st === 'cancelled') { pillCls='c-cancel'; pillLabel='취소됨'; subText=''; }
 
     const stepperHtml = buildShipStepper(st);
+    const trackBtnHtml = (o.trackingNumber && (st==='shipping'||st==='delivered'))
+      ? `<button class="ship-track-btn" onclick='openTrackingPage(${JSON.stringify(o.trackingCompanyCode||"")}, ${JSON.stringify(o.trackingCompany||"")}, ${JSON.stringify(o.trackingNumber)})'>배송조회</button>`
+      : '';
 
     return `
       <div class="order-block">
@@ -886,6 +891,7 @@ function renderOrdersList() {
             ${subText ? `<span class="status-sub">· ${subText}</span>` : ''}
           </div>
           ${stepperHtml}
+          ${trackBtnHtml}
           ${items.map(it => `
             <div class="order-item">
               <div class="order-img">
@@ -903,10 +909,6 @@ function renderOrdersList() {
           <div style="text-align:right;font-size:12px;color:var(--g3);margin-top:8px;">합계 <strong style="color:var(--navy);font-size:14px;">₩${Number(o.totalAmount||0).toLocaleString()}</strong></div>
 
           <div class="order-block-actions">
-            ${o.trackingNumber && (st==='shipping'||st==='delivered') ? `
-              <button class="chip-action-btn primary" onclick='openTrackingPage(${JSON.stringify(o.trackingCompanyCode||"")}, ${JSON.stringify(o.trackingCompany||"")}, ${JSON.stringify(o.trackingNumber)})'>🚚 배송조회</button>
-              <button class="chip-action-btn" onclick="copyTrackingNumber('${o.trackingNumber}')">번호 복사</button>
-            ` : ''}
             ${canCancel ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','before_ship')">주문취소</button>` : ''}
             ${canReturn ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','after_ship')">교환, 반품 신청</button>` : ''}
             ${isPendingCancel ? `<span style="font-size:12px;color:var(--orange);font-weight:600;align-self:center;">처리 대기중</span>` : ''}
