@@ -127,6 +127,33 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .cancel-submit-btn{padding:10px 24px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
 .cancel-submit-btn:hover{opacity:0.88;}
 .cancel-submit-btn:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;}
+
+/* 배송조회 모달 (네이버 스타일, 자체 제작) */
+.track-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
+.track-modal-overlay.open{display:flex;}
+.track-modal-box{background:var(--white);border-radius:16px;width:420px;max-width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.2);}
+.track-modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--g2);position:sticky;top:0;background:var(--white);z-index:1;}
+.track-modal-title{font-size:15px;font-weight:700;color:var(--navy);}
+.track-modal-close{width:28px;height:28px;border:none;background:var(--g1);border-radius:50%;cursor:pointer;font-size:14px;}
+.track-modal-body{padding:24px 20px;}
+.track-headline{font-size:19px;font-weight:800;color:var(--navy);text-align:center;margin-bottom:22px;}
+.track-timeline{background:var(--g1);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+.track-timeline-item{display:flex;gap:12px;padding:8px 0;}
+.track-timeline-dot-col{display:flex;flex-direction:column;align-items:center;padding-top:4px;}
+.track-timeline-dot{width:7px;height:7px;border-radius:50%;background:var(--g3);flex-shrink:0;}
+.track-timeline-item.latest .track-timeline-dot{background:var(--sky);width:9px;height:9px;}
+.track-timeline-line{width:1.5px;flex:1;background:var(--g2);margin-top:2px;min-height:20px;}
+.track-timeline-content{padding-bottom:4px;}
+.track-timeline-place{font-size:14px;font-weight:700;color:var(--g4);}
+.track-timeline-item.latest .track-timeline-place{color:var(--navy);}
+.track-timeline-meta{font-size:12px;color:var(--g3);margin-top:2px;}
+.track-courier-row{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:1.5px solid var(--g2);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+.track-courier-info{font-size:13px;color:var(--navy);font-weight:700;}
+.track-courier-num{color:var(--g4);font-weight:500;margin-left:6px;}
+.track-copy-btn{font-size:12px;color:var(--g4);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:inherit;}
+.track-external-btn{display:block;width:100%;padding:13px;background:var(--white);border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;font-family:inherit;margin-bottom:14px;}
+.track-external-btn:hover{border-color:var(--sky);color:var(--sky);}
+.track-disclaimer{font-size:11.5px;color:var(--g3);line-height:1.6;background:var(--g1);border-radius:8px;padding:12px 14px;}
 .order-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--g1);}
 .order-item:last-child{border-bottom:none;}
 .order-img{width:56px;height:56px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;}
@@ -765,6 +792,66 @@ function buildShipStepper(status) {
     </div>`;
 }
 
+function formatFullDateTime(ts) {
+  const d = ts?.toDate ? ts.toDate() : new Date(ts || 0);
+  const h = d.getHours(), ampm = h < 12 ? '오전' : '오후';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${d.getMonth()+1}.${d.getDate()}(${WEEKDAYS[d.getDay()]}) ${ampm} ${h12}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function openTrackModal(orderId) {
+  const o = allOrdersCache.find(x => x.id === orderId);
+  if(!o) return;
+
+  let headline = '배송을 준비하고 있어요';
+  if(o.status === 'preparing') headline = '상품을 준비하고 있어요';
+  else if(o.status === 'shipping') headline = '배송이 시작됐어요';
+  else if(o.status === 'delivered') headline = '배송이 완료됐어요';
+
+  // 우리가 실제로 기록한 상태 변경 시각을 타임라인으로 구성 (최신순)
+  const timeline = [];
+  if(o.deliveredAt) timeline.push({ place: '배송완료', meta: formatFullDateTime(o.deliveredAt) });
+  if(o.shippingStartedAt) timeline.push({ place: `${o.trackingCompany||'택배'} 접수`, meta: formatFullDateTime(o.shippingStartedAt) });
+  if(o.preparingAt) timeline.push({ place: '출고 준비 시작', meta: formatFullDateTime(o.preparingAt) });
+  if(o.createdAt) timeline.push({ place: '주문/결제 완료', meta: formatFullDateTime(o.createdAt) });
+
+  const timelineHtml = timeline.map((t, i) => `
+    <div class="track-timeline-item ${i===0 ? 'latest' : ''}">
+      <div class="track-timeline-dot-col">
+        <div class="track-timeline-dot"></div>
+        ${i < timeline.length-1 ? `<div class="track-timeline-line"></div>` : ''}
+      </div>
+      <div class="track-timeline-content">
+        <div class="track-timeline-place">${t.place}</div>
+        <div class="track-timeline-meta">${t.meta}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const courierRowHtml = o.trackingNumber ? `
+    <div class="track-courier-row">
+      <div class="track-courier-info">${o.trackingCompany||'택배'}<span class="track-courier-num">${o.trackingNumber}</span></div>
+      <button class="track-copy-btn" onclick="copyTrackingNumber('${o.trackingNumber}')">복사하기</button>
+    </div>` : '';
+
+  const externalBtnHtml = o.trackingNumber ? `
+    <button class="track-external-btn" onclick='openTrackingPage(${JSON.stringify(o.trackingCompanyCode||"")}, ${JSON.stringify(o.trackingCompany||"")}, ${JSON.stringify(o.trackingNumber)})'>택배사 사이트에서 상세 위치 확인하기</button>` : '';
+
+  document.getElementById('trackModalBody').innerHTML = `
+    <div class="track-headline">${headline}</div>
+    ${buildShipStepper(o.status)}
+    <div class="track-timeline">${timelineHtml}</div>
+    ${courierRowHtml}
+    ${externalBtnHtml}
+    <div class="track-disclaimer">ℹ️ 확인해주세요<br>현재 배송 단계는 판매자가 직접 기록한 정보예요. 실시간 택배 위치 조회는 준비 중이며, 정확한 현재 위치는 위 "택배사 사이트에서 상세 위치 확인하기" 버튼으로 확인하실 수 있어요.</div>
+  `;
+  document.getElementById('trackModalOverlay').classList.add('open');
+}
+
+function closeTrackModal() {
+  document.getElementById('trackModalOverlay').classList.remove('open');
+}
+
 async function loadOrders() {
   const listEl = document.getElementById('ordersList');
   try {
@@ -876,7 +963,7 @@ function renderOrdersList() {
 
     const stepperHtml = buildShipStepper(st);
     const trackBtnHtml = (o.trackingNumber && (st==='shipping'||st==='delivered'))
-      ? `<button class="ship-track-btn" onclick='openTrackingPage(${JSON.stringify(o.trackingCompanyCode||"")}, ${JSON.stringify(o.trackingCompany||"")}, ${JSON.stringify(o.trackingNumber)})'>배송조회</button>`
+      ? `<button class="ship-track-btn" onclick="openTrackModal('${o.id}')">배송조회</button>`
       : '';
 
     return `
@@ -1284,6 +1371,17 @@ async function removeRestockAlert(productId) {
       <button class="btn-sm btn-ghost" onclick="closeCancelModal()">닫기</button>
       <button class="cancel-submit-btn" id="cancelSubmitBtn" onclick="submitCancelRequest()">신청하기</button>
     </div>
+  </div>
+</div>
+
+<!-- 배송조회 모달 -->
+<div class="track-modal-overlay" id="trackModalOverlay">
+  <div class="track-modal-box">
+    <div class="track-modal-header">
+      <div class="track-modal-title">배송조회</div>
+      <button class="track-modal-close" onclick="closeTrackModal()">✕</button>
+    </div>
+    <div class="track-modal-body" id="trackModalBody"></div>
   </div>
 </div>
 
