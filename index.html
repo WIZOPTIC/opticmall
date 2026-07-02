@@ -531,10 +531,10 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </button>
         <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:140px;z-index:500;overflow:hidden;">
-          <a href="#" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">마이페이지</a>
-          <a href="#" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">주문/배송조회</a>
-          <a href="#" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">최근 본 상품</a>
-          <a href="#" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">관심상품</a>
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">마이페이지</a>
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">주문/배송조회</a>
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">최근 본 상품</a>
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6';this.style.color='#1A2D4A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">관심상품</a>
         </div>
       </div>
       <button class="icon-btn" onclick="location.href='cart.html'">
@@ -980,7 +980,7 @@ function updateHeaderLoggedIn(name, level, status, role) {
       ${adminLinkHtml}
       <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">마이페이지</a>
       <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">주문/배송조회</a>
-      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">관심상품</a>
+      <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">관심상품</a>
       <a href="#" onclick="doLogout()" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#FEECEC'" onmouseout="this.style.background=''">로그아웃</a>`;
   }
 }
@@ -999,10 +999,10 @@ function updateHeaderLoggedOut() {
   const dropdown = document.getElementById('userDropdown');
   if(dropdown) {
     dropdown.innerHTML = `
-      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">마이페이지</a>
-      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">주문/배송조회</a>
-      <a href="#" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">최근 본 상품</a>
-      <a href="#" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">관심상품</a>`;
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">마이페이지</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">주문/배송조회</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">최근 본 상품</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6'" onmouseout="this.style.background=''">관심상품</a>`;
   }
 }
 
@@ -1026,6 +1026,10 @@ _auth.onAuthStateChanged(async (user) => {
   } else {
     mainMemberLevel = 0;
     updateHeaderLoggedOut();
+    if(new URLSearchParams(location.search).get('openLogin') === '1' && !window._autoLoginOpened) {
+      window._autoLoginOpened = true;
+      openLogin();
+    }
   }
   renderAllMainSections();
 });

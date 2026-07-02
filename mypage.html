@@ -411,8 +411,12 @@ const PURCHASE_LEVELS = [
 
 _auth.onAuthStateChanged(async (user) => {
   if(!user) {
-    alert('로그인 후 이용 가능합니다.');
-    location.href = 'index.html';
+    document.getElementById('loadingArea').innerHTML = `
+      <div class="loading-box" style="flex:1;">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px;">로그인이 필요한 페이지예요</div>
+        <div style="font-size:13px;color:var(--g3);">로그인 화면으로 이동할게요...</div>
+      </div>`;
+    setTimeout(() => { location.href = 'index.html?openLogin=1'; }, 900);
     return;
   }
   currentUser = user;
