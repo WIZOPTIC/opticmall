@@ -293,6 +293,8 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
         <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
           <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
           <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+          <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
+          <a href="mypage.html?tab=recent" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
         </div>
       </div>
       <button class="icon-btn" onclick="location.href='cart.html'">
@@ -556,24 +558,44 @@ async function doLogin() {
 }
 async function doLogout() { await _auth.signOut(); }
 
-function updateHeaderLoggedIn(name, level) {
+function updateHeaderLoggedIn(name, level, role) {
   document.getElementById('loginBtn').style.display = 'none';
   document.getElementById('loginSep').style.display = 'none';
   document.getElementById('joinBtn').style.display = 'none';
+
+  let adminLinkHtml = '';
+  if(role === 'brand') {
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+  } else if(role === 'master' || role === 'submaster') {
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;">⚙️ 관리자 모드</a>`;
+  }
+
   const dropdown = document.getElementById('userDropdown');
   dropdown.innerHTML = `
     <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
       <div style="font-size:13px;font-weight:700;color:#1A2D4A;">${name}님</div>
       <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
     </div>
+    ${adminLinkHtml}
     <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
     <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+    <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
+    <a href="mypage.html?tab=recent" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
     <a href="#" onclick="doLogout()" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
 }
 function updateHeaderLoggedOut() {
   document.getElementById('loginBtn').style.display = '';
   document.getElementById('loginSep').style.display = '';
   document.getElementById('joinBtn').style.display = '';
+
+  const dropdown = document.getElementById('userDropdown');
+  if(dropdown) {
+    dropdown.innerHTML = `
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>`;
+  }
 }
 document.getElementById('userMenuBtn')?.addEventListener('click', () => {
   const dd = document.getElementById('userDropdown');
@@ -590,10 +612,10 @@ _auth.onAuthStateChanged(async (user) => {
       const userDoc = await _db.collection('users').doc(user.uid).get();
       const userData = userDoc.exists ? userDoc.data() : {};
       memberLevel = userData.member_level || 0;
-      updateHeaderLoggedIn(userData.name || user.email.split('@')[0], memberLevel);
+      updateHeaderLoggedIn(userData.name || user.email.split('@')[0], memberLevel, userData.role);
     } catch(e) {
       memberLevel = 0;
-      updateHeaderLoggedIn(user.email.split('@')[0], 0);
+      updateHeaderLoggedIn(user.email.split('@')[0], 0, null);
     }
     updateCartCount();
     if(currentProduct) checkWishAndRestockStatus(currentProduct);

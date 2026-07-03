@@ -964,7 +964,7 @@ function updateHeaderLoggedIn(name, level, status, role) {
   // 관리자 모드 링크 (브랜드사/마스터/서브마스터 전용)
   let adminLinkHtml = '';
   if(role === 'brand') {
-    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#E6F5FB'" onmouseout="this.style.background=''">🏪 브랜드 관리자 모드</a>`;
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#E6F5FB'" onmouseout="this.style.background=''">관리자 모드</a>`;
   } else if(role === 'master' || role === 'submaster') {
     adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#E6F5FB'" onmouseout="this.style.background=''">⚙️ 관리자 모드</a>`;
   }
