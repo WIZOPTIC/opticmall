@@ -665,6 +665,19 @@ function getProductIdFromUrl() {
   return params.get('id');
 }
 
+// 최근 본 상품 기록 (localStorage, 최신순 최대 20개, 마이페이지에서 표시됨)
+function trackRecentlyViewed(productId) {
+  if(!productId) return;
+  try {
+    const KEY = 'recentlyViewed';
+    let ids = JSON.parse(localStorage.getItem(KEY) || '[]');
+    ids = ids.filter(id => id !== productId); // 이미 있으면 제거 후 맨 앞으로
+    ids.unshift(productId);
+    if(ids.length > 20) ids = ids.slice(0, 20);
+    localStorage.setItem(KEY, JSON.stringify(ids));
+  } catch(e) { console.error('최근 본 상품 기록 실패:', e); }
+}
+
 async function loadProduct() {
   const pid = getProductIdFromUrl();
   if(!pid) {
@@ -716,6 +729,7 @@ async function loadProduct() {
 
     currentProduct = p;
     renderProduct(p);
+    trackRecentlyViewed(p.id);
   } catch(e) {
     console.error(e);
     // 미리보기 데이터로 이미 화면이 채워져 있다면 굳이 에러 문구로 덮어쓰지 않음

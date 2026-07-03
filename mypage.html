@@ -257,6 +257,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     <div class="menu-card">
       <div class="menu-item active" onclick="showSection('orders',this)"><span class="icon">🛒</span>주문 내역</div>
       <div class="menu-item" onclick="showSection('wish',this)"><span class="icon">❤️</span>관심상품</div>
+      <div class="menu-item" onclick="showSection('recent',this)"><span class="icon">🕐</span>최근 본 상품</div>
       <div class="menu-item" onclick="showSection('restock',this)"><span class="icon">🔔</span>재입고 알림</div>
       <div class="menu-item" onclick="showSection('profile',this)"><span class="icon">👤</span>회원 정보 수정</div>
       <div class="menu-item" onclick="showSection('biz',this)"><span class="icon">🏢</span>사업자 정보</div>
@@ -295,6 +296,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     <div id="section-wish" style="display:none;">
       <div class="section-title">관심상품</div>
       <div id="wishList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
+    </div>
+
+    <!-- 최근 본 상품 -->
+    <div id="section-recent" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="section-title" style="margin-bottom:0;">최근 본 상품</div>
+        <button id="clearRecentBtn" onclick="clearRecentlyViewed()" style="display:none;font-size:12px;font-weight:600;color:var(--g4);background:var(--g1);border:none;border-radius:100px;padding:6px 14px;cursor:pointer;font-family:inherit;">전체 삭제</button>
+      </div>
+      <div id="recentList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
 
     <!-- 재입고 알림 -->
@@ -430,7 +440,7 @@ _auth.onAuthStateChanged(async (user) => {
 
     // URL 파라미터로 탭 자동 이동 (?tab=wish, ?tab=restock)
     const urlTab = new URLSearchParams(location.search).get('tab');
-    if(urlTab === 'wish' || urlTab === 'restock') {
+    if(urlTab === 'wish' || urlTab === 'restock' || urlTab === 'recent') {
       const tabEl = document.querySelector(`[onclick*="showSection('${urlTab}"]`);
       if(tabEl) tabEl.click();
     }
@@ -448,7 +458,7 @@ async function doLogout() {
 }
 
 function showSection(name, el) {
-  ['orders','wish','restock','profile','biz','address'].forEach(s => {
+  ['orders','wish','recent','restock','profile','biz','address'].forEach(s => {
     const sec = document.getElementById('section-'+s);
     if(sec) sec.style.display = s===name ? 'block' : 'none';
   });
@@ -456,6 +466,7 @@ function showSection(name, el) {
   el.classList.add('active');
 
   if(name === 'wish') loadWishlist();
+  if(name === 'recent') loadRecentlyViewed();
   if(name === 'restock') loadRestockAlerts();
   if(name === 'address') loadAddresses();
 }
@@ -1343,6 +1354,78 @@ async function removeWish(productId) {
     console.error(e);
     alert('삭제 중 오류가 발생했습니다.');
   }
+}
+
+// ===================== 최근 본 상품 =====================
+// product.html에서 상품을 볼 때마다 localStorage(recentlyViewed)에 상품ID를 최신순으로 기록해둠
+const RECENT_VIEW_KEY = 'recentlyViewed';
+
+function getRecentlyViewedIds() {
+  try {
+    const raw = localStorage.getItem(RECENT_VIEW_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+async function loadRecentlyViewed() {
+  const listEl = document.getElementById('recentList');
+  const clearBtn = document.getElementById('clearRecentBtn');
+  listEl.innerHTML = `<div class="loading-box"><div class="spinner"></div>불러오는 중...</div>`;
+
+  const ids = getRecentlyViewedIds();
+  if(ids.length === 0) {
+    listEl.innerHTML = `<div class="empty-box">아직 본 상품이 없습니다.<br><span style="font-size:12px;color:var(--g3);">상품 상세페이지를 둘러보면 여기에 기록돼요.</span></div>`;
+    clearBtn.style.display = 'none';
+    return;
+  }
+
+  try {
+    const productDocs = await Promise.all(ids.map(id => _db.collection('products').doc(id).get()));
+    // localStorage에 저장된 최신순 그대로 유지, 삭제된 상품은 자동으로 걸러짐
+    const products = ids
+      .map(id => productDocs.find(d => d.id === id))
+      .filter(d => d && d.exists)
+      .map(d => ({ id: d.id, ...d.data() }));
+
+    if(products.length === 0) {
+      listEl.innerHTML = `<div class="empty-box">아직 본 상품이 없습니다.<br><span style="font-size:12px;color:var(--g3);">상품 상세페이지를 둘러보면 여기에 기록돼요.</span></div>`;
+      clearBtn.style.display = 'none';
+      return;
+    }
+
+    clearBtn.style.display = 'inline-block';
+    listEl.innerHTML = `<div class="wish-grid">${products.map(p => {
+      const hasImg = !!p.mainImageUrl;
+      const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : '👓';
+      const priceHtml = (currentUserData.member_level||0) >= 2
+        ? `₩${Number(p.price||0).toLocaleString()}`
+        : `🔒 로그인 후 확인`;
+      return `
+        <div class="wish-card" onclick="location.href='product.html?id=${p.id}'">
+          <button class="wish-del" onclick="event.stopPropagation();removeRecentlyViewed('${p.id}')">✕</button>
+          <div class="wish-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
+          <div class="wish-info">
+            <div class="wish-name">${p.modelName||'-'}</div>
+            <div class="wish-price">${priceHtml}</div>
+          </div>
+        </div>`;
+    }).join('')}</div>`;
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = `<div class="empty-box" style="color:var(--red);">불러오지 못했습니다.</div>`;
+  }
+}
+
+function removeRecentlyViewed(productId) {
+  const ids = getRecentlyViewedIds().filter(id => id !== productId);
+  localStorage.setItem(RECENT_VIEW_KEY, JSON.stringify(ids));
+  loadRecentlyViewed();
+}
+
+function clearRecentlyViewed() {
+  if(!confirm('최근 본 상품 목록을 전체 삭제하시겠습니까?')) return;
+  localStorage.removeItem(RECENT_VIEW_KEY);
+  loadRecentlyViewed();
 }
 
 // ===================== 재입고 알림 =====================
