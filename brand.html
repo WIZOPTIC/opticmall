@@ -1210,6 +1210,12 @@ function renderProductRowHtml(p, withActions) {
   const colorDisplay = hasColors ? (p.colorNames||p.colors.map(c=>c.colorName)).join(', ') : (p.color || '-');
   const stockDisplay = hasColors ? p.colors.reduce((sum,c) => sum + (Number(c.stock)||0), 0) : (p.stock ?? '-');
   const barcodeDisplay = hasColors ? p.colors.map(c=>c.barcode).filter(Boolean).join(', ') || '-' : (p.barcode || '-');
+  const priceDisplay = (() => {
+    if(!hasColors) return p.price ? '₩'+Number(p.price).toLocaleString() : '-';
+    const prices = p.colors.map(c => Number(c.price) || Number(p.price) || 0);
+    const min = Math.min(...prices), max = Math.max(...prices);
+    return min === max ? `₩${min.toLocaleString()}` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()}`;
+  })();
   return `
     <tr data-pid="${p.id}">
       <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb">` : `<div class="prod-thumb no-img">👓</div>`}</td>
@@ -1219,7 +1225,7 @@ function renderProductRowHtml(p, withActions) {
       <td style="font-size:12px;">${colorDisplay}</td>
       <td>${p.category||'-'}</td>
       <td>${p.type||'-'}</td>
-      <td class="cell-price">${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</td>
+      <td class="cell-price">${priceDisplay}</td>
       <td class="cell-stock">${stockDisplay}</td>
       <td><span class="badge ${statusClassMap[p.status]||'pending'}">${statusLabelMap[p.status]||'대기'}</span></td>
       ${withActions ? `
@@ -1325,6 +1331,7 @@ function renderEditColorCards() {
             onchange="updateEditColorField(${color.colorId},'price',this.value)">
         </div>
       </div>
+      <div id="edit-color-price-preview-${color.colorId}" style="font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getColorPricePreviewText({price: document.getElementById('editPrice')?.value, discountRate: document.getElementById('editDiscountRate')?.value}, color)}</div>
       <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
       <div class="color-img-row">
         ${SLOT_KEYS.map(slot => {
@@ -1347,6 +1354,14 @@ function updateEditColorField(colorId, field, value) {
   const color = editingColors.find(c => c.colorId === colorId);
   if(!color) return;
   color[field] = value;
+  if(field === 'price') updateEditColorPricePreview(colorId);
+}
+
+function updateEditColorPricePreview(colorId) {
+  const color = editingColors.find(c => c.colorId === colorId);
+  if(!color) return;
+  const el = document.getElementById(`edit-color-price-preview-${colorId}`);
+  if(el) el.textContent = getColorPricePreviewText({price: document.getElementById('editPrice')?.value, discountRate: document.getElementById('editDiscountRate')?.value}, color);
 }
 
 function addEditColor() {
@@ -1407,13 +1422,15 @@ function updateEditSalePricePreview() {
   const price = Number(document.getElementById('editPrice')?.value) || 0;
   const rate = Number(document.getElementById('editDiscountRate')?.value) || 0;
   const preview = document.getElementById('editSalePricePreview');
-  if(!preview) return;
-  if(rate > 0 && price > 0) {
-    const salePrice = Math.round(price * (1 - rate/100));
-    preview.value = `₩${salePrice.toLocaleString()} (${rate}% 할인)`;
-  } else {
-    preview.value = '할인 없음';
+  if(preview) {
+    if(rate > 0 && price > 0) {
+      const salePrice = Math.round(price * (1 - rate/100));
+      preview.value = `₩${salePrice.toLocaleString()} (${rate}% 할인)`;
+    } else {
+      preview.value = '할인 없음';
+    }
   }
+  (editingColors||[]).forEach(c => updateEditColorPricePreview(c.colorId));
 }
 
 function closeEditModal() {
@@ -1651,11 +1668,28 @@ function removeColorFromCard(cardId, colorId) {
   renderProductCards();
 }
 
+function getColorPricePreviewText(card, color) {
+  const basePrice = Number(card.price) || 0;
+  const hasOverride = color.price !== '' && color.price != null;
+  const effectivePrice = hasOverride ? Number(color.price) : basePrice;
+  if(effectivePrice <= 0) return '';
+  const rate = Number(card.discountRate) || 0;
+  const salePrice = rate > 0 ? Math.round(effectivePrice * (1 - rate/100)) : null;
+  let text = hasOverride
+    ? `✓ 이 색상만 ₩${effectivePrice.toLocaleString()}로 적용됨`
+    : `이 색상 판매가 ₩${effectivePrice.toLocaleString()} (기본가)`;
+  if(salePrice !== null) text += ` → 할인가 ₩${salePrice.toLocaleString()}`;
+  return text;
+}
+
 function updateCardField(cardId, field, value) {
   const card = productCards.find(c => c.cardId === cardId);
   if(card) {
     card[field] = value;
-    if(field === 'price' || field === 'discountRate') updateCardSalePreview(cardId);
+    if(field === 'price' || field === 'discountRate') {
+      updateCardSalePreview(cardId);
+      card.colors.forEach(c => updateColorPricePreview(cardId, c.colorId));
+    }
   }
 }
 
@@ -1672,7 +1706,19 @@ function updateColorField(cardId, colorId, field, value) {
   const card = productCards.find(c => c.cardId === cardId);
   if(!card) return;
   const color = card.colors.find(c => c.colorId === colorId);
-  if(color) color[field] = value;
+  if(color) {
+    color[field] = value;
+    if(field === 'price') updateColorPricePreview(cardId, colorId);
+  }
+}
+
+function updateColorPricePreview(cardId, colorId) {
+  const card = productCards.find(c => c.cardId === cardId);
+  if(!card) return;
+  const color = card.colors.find(c => c.colorId === colorId);
+  if(!color) return;
+  const el = document.getElementById(`color-price-preview-${cardId}-${colorId}`);
+  if(el) el.textContent = getColorPricePreviewText(card, color);
 }
 
 const SLOT_KEYS = ['main','detail1','detail2','detail3','detail4'];
@@ -1791,6 +1837,7 @@ function renderProductCards() {
                 onchange="updateColorField(${card.cardId},${color.colorId},'price',this.value)">
             </div>
           </div>
+          <div id="color-price-preview-${card.cardId}-${color.colorId}" style="font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getColorPricePreviewText(card, color)}</div>
           <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
           <div class="color-img-row">
             ${SLOT_KEYS.map(slot => {

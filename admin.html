@@ -1182,6 +1182,12 @@ function renderProductRow(p, isApprovalView) {
   const colorDisplay = hasColors ? (p.colorNames||p.colors.map(c=>c.colorName)).join(', ') : (p.color || '-');
   const stockDisplay = hasColors ? p.colors.reduce((sum,c) => sum + (Number(c.stock)||0), 0) : (p.stock ?? '-');
   const barcodeDisplay = hasColors ? p.colors.map(c=>c.barcode).filter(Boolean).join(', ') || '-' : (p.barcode || '-');
+  const priceDisplay = (() => {
+    if(!hasColors) return p.price ? '₩'+Number(p.price).toLocaleString() : '-';
+    const prices = p.colors.map(c => Number(c.price) || Number(p.price) || 0);
+    const min = Math.min(...prices), max = Math.max(...prices);
+    return min === max ? `₩${min.toLocaleString()}` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()}`;
+  })();
   return `
     <tr>
       <td>${thumb}</td>
@@ -1192,7 +1198,7 @@ function renderProductRow(p, isApprovalView) {
       <td style="font-size:12px;">${colorDisplay}</td>
       <td>${p.category||'-'}</td>
       <td>${p.type||'-'}</td>
-      <td>${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</td>
+      <td>${priceDisplay}</td>
       <td>${stockDisplay}</td>
       <td>${formatDate(p.createdAt)}</td>
       <td><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></td>
@@ -1776,6 +1782,7 @@ function renderAdminEditColorCards() {
             onchange="updateAdminEditColorField(${color.colorId},'price',this.value)">
         </div>
       </div>
+      <div id="admin-edit-color-price-preview-${color.colorId}" style="font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getAdminColorPricePreviewText(document.getElementById('aEditPrice')?.value, document.getElementById('aEditDiscountRate')?.value, color)}</div>
       <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
       <div class="color-img-row">
         ${A_SLOT_KEYS.map(slot => {
@@ -1794,10 +1801,32 @@ function renderAdminEditColorCards() {
   `).join('');
 }
 
+function getAdminColorPricePreviewText(basePriceVal, discountRateVal, color) {
+  const basePrice = Number(basePriceVal) || 0;
+  const hasOverride = color.price !== '' && color.price != null;
+  const effectivePrice = hasOverride ? Number(color.price) : basePrice;
+  if(effectivePrice <= 0) return '';
+  const rate = Number(discountRateVal) || 0;
+  const salePrice = rate > 0 ? Math.round(effectivePrice * (1 - rate/100)) : null;
+  let text = hasOverride
+    ? `✓ 이 색상만 ₩${effectivePrice.toLocaleString()}로 적용됨`
+    : `이 색상 판매가 ₩${effectivePrice.toLocaleString()} (기본가)`;
+  if(salePrice !== null) text += ` → 할인가 ₩${salePrice.toLocaleString()}`;
+  return text;
+}
+
 function updateAdminEditColorField(colorId, field, value) {
   const color = adminEditingColors.find(c => c.colorId === colorId);
   if(!color) return;
   color[field] = value;
+  if(field === 'price') updateAdminEditColorPricePreview(colorId);
+}
+
+function updateAdminEditColorPricePreview(colorId) {
+  const color = adminEditingColors.find(c => c.colorId === colorId);
+  if(!color) return;
+  const el = document.getElementById(`admin-edit-color-price-preview-${colorId}`);
+  if(el) el.textContent = getAdminColorPricePreviewText(document.getElementById('aEditPrice')?.value, document.getElementById('aEditDiscountRate')?.value, color);
 }
 
 function addAdminEditColor() {
@@ -1858,13 +1887,15 @@ function updateAdminSalePricePreview() {
   const price = Number(document.getElementById('aEditPrice')?.value) || 0;
   const rate = Number(document.getElementById('aEditDiscountRate')?.value) || 0;
   const preview = document.getElementById('aEditSalePricePreview');
-  if(!preview) return;
-  if(rate > 0 && price > 0) {
-    const salePrice = Math.round(price * (1 - rate/100));
-    preview.value = `₩${salePrice.toLocaleString()} (${rate}% 할인)`;
-  } else {
-    preview.value = '할인 없음';
+  if(preview) {
+    if(rate > 0 && price > 0) {
+      const salePrice = Math.round(price * (1 - rate/100));
+      preview.value = `₩${salePrice.toLocaleString()} (${rate}% 할인)`;
+    } else {
+      preview.value = '할인 없음';
+    }
   }
+  (adminEditingColors||[]).forEach(c => updateAdminEditColorPricePreview(c.colorId));
 }
 
 function closeAdminEditModal() {
