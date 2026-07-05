@@ -599,20 +599,25 @@ async function startPayment() {
   const shipmentsMap = {};
   orderItems.forEach(item => {
     const p = item.product;
-    const bId = p.brandId || 'unknown';
-    if(!shipmentsMap[bId]) {
-      shipmentsMap[bId] = {
-        brandId: bId,
-        brandName: p.brandName || '기타',
+    // 배송은 브랜드(brandId)가 아니라 "판매자 계정(brandOwnerUid)" 단위로 묶음 - 한 회사가 여러 브랜드를 운영해도 한 번에 포장/발송하기 때문
+    const ownerKey = p.brandOwnerUid || ('__nobrand_' + (p.brandId || 'unknown'));
+    if(!shipmentsMap[ownerKey]) {
+      shipmentsMap[ownerKey] = {
         brandOwnerUid: p.brandOwnerUid || '',
+        brandNameSet: new Set(),
         status: 'payment_pending',
         trackingCompany: '',
         trackingCompanyCode: '',
         trackingNumber: ''
       };
     }
+    shipmentsMap[ownerKey].brandNameSet.add(p.brandName || '기타');
   });
-  const shipments = Object.values(shipmentsMap);
+  const shipments = Object.values(shipmentsMap).map(s => {
+    const brandName = [...s.brandNameSet].join(', ');
+    const { brandNameSet, ...rest } = s;
+    return { ...rest, brandName };
+  });
   const shipmentBrandOwnerUids = [...new Set(shipments.map(s => s.brandOwnerUid).filter(Boolean))];
 
   // 주문 정보를 Firestore에 임시 저장 (결제 시도 단계, 상태: payment_pending)

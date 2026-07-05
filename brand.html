@@ -983,10 +983,12 @@ async function loadShipManage() {
     const rows = [];
     snap.forEach(d => {
       const o = d.data();
-      const myShipment = (o.shipments||[]).find(s => s.brandOwnerUid === uid);
-      if(!myShipment) return;
       // 취소/반품 관련 주문은 배송관리 대상에서 제외 (해당 흐름은 옵틱몰 마스터가 처리)
       if(['cancel_requested','return_requested','cancel_completed','cancelled'].includes(o.status)) return;
+
+      // 배송은 계정(brandOwnerUid) 단위로 하나 - 내 계정이 운영하는 브랜드가 여러 개여도 한 배송건으로 처리
+      const myShipment = (o.shipments||[]).find(s => s.brandOwnerUid === uid);
+      if(!myShipment) return;
       const myItems = (o.items||[]).filter(it => it.brandOwnerUid === uid);
       rows.push({
         orderDocId: d.id,
@@ -1036,7 +1038,7 @@ function renderShipManageTable() {
   tableEl.innerHTML = `
     <table>
       <thead><tr>
-        <th>주문일</th><th>주문번호</th><th>구매자</th><th>내 상품 (이 브랜드분)</th>
+        <th>주문일</th><th>주문번호</th><th>구매자</th><th>브랜드</th><th>내 상품</th>
         <th>상태</th><th>배송정보</th><th>처리</th>
       </tr></thead>
       <tbody>
@@ -1067,6 +1069,7 @@ function renderShipManageTable() {
               <td style="font-size:11px;white-space:nowrap;">${formatDate(r.createdAt)}</td>
               <td style="font-size:11px;color:var(--sky);cursor:pointer;text-decoration:underline;" onclick="openBrandOrderDetail('${r.orderDocId}')">${r.orderId}</td>
               <td>${r.userName}</td>
+              <td style="font-size:12px;font-weight:600;">${s.brandName||'-'}</td>
               <td style="font-size:12px;">${itemSummary}</td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>

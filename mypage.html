@@ -921,7 +921,7 @@ function buildBrandShipmentBreakdown(o) {
               <span class="status-pill ${info.cls}" style="font-size:12px;">${info.label}</span>
             </div>
             <div class="status-sub" style="margin-top:4px;">${sub}</div>
-            ${canTrack ? `<button class="ship-track-btn" style="margin-top:10px;margin-bottom:0;" onclick="openTrackModal('${o.id}','${s.brandId}')">배송조회</button>` : ''}
+            ${canTrack ? `<button class="ship-track-btn" style="margin-top:10px;margin-bottom:0;" onclick="openTrackModal('${o.id}','${s.brandOwnerUid}')">배송조회</button>` : ''}
           </div>`;
       }).join('')}
     </div>`;
@@ -978,13 +978,13 @@ function computeOverallOrderStatusClient(shipments) {
   return 'paid';
 }
 
-async function openTrackModal(orderId, brandId) {
+async function openTrackModal(orderId, brandOwnerUid) {
   const o = allOrdersCache.find(x => x.id === orderId);
   if(!o) return;
 
-  // 여러 브랜드가 섞인 주문이면 해당 브랜드의 배송묶음만, 아니면 주문 전체를 대상으로 함
-  const shipment = brandId && Array.isArray(o.shipments)
-    ? o.shipments.find(s => s.brandId === brandId)
+  // 여러 브랜드가 섞인 주문이면 해당 계정(브랜드사)의 배송묶음만, 아니면 주문 전체를 대상으로 함
+  const shipment = brandOwnerUid && Array.isArray(o.shipments)
+    ? o.shipments.find(s => s.brandOwnerUid === brandOwnerUid)
     : null;
   const target = shipment || o; // status/trackingCompany/trackingNumber/preparingAt 등을 여기서 읽음
 
@@ -1038,7 +1038,7 @@ async function openTrackModal(orderId, brandId) {
                 if(!freshSnap.exists) return;
                 const freshData = freshSnap.data();
                 const freshShipments = Array.isArray(freshData.shipments) ? [...freshData.shipments] : [];
-                const newShipments = freshShipments.map(s => s.brandId === brandId
+                const newShipments = freshShipments.map(s => s.brandOwnerUid === brandOwnerUid
                   ? { ...s, status: 'delivered', deliveredAt: new Date(), deliveredAutoDetected: true }
                   : s);
                 const overall = computeOverallOrderStatusClient(newShipments);
