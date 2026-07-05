@@ -1182,11 +1182,8 @@ function openTrackingPage(courierCode, courierName, trackingNumber) {
     ? urlBuilder(num)
     : `https://search.naver.com/search.naver?query=${encodeURIComponent((courierName||'택배')+' 배송조회 '+trackingNumber)}`;
 
-  // 새 탭 대신 작은 팝업창으로 오픈 (네이버 배송조회 팝업과 비슷한 느낌)
-  const w = 480, h = 720;
-  const left = Math.max(0, (window.screen.width - w) / 2);
-  const top = Math.max(0, (window.screen.height - h) / 2);
-  window.open(url, 'trackPopup', `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=yes`);
+  // 택배사 원본 페이지는 정보량이 많아 전체 화면(새 탭)으로 오픈
+  window.open(url, '_blank');
 }
 
 function copyTrackingNumber(num) {
