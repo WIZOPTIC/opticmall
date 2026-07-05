@@ -1,0 +1,2499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTICMALL 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--sky:#1B9FD8;--sky-lt:#E6F5FB;--navy:#1A2D4A;--white:#fff;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--orange:#F39C12;--sidebar:220px;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);display:flex;min-height:100vh;}
+
+/* 로그인 화면 */
+.login-screen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.login-box{background:var(--white);border-radius:12px;padding:40px;width:360px;text-align:center;}
+.login-logo{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.login-logo span{color:var(--sky);}
+.login-sub{font-size:12px;color:var(--g3);margin-bottom:24px;}
+.login-input{width:100%;padding:12px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px;transition:border-color 0.2s;}
+.login-input:focus{border-color:var(--sky);}
+.login-btn{width:100%;padding:13px;background:var(--sky);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.2s;}
+.login-btn:hover{background:#1480B0;}
+.login-error{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+
+/* 사이드바 */
+.sidebar{width:var(--sidebar);background:var(--navy);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sidebar-logo .logo{font-family:'Inter',sans-serif;font-size:18px;font-weight:800;color:var(--white);}
+.sidebar-logo .logo span{color:var(--sky);}
+.sidebar-logo .admin-badge{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;letter-spacing:0.1em;}
+.sidebar-menu{flex:1;padding:12px 0;overflow-y:auto;}
+.menu-section{padding:16px 20px 6px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:0.15em;text-transform:uppercase;}
+.menu-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);transition:all 0.15s;position:relative;border:none;background:none;width:100%;font-family:inherit;}
+.menu-item:hover{background:rgba(255,255,255,0.06);color:var(--white);}
+.menu-item.active{background:rgba(27,159,216,0.15);color:var(--white);}
+.menu-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sky);border-radius:0 2px 2px 0;}
+.menu-badge{margin-left:auto;background:var(--red);color:var(--white);font-size:10px;font-weight:700;padding:1px 6px;border-radius:100px;}
+.sidebar-user{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+.user-avatar{width:32px;height:32px;background:var(--sky);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);}
+.user-info .name{font-size:13px;font-weight:600;color:var(--white);}
+.user-info .role{font-size:11px;color:rgba(255,255,255,0.35);}
+.logout-btn{margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:18px;}
+.logout-btn:hover{color:var(--red);}
+
+/* 메인 */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--white);border-bottom:1px solid var(--g2);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;color:var(--navy);}
+.today{font-size:12px;color:var(--g3);}
+.content{padding:24px;flex:1;}
+
+/* 대시보드 카드 */
+.dash-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px;}
+.dash-card{background:var(--white);border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);position:relative;overflow:hidden;}
+.dash-card .label{font-size:12px;color:var(--g3);font-weight:500;margin-bottom:8px;}
+.dash-card .value{font-family:'Inter',sans-serif;font-size:28px;font-weight:800;color:var(--navy);}
+.dash-card .value span{font-size:14px;font-weight:500;color:var(--g3);}
+.dash-card .icon{position:absolute;right:16px;top:16px;font-size:28px;opacity:0.15;}
+
+/* 테이블 */
+.table-wrap{background:var(--white);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:16px;font-weight:700;color:var(--navy);}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--g1);}
+th{padding:12px 16px;font-size:11px;font-weight:700;color:var(--g4);text-align:left;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;}
+td{padding:14px 16px;font-size:13px;color:var(--black);border-bottom:1px solid var(--g1);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FAFBFC;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+.badge.pending{background:#FEF9E7;color:var(--orange);}
+.badge.approved{background:#E8FBF0;color:#27AE60;}
+.badge.rejected{background:#FEECEC;color:var(--red);}
+.badge.role-optician{background:#E6F5FB;color:var(--sky);}
+.badge.role-brand{background:#F3E8FF;color:#8E44AD;}
+.badge.role-master{background:#1A2D4A;color:var(--white);}
+.badge.role-submaster{background:#4A5A78;color:var(--white);}
+.role-select-box{display:flex;align-items:center;gap:10px;margin-top:8px;padding:14px;background:var(--g1);border-radius:8px;}
+.role-select-box select{flex:1;padding:9px 12px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);cursor:pointer;}
+.role-select-box select:focus{border-color:var(--sky);}
+.btn-role-save{padding:9px 16px;background:var(--navy);color:var(--white);border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background 0.15s;}
+.btn-role-save:hover{background:var(--sky);}
+.action-btns{display:flex;gap:6px;flex-wrap:nowrap;}
+.om-filter-btn{padding:8px 16px;border:1.5px solid var(--g2);background:var(--white);color:var(--g4);border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.om-filter-btn:hover{border-color:var(--sky);color:var(--sky);}
+.om-filter-btn.active{background:var(--navy);border-color:var(--navy);color:var(--white);}
+.btn-ship{padding:5px 12px;background:#E6F5FB;color:var(--sky);border:1px solid #A8D8EA;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-ship:hover{background:var(--sky);color:var(--white);}
+/* 상품 테이블 행 높이 고정 */
+#allProductsTable table td, #productApprovalTable table td { vertical-align:middle; white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis; padding:8px 10px; }
+#allProductsTable table td:first-child, #productApprovalTable table td:first-child { width:52px; max-width:52px; overflow:visible; }
+#allProductsTable table td:last-child, #productApprovalTable table td:last-child { max-width:none; overflow:visible; white-space:nowrap; }
+#allProductsTable table tr, #productApprovalTable table tr { height:64px; }
+.btn-approve{padding:5px 12px;background:#E8FBF0;color:#27AE60;border:1px solid #A8DDB8;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-approve:hover{background:#27AE60;color:var(--white);}
+.btn-reject{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-reject:hover{background:var(--red);color:var(--white);}
+.btn-view{padding:5px 12px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-edit-tbl{padding:5px 12px;background:var(--sky-lt);color:var(--sky);border:1px solid var(--sky);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* 상품 수정 모달 (마스터용) */
+.edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1500;}
+.edit-modal-overlay.open{display:flex;}
+.edit-modal-box{background:var(--white);border-radius:12px;width:560px;max-width:92vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+.edit-modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--g2);flex-shrink:0;}
+.edit-modal-title{font-size:16px;font-weight:700;color:var(--navy);}
+.edit-modal-close{width:30px;height:30px;border:none;background:var(--g1);border-radius:50%;cursor:pointer;font-size:14px;color:var(--g4);}
+.edit-modal-close:hover{background:var(--g2);}
+.edit-modal-body{padding:22px;overflow-y:auto;flex:1;}
+.edit-form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.edit-form-group label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px;}
+.edit-form-group input,.edit-form-group select{width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.edit-form-group input:focus,.edit-form-group select:focus{border-color:var(--sky);}
+.color-section-label{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.color-card{background:var(--g1);border-radius:10px;padding:16px;margin-bottom:10px;border:1.5px solid var(--g2);}
+.color-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.color-card-label{font-size:11px;font-weight:700;color:var(--g3);}
+.color-card-fields{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.color-card-fields label{display:block;font-size:11px;font-weight:700;color:var(--g4);margin-bottom:4px;}
+.color-card-fields input{width:100%;padding:8px 10px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);}
+.color-card-fields input:focus{border-color:var(--sky);}
+.color-img-row{display:flex;gap:8px;flex-wrap:wrap;}
+.color-img-slot{width:56px;height:56px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
+.color-img-slot:hover{border-color:var(--sky);color:var(--sky);}
+.color-img-slot.filled{border-style:solid;border-color:var(--green);}
+.color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.color-img-slot .slot-main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:7px;text-align:center;padding:1px 0;font-weight:700;}
+.color-img-slot .slot-del{position:absolute;top:1px;right:1px;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;}
+.add-color-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;background:var(--white);color:var(--sky);border:1.5px dashed var(--sky);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:4px;}
+.add-color-btn:hover{background:var(--sky-lt);}
+.del-color-btn{padding:5px 10px;background:var(--white);color:var(--red);border:1px solid var(--red);border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;margin-left:auto;}
+.edit-img-slot-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.edit-img-thumb-btn{width:64px;height:64px;border-radius:8px;border:1.5px dashed var(--g2);background:var(--g1);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
+.edit-img-thumb-btn:hover{border-color:var(--sky);color:var(--sky);}
+.edit-img-thumb-btn.filled{border-style:solid;border-color:var(--green);}
+.edit-img-thumb-btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.edit-img-thumb-btn .main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:8px;text-align:center;padding:1px 0;font-weight:700;}
+.edit-img-thumb-btn .del-x{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;}
+.edit-modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--g2);flex-shrink:0;}
+.product-search-bar{margin-bottom:14px;}
+.product-search-bar input{width:100%;max-width:360px;padding:10px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.product-search-bar input:focus{border-color:var(--sky);}
+.btn-bulk-save{padding:12px 28px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+.btn-ghost{padding:12px 24px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.hidden-file-input{display:none;}
+.btn-view:hover{background:var(--sky-lt);color:var(--sky);border-color:var(--sky);}
+.btn-sm{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all 0.15s;}
+.btn-primary{background:var(--sky);color:var(--white);}
+.btn-primary:hover{background:#1480B0;}
+
+/* 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--white);border-radius:12px;width:580px;max-width:90vw;max-height:85vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);display:flex;flex-direction:column;}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);}
+.modal-title{font-size:16px;font-weight:700;color:var(--navy);}
+.modal-close{width:30px;height:30px;border:none;background:var(--g1);border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--g4);}
+.modal-body{padding:24px;flex:1;overflow-y:auto;}
+.info-row{display:flex;margin-bottom:12px;gap:0;}
+.info-label{width:120px;font-size:12px;color:var(--g3);font-weight:600;flex-shrink:0;padding-top:2px;}
+.info-value{font-size:13px;color:var(--black);flex:1;word-break:break-all;}
+.doc-img{width:100%;border-radius:8px;border:1px solid var(--g2);margin:12px 0;cursor:pointer;}
+.doc-img:hover{opacity:0.9;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--g2);display:flex;gap:10px;justify-content:flex-end;}
+.btn-modal-approve{padding:10px 24px;background:var(--green);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+.btn-modal-approve:hover{background:#27AE60;}
+.btn-modal-reject{padding:10px 24px;background:var(--white);color:var(--red);border:1.5px solid var(--red);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+/* 토스트 */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:14px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:1000;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+
+/* 로딩 */
+.loading{text-align:center;padding:40px;color:var(--g3);}
+.spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* 페이지 */
+.page{display:none;}
+.page.active{display:block;}
+</style>
+</head>
+<body>
+
+<!-- 로그인 화면 -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">OPTIC<span>MALL</span></div>
+    <div class="login-sub">관리자 로그인</div>
+    <input class="login-input" type="email" placeholder="관리자 이메일" id="adminEmail">
+    <input class="login-input" type="password" placeholder="비밀번호" id="adminPw" onkeydown="if(event.key==='Enter') adminLogin()">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;margin-bottom:14px;">
+      <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
+    </label>
+    <button class="login-btn" onclick="adminLogin()">로그인</button>
+    <div class="login-error" id="loginError">이메일 또는 비밀번호가 올바르지 않습니다.</div>
+  </div>
+</div>
+
+<!-- 사이드바 -->
+<aside class="sidebar" id="sidebar" style="display:none;">
+  <div class="sidebar-logo">
+    <div class="logo">OPTIC<span>MALL</span></div>
+    <div class="admin-badge">ADMIN PANEL</div>
+  </div>
+  <nav class="sidebar-menu">
+    <div class="menu-section">메인</div>
+    <button class="menu-item active" onclick="showPage('dashboard',this)"><span>📊</span> 대시보드</button>
+    <div class="menu-section">회원 관리</div>
+    <button class="menu-item" onclick="showPage('approval',this)"><span>✅</span> 가입 승인 관리 <span class="menu-badge" id="pendingBadge">0</span></button>
+    <button class="menu-item" onclick="showPage('members',this)"><span>👥</span> 회원 목록</button>
+    <div class="menu-section">상품 관리</div>
+    <button class="menu-item" onclick="showPage('productApproval',this)"><span>📦</span> 상품 승인 관리 <span class="menu-badge" id="pendingProductBadge">0</span></button>
+    <button class="menu-item" onclick="showPage('allProducts',this)"><span>👓</span> 전체 상품 목록</button>
+    <div class="menu-section">프로모션</div>
+    <button class="menu-item" onclick="showPage('promoApproval',this)"><span>🎉</span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge">0</span></button>
+    <button class="menu-item" onclick="showPage('allPromos',this)"><span>🏷️</span> 전체 이벤트 목록</button>
+    <div class="menu-section">운영</div>
+    <button class="menu-item" onclick="showPage('orderManage',this)"><span>🚚</span> 주문/배송 관리 <span class="menu-badge" id="pendingShipBadge">0</span></button>
+    <button class="menu-item" onclick="showPage('cancelManage',this)"><span>🔄</span> 취소/반품 관리 <span class="menu-badge" id="pendingCancelBadge">0</span></button>
+    <button class="menu-item" id="settlementMenuItem" onclick="showPage('settlement',this)"><span>💰</span> 정산 관리</button>
+    <button class="menu-item" onclick="showPage('dashboard',this)"><span>⚙️</span> 설정</button>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar">관</div>
+    <div class="user-info">
+      <div class="name" id="adminName">관리자</div>
+      <div class="role" id="adminRoleBadge">마스터</div>
+    </div>
+    <button class="logout-btn" onclick="adminLogout()" title="로그아웃">⏻</button>
+  </div>
+</aside>
+
+<!-- 메인 -->
+<div class="main" id="mainArea" style="display:none;">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">대시보드</div>
+    <div class="today" id="todayDate"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- 대시보드 -->
+    <div class="page active" id="page-dashboard">
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="icon">👥</div>
+          <div class="label">전체 회원수</div>
+          <div class="value" id="totalMembers">-<span>명</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="icon">⏳</div>
+          <div class="label">승인 대기</div>
+          <div class="value" id="pendingCount" style="color:var(--orange);">-<span>건</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="icon">✅</div>
+          <div class="label">승인 완료</div>
+          <div class="value" id="approvedCount" style="color:var(--green);">-<span>명</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="icon">📅</div>
+          <div class="label">오늘 가입</div>
+          <div class="value" id="todayCount">-<span>명</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="icon">📦</div>
+          <div class="label">상품 승인 대기</div>
+          <div class="value" id="pendingProductCount" style="color:var(--orange);">-<span>건</span></div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">🔔 최근 승인 대기</div>
+        <button class="btn-sm btn-primary" onclick="showPage('approval', document.querySelector('.menu-item:nth-child(4)'))">전체보기</button>
+      </div>
+      <div class="table-wrap" id="dashPendingTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 가입 승인 관리 -->
+    <div class="page" id="page-approval">
+      <div class="section-header">
+        <div class="section-title">가입 승인 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadApproval()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="approvalTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 회원 목록 -->
+    <div class="page" id="page-members">
+      <div class="section-header">
+        <div class="section-title">회원 목록</div>
+        <button class="btn-sm btn-primary" onclick="loadMembers()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="membersTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 상품 승인 관리 -->
+    <div class="page" id="page-productApproval">
+      <div class="section-header">
+        <div class="section-title">상품 승인 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadProductApproval()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="productApprovalTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 전체 상품 목록 -->
+    <div class="page" id="page-allProducts">
+      <div class="section-header">
+        <div class="section-title">전체 상품 목록</div>
+        <button class="btn-sm btn-primary" onclick="loadAllProducts()">🔄 새로고침</button>
+      </div>
+      <div class="product-search-bar">
+        <input type="text" id="adminProductSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyAdminProductSearch()">
+      </div>
+      <div class="table-wrap" id="allProductsTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 주문/배송 관리 -->
+    <div class="page" id="page-orderManage">
+      <div class="section-header">
+        <div class="section-title">주문/배송 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadOrderManage()">🔄 새로고침</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;" id="orderManageFilters">
+        <button class="om-filter-btn active" data-status="all" onclick="filterOrderManage('all',this)">전체</button>
+        <button class="om-filter-btn" data-status="paid" onclick="filterOrderManage('paid',this)">결제완료</button>
+        <button class="om-filter-btn" data-status="preparing" onclick="filterOrderManage('preparing',this)">출고준비중</button>
+        <button class="om-filter-btn" data-status="shipping" onclick="filterOrderManage('shipping',this)">배송중</button>
+        <button class="om-filter-btn" data-status="delivered" onclick="filterOrderManage('delivered',this)">배송완료</button>
+      </div>
+      <div class="table-wrap" id="orderManageTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 취소/반품 관리 -->
+    <div class="page" id="page-cancelManage">
+      <div class="section-header">
+        <div class="section-title">취소/반품 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadCancelManage()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="cancelManageTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 이벤트 상세 모달 -->
+    <div class="modal-bg" id="promoDetailModal" style="display:none;">
+      <div class="modal" style="max-width:520px;width:92vw;">
+        <div class="modal-header">
+          <div class="modal-title">🎉 이벤트 상세</div>
+          <button class="modal-close" onclick="closePromoDetail()">✕</button>
+        </div>
+        <div class="modal-body" id="promoDetailBody" style="flex:1;overflow-y:auto;padding:20px;"></div>
+      </div>
+    </div>
+
+    <!-- 취소/반품 상세 모달 -->
+    <div class="modal-bg" id="cancelDetailModal" style="display:none;">
+      <div class="modal" style="max-width:560px;width:92vw;">
+        <div class="modal-header">
+          <div class="modal-title" id="cancelDetailTitle">취소 상세</div>
+          <button class="modal-close" onclick="closeCancelDetail()">✕</button>
+        </div>
+        <div class="modal-body" id="cancelDetailBody" style="flex:1;overflow-y:auto;padding:20px;"></div>
+        <div class="modal-footer" id="cancelDetailFooter"></div>
+      </div>
+    </div>
+
+    <!-- 배송 시작 처리 모달 -->
+    <div class="modal-bg" id="shipStartModal">
+      <div class="modal" style="max-width:420px;width:92vw;">
+        <div class="modal-header">
+          <div class="modal-title">🚚 배송 시작 처리</div>
+          <button class="modal-close" onclick="closeShipStartModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:12px;font-weight:700;color:var(--g4);margin-bottom:6px;">택배사</label>
+            <select id="shipCourierSelect" onchange="onShipCourierChange()" style="width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+              <option value="04">CJ대한통운</option>
+              <option value="01">우체국택배</option>
+              <option value="08">롯데택배</option>
+              <option value="05">한진택배</option>
+              <option value="06">로젠택배</option>
+              <option value="24">GS Postbox 택배</option>
+              <option value="46">CU 편의점택배</option>
+              <option value="22">대신택배</option>
+              <option value="23">경동택배</option>
+              <option value="etc">기타(직접입력)</option>
+            </select>
+          </div>
+          <div id="shipCourierEtcWrap" style="display:none;margin-bottom:16px;">
+            <label style="display:block;font-size:12px;font-weight:700;color:var(--g4);margin-bottom:6px;">택배사명 직접입력</label>
+            <input type="text" id="shipCourierEtc" placeholder="택배사명을 입력하세요" style="width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:var(--g4);margin-bottom:6px;">운송장 번호</label>
+            <input type="text" id="shipTrackingNumberInput" placeholder="운송장 번호를 입력하세요" style="width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+          </div>
+          <div style="font-size:11px;color:var(--g3);margin-top:12px;line-height:1.6;">💡 택배사를 정확히 선택해두면, 추후 택배사 자동조회 연동 시 별도 작업 없이 바로 배송상태가 자동으로 갱신돼요.</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-sm btn-ghost" onclick="closeShipStartModal()">취소</button>
+          <button class="btn-sm btn-primary" onclick="confirmShipStart()">배송시작 처리</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 이벤트 승인 관리 -->
+    <div class="page" id="page-promoApproval">
+      <div class="section-header">
+        <div class="section-title">이벤트 승인 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadPromoApproval()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="promoApprovalTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 전체 이벤트 목록 -->
+    <div class="page" id="page-allPromos">
+      <div class="section-header">
+        <div class="section-title">전체 이벤트 목록</div>
+        <button class="btn-sm btn-primary" onclick="loadAllPromos()">🔄 새로고침</button>
+      </div>
+      <div class="table-wrap" id="allPromosTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 정산 관리 (마스터 전용) -->
+    <div class="page" id="page-settlement">
+      <div class="section-header">
+        <div class="section-title">정산 관리 <span style="font-size:12px;color:var(--g3);font-weight:500;">월말 정산 기준</span></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="settlementMonth" onchange="loadSettlement()" style="padding:8px 12px;border-radius:6px;border:1px solid var(--g2);font-family:inherit;font-size:13px;"></select>
+          <button class="btn-sm btn-primary" onclick="loadSettlement()">🔄 새로고침</button>
+        </div>
+      </div>
+      <div class="dash-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="dash-card">
+          <div class="label">이번 달 총 매출</div>
+          <div class="value" id="settleTotalSales">-<span>원</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="label">정산 대상 브랜드 수</div>
+          <div class="value" id="settleBrandCount" style="color:var(--sky);">-<span>개사</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="label">정산 대기 주문</div>
+          <div class="value" id="settleOrderCount" style="color:var(--orange);">-<span>건</span></div>
+        </div>
+      </div>
+      <div class="table-wrap" id="settlementTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 회원 상세 모달 -->
+<div class="modal-bg" id="memberModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">회원 상세 정보</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- 상품 상세 모달 -->
+<div class="modal-bg" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">상품 상세 정보</div>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body" id="productModalBody"></div>
+    <div class="modal-footer" id="productModalFooter"></div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<!-- 상품 수정 모달 (마스터 전체수정용) -->
+<div class="edit-modal-overlay" id="adminEditModalOverlay">
+  <div class="edit-modal-box">
+    <div class="edit-modal-header">
+      <div class="edit-modal-title">상품 정보 수정 (관리자)</div>
+      <button class="edit-modal-close" onclick="closeAdminEditModal()">✕</button>
+    </div>
+    <div class="edit-modal-body">
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>모델명 <span style="color:var(--red);">*</span></label>
+          <input type="text" id="aEditModelName">
+        </div>
+        <div class="edit-form-group">
+          <label>사이즈</label>
+          <input type="text" id="aEditSize" placeholder="53-20-149">
+        </div>
+      </div>
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>기본 정가 <span style="color:var(--red);">*</span></label>
+          <input type="number" id="aEditPrice" onchange="updateAdminSalePricePreview()">
+        </div>
+        <div class="edit-form-group">
+          <label style="color:var(--g3);">할인가 (자동계산)</label>
+          <input type="text" id="aEditSalePricePreview" disabled style="background:var(--g1);color:var(--sky);font-weight:700;">
+        </div>
+      </div>
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>카테고리</label>
+          <select id="aEditCategory">
+            <option value="">선택</option>
+            <option value="하금테">하금테</option>
+            <option value="뿔테">뿔테</option>
+            <option value="메탈">메탈</option>
+            <option value="선글라스">선글라스</option>
+          </select>
+        </div>
+        <div class="edit-form-group">
+          <label>타입</label>
+          <select id="aEditType">
+            <option value="">선택</option>
+            <option value="하프">하프</option>
+            <option value="온">온</option>
+            <option value="림리스">림리스</option>
+          </select>
+        </div>
+      </div>
+      <div class="edit-form-row">
+        <div class="edit-form-group">
+          <label>할인율 (%)</label>
+          <input type="number" id="aEditDiscountRate" placeholder="0 (할인 없음)" min="0" max="99" onchange="updateAdminSalePricePreview()">
+        </div>
+        <div></div>
+      </div>
+      <div class="edit-form-group" style="margin-bottom:14px;">
+        <label>소속 브랜드</label>
+        <input type="text" id="aEditBrandDisplay" disabled style="background:var(--g1);color:var(--g3);">
+      </div>
+
+      <div class="color-section-label">
+        🎨 색상별 정보
+        <span id="aEditColorCountLabel" style="font-size:11px;color:var(--g3);font-weight:400;"></span>
+      </div>
+      <div id="aEditColorCardsWrap"></div>
+      <button type="button" class="add-color-btn" onclick="addAdminEditColor()">+ 색상 추가</button>
+    </div>
+    <div class="edit-modal-footer">
+      <button class="btn-sm btn-ghost" onclick="closeAdminEditModal()">취소</button>
+      <button class="btn-bulk-save" id="aEditModalSaveBtn" onclick="saveAdminProductEdit()">저장하기</button>
+    </div>
+  </div>
+</div>
+<input type="file" class="hidden-file-input" id="aEditImgFileInput" accept="image/*" style="display:none;">
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// 전역 노출
+window._auth = auth;
+window._db = db;
+window._storage = storage;
+window._ref = ref;
+window._uploadBytes = uploadBytes;
+window._getDownloadURL = getDownloadURL;
+window._signIn = signInWithEmailAndPassword;
+window._setPersistence = setPersistence;
+window._localPersistence = browserLocalPersistence;
+window._sessionPersistence = browserSessionPersistence;
+window._signOut = signOut;
+window._collection = collection;
+window._getDocs = getDocs;
+window._doc = doc;
+window._getDoc = getDoc;
+window._updateDoc = updateDoc;
+window._deleteDoc = deleteDoc;
+window._query = query;
+window._orderBy = orderBy;
+window._where = where;
+window._serverTimestamp = serverTimestamp;
+window._runTransaction = runTransaction;
+
+// 로그인 상태 + 권한 감지
+let currentAdminRole = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const role = userData.role || 'optician';
+
+      if (role !== 'master' && role !== 'submaster') {
+        // 관리자 권한이 없으면 접근 차단
+        await signOut(auth);
+        alert('관리자 권한이 없는 계정입니다.');
+        return;
+      }
+
+      currentAdminRole = role;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('sidebar').style.display = 'flex';
+      document.getElementById('mainArea').style.display = 'flex';
+      document.getElementById('adminName').textContent = userData.name || user.email.split('@')[0];
+
+      // 서브마스터는 정산 메뉴 숨김
+      const settlementMenu = document.getElementById('settlementMenuItem');
+      if(settlementMenu) settlementMenu.style.display = (role === 'master') ? '' : 'none';
+
+      // 사이드바에 역할 뱃지 표시
+      const roleBadgeEl = document.getElementById('adminRoleBadge');
+      if(roleBadgeEl) roleBadgeEl.textContent = role === 'master' ? '마스터' : '서브마스터';
+
+      loadDashboard();
+    } catch(e) {
+      console.error(e);
+      alert('권한 확인 중 오류가 발생했습니다.');
+    }
+  } else {
+    currentAdminRole = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('mainArea').style.display = 'none';
+  }
+});
+
+window._getCurrentAdminRole = () => currentAdminRole;
+</script>
+
+<script>
+// 정산 페이지 접근 시 권한 재확인 (서브마스터 차단, 직접 호출 방지)
+function guardSettlementAccess() {
+  if(window._getCurrentAdminRole() !== 'master') {
+    showToast('정산 화면은 마스터 권한만 접근 가능합니다.', 'error');
+    return false;
+  }
+  return true;
+}
+</script>
+
+<script>
+// 날짜
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'short'});
+
+// 토스트
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// 관리자 로그인
+async function adminLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const pw = document.getElementById('adminPw').value;
+  const keepLogin = document.getElementById('keepLoginChk').checked;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  try {
+    const persistence = keepLogin ? window._localPersistence : window._sessionPersistence;
+    await window._setPersistence(window._auth, persistence);
+    await window._signIn(window._auth, email, pw);
+  } catch(e) {
+    errEl.style.display = 'block';
+  }
+}
+
+// 로그아웃
+async function adminLogout() {
+  if(confirm('로그아웃 하시겠습니까?')) {
+    await window._signOut(window._auth);
+  }
+}
+
+// 페이지 전환
+function showPage(name, el) {
+  // 정산 페이지는 마스터 전용 가드
+  if(name === 'settlement' && !guardSettlementAccess()) return;
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리'};
+  document.getElementById('pageTitle').textContent = titles[name] || '';
+  if(name === 'approval') loadApproval();
+  if(name === 'members') loadMembers();
+  if(name === 'productApproval') loadProductApproval();
+  if(name === 'allProducts') loadAllProducts();
+  if(name === 'promoApproval') loadPromoApproval();
+  if(name === 'allPromos') loadAllPromos();
+  if(name === 'orderManage') loadOrderManage();
+  if(name === 'cancelManage') loadCancelManage();
+  if(name === 'settlement') loadSettlement();
+}
+
+// 날짜 포맷
+function formatDate(ts) {
+  if(!ts) return '-';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('ko-KR', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+// 대시보드 로드
+async function loadDashboard() {
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    const users = [];
+    snap.forEach(d => users.push({id:d.id,...d.data()}));
+
+    const total = users.length;
+    const pending = users.filter(u => u.approval_status === 'pending');
+    const approved = users.filter(u => u.approval_status === 'approved');
+    const today = users.filter(u => {
+      if(!u.createdAt) return false;
+      const d = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+      return d.toDateString() === new Date().toDateString();
+    });
+
+    document.getElementById('totalMembers').innerHTML = total + '<span>명</span>';
+    document.getElementById('pendingCount').innerHTML = pending.length + '<span>건</span>';
+    document.getElementById('approvedCount').innerHTML = approved.length + '<span>명</span>';
+    document.getElementById('todayCount').innerHTML = today.length + '<span>명</span>';
+    document.getElementById('pendingBadge').textContent = pending.length;
+
+    // 상품 승인대기 카운트
+    try {
+      const prodSnap = await window._getDocs(window._collection(window._db, 'products'));
+      let pendingProductCount = 0;
+      prodSnap.forEach(d => { if(d.data().status === 'pending') pendingProductCount++; });
+      document.getElementById('pendingProductCount').innerHTML = pendingProductCount + '<span>건</span>';
+      document.getElementById('pendingProductBadge').textContent = pendingProductCount;
+    } catch(e) { console.error('상품 카운트 로드 실패', e); }
+
+    // 이벤트 승인대기 카운트
+    try {
+      const promoSnap = await window._getDocs(window._collection(window._db, 'promotions'));
+      let pendingPromoCount = 0;
+      promoSnap.forEach(d => { if(d.data().status === 'pending') pendingPromoCount++; });
+      document.getElementById('pendingPromoBadge').textContent = pendingPromoCount;
+    } catch(e) { console.error('이벤트 카운트 로드 실패', e); }
+
+    // 취소/반품 신청 건수
+    try {
+      const cancelSnap = await window._getDocs(window._query(
+        window._collection(window._db, 'orders'),
+        window._where('status', 'in', ['cancel_requested', 'return_requested'])
+      ));
+      const cancelCount = cancelSnap.size || 0;
+      const badge = document.getElementById('pendingCancelBadge');
+      if(badge) badge.textContent = cancelCount || '';
+    } catch(e) { console.error('취소 카운트 로드 실패', e); }
+
+    // 배송 처리 필요 건수 (결제완료~출고준비중)
+    try {
+      const shipSnap = await window._getDocs(window._query(
+        window._collection(window._db, 'orders'),
+        window._where('status', 'in', ['payment_window_passed', 'paid', 'preparing'])
+      ));
+      const shipCount = shipSnap.size || 0;
+      const shipBadge = document.getElementById('pendingShipBadge');
+      if(shipBadge) shipBadge.textContent = shipCount || '';
+    } catch(e) { console.error('배송 카운트 로드 실패', e); }
+
+    // 대시보드 최근 대기 목록
+    const tableEl = document.getElementById('dashPendingTable');
+    if(pending.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--g3);">승인 대기 회원이 없습니다 😊</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>신청일</th><th>이름</th><th>안경원명</th>
+          <th>사업자번호</th><th>지역</th><th>처리</th>
+        </tr></thead>
+        <tbody>
+          ${pending.slice(0,5).map(u => `
+            <tr>
+              <td>${formatDate(u.createdAt)}</td>
+              <td><strong>${u.name||'-'}</strong></td>
+              <td>${u.storeName||'-'}</td>
+              <td>${u.bizNo||'-'}</td>
+              <td>${u.address?.addr1?.split(' ').slice(0,2).join(' ')||'-'}</td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-view" onclick="openModal('${u.id}')">📄 상세보기</button>
+                  <button class="btn-approve" onclick="approveUser('${u.id}', this)">✅ 승인</button>
+                  <button class="btn-reject" onclick="rejectUser('${u.id}', this)">❌ 거절</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    console.error(e);
+    showToast('데이터 로드 실패: ' + e.message, 'error');
+  }
+}
+
+// 승인 관리 로드
+async function loadApproval() {
+  const tableEl = document.getElementById('approvalTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    const users = [];
+    snap.forEach(d => users.push({id:d.id,...d.data()}));
+    const pending = users.filter(u => u.approval_status === 'pending');
+
+    if(pending.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">🎉 승인 대기 회원이 없습니다!</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>신청일</th><th>이름</th><th>안경원명</th>
+          <th>사업자번호</th><th>면허번호</th><th>지역</th><th>서류</th><th>상태</th><th>처리</th>
+        </tr></thead>
+        <tbody>
+          ${pending.map(u => `
+            <tr id="row-${u.id}">
+              <td>${formatDate(u.createdAt)}</td>
+              <td><strong>${u.name||'-'}</strong></td>
+              <td>${u.storeName||'-'}</td>
+              <td>${u.bizNo||'-'}</td>
+              <td>${u.licenseNo||'-'}</td>
+              <td>${u.address?.addr1?.split(' ').slice(0,2).join(' ')||'-'}</td>
+              <td><button class="btn-view" onclick="openModal('${u.id}')">📄 보기</button></td>
+              <td><span class="badge pending">대기</span></td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-approve" onclick="approveUser('${u.id}', this)">✅ 승인</button>
+                  <button class="btn-reject" onclick="rejectUser('${u.id}', this)">❌ 거절</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+// 회원 목록 로드
+async function loadMembers() {
+  const tableEl = document.getElementById('membersTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    const users = [];
+    snap.forEach(d => users.push({id:d.id,...d.data()}));
+    users.sort((a,b) => {
+      const da = a.createdAt?.toDate?.() || new Date(0);
+      const db2 = b.createdAt?.toDate?.() || new Date(0);
+      return db2 - da;
+    });
+
+    const statusMap = {pending:'pending', approved:'approved', rejected:'rejected'};
+    const labelMap = {pending:'대기', approved:'승인', rejected:'거절'};
+    const roleLabelMap = {optician:'안경원', brand:'브랜드사', submaster:'서브마스터', master:'마스터'};
+    const roleClassMap = {optician:'role-optician', brand:'role-brand', submaster:'role-submaster', master:'role-master'};
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>가입일</th><th>이름</th><th>이메일</th>
+          <th>안경원명/브랜드명</th><th>지역</th><th>유형</th><th>등급</th><th>상태</th><th>관리</th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u => {
+            const role = u.role || 'optician';
+            const lvInfo = PURCHASE_LEVELS.find(l=>l.level===(u.purchase_level||1)) || PURCHASE_LEVELS[0];
+            return `
+            <tr>
+              <td>${formatDate(u.createdAt)}</td>
+              <td><strong>${u.name||'-'}</strong></td>
+              <td style="font-size:12px;">${u.email||'-'}</td>
+              <td>${u.storeName||u.brandName||'-'}</td>
+              <td>${u.address?.addr1?.split(' ').slice(0,2).join(' ')||'-'}</td>
+              <td><span class="badge ${roleClassMap[role]}">${roleLabelMap[role]}</span></td>
+              <td style="font-size:12px;">${role==='optician' ? lvInfo.name : '-'}</td>
+              <td><span class="badge ${statusMap[u.approval_status]||'pending'}">${labelMap[u.approval_status]||'대기'}</span></td>
+              <td><button class="btn-view" onclick="openModal('${u.id}')">상세보기</button></td>
+            </tr>
+          `}).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패</div>';
+  }
+}
+
+// 모달 열기
+let currentUserId = null;
+let allUsers = {};
+
+// ===================== 구매등급 체계 =====================
+const PURCHASE_LEVELS = [
+  { level: 1, name: '화이트', min: 0 },
+  { level: 2, name: '실버', min: 1000000 },
+  { level: 3, name: '골드', min: 3000000 },
+  { level: 4, name: '플래티넘', min: 5000000 },
+  { level: 5, name: '옵틱 마스터', min: 10000000 }
+];
+
+async function openModal(uid) {
+  currentUserId = uid;
+  const modal = document.getElementById('memberModal');
+  const body = document.getElementById('modalBody');
+  const footer = document.getElementById('modalFooter');
+  body.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  footer.innerHTML = '';
+  modal.classList.add('open');
+
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    let user = null;
+    snap.forEach(d => { if(d.id === uid) user = {id:d.id,...d.data()}; });
+    if(!user) { body.innerHTML = '회원 정보를 찾을 수 없습니다.'; return; }
+    allUsers[uid] = user;
+
+    const role = user.role || 'optician';
+    const roleLabelMap = {optician:'안경원', brand:'브랜드사', master:'마스터'};
+
+    body.innerHTML = `
+      <div class="info-row"><div class="info-label">이름</div><div class="info-value"><strong>${user.name||'-'}</strong></div></div>
+      <div class="info-row"><div class="info-label">이메일</div><div class="info-value">${user.email||'-'}</div></div>
+      <div class="info-row"><div class="info-label">휴대폰</div><div class="info-value">${user.phone||'-'}</div></div>
+      <div class="info-row"><div class="info-label">안경원명</div><div class="info-value">${user.storeName||'-'}</div></div>
+      <div class="info-row"><div class="info-label">브랜드명</div><div class="info-value">${user.brandName||'-'}</div></div>
+      <div class="info-row"><div class="info-label">사업자번호</div><div class="info-value">${user.bizNo||'-'}</div></div>
+      <div class="info-row"><div class="info-label">면허번호</div><div class="info-value">${user.licenseNo||'-'}</div></div>
+      <div class="info-row"><div class="info-label">주소</div><div class="info-value">${user.address?.addr1||''} ${user.address?.addr2||''}</div></div>
+      <div class="info-row"><div class="info-label">신청일</div><div class="info-value">${formatDate(user.createdAt)}</div></div>
+      <div class="info-row"><div class="info-label">상태</div><div class="info-value"><span class="badge ${user.approval_status||'pending'}">${user.approval_status==='approved'?'승인완료':user.approval_status==='rejected'?'거절':'승인대기'}</span></div></div>
+      <div class="info-row"><div class="info-label">누적구매액</div><div class="info-value">₩${Number(user.total_purchase_amount||0).toLocaleString()}</div></div>
+      <div class="info-row"><div class="info-label">구매등급</div><div class="info-value"><strong>${PURCHASE_LEVELS.find(l=>l.level===(user.purchase_level||1))?.name || '화이트'}</strong></div></div>
+
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🏆 구매등급 수동 조정</div>
+      <div class="role-select-box">
+        <select id="purchaseLevelSelect-${uid}">
+          ${PURCHASE_LEVELS.map(lv => `<option value="${lv.level}" ${ (user.purchase_level||1)===lv.level ? 'selected':''}>${lv.name} (₩${lv.min.toLocaleString()}~)</option>`).join('')}
+        </select>
+        <button class="btn-role-save" onclick="changePurchaseLevel('${uid}')">등급 변경</button>
+      </div>
+
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🔑 회원 권한 설정</div>
+      <div class="role-select-box">
+        <select id="roleSelect-${uid}">
+          <option value="optician" ${role==='optician'?'selected':''}>안경원 (구매 전용)</option>
+          <option value="brand" ${role==='brand'?'selected':''}>브랜드사 (상품 등록 권한)</option>
+          <option value="submaster" ${role==='submaster'?'selected':''}>서브마스터 (운영 관리, 정산 제외)</option>
+          <option value="master" ${role==='master'?'selected':''}>마스터 (전체 관리)</option>
+        </select>
+        <button class="btn-role-save" onclick="changeRole('${uid}')">권한 변경</button>
+      </div>
+
+      ${role === 'brand' ? `
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">🏪 등록한 브랜드 목록</div>
+      <div id="ownedBrandsList-${uid}" style="background:var(--g1);border-radius:8px;padding:14px;font-size:12px;color:var(--g3);">불러오는 중...</div>
+      <div style="font-size:11px;color:var(--g3);margin-top:6px;line-height:1.6;">
+        브랜드(로고/이름) 추가 및 수정은 브랜드사 계정의 "내 브랜드 관리"에서 직접 처리합니다.
+      </div>` : ''}
+
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">📄 사업자등록증</div>
+      ${user.bizDocUrl ?
+        `<img src="${user.bizDocUrl}" class="doc-img" onclick="window.open('${user.bizDocUrl}','_blank')" title="클릭하면 크게 보기">
+         <div style="font-size:11px;color:var(--g3);text-align:center;">이미지 클릭 시 크게 보기</div>` :
+        `<div style="background:var(--g1);border-radius:8px;padding:20px;text-align:center;color:var(--g3);">업로드된 서류가 없습니다.</div>`
+      }`;
+
+    // 브랜드사 계정이면 등록한 서브브랜드 목록을 비동기로 불러와 표시
+    if(role === 'brand') {
+      const listEl = document.getElementById('ownedBrandsList-' + uid);
+      if(listEl) {
+        try {
+          const brandSnap = await window._getDocs(window._query(
+            window._collection(window._db, 'brands'),
+            window._where('ownerUid', '==', uid)
+          ));
+          const owned = [];
+          brandSnap.forEach(d => owned.push({ id: d.id, ...d.data() }));
+          if(owned.length === 0) {
+            listEl.innerHTML = '등록된 브랜드가 없습니다.';
+          } else {
+            listEl.innerHTML = owned.map(b => `
+              <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--g2);">
+                <div style="width:28px;height:28px;border-radius:6px;background:var(--white);border:1px solid var(--g2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                  ${b.logoUrl ? `<img src="${b.logoUrl}" style="width:100%;height:100%;object-fit:contain;">` : '🏪'}
+                </div>
+                <span style="color:var(--navy);font-weight:600;">${b.brandName}</span>
+              </div>
+            `).join('');
+          }
+        } catch(e) {
+          listEl.innerHTML = '브랜드 목록을 불러오지 못했습니다.';
+        }
+      }
+    }
+
+    // 대기 상태일 때만 승인/거절 버튼
+    if(user.approval_status === 'pending') {
+      footer.innerHTML = `
+        <button class="btn-modal-reject" onclick="rejectUser('${uid}', null, true)">❌ 거절</button>
+        <button class="btn-modal-approve" onclick="approveUser('${uid}', null, true)">✅ 승인하기</button>`;
+    } else {
+      footer.innerHTML = `<div style="font-size:13px;color:var(--g3);">이미 처리된 회원입니다.</div>`;
+    }
+  } catch(e) {
+    body.innerHTML = '오류: ' + e.message;
+  }
+}
+
+function closeModal() {
+  document.getElementById('memberModal').classList.remove('open');
+  currentUserId = null;
+}
+
+// 권한 변경
+async function changeRole(uid) {
+  const select = document.getElementById('roleSelect-' + uid);
+  const newRole = select.value;
+  const roleLabelMap = {optician:'안경원', brand:'브랜드사', submaster:'서브마스터', master:'마스터'};
+
+  if(!confirm(`이 회원의 권한을 [${roleLabelMap[newRole]}]로 변경하시겠습니까?`)) return;
+
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      role: newRole,
+      roleUpdatedAt: window._serverTimestamp()
+    });
+    showToast(`✅ 권한이 [${roleLabelMap[newRole]}]로 변경되었습니다.`, 'success');
+    closeModal();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
+    if(document.getElementById('page-approval').classList.contains('active')) loadApproval();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 구매등급 수동 변경
+async function changePurchaseLevel(uid) {
+  const select = document.getElementById('purchaseLevelSelect-' + uid);
+  const newLevel = Number(select.value);
+  const lvInfo = PURCHASE_LEVELS.find(l => l.level === newLevel);
+
+  if(!confirm(`이 회원의 구매등급을 [${lvInfo.name}]로 변경하시겠습니까?\n(누적구매액은 변경되지 않고 등급만 수동으로 조정됩니다.)`)) return;
+
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      purchase_level: newLevel,
+      purchase_level_name: lvInfo.name,
+      purchase_level_manual: true
+    });
+    showToast(`✅ 구매등급이 [${lvInfo.name}]로 변경되었습니다.`, 'success');
+    closeModal();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 브랜드관 표시정보(브랜드명/소개글) 수정 - 마스터가 보정 가능
+// 승인
+async function approveUser(uid, btn, fromModal=false) {
+  if(!confirm('승인하시겠습니까?\n승인 시 도매가 확인 및 주문이 가능해집니다.')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      approval_status: 'approved',
+      member_level: 2,
+      approvedAt: window._serverTimestamp()
+    });
+    showToast('✅ 승인 완료! 회원에게 알림을 보내주세요.', 'success');
+    if(fromModal) closeModal();
+    loadDashboard();
+    if(document.getElementById('page-approval').classList.contains('active')) loadApproval();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 거절
+async function rejectUser(uid, btn, fromModal=false) {
+  const reason = prompt('거절 사유를 입력해주세요 (선택사항):') ;
+  if(reason === null) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), {
+      approval_status: 'rejected',
+      member_level: 0,
+      rejectedAt: window._serverTimestamp(),
+      rejectReason: reason || '서류 미흡'
+    });
+    showToast('거절 처리되었습니다.', 'error');
+    if(fromModal) closeModal();
+    loadDashboard();
+    if(document.getElementById('page-approval').classList.contains('active')) loadApproval();
+    if(document.getElementById('page-members').classList.contains('active')) loadMembers();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 모달 배경 클릭
+document.getElementById('memberModal').addEventListener('click', function(e) {
+  if(e.target === this) closeModal();
+});
+
+// ESC 키
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') { closeModal(); closeProductModal(); }
+});
+
+// ===================== 상품 관리 =====================
+const prodStatusLabelMap = {pending:'승인대기', approved:'판매중', rejected:'반려'};
+const prodStatusClassMap = {pending:'pending', approved:'approved', rejected:'rejected'};
+
+async function fetchAllProducts() {
+  const snap = await window._getDocs(window._collection(window._db, 'products'));
+  const products = [];
+  snap.forEach(d => products.push({id:d.id, ...d.data()}));
+  products.sort((a,b) => {
+    const da = a.createdAt?.toDate?.() || new Date(0);
+    const dbb = b.createdAt?.toDate?.() || new Date(0);
+    return dbb - da;
+  });
+  return products;
+}
+
+function renderProductRow(p, isApprovalView) {
+  const thumb = p.mainImageUrl
+    ? `<img src="${p.mainImageUrl}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">`
+    : `<div style="width:44px;height:44px;border-radius:8px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0.3;">👓</div>`;
+  const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
+  const colorDisplay = hasColors ? (p.colorNames||p.colors.map(c=>c.colorName)).join(', ') : (p.color || '-');
+  const stockDisplay = hasColors ? p.colors.reduce((sum,c) => sum + (Number(c.stock)||0), 0) : (p.stock ?? '-');
+  const barcodeDisplay = hasColors ? p.colors.map(c=>c.barcode).filter(Boolean).join(', ') || '-' : (p.barcode || '-');
+  const priceDisplay = (() => {
+    if(!hasColors) return p.price ? '₩'+Number(p.price).toLocaleString() : '-';
+    const prices = p.colors.map(c => Number(c.price) || Number(p.price) || 0);
+    const min = Math.min(...prices), max = Math.max(...prices);
+    return min === max ? `₩${min.toLocaleString()}` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()}`;
+  })();
+  return `
+    <tr>
+      <td>${thumb}</td>
+      <td><strong>${p.modelName||'-'}</strong></td>
+      <td style="font-size:12px;">${barcodeDisplay}</td>
+      <td style="font-size:12px;">${p.size||'-'}</td>
+      <td>${p.brandName||'-'}</td>
+      <td style="font-size:12px;">${colorDisplay}</td>
+      <td>${p.category||'-'}</td>
+      <td>${p.type||'-'}</td>
+      <td>${priceDisplay}</td>
+      <td>${stockDisplay}</td>
+      <td>${formatDate(p.createdAt)}</td>
+      <td><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-view" onclick="openProductModal('${p.id}')">📄 상세</button>
+          ${isApprovalView ? `
+            <button class="btn-approve" onclick="approveProduct('${p.id}')">✅ 승인</button>
+            <button class="btn-reject" onclick="rejectProduct('${p.id}')">❌ 반려</button>
+          ` : `
+            <button class="btn-edit-tbl" onclick="startAdminEditRow('${p.id}')">✏️ 수정</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+}
+
+// 상품 승인 관리 로드 (대기중인 것만)
+async function loadProductApproval() {
+  const tableEl = document.getElementById('productApprovalTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const products = await fetchAllProducts();
+    const pending = products.filter(p => p.status === 'pending');
+
+    document.getElementById('pendingProductBadge').textContent = pending.length;
+
+    if(pending.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">🎉 승인 대기 상품이 없습니다!</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
+          <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>처리</th>
+        </tr></thead>
+        <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+// 전체 상품 목록 로드
+async function loadAllProducts() {
+  const tableEl = document.getElementById('allProductsTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const products = await fetchAllProducts();
+    window._allAdminProducts = products; // 검색/수정 모달에서 재사용
+    applyAdminProductSearch();
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+function applyAdminProductSearch() {
+  const tableEl = document.getElementById('allProductsTable');
+  const products = window._allAdminProducts || [];
+  const keyword = (document.getElementById('adminProductSearchInput')?.value || '').trim().toLowerCase();
+
+  const filtered = keyword
+    ? products.filter(p =>
+        (p.modelName||'').toLowerCase().includes(keyword) ||
+        (p.barcode||'').toLowerCase().includes(keyword) ||
+        (p.brandName||'').toLowerCase().includes(keyword) ||
+        (p.color||'').toLowerCase().includes(keyword)
+      )
+    : products;
+
+  if(products.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">등록된 상품이 없습니다.</div>';
+    return;
+  }
+  if(filtered.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">검색 결과가 없습니다.</div>';
+    return;
+  }
+  tableEl.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
+        <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>관리</th>
+      </tr></thead>
+      <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
+    </table>`;
+}
+
+// ===================== 정산 관리 (마스터 전용) =====================
+const SETTLED_STATUSES = ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered'];
+
+function initSettlementMonthSelect() {
+  const sel = document.getElementById('settlementMonth');
+  if(sel.options.length > 0) return; // 이미 채워져 있으면 스킵
+  const now = new Date();
+  for(let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = `${d.getFullYear()}년 ${d.getMonth()+1}월`;
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  }
+}
+
+async function loadSettlement() {
+  if(!guardSettlementAccess()) return;
+  initSettlementMonthSelect();
+
+  const tableEl = document.getElementById('settlementTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+
+  const monthValue = document.getElementById('settlementMonth').value; // "YYYY-MM"
+  const [year, month] = monthValue.split('-').map(Number);
+  const rangeStart = new Date(year, month - 1, 1);
+  const rangeEnd = new Date(year, month, 1);
+
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'orders'));
+    const orders = [];
+    snap.forEach(doc => {
+      const data = doc.data();
+      if(!SETTLED_STATUSES.includes(data.status)) return;
+      const created = data.createdAt?.toDate ? data.createdAt.toDate() : null;
+      if(!created || created < rangeStart || created >= rangeEnd) return;
+      orders.push({ id: doc.id, ...data });
+    });
+
+    // 브랜드별 매출 집계
+    const brandMap = {}; // brandId -> {brandName, orderCount, totalSales}
+    let totalSales = 0;
+    orders.forEach(o => {
+      totalSales += Number(o.totalAmount || 0);
+      const items = Array.isArray(o.items) && o.items.length > 0 ? o.items :
+        (o.productName ? [{ brandId: o.brandId, brandName: o.brandName, subtotal: (o.unitPrice||0)*(o.qty||1) }] : []);
+      items.forEach(it => {
+        const bid = it.brandId || 'unknown';
+        if(!brandMap[bid]) brandMap[bid] = { brandId: bid, brandName: it.brandName || '미지정', orderCount: 0, totalSales: 0 };
+        brandMap[bid].orderCount++;
+        brandMap[bid].totalSales += Number(it.subtotal || 0);
+      });
+    });
+
+    const brandList = Object.values(brandMap).sort((a,b) => b.totalSales - a.totalSales);
+
+    document.getElementById('settleTotalSales').innerHTML = '₩' + totalSales.toLocaleString() + '<span></span>';
+    document.getElementById('settleBrandCount').innerHTML = brandList.length + '<span>개사</span>';
+    document.getElementById('settleOrderCount').innerHTML = orders.length + '<span>건</span>';
+
+    if(brandList.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">해당 월에 정산할 매출이 없습니다.</div>';
+      return;
+    }
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>브랜드</th><th>주문건수</th><th>매출액</th><th>정산예정액(수수료 제외 전)</th><th>상태</th>
+        </tr></thead>
+        <tbody>
+          ${brandList.map(b => `
+            <tr>
+              <td><strong>${b.brandName}</strong></td>
+              <td>${b.orderCount}건</td>
+              <td>₩${b.totalSales.toLocaleString()}</td>
+              <td>₩${b.totalSales.toLocaleString()}</td>
+              <td><span class="badge pending">정산대기</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    console.error(e);
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">정산 데이터를 불러오지 못했습니다: ' + e.message + '</div>';
+  }
+}
+
+// ===================== 이벤트/할인 관리 =====================
+const promoStatusLabelMap = {pending:'승인대기', approved:'진행중', rejected:'반려', ended:'종료'};
+const promoStatusClassMap = {pending:'pending', approved:'approved', rejected:'rejected', ended:'pending'};
+
+async function fetchAllPromos() {
+  const snap = await window._getDocs(window._collection(window._db, 'promotions'));
+  const promos = [];
+  snap.forEach(d => promos.push({id:d.id, ...d.data()}));
+  promos.sort((a,b) => {
+    const da = a.createdAt?.toDate?.() || new Date(0);
+    const dbb = b.createdAt?.toDate?.() || new Date(0);
+    return dbb - da;
+  });
+  return promos;
+}
+
+function renderPromoRow(promo, isApprovalView) {
+  return `
+    <tr>
+      <td><strong>${promo.title||'-'}</strong></td>
+      <td>${promo.brandName||'-'}</td>
+      <td>${promo.discountRate ? promo.discountRate+'%' : '-'}</td>
+      <td>${promo.targetProductCount ?? '-'}개</td>
+      <td style="font-size:12px;">${formatDate(promo.startDate)} ~ ${formatDate(promo.endDate)}</td>
+      <td>${formatDate(promo.createdAt)}</td>
+      <td><span class="badge ${promoStatusClassMap[promo.status]||'pending'}">${promoStatusLabelMap[promo.status]||'대기'}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-view" onclick="openPromoDetail('${promo.id}')">📋 상세</button>
+          ${isApprovalView ? `
+            <button class="btn-approve" onclick="approvePromo('${promo.id}')">✅ 승인</button>
+            <button class="btn-reject" onclick="rejectPromo('${promo.id}')">❌ 반려</button>
+          ` : `
+            <button class="btn-del-tbl" onclick="deletePromo('${promo.id}')">삭제</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+}
+
+async function openPromoDetail(promoId) {
+  document.getElementById('promoDetailModal').style.display = 'flex';
+  const bodyEl = document.getElementById('promoDetailBody');
+  bodyEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const promoSnap = await window._getDoc(window._doc(window._db, 'promotions', promoId));
+    if(!promoSnap.exists()) { bodyEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--red);">이벤트 정보를 찾을 수 없습니다.</div>'; return; }
+    const promo = { id: promoSnap.id, ...promoSnap.data() };
+
+    const ids = Array.isArray(promo.targetProductIds) ? promo.targetProductIds : [];
+    const productDocs = await Promise.all(ids.map(id => window._getDoc(window._doc(window._db, 'products', id))));
+    const products = productDocs.filter(d => d.exists()).map(d => ({ id: d.id, ...d.data() }));
+
+    const rate = Number(promo.discountRate) || 0;
+    const productRows = products.map(p => {
+      const price = Number(p.price) || 0;
+      const salePrice = Math.round(price * (1 - rate/100));
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--g1);">
+          <div style="font-size:13px;font-weight:600;color:var(--navy);">${p.modelName||'-'}</div>
+          <div style="text-align:right;font-size:12px;">
+            <span style="color:var(--g3);text-decoration:line-through;">₩${price.toLocaleString()}</span>
+            <span style="color:var(--red);font-weight:700;margin-left:6px;">₩${salePrice.toLocaleString()}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    bodyEl.innerHTML = `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:800;color:var(--navy);">${promo.title||'-'}</div>
+        <div style="font-size:12px;color:var(--g3);margin-top:4px;">${promo.brandName||'-'} · 할인율 ${rate}%</div>
+        <div style="font-size:12px;color:var(--g3);margin-top:4px;">기간: ${formatDate(promo.startDate)} ~ ${formatDate(promo.endDate)}</div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">대상 상품 (${products.length}개)</div>
+      <div>${productRows || '<div style="color:var(--g3);font-size:13px;padding:12px 0;">대상 상품 정보를 찾을 수 없습니다.</div>'}</div>
+    `;
+  } catch(e) {
+    bodyEl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--red);">로드 실패: ${e.message}</div>`;
+  }
+}
+
+function closePromoDetail() {
+  document.getElementById('promoDetailModal').style.display = 'none';
+}
+
+async function loadPromoApproval() {
+  const tableEl = document.getElementById('promoApprovalTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const promos = await fetchAllPromos();
+    const pending = promos.filter(p => p.status === 'pending');
+    document.getElementById('pendingPromoBadge').textContent = pending.length;
+
+    if(pending.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">🎉 승인 대기 이벤트가 없습니다!</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>이벤트명</th><th>브랜드</th><th>할인율</th><th>대상상품</th><th>기간</th><th>신청일</th><th>상태</th><th>처리</th>
+        </tr></thead>
+        <tbody>${pending.map(p => renderPromoRow(p, true)).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+async function loadAllPromos() {
+  const tableEl = document.getElementById('allPromosTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const promos = await fetchAllPromos();
+    if(promos.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">등록된 이벤트가 없습니다.</div>';
+      return;
+    }
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>이벤트명</th><th>브랜드</th><th>할인율</th><th>대상상품</th><th>기간</th><th>신청일</th><th>상태</th><th>관리</th>
+        </tr></thead>
+        <tbody>${promos.map(p => renderPromoRow(p, false)).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+async function approvePromo(promoId) {
+  if(!confirm('이 이벤트를 승인하시겠습니까?\n승인 시 메인/목록 페이지에 노출됩니다.')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'promotions', promoId), {
+      status: 'approved',
+      approvedAt: window._serverTimestamp()
+    });
+    showToast('✅ 이벤트가 승인되었습니다.', 'success');
+    loadDashboard();
+    if(document.getElementById('page-promoApproval').classList.contains('active')) loadPromoApproval();
+    if(document.getElementById('page-allPromos').classList.contains('active')) loadAllPromos();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function rejectPromo(promoId) {
+  const reason = prompt('반려 사유를 입력해주세요 (선택사항):');
+  if(reason === null) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'promotions', promoId), {
+      status: 'rejected',
+      rejectReason: reason || '',
+      rejectedAt: window._serverTimestamp()
+    });
+    showToast('이벤트가 반려되었습니다.', 'error');
+    if(document.getElementById('page-promoApproval').classList.contains('active')) loadPromoApproval();
+    if(document.getElementById('page-allPromos').classList.contains('active')) loadAllPromos();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function deletePromo(promoId) {
+  if(!confirm('이 이벤트를 삭제하시겠습니까?')) return;
+  try {
+    await window._deleteDoc(window._doc(window._db, 'promotions', promoId));
+    showToast('이벤트가 삭제되었습니다.', 'success');
+    loadAllPromos();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 상품 상세 모달
+let currentProductId = null;
+
+async function openProductModal(pid) {
+  currentProductId = pid;
+  const modal = document.getElementById('productModal');
+  const body = document.getElementById('productModalBody');
+  const footer = document.getElementById('productModalFooter');
+  body.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  footer.innerHTML = '';
+  modal.classList.add('open');
+
+  try {
+    const products = await fetchAllProducts();
+    const p = products.find(x => x.id === pid);
+    if(!p) { body.innerHTML = '상품 정보를 찾을 수 없습니다.'; return; }
+
+    // 색상별 이미지 섹션 생성 (새 구조 우선, 구버전 호환)
+    let imagesSection = '';
+    const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
+    if(hasColors) {
+      imagesSection = p.colors.map((c, i) => {
+        const detailImgs = (c.detailImageUrls || []).map(url =>
+          `<img src="${url}" class="doc-img" onclick="window.open('${url}','_blank')" style="width:calc(50% - 4px);display:inline-block;margin:2px;">`
+        ).join('');
+        const colorPrice = (c.price != null && c.price !== '') ? Number(c.price) : Number(p.price||0);
+        const colorSalePrice = p.discountRate ? Math.round(colorPrice * (1 - Number(p.discountRate)/100)) : null;
+        const priceText = colorSalePrice != null
+          ? `₩${colorPrice.toLocaleString()} → ₩${colorSalePrice.toLocaleString()} (${p.discountRate}%)`
+          : `₩${colorPrice.toLocaleString()}`;
+        return `
+          <div style="margin-top:16px;padding:12px;background:var(--g1);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px;">
+              🎨 색상 ${i+1}: ${c.colorName} (재고 ${c.stock}개)
+            </div>
+            <div style="font-size:11px;color:var(--g4);margin-bottom:10px;">
+              바코드 ${c.barcode||'-'} · 가격 ${priceText}
+            </div>
+            ${c.mainImageUrl ? `<img src="${c.mainImageUrl}" class="doc-img" onclick="window.open('${c.mainImageUrl}','_blank')" style="margin-bottom:6px;">` : ''}
+            ${detailImgs ? `<div>${detailImgs}</div>` : ''}
+          </div>`;
+      }).join('');
+    } else {
+      // 구버전 단일 이미지
+      const detailImgs = (p.detailImageUrls || []).map(url =>
+        `<img src="${url}" class="doc-img" onclick="window.open('${url}','_blank')" style="width:calc(50% - 4px);display:inline-block;margin:2px;">`
+      ).join('');
+      imagesSection = `
+        ${p.mainImageUrl ? `<div style="margin-top:12px;"><img src="${p.mainImageUrl}" class="doc-img" onclick="window.open('${p.mainImageUrl}','_blank')"></div>` : ''}
+        ${detailImgs ? `<div style="margin-top:8px;">${detailImgs}</div>` : ''}`;
+    }
+
+    const barcodeDisplay = hasColors ? p.colors.map(c=>c.barcode).filter(Boolean).join(', ') || '-' : (p.barcode || '-');
+    const priceRowDisplay = (() => {
+      if(!hasColors) return p.price ? '₩'+Number(p.price).toLocaleString() : '-';
+      const prices = p.colors.map(c => Number(c.price) || Number(p.price) || 0);
+      const min = Math.min(...prices), max = Math.max(...prices);
+      return min === max ? `₩${min.toLocaleString()} (전 색상 동일)` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()} (색상별 상이, 아래 참고)`;
+    })();
+
+    body.innerHTML = `
+      <div class="info-row"><div class="info-label">모델명</div><div class="info-value"><strong>${p.modelName||'-'}</strong></div></div>
+      <div class="info-row"><div class="info-label">바코드</div><div class="info-value">${barcodeDisplay}</div></div>
+      <div class="info-row"><div class="info-label">사이즈</div><div class="info-value">${p.size||'-'}</div></div>
+      <div class="info-row"><div class="info-label">브랜드</div><div class="info-value">${p.brandName||'-'}</div></div>
+      <div class="info-row"><div class="info-label">색상</div><div class="info-value">${p.colorNames ? p.colorNames.join(', ') : (p.color||'-')}</div></div>
+      <div class="info-row"><div class="info-label">타입</div><div class="info-value">${p.type||'-'}</div></div>
+      <div class="info-row"><div class="info-label">기본 정가</div><div class="info-value">${priceRowDisplay}${p.discountRate ? ` <span style="color:var(--red);font-size:11px;">${p.discountRate}% 할인</span>` : ''}</div></div>
+      <div class="info-row"><div class="info-label">등록일</div><div class="info-value">${formatDate(p.createdAt)}</div></div>
+      <div class="info-row"><div class="info-label">상태</div><div class="info-value"><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></div></div>
+
+      <div style="margin-top:16px;margin-bottom:6px;font-size:12px;font-weight:700;color:var(--g4);">🖼️ 색상별 이미지·가격·바코드</div>
+      ${imagesSection}
+    `;
+
+    if(p.status === 'pending') {
+      footer.innerHTML = `
+        <button class="btn-modal-reject" onclick="rejectProduct('${pid}', true)">❌ 반려</button>
+        <button class="btn-modal-approve" onclick="approveProduct('${pid}', true)">✅ 승인하기</button>`;
+    } else {
+      footer.innerHTML = `
+        <button class="btn-del-tbl" onclick="deleteProductAdmin('${pid}', true)" style="padding:10px 20px;">🗑️ 상품 삭제</button>
+        <div style="font-size:13px;color:var(--g3);align-self:center;">이미 처리된 상품입니다.</div>`;
+    }
+  } catch(e) {
+    body.innerHTML = '오류: ' + e.message;
+  }
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('open');
+  currentProductId = null;
+}
+
+document.getElementById('productModal').addEventListener('click', function(e) {
+  if(e.target === this) closeProductModal();
+});
+
+// 상품 승인
+async function approveProduct(pid, fromModal=false) {
+  if(!confirm('이 상품을 승인하시겠습니까?\n승인 시 안경원 회원에게 노출됩니다.')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'products', pid), {
+      status: 'approved',
+      approvedAt: window._serverTimestamp()
+    });
+    showToast('✅ 상품이 승인되었습니다.', 'success');
+    if(fromModal) closeProductModal();
+    loadDashboard();
+    if(document.getElementById('page-productApproval').classList.contains('active')) loadProductApproval();
+    if(document.getElementById('page-allProducts').classList.contains('active')) loadAllProducts();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 상품 반려
+async function rejectProduct(pid, fromModal=false) {
+  const reason = prompt('반려 사유를 입력해주세요 (선택사항):');
+  if(reason === null) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'products', pid), {
+      status: 'rejected',
+      rejectedAt: window._serverTimestamp(),
+      rejectReason: reason || '서류 미흡'
+    });
+    showToast('상품이 반려되었습니다.', 'error');
+    if(fromModal) closeProductModal();
+    loadDashboard();
+    if(document.getElementById('page-productApproval').classList.contains('active')) loadProductApproval();
+    if(document.getElementById('page-allProducts').classList.contains('active')) loadAllProducts();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// 상품 삭제 (관리자)
+async function deleteProductAdmin(pid, fromModal=false) {
+  if(!confirm('이 상품을 완전히 삭제하시겠습니까?\n삭제된 상품은 복구할 수 없습니다.')) return;
+  try {
+    await window._deleteDoc(window._doc(window._db, 'products', pid));
+    showToast('상품이 삭제되었습니다.', 'success');
+    if(fromModal) closeProductModal();
+    loadDashboard();
+    if(document.getElementById('page-productApproval').classList.contains('active')) loadProductApproval();
+    if(document.getElementById('page-allProducts').classList.contains('active')) loadAllProducts();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+
+// ===================== 상품 전체수정 모달 (마스터 전용) =====================
+const A_SLOT_KEYS = ['main','detail1','detail2','detail3','detail4'];
+const A_SLOT_LABELS = {main:'메인', detail1:'상세1', detail2:'상세2', detail3:'상세3', detail4:'상세4'};
+let adminEditingProductId = null;
+let adminEditingProductData = null;
+let adminEditingColors = [];
+let adminEditColorIdCounter = 0;
+
+function buildAdminEditSlot(existingUrl) {
+  return { existingUrl: existingUrl || '', newFile: null, previewUrl: '', removed: false };
+}
+
+function startAdminEditRow(pid) {
+  const product = (window._allAdminProducts || []).find(p => p.id === pid);
+  if(!product) { showToast('상품 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.', 'error'); return; }
+
+  adminEditingProductId = pid;
+  adminEditingProductData = product;
+  adminEditColorIdCounter = 0;
+
+  document.getElementById('aEditModelName').value = product.modelName || '';
+  document.getElementById('aEditSize').value = product.size || '';
+  document.getElementById('aEditCategory').value = product.category || '';
+  document.getElementById('aEditType').value = product.type || '';
+  document.getElementById('aEditPrice').value = product.price || 0;
+  document.getElementById('aEditDiscountRate').value = product.discountRate || 0;
+  updateAdminSalePricePreview();
+  document.getElementById('aEditBrandDisplay').value = product.brandName || '-';
+
+  if(Array.isArray(product.colors) && product.colors.length > 0) {
+    adminEditingColors = product.colors.map(c => ({
+      colorId: adminEditColorIdCounter++,
+      colorName: c.colorName || '',
+      barcode: c.barcode || '',
+      stock: c.stock ?? 0,
+      price: c.price ?? '',
+      slots: {
+        main: buildAdminEditSlot(c.mainImageUrl),
+        detail1: buildAdminEditSlot(c.detailImageUrls?.[0]),
+        detail2: buildAdminEditSlot(c.detailImageUrls?.[1]),
+        detail3: buildAdminEditSlot(c.detailImageUrls?.[2]),
+        detail4: buildAdminEditSlot(c.detailImageUrls?.[3])
+      }
+    }));
+  } else {
+    adminEditingColors = [{
+      colorId: adminEditColorIdCounter++,
+      colorName: product.color || '',
+      barcode: product.barcode || '',
+      stock: product.stock ?? 0,
+      price: '',
+      slots: {
+        main: buildAdminEditSlot(product.mainImageUrl),
+        detail1: buildAdminEditSlot(product.detailImageUrls?.[0]),
+        detail2: buildAdminEditSlot(product.detailImageUrls?.[1]),
+        detail3: buildAdminEditSlot(product.detailImageUrls?.[2]),
+        detail4: buildAdminEditSlot(product.detailImageUrls?.[3])
+      }
+    }];
+  }
+
+  renderAdminEditColorCards();
+  document.getElementById('adminEditModalOverlay').classList.add('open');
+}
+
+function renderAdminEditColorCards() {
+  document.getElementById('aEditColorCountLabel').textContent = `${adminEditingColors.length}개 / 최대 10개`;
+  document.getElementById('aEditColorCardsWrap').innerHTML = adminEditingColors.map((color, ci) => `
+    <div class="color-card">
+      <div class="color-card-header">
+        <span class="color-card-label">색상 ${ci+1}</span>
+        ${adminEditingColors.length > 1 ? `<button class="del-color-btn" onclick="removeAdminEditColor(${color.colorId})">✕ 색상 삭제</button>` : ''}
+      </div>
+      <div class="color-card-fields">
+        <div>
+          <label>색상명 <span style="color:var(--red);">*</span></label>
+          <input type="text" placeholder="블랙, 실버, 골드..." value="${color.colorName||''}"
+            onchange="updateAdminEditColorField(${color.colorId},'colorName',this.value)">
+        </div>
+        <div>
+          <label>바코드 <span style="color:var(--red);">*</span></label>
+          <input type="text" placeholder="색상별 바코드" value="${color.barcode||''}"
+            onchange="updateAdminEditColorField(${color.colorId},'barcode',this.value)">
+        </div>
+        <div>
+          <label>재고 <span style="color:var(--red);">*</span></label>
+          <input type="number" placeholder="재고수량" value="${color.stock ?? ''}"
+            onchange="updateAdminEditColorField(${color.colorId},'stock',this.value)">
+        </div>
+        <div>
+          <label>가격 <span style="font-weight:400;color:var(--g3);">(비워두면 기본가)</span></label>
+          <input type="number" placeholder="기본가 사용" value="${color.price||''}"
+            onchange="updateAdminEditColorField(${color.colorId},'price',this.value)">
+        </div>
+      </div>
+      <div id="admin-edit-color-price-preview-${color.colorId}" style="font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getAdminColorPricePreviewText(document.getElementById('aEditPrice')?.value, document.getElementById('aEditDiscountRate')?.value, color)}</div>
+      <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
+      <div class="color-img-row">
+        ${A_SLOT_KEYS.map(slot => {
+          const s = color.slots[slot];
+          const previewSrc = s.newFile ? s.previewUrl : (s.existingUrl && !s.removed ? s.existingUrl : null);
+          const hasImg = !!previewSrc;
+          return `<div class="color-img-slot ${hasImg?'filled':''}" title="${A_SLOT_LABELS[slot]}"
+              onclick="triggerAdminEditColorImgUpload(${color.colorId},'${slot}')">
+            ${hasImg ? `<img src="${previewSrc}">` : `<span style="font-size:9px;text-align:center;">${A_SLOT_LABELS[slot]}</span>`}
+            ${slot==='main' ? `<span class="slot-main-tag">MAIN</span>` : ''}
+            ${hasImg ? `<span class="slot-del" onclick="event.stopPropagation();removeAdminEditColorImg(${color.colorId},'${slot}')">✕</span>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function getAdminColorPricePreviewText(basePriceVal, discountRateVal, color) {
+  const basePrice = Number(basePriceVal) || 0;
+  const hasOverride = color.price !== '' && color.price != null;
+  const effectivePrice = hasOverride ? Number(color.price) : basePrice;
+  if(effectivePrice <= 0) return '';
+  const rate = Number(discountRateVal) || 0;
+  const salePrice = rate > 0 ? Math.round(effectivePrice * (1 - rate/100)) : null;
+  let text = hasOverride
+    ? `✓ 이 색상만 ₩${effectivePrice.toLocaleString()}로 적용됨`
+    : `이 색상 판매가 ₩${effectivePrice.toLocaleString()} (기본가)`;
+  if(salePrice !== null) text += ` → 할인가 ₩${salePrice.toLocaleString()}`;
+  return text;
+}
+
+function updateAdminEditColorField(colorId, field, value) {
+  const color = adminEditingColors.find(c => c.colorId === colorId);
+  if(!color) return;
+  color[field] = value;
+  if(field === 'price') updateAdminEditColorPricePreview(colorId);
+}
+
+function updateAdminEditColorPricePreview(colorId) {
+  const color = adminEditingColors.find(c => c.colorId === colorId);
+  if(!color) return;
+  const el = document.getElementById(`admin-edit-color-price-preview-${colorId}`);
+  if(el) el.textContent = getAdminColorPricePreviewText(document.getElementById('aEditPrice')?.value, document.getElementById('aEditDiscountRate')?.value, color);
+}
+
+function addAdminEditColor() {
+  if(adminEditingColors.length >= 10) { showToast('색상은 최대 10개까지 등록 가능합니다.', 'error'); return; }
+  adminEditingColors.push({
+    colorId: adminEditColorIdCounter++,
+    colorName: '',
+    barcode: '',
+    stock: '',
+    price: '',
+    slots: { main: buildAdminEditSlot(), detail1: buildAdminEditSlot(), detail2: buildAdminEditSlot(), detail3: buildAdminEditSlot(), detail4: buildAdminEditSlot() }
+  });
+  renderAdminEditColorCards();
+}
+
+function removeAdminEditColor(colorId) {
+  if(adminEditingColors.length <= 1) return;
+  adminEditingColors = adminEditingColors.filter(c => c.colorId !== colorId);
+  renderAdminEditColorCards();
+}
+
+let currentAdminEditImgTarget = null;
+function triggerAdminEditColorImgUpload(colorId, slotKey) {
+  currentAdminEditImgTarget = { colorId, slotKey };
+  document.getElementById('aEditImgFileInput').click();
+}
+
+document.getElementById('aEditImgFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if(!file || !currentAdminEditImgTarget) return;
+  if(file.size > 8 * 1024 * 1024) {
+    showToast('이미지는 8MB 이하만 가능합니다.', 'error');
+    e.target.value = '';
+    return;
+  }
+  const { colorId, slotKey } = currentAdminEditImgTarget;
+  const color = adminEditingColors.find(c => c.colorId === colorId);
+  if(color) {
+    color.slots[slotKey].newFile = file;
+    color.slots[slotKey].previewUrl = URL.createObjectURL(file);
+    color.slots[slotKey].removed = false;
+    renderAdminEditColorCards();
+  }
+  e.target.value = '';
+  currentAdminEditImgTarget = null;
+});
+
+function removeAdminEditColorImg(colorId, slotKey) {
+  const color = adminEditingColors.find(c => c.colorId === colorId);
+  if(!color) return;
+  color.slots[slotKey].newFile = null;
+  color.slots[slotKey].previewUrl = '';
+  color.slots[slotKey].removed = true;
+  renderAdminEditColorCards();
+}
+
+function updateAdminSalePricePreview() {
+  const price = Number(document.getElementById('aEditPrice')?.value) || 0;
+  const rate = Number(document.getElementById('aEditDiscountRate')?.value) || 0;
+  const preview = document.getElementById('aEditSalePricePreview');
+  if(preview) {
+    if(rate > 0 && price > 0) {
+      const salePrice = Math.round(price * (1 - rate/100));
+      preview.value = `₩${salePrice.toLocaleString()} (${rate}% 할인)`;
+    } else {
+      preview.value = '할인 없음';
+    }
+  }
+  (adminEditingColors||[]).forEach(c => updateAdminEditColorPricePreview(c.colorId));
+}
+
+function closeAdminEditModal() {
+  document.getElementById('adminEditModalOverlay').classList.remove('open');
+  adminEditingProductId = null;
+  adminEditingProductData = null;
+  adminEditingColors = [];
+}
+
+document.getElementById('adminEditModalOverlay').addEventListener('click', function(e) {
+  if(e.target === this) closeAdminEditModal();
+});
+
+async function saveAdminProductEdit() {
+  if(!adminEditingProductId) return;
+  const modelName = document.getElementById('aEditModelName').value.trim();
+  const price = Number(document.getElementById('aEditPrice').value) || 0;
+
+  if(!modelName) { showToast('모델명을 입력해주세요.', 'error'); return; }
+  if(price <= 0) { showToast('도매가는 0보다 커야 합니다.', 'error'); return; }
+  for(const color of adminEditingColors) {
+    if(!color.colorName || !color.colorName.trim()) { showToast('모든 색상의 색상명을 입력해주세요.', 'error'); return; }
+    if(!color.barcode || !String(color.barcode).trim()) { showToast(`[${color.colorName}] 바코드를 입력해주세요.`, 'error'); return; }
+    const mainSlot = color.slots.main;
+    const hasMainImage = mainSlot.newFile || (mainSlot.existingUrl && !mainSlot.removed);
+    if(!hasMainImage) { showToast(`[${color.colorName}] 메인 이미지를 등록해주세요.`, 'error'); return; }
+  }
+
+  const btn = document.getElementById('aEditModalSaveBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  try {
+    const discountRate = Number(document.getElementById('aEditDiscountRate').value) || 0;
+    const salePrice = discountRate > 0 ? Math.round(price * (1 - discountRate/100)) : 0;
+    const ownerUid = adminEditingProductData.brandOwnerUid || 'admin';
+
+    const savedColors = [];
+    for(let ci = 0; ci < adminEditingColors.length; ci++) {
+      const color = adminEditingColors[ci];
+      const urls = {};
+      for(const slot of A_SLOT_KEYS) {
+        const s = color.slots[slot];
+        if(s.newFile) {
+          const rand = Math.random().toString(36).slice(2, 8);
+          const path = `products/${ownerUid}/${Date.now()}_c${ci}_${slot}_${rand}_${s.newFile.name}`;
+          const fileRef = window._ref(window._storage, path);
+          await window._uploadBytes(fileRef, s.newFile);
+          urls[slot] = await window._getDownloadURL(fileRef);
+        } else if(s.removed) {
+          urls[slot] = '';
+        } else {
+          urls[slot] = s.existingUrl || '';
+        }
+      }
+      const colorPrice = color.price !== '' && color.price != null ? Number(color.price) : price;
+      const colorSalePrice = discountRate > 0 ? Math.round(colorPrice * (1 - discountRate/100)) : 0;
+      savedColors.push({
+        colorName: color.colorName.trim(),
+        barcode: String(color.barcode).trim(),
+        stock: Number(color.stock) || 0,
+        price: colorPrice,
+        salePrice: colorSalePrice,
+        mainImageUrl: urls.main || '',
+        detailImageUrls: [urls.detail1, urls.detail2, urls.detail3, urls.detail4].filter(Boolean)
+      });
+    }
+
+    await window._updateDoc(window._doc(window._db, 'products', adminEditingProductId), {
+      modelName,
+      size: document.getElementById('aEditSize').value.trim(),
+      category: document.getElementById('aEditCategory').value,
+      type: document.getElementById('aEditType').value,
+      price,
+      discountRate,
+      salePrice,
+      colors: savedColors,
+      mainImageUrl: savedColors[0]?.mainImageUrl || '',
+      colorNames: savedColors.map(c => c.colorName)
+    });
+
+    showToast('✅ 상품 정보가 수정되었습니다.', 'success');
+    closeAdminEditModal();
+    loadAllProducts();
+    loadDashboard();
+  } catch(e) {
+    console.error(e);
+    showToast('저장 중 오류가 발생했습니다: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장하기';
+  }
+}
+
+// ===================== 취소/반품 관리 =====================
+// ===================== 주문/배송 관리 =====================
+const ORDER_MANAGE_STATUSES = ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered'];
+const orderManageStatusLabel = {
+  payment_window_passed: { label: '결제완료(승인대기)', cls: 'pending' },
+  paid:      { label: '결제완료',   cls: 'approved' },
+  preparing: { label: '출고준비중', cls: 'pending' },
+  shipping:  { label: '배송중',     cls: 'role-optician' },
+  delivered: { label: '배송완료',   cls: 'approved' }
+};
+const CANCEL_FAMILY_STATUSES = ['cancel_requested', 'return_requested', 'cancel_completed', 'cancelled'];
+function computeOverallOrderStatus(shipments) {
+  if(!Array.isArray(shipments) || shipments.length === 0) return null;
+  const statuses = shipments.map(s => s.status);
+  if(statuses.every(s => s === 'delivered')) return 'delivered';
+  if(statuses.some(s => s === 'shipping' || s === 'delivered')) return 'shipping';
+  if(statuses.some(s => s === 'preparing')) return 'preparing';
+  return 'paid';
+}
+let orderManageCache = []; // 평탄화된 행: 주문+브랜드 배송묶음 단위 (구주문은 브랜드 없이 1행)
+let orderManageCurrentFilter = 'all';
+
+async function loadOrderManage() {
+  const tableEl = document.getElementById('orderManageTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'orders'),
+      window._where('status', 'in', ORDER_MANAGE_STATUSES)
+    ));
+    const rows = [];
+    snap.forEach(d => {
+      const o = { id: d.id, ...d.data() };
+      const items = Array.isArray(o.items) ? o.items : [];
+      if(Array.isArray(o.shipments) && o.shipments.length > 0) {
+        // 브랜드별 배송묶음이 있는 주문(신규) → 브랜드별로 행 분리
+        o.shipments.forEach(s => {
+          const myItems = items.filter(it => it.brandOwnerUid === s.brandOwnerUid);
+          const amount = myItems.reduce((sum,it) => sum + Number(it.subtotal||0), 0);
+          rows.push({
+            orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
+            createdAt: o.createdAt, brandName: s.brandName||'-', brandOwnerUid: s.brandOwnerUid||null,
+            items: myItems, amount, status: s.status,
+            trackingCompany: s.trackingCompany, trackingNumber: s.trackingNumber, legacy: false
+          });
+        });
+      } else {
+        // 브랜드 구분 이전에 생성된 구주문 → 주문 전체를 한 행으로 표시
+        rows.push({
+          orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
+          createdAt: o.createdAt, brandName: '-', brandOwnerUid: null,
+          items, amount: o.totalAmount, status: o.status,
+          trackingCompany: o.trackingCompany, trackingNumber: o.trackingNumber, legacy: true
+        });
+      }
+    });
+    rows.sort((a,b) => {
+      const da = a.createdAt?.toDate?.() || new Date(0);
+      const db2 = b.createdAt?.toDate?.() || new Date(0);
+      return db2 - da;
+    });
+    orderManageCache = rows;
+    renderOrderManageTable();
+  } catch(e) {
+    console.error(e);
+    tableEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ${e.message}</div>`;
+  }
+}
+
+function filterOrderManage(status, el) {
+  orderManageCurrentFilter = status;
+  document.querySelectorAll('.om-filter-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderOrderManageTable();
+}
+
+function renderOrderManageTable() {
+  const tableEl = document.getElementById('orderManageTable');
+  const rows = orderManageCurrentFilter === 'all'
+    ? orderManageCache
+    : orderManageCache.filter(r => {
+        if(orderManageCurrentFilter === 'paid') return r.status === 'paid' || r.status === 'payment_window_passed';
+        return r.status === orderManageCurrentFilter;
+      });
+
+  if(rows.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);">해당하는 주문이 없습니다.</div>';
+    return;
+  }
+
+  tableEl.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>주문일</th><th>주문번호</th><th>회원</th><th>브랜드</th><th>상품 요약</th><th>금액</th>
+        <th>상태</th><th>배송정보</th><th>처리</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(r => {
+          const firstItem = r.items[0] ? r.items[0].productName||'-' : '-';
+          const itemSummary = r.items.length > 1 ? firstItem + ' 외 ' + (r.items.length-1) + '건' : firstItem;
+          const statusInfo = orderManageStatusLabel[r.status] || { label: r.status, cls: 'pending' };
+          const shipInfo = r.trackingNumber ? `${r.trackingCompany||''} ${r.trackingNumber}` : '-';
+          // 식별자: 신규 주문은 orderDocId+brandOwnerUid 조합으로 특정 배송묶음을 가리킴, 구주문은 orderDocId만
+          const ref = r.legacy ? `'${r.orderDocId}', null` : `'${r.orderDocId}', '${r.brandOwnerUid}'`;
+
+          let actionBtn = '';
+          if(r.status === 'payment_window_passed' || r.status === 'paid') {
+            actionBtn = `<button class="btn-approve" onclick="advanceToPreparing(${ref})">📦 출고준비</button>`;
+          } else if(r.status === 'preparing') {
+            actionBtn = `
+              <button class="btn-ship" onclick="advanceToShipping(${ref})">🚚 배송시작</button>
+              <button class="btn-view" onclick="revertOrderStatus(${ref},'paid','결제완료')">↩</button>`;
+          } else if(r.status === 'shipping') {
+            actionBtn = `
+              <button class="btn-approve" onclick="advanceToDelivered(${ref})">✅ 배송완료</button>
+              <button class="btn-view" onclick="revertOrderStatus(${ref},'preparing','출고준비중')">↩</button>`;
+          } else if(r.status === 'delivered') {
+            actionBtn = `
+              <span style="font-size:11px;color:var(--g3);">처리 완료</span>
+              <button class="btn-view" onclick="revertOrderStatus(${ref},'shipping','배송중')">↩</button>`;
+          }
+
+          return `
+            <tr>
+              <td style="font-size:11px;white-space:nowrap;">${formatDate(r.createdAt)}</td>
+              <td style="font-size:11px;color:var(--sky);">${r.orderId}</td>
+              <td>${r.userName}</td>
+              <td style="font-size:12px;font-weight:600;">${r.brandName}</td>
+              <td style="font-size:12px;">${itemSummary}</td>
+              <td>₩${Number(r.amount||0).toLocaleString()}</td>
+              <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
+              <td style="font-size:11px;">${shipInfo}</td>
+              <td><div class="action-btns">${actionBtn}</div></td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+// orderDocId + brandOwnerUid(구주문은 null)를 받아 해당 배송묶음(또는 구주문 전체)의 상태를 갱신
+async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
+  const orderRef = window._doc(window._db, 'orders', orderDocId);
+  if(brandOwnerUid === null) {
+    // 구주문: 예전 방식 그대로 주문 전체 상태 갱신
+    await window._updateDoc(orderRef, patch);
+    return;
+  }
+  const snap = await window._getDoc(orderRef);
+  if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
+  const data = snap.data();
+  const shipments = Array.isArray(data.shipments) ? [...data.shipments] : [];
+  const idx = shipments.findIndex(s => s.brandOwnerUid === brandOwnerUid);
+  if(idx === -1) throw new Error('배송 정보를 찾을 수 없습니다.');
+  shipments[idx] = { ...shipments[idx], ...patch };
+
+  const updatePayload = { shipments };
+  if(!CANCEL_FAMILY_STATUSES.includes(data.status)) {
+    const overall = computeOverallOrderStatus(shipments);
+    if(overall) updatePayload.status = overall;
+  }
+  await window._updateDoc(orderRef, updatePayload);
+}
+
+async function revertOrderStatus(orderDocId, brandOwnerUid, targetStatus, targetLabel) {
+  if(!confirm(`이 배송건을 '${targetLabel}' 상태로 되돌리시겠습니까?\n(운송장 정보는 그대로 유지됩니다.)`)) return;
+  try {
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: targetStatus, statusRevertedAt: new Date() });
+    showToast(`↩ '${targetLabel}' 상태로 되돌렸습니다.`, 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+async function advanceToPreparing(orderDocId, brandOwnerUid) {
+  if(!confirm('이 배송건을 출고준비중 상태로 변경하시겠습니까?')) return;
+  try {
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'preparing', preparingAt: new Date() });
+    showToast('✅ 출고준비중으로 변경되었습니다.', 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+const COURIER_CODE_MAP = {
+  '04': 'CJ대한통운', '01': '우체국택배', '08': '롯데택배', '05': '한진택배',
+  '06': '로젠택배', '24': 'GS Postbox 택배', '46': 'CU 편의점택배',
+  '22': '대신택배', '23': '경동택배'
+};
+let shipStartTargetOrderId = null;
+let shipStartTargetBrandOwnerUid = null;
+
+function onShipCourierChange() {
+  const val = document.getElementById('shipCourierSelect').value;
+  document.getElementById('shipCourierEtcWrap').style.display = (val === 'etc') ? 'block' : 'none';
+}
+
+function openShipStartModal(orderDocId, brandOwnerUid) {
+  shipStartTargetOrderId = orderDocId;
+  shipStartTargetBrandOwnerUid = (brandOwnerUid === undefined) ? null : brandOwnerUid;
+  document.getElementById('shipCourierSelect').value = '04';
+  document.getElementById('shipCourierEtcWrap').style.display = 'none';
+  document.getElementById('shipCourierEtc').value = '';
+  document.getElementById('shipTrackingNumberInput').value = '';
+  document.getElementById('shipStartModal').classList.add('open');
+}
+
+function closeShipStartModal() {
+  document.getElementById('shipStartModal').classList.remove('open');
+  shipStartTargetOrderId = null;
+  shipStartTargetBrandOwnerUid = null;
+}
+
+async function confirmShipStart() {
+  const orderId = shipStartTargetOrderId;
+  if(!orderId) return;
+
+  const courierCode = document.getElementById('shipCourierSelect').value;
+  const trackingCompany = courierCode === 'etc'
+    ? document.getElementById('shipCourierEtc').value.trim()
+    : COURIER_CODE_MAP[courierCode];
+  const trackingNumber = document.getElementById('shipTrackingNumberInput').value.trim();
+
+  if(!trackingCompany) { showToast('택배사를 입력해주세요.', 'error'); return; }
+  if(!trackingNumber) { showToast('운송장 번호를 입력해주세요.', 'error'); return; }
+
+  try {
+    await updateShipmentOrLegacy(orderId, shipStartTargetBrandOwnerUid, {
+      status: 'shipping',
+      trackingCompany,
+      trackingCompanyCode: courierCode === 'etc' ? null : courierCode,
+      trackingNumber,
+      shippingStartedAt: new Date()
+    });
+    closeShipStartModal();
+    showToast('✅ 배송중 상태로 변경되었습니다.', 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+async function advanceToShipping(orderDocId, brandOwnerUid) {
+  openShipStartModal(orderDocId, brandOwnerUid);
+}
+
+async function advanceToDelivered(orderDocId, brandOwnerUid) {
+  if(!confirm('이 배송건을 배송완료 상태로 변경하시겠습니까?')) return;
+  try {
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'delivered', deliveredAt: new Date() });
+    showToast('✅ 배송완료로 변경되었습니다.', 'success');
+    loadOrderManage();
+    loadDashboard();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+const RETURN_SHIPPING_FEE_DEFAULT = 7000;
+let cancelOrdersCache = [];
+
+async function loadCancelManage() {
+  const tableEl = document.getElementById('cancelManageTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'orders'),
+      window._where('status', 'in', ['cancel_requested', 'return_requested'])
+    ));
+    const orders = [];
+    snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+    orders.sort((a,b) => {
+      const da = a.cancelRequestedAt?.toDate?.() || new Date(0);
+      const db2 = b.cancelRequestedAt?.toDate?.() || new Date(0);
+      return db2 - da;
+    });
+    cancelOrdersCache = orders;
+
+    const badge = document.getElementById('pendingCancelBadge');
+    if(badge) badge.textContent = orders.length || '';
+
+    if(orders.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);">취소/반품 신청이 없습니다.</div>';
+      return;
+    }
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>신청일</th><th>주문번호</th><th>회원</th><th>상품 요약</th><th>결제금액</th>
+          <th>신청유형</th><th>취소사유</th><th>환불예정액</th><th>처리</th>
+        </tr></thead>
+        <tbody>
+          ${orders.map(o => {
+            const isReturn = o.cancelType === 'after_ship';
+            const total = Number(o.totalAmount || 0);
+            const returnFee = Number(o.returnShippingFee || 0);
+            const expectedRefund = o.expectedRefund !== undefined
+              ? Number(o.expectedRefund)
+              : (isReturn ? Math.max(0, total - RETURN_SHIPPING_FEE_DEFAULT) : total);
+            const items = Array.isArray(o.items) ? o.items : [];
+            const firstItem = items[0] ? items[0].productName||'-' : '-';
+            const itemSummary = items.length > 1 ? firstItem + ' 외 ' + (items.length-1) + '건' : firstItem;
+            const row = document.createElement('tr');
+            row.style.cursor = 'pointer';
+            row.onclick = () => openCancelDetail(o.id);
+            row.innerHTML = `
+              <td style="font-size:11px;white-space:nowrap;">${formatDate(o.cancelRequestedAt)}</td>
+              <td style="font-size:11px;color:var(--sky);">${o.orderId||o.id}</td>
+              <td>${o.userName||o.userEmail||'-'}</td>
+              <td style="font-size:12px;">${itemSummary}</td>
+              <td>₩${total.toLocaleString()}</td>
+              <td><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품' : '취소'}</span></td>
+              <td style="font-size:12px;">${o.cancelReason||'-'}</td>
+              <td style="font-weight:700;color:var(--sky);">₩${expectedRefund.toLocaleString()}</td>
+              <td><button class="btn-approve" onclick="event.stopPropagation();openCancelDetail('${o.id}')">📄 상세</button></td>
+            `;
+            return row.outerHTML;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ${e.message}</div>`;
+  }
+}
+
+function openCancelDetail(orderId) {
+  const o = cancelOrdersCache.find(x => x.id === orderId);
+  if(!o) return;
+
+  const isReturn = o.cancelType === 'after_ship';
+  const total = Number(o.totalAmount || 0);
+  const returnFee = Number(o.returnShippingFee || 0);
+  const expectedRefund = o.expectedRefund !== undefined
+    ? Number(o.expectedRefund)
+    : (isReturn ? Math.max(0, total - RETURN_SHIPPING_FEE_DEFAULT) : total);
+  const items = Array.isArray(o.items) ? o.items : [];
+  const addr = o.shippingAddress || {};
+  const addrStr = [addr.addr1, addr.addr2].filter(Boolean).join(' ') || '-';
+
+  document.getElementById('cancelDetailTitle').textContent = isReturn ? '반품 신청 상세' : '취소 신청 상세';
+
+  document.getElementById('cancelDetailBody').innerHTML = `
+    <div style="padding:14px;background:var(--g1);border-radius:10px;margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+        <div><span style="color:var(--g3);font-size:11px;">주문번호</span><br><strong style="font-size:11px;">${o.orderId||o.id}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">회원명</span><br><strong>${o.userName||'-'}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">신청유형</span><br><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품신청' : '취소신청'}</span></div>
+        <div><span style="color:var(--g3);font-size:11px;">취소사유</span><br><strong>${o.cancelReason||'-'}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">신청일시</span><br><strong style="font-size:11px;">${formatDate(o.cancelRequestedAt)}</strong></div>
+        <div><span style="color:var(--g3);font-size:11px;">주문일시</span><br><strong style="font-size:11px;">${formatDate(o.createdAt)}</strong></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:6px;">📦 배송지</div>
+      <div style="font-size:12px;padding:10px;border:1px solid var(--g2);border-radius:8px;">
+        ${o.receiver?.name||o.userName||'-'} / ${o.receiver?.phone||'-'}<br>
+        ${addr.zipcode ? '['+addr.zipcode+'] ' : ''}${addrStr}
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:6px;">🛍️ 주문 상품 (${items.length}건)</div>
+      ${items.map(it => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g1);">
+          <div style="width:44px;height:44px;border-radius:6px;background:var(--g1);overflow:hidden;flex-shrink:0;">
+            ${it.mainImageUrl ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">👓</div>'}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;">${it.productName||'-'}</div>
+            <div style="font-size:11px;color:var(--g3);">${it.selectedColor ? it.selectedColor+' · ' : ''}${it.qty}개</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;">₩${Number(it.subtotal||0).toLocaleString()}</div>
+        </div>`).join('')}
+    </div>
+
+    <div style="background:${isReturn ? '#FFF3E0' : '#EBF8F0'};border-radius:10px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:10px;">💰 환불 금액</div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+        <span>결제 금액</span><span>₩${total.toLocaleString()}</span>
+      </div>
+      ${isReturn ? `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:var(--red);">
+        <span>왕복 택배비 공제</span><span>-₩${returnFee.toLocaleString()}</span>
+      </div>` : `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:var(--green);">
+        <span>배송비 공제</span><span>없음</span>
+      </div>`}
+      <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--sky);padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);">
+        <span>환불 예정액</span><span>₩${expectedRefund.toLocaleString()}</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('cancelDetailFooter').innerHTML = `
+    <div style="display:flex;gap:8px;justify-content:flex-end;width:100%;">
+      <button class="btn-sm btn-ghost" onclick="closeCancelDetail()">닫기</button>
+      <button class="btn-reject" style="padding:9px 18px;" onclick="closeCancelDetail();rejectCancel('${o.id}')">❌ 반려</button>
+      <button class="btn-approve" style="padding:9px 18px;" onclick="closeCancelDetail();processCancel('${o.id}','${o.cancelType||'before_ship'}',${expectedRefund})">✅ 환불완료</button>
+    </div>`;
+
+  document.getElementById('cancelDetailModal').style.display = 'flex';
+}
+
+function closeCancelDetail() {
+  document.getElementById('cancelDetailModal').style.display = 'none';
+}
+
+
+async function processCancel(orderId, cancelType, expectedRefund) {
+  const refundAmt = Number(expectedRefund || 0);
+  const note = prompt(`관리자 메모 (선택사항)\n환불 예정액: ₩${refundAmt.toLocaleString()}\n금액 조정이 필요하면 메모에 기재해주세요:`) ?? '';
+  if(!confirm(`환불 완료 처리하시겠습니까?\n환불액: ₩${refundAmt.toLocaleString()}\n\n⚠️ 토스페이먼츠 콘솔에서 먼저 환불을 완료하신 후 클릭해주세요.`)) return;
+
+  try {
+    const orderRef = window._doc(window._db, 'orders', orderId);
+    const orderSnap = await window._getDoc(orderRef);
+    if(!orderSnap.exists()) { showToast('주문 정보를 찾을 수 없습니다.', 'error'); return; }
+    const orderData = orderSnap.data();
+
+    // 트랜잭션: 모든 read 먼저 → 모든 write 나중에 (Firestore 규칙)
+    await window._runTransaction(window._db, async (tx) => {
+      // 1단계: 모든 상품 read
+      const productReads = await Promise.all(
+        (orderData.items || []).map(item => {
+          const ref = window._doc(window._db, 'products', item.productId);
+          return tx.get(ref).then(snap => ({ item, ref, snap }));
+        })
+      );
+
+      // 2단계: 모든 write
+      for(const { item, ref, snap } of productReads) {
+        if(!snap.exists()) continue;
+        const pData = snap.data();
+        const colorIdx = Number(item.selectedColorIdx) || 0;
+        const qty = Number(item.qty) || 0;
+
+        if(pData.colors && pData.colors.length > colorIdx) {
+          const colors = [...pData.colors];
+          colors[colorIdx] = { ...colors[colorIdx], stock: Number(colors[colorIdx].stock||0) + qty };
+          tx.update(ref, { colors });
+        } else {
+          tx.update(ref, { stock: Number(pData.stock||0) + qty });
+        }
+      }
+      tx.update(orderRef, {
+        status: 'cancel_completed',
+        cancelNote: note,
+        cancelCompletedAt: window._serverTimestamp()
+      });
+    });
+
+    showToast('✅ 환불 완료 처리되었습니다. 재고가 복구되었습니다.', 'success');
+    loadCancelManage();
+    loadDashboard();
+  } catch(e) {
+    console.error(e);
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+
+async function rejectCancel(orderId) {
+  const reason = prompt('반려 사유를 입력해주세요:');
+  if(reason === null) return;
+
+  try {
+    const orderRef = window._doc(window._db, 'orders', orderId);
+    const orderSnap = await window._getDoc(orderRef);
+    if(!orderSnap.exists()) { showToast('주문 정보를 찾을 수 없습니다.', 'error'); return; }
+    const orderData = orderSnap.data();
+    // 취소/반품 신청 이전의 실제 상태로 복구 (배송완료 건이었다면 배송완료로, 없으면 결제완료로 안전하게 폴백)
+    const restoreStatus = orderData.previousStatus || 'paid';
+
+    await window._updateDoc(orderRef, {
+      status: restoreStatus,
+      cancelNote: '취소 반려: ' + reason,
+      cancelRejectedAt: window._serverTimestamp()
+    });
+    showToast('취소 신청이 반려되었습니다.', 'success');
+    loadCancelManage();
+  } catch(e) {
+    showToast('처리 중 오류: ' + e.message, 'error');
+  }
+}
+</script>
+</body>
+</html>
