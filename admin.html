@@ -2042,13 +2042,13 @@ async function loadOrderManage() {
       const o = { id: d.id, ...d.data() };
       const items = Array.isArray(o.items) ? o.items : [];
       if(Array.isArray(o.shipments) && o.shipments.length > 0) {
-        // 브랜드별 배송묶음이 있는 주문(신규) → 브랜드별로 행 분리
+        // 브랜드별 배송묶음이 있는 주문(신규) → 브랜드별로 행 분리 (brandId 기준: 한 계정이 여러 브랜드를 운영할 수 있음)
         o.shipments.forEach(s => {
-          const myItems = items.filter(it => it.brandOwnerUid === s.brandOwnerUid);
+          const myItems = items.filter(it => it.brandId === s.brandId);
           const amount = myItems.reduce((sum,it) => sum + Number(it.subtotal||0), 0);
           rows.push({
             orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
-            createdAt: o.createdAt, brandName: s.brandName||'-', brandOwnerUid: s.brandOwnerUid||null,
+            createdAt: o.createdAt, brandName: s.brandName||'-', brandId: s.brandId||null, brandOwnerUid: s.brandOwnerUid||null,
             items: myItems, amount, status: s.status,
             trackingCompany: s.trackingCompany, trackingNumber: s.trackingNumber, legacy: false
           });
@@ -2110,7 +2110,7 @@ function renderOrderManageTable() {
           const statusInfo = orderManageStatusLabel[r.status] || { label: r.status, cls: 'pending' };
           const shipInfo = r.trackingNumber ? `${r.trackingCompany||''} ${r.trackingNumber}` : '-';
           // 식별자: 신규 주문은 orderDocId+brandOwnerUid 조합으로 특정 배송묶음을 가리킴, 구주문은 orderDocId만
-          const ref = r.legacy ? `'${r.orderDocId}', null` : `'${r.orderDocId}', '${r.brandOwnerUid}'`;
+          const ref = r.legacy ? `'${r.orderDocId}', null` : `'${r.orderDocId}', ${JSON.stringify(r.brandId)}`;
 
           let actionBtn = '';
           if(r.status === 'payment_window_passed' || r.status === 'paid') {
@@ -2147,27 +2147,29 @@ function renderOrderManageTable() {
 }
 
 // orderDocId + brandOwnerUid(구주문은 null)를 받아 해당 배송묶음(또는 구주문 전체)의 상태를 갱신
-async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
+async function updateShipmentOrLegacy(orderDocId, brandId, patch) {
   const orderRef = window._doc(window._db, 'orders', orderDocId);
-  if(brandOwnerUid === null) {
+  if(brandId === null) {
     // 구주문: 예전 방식 그대로 주문 전체 상태 갱신
     await window._updateDoc(orderRef, patch);
     return;
   }
-  const snap = await window._getDoc(orderRef);
-  if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
-  const data = snap.data();
-  const shipments = Array.isArray(data.shipments) ? [...data.shipments] : [];
-  const idx = shipments.findIndex(s => s.brandOwnerUid === brandOwnerUid);
-  if(idx === -1) throw new Error('배송 정보를 찾을 수 없습니다.');
-  shipments[idx] = { ...shipments[idx], ...patch };
+  await window._runTransaction(window._db, async (tx) => {
+    const snap = await tx.get(orderRef);
+    if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
+    const data = snap.data();
+    const shipments = Array.isArray(data.shipments) ? [...data.shipments] : [];
+    const idx = shipments.findIndex(s => s.brandId === brandId);
+    if(idx === -1) throw new Error('배송 정보를 찾을 수 없습니다.');
+    shipments[idx] = { ...shipments[idx], ...patch };
 
-  const updatePayload = { shipments };
-  if(!CANCEL_FAMILY_STATUSES.includes(data.status)) {
-    const overall = computeOverallOrderStatus(shipments);
-    if(overall) updatePayload.status = overall;
-  }
-  await window._updateDoc(orderRef, updatePayload);
+    const updatePayload = { shipments };
+    if(!CANCEL_FAMILY_STATUSES.includes(data.status)) {
+      const overall = computeOverallOrderStatus(shipments);
+      if(overall) updatePayload.status = overall;
+    }
+    tx.update(orderRef, updatePayload);
+  });
 }
 
 async function revertOrderStatus(orderDocId, brandOwnerUid, targetStatus, targetLabel) {

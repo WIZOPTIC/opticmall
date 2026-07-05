@@ -921,7 +921,7 @@ function buildBrandShipmentBreakdown(o) {
               <span class="status-pill ${info.cls}" style="font-size:12px;">${info.label}</span>
             </div>
             <div class="status-sub" style="margin-top:4px;">${sub}</div>
-            ${canTrack ? `<button class="ship-track-btn" style="margin-top:10px;margin-bottom:0;" onclick="openTrackModal('${o.id}','${s.brandOwnerUid}')">배송조회</button>` : ''}
+            ${canTrack ? `<button class="ship-track-btn" style="margin-top:10px;margin-bottom:0;" onclick="openTrackModal('${o.id}','${s.brandId}')">배송조회</button>` : ''}
           </div>`;
       }).join('')}
     </div>`;
@@ -978,13 +978,13 @@ function computeOverallOrderStatusClient(shipments) {
   return 'paid';
 }
 
-async function openTrackModal(orderId, brandOwnerUid) {
+async function openTrackModal(orderId, brandId) {
   const o = allOrdersCache.find(x => x.id === orderId);
   if(!o) return;
 
   // 여러 브랜드가 섞인 주문이면 해당 브랜드의 배송묶음만, 아니면 주문 전체를 대상으로 함
-  const shipment = brandOwnerUid && Array.isArray(o.shipments)
-    ? o.shipments.find(s => s.brandOwnerUid === brandOwnerUid)
+  const shipment = brandId && Array.isArray(o.shipments)
+    ? o.shipments.find(s => s.brandId === brandId)
     : null;
   const target = shipment || o; // status/trackingCompany/trackingNumber/preparingAt 등을 여기서 읽음
 
@@ -1030,20 +1030,30 @@ async function openTrackModal(orderId, brandOwnerUid) {
         if(data.complete === true && stillOpenStatus) {
           try {
             if(shipment) {
-              // 다중 브랜드 주문: 해당 배송묶음만 갱신 + 전체 주문 상태 재계산
-              const newShipments = o.shipments.map(s => s.brandOwnerUid === brandOwnerUid
-                ? { ...s, status: 'delivered', deliveredAt: new Date(), deliveredAutoDetected: true }
-                : s);
-              const overall = computeOverallOrderStatusClient(newShipments);
-              const updatePayload = { shipments: newShipments };
-              if(overall && !['cancel_requested','return_requested','cancel_completed','cancelled'].includes(o.status)) {
-                updatePayload.status = overall;
-              }
-              await _db.collection('orders').doc(o.id).update(updatePayload);
+              // 다중 브랜드 주문: 해당 배송묶음만 갱신 + 전체 주문 상태 재계산 (동시 수정 충돌 방지를 위해 트랜잭션 사용)
+              const orderRef = _db.collection('orders').doc(o.id);
+              let finalShipments = null, finalStatus = null;
+              await _db.runTransaction(async (tx) => {
+                const freshSnap = await tx.get(orderRef);
+                if(!freshSnap.exists) return;
+                const freshData = freshSnap.data();
+                const freshShipments = Array.isArray(freshData.shipments) ? [...freshData.shipments] : [];
+                const newShipments = freshShipments.map(s => s.brandId === brandId
+                  ? { ...s, status: 'delivered', deliveredAt: new Date(), deliveredAutoDetected: true }
+                  : s);
+                const overall = computeOverallOrderStatusClient(newShipments);
+                const updatePayload = { shipments: newShipments };
+                if(overall && !['cancel_requested','return_requested','cancel_completed','cancelled'].includes(freshData.status)) {
+                  updatePayload.status = overall;
+                }
+                tx.update(orderRef, updatePayload);
+                finalShipments = newShipments;
+                finalStatus = updatePayload.status;
+              });
               shipment.status = 'delivered';
               shipment.deliveredAt = { toDate: () => new Date() };
-              o.shipments = newShipments;
-              if(updatePayload.status) o.status = updatePayload.status;
+              if(finalShipments) o.shipments = finalShipments;
+              if(finalStatus) o.status = finalStatus;
             } else {
               await _db.collection('orders').doc(o.id).update({
                 status: 'delivered',

@@ -645,7 +645,7 @@ tr:hover td{background:#FAFBFC;}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, collection, getDocs, addDoc, doc, getDoc, deleteDoc, updateDoc, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, addDoc, doc, getDoc, deleteDoc, updateDoc, query, where, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const firebaseConfig = {
@@ -678,6 +678,7 @@ window._doc = doc;
 window._getDoc = getDoc;
 window._deleteDoc = deleteDoc;
 window._updateDoc = updateDoc;
+window._runTransaction = runTransaction;
 window._query = query;
 window._where = where;
 window._serverTimestamp = serverTimestamp;
@@ -1089,21 +1090,24 @@ function computeOverallOrderStatus(shipments) {
 async function updateMyShipment(orderDocId, patch) {
   const uid = window._getCurrentBrandUid();
   const orderRef = window._doc(window._db, 'orders', orderDocId);
-  const snap = await window._getDoc(orderRef);
-  if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
-  const data = snap.data();
-  const shipments = Array.isArray(data.shipments) ? [...data.shipments] : [];
-  const idx = shipments.findIndex(s => s.brandOwnerUid === uid);
-  if(idx === -1) throw new Error('배송 정보를 찾을 수 없습니다.');
-  shipments[idx] = { ...shipments[idx], ...patch };
 
-  const updatePayload = { shipments };
-  // 취소/반품 진행 중인 주문은 전체 상태를 건드리지 않음 (마스터/구매자 처리 영역)
-  if(!CANCEL_FAMILY_STATUSES.includes(data.status)) {
-    const overall = computeOverallOrderStatus(shipments);
-    if(overall) updatePayload.status = overall;
-  }
-  await window._updateDoc(orderRef, updatePayload);
+  await window._runTransaction(window._db, async (tx) => {
+    const snap = await tx.get(orderRef);
+    if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
+    const data = snap.data();
+    const shipments = Array.isArray(data.shipments) ? [...data.shipments] : [];
+    const idx = shipments.findIndex(s => s.brandOwnerUid === uid);
+    if(idx === -1) throw new Error('배송 정보를 찾을 수 없습니다.');
+    shipments[idx] = { ...shipments[idx], ...patch };
+
+    const updatePayload = { shipments };
+    // 취소/반품 진행 중인 주문은 전체 상태를 건드리지 않음 (마스터/구매자 처리 영역)
+    if(!CANCEL_FAMILY_STATUSES.includes(data.status)) {
+      const overall = computeOverallOrderStatus(shipments);
+      if(overall) updatePayload.status = overall;
+    }
+    tx.update(orderRef, updatePayload);
+  });
 }
 
 async function brandAdvanceToPreparing(orderDocId) {
