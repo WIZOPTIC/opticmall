@@ -180,7 +180,7 @@ table.reg-table select{width:100%;padding:8px 6px;border:1.5px solid var(--g2);b
 .color-card{background:var(--g1);border-radius:10px;padding:16px;margin-bottom:10px;border:1.5px solid var(--g2);}
 .color-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .color-card-label{font-size:11px;font-weight:700;color:var(--g3);}
-.color-card-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.color-card-fields{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
 .color-card-fields label{display:block;font-size:11px;font-weight:700;color:var(--g4);margin-bottom:4px;}
 .color-card-fields input{width:100%;padding:8px 10px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);}
 .color-card-fields input:focus{border-color:var(--sky);}
@@ -580,14 +580,14 @@ tr:hover td{background:#FAFBFC;}
           <input type="text" id="editModelName">
         </div>
         <div class="edit-form-group">
-          <label>바코드</label>
-          <input type="text" id="editBarcode">
+          <label>사이즈</label>
+          <input type="text" id="editSize" placeholder="53-20-149">
         </div>
       </div>
       <div class="edit-form-row">
         <div class="edit-form-group">
-          <label>사이즈</label>
-          <input type="text" id="editSize" placeholder="53-20-149">
+          <label>기본 정가 <span style="color:var(--red);">*</span></label>
+          <input type="number" id="editPrice" onchange="updateEditSalePricePreview()">
         </div>
         <div class="edit-form-group">
           <label style="color:var(--g3);">할인가 (자동계산)</label>
@@ -617,13 +617,10 @@ tr:hover td{background:#FAFBFC;}
       </div>
       <div class="edit-form-row">
         <div class="edit-form-group">
-          <label>정가 <span style="color:var(--red);">*</span></label>
-          <input type="number" id="editPrice" onchange="updateEditSalePricePreview()">
-        </div>
-        <div class="edit-form-group">
           <label>할인율 (%)</label>
           <input type="number" id="editDiscountRate" placeholder="0 (할인 없음)" min="0" max="99" onchange="updateEditSalePricePreview()">
         </div>
+        <div></div>
       </div>
 
       <div class="color-section-label" style="margin-top:8px;">
@@ -1212,11 +1209,12 @@ function renderProductRowHtml(p, withActions) {
   const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
   const colorDisplay = hasColors ? (p.colorNames||p.colors.map(c=>c.colorName)).join(', ') : (p.color || '-');
   const stockDisplay = hasColors ? p.colors.reduce((sum,c) => sum + (Number(c.stock)||0), 0) : (p.stock ?? '-');
+  const barcodeDisplay = hasColors ? p.colors.map(c=>c.barcode).filter(Boolean).join(', ') || '-' : (p.barcode || '-');
   return `
     <tr data-pid="${p.id}">
       <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb">` : `<div class="prod-thumb no-img">👓</div>`}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
-      <td style="font-size:12px;">${p.barcode||'-'}</td>
+      <td style="font-size:12px;">${barcodeDisplay}</td>
       <td style="font-size:12px;">${p.size||'-'}</td>
       <td style="font-size:12px;">${colorDisplay}</td>
       <td>${p.category||'-'}</td>
@@ -1253,7 +1251,6 @@ function startEditRow(pid) {
   editColorIdCounter = 0;
 
   document.getElementById('editModelName').value = product.modelName || '';
-  document.getElementById('editBarcode').value = product.barcode || '';
   document.getElementById('editSize').value = product.size || '';
   document.getElementById('editCategory').value = product.category || '';
   document.getElementById('editType').value = product.type || '';
@@ -1266,7 +1263,9 @@ function startEditRow(pid) {
     editingColors = product.colors.map(c => ({
       colorId: editColorIdCounter++,
       colorName: c.colorName || '',
+      barcode: c.barcode || '',
       stock: c.stock ?? 0,
+      price: c.price ?? '',
       slots: {
         main: buildEditSlot(c.mainImageUrl),
         detail1: buildEditSlot(c.detailImageUrls?.[0]),
@@ -1279,7 +1278,9 @@ function startEditRow(pid) {
     editingColors = [{
       colorId: editColorIdCounter++,
       colorName: product.color || '',
+      barcode: product.barcode || '', // 예전 단일 바코드는 첫 색상으로 이관
       stock: product.stock ?? 0,
+      price: '',
       slots: {
         main: buildEditSlot(product.mainImageUrl),
         detail1: buildEditSlot(product.detailImageUrls?.[0]),
@@ -1309,11 +1310,20 @@ function renderEditColorCards() {
             onchange="updateEditColorField(${color.colorId},'colorName',this.value)">
         </div>
         <div>
+          <label>바코드 <span style="color:var(--red);">*</span></label>
+          <input type="text" placeholder="색상별 바코드" value="${color.barcode||''}"
+            onchange="updateEditColorField(${color.colorId},'barcode',this.value)">
+        </div>
+        <div>
           <label>재고 <span style="color:var(--red);">*</span></label>
           <input type="number" placeholder="재고수량" value="${color.stock ?? ''}"
             onchange="updateEditColorField(${color.colorId},'stock',this.value)">
         </div>
-        <div></div>
+        <div>
+          <label>가격 <span style="font-weight:400;color:var(--g3);">(비워두면 기본가)</span></label>
+          <input type="number" placeholder="기본가 사용" value="${color.price||''}"
+            onchange="updateEditColorField(${color.colorId},'price',this.value)">
+        </div>
       </div>
       <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
       <div class="color-img-row">
@@ -1344,7 +1354,9 @@ function addEditColor() {
   editingColors.push({
     colorId: editColorIdCounter++,
     colorName: '',
+    barcode: '',
     stock: '',
+    price: '',
     slots: { main: buildEditSlot(), detail1: buildEditSlot(), detail2: buildEditSlot(), detail3: buildEditSlot(), detail4: buildEditSlot() }
   });
   renderEditColorCards();
@@ -1424,6 +1436,7 @@ async function saveProductEdit() {
   if(price <= 0) { showToast('도매가는 0보다 커야 합니다.', 'error'); return; }
   for(const color of editingColors) {
     if(!color.colorName || !color.colorName.trim()) { showToast('모든 색상의 색상명을 입력해주세요.', 'error'); return; }
+    if(!color.barcode || !String(color.barcode).trim()) { showToast(`[${color.colorName}] 바코드를 입력해주세요.`, 'error'); return; }
     const mainSlot = color.slots.main;
     const hasMainImage = mainSlot.newFile || (mainSlot.existingUrl && !mainSlot.removed);
     if(!hasMainImage) { showToast(`[${color.colorName}] 메인 이미지를 등록해주세요.`, 'error'); return; }
@@ -1456,9 +1469,14 @@ async function saveProductEdit() {
           urls[slot] = s.existingUrl || '';
         }
       }
+      const colorPrice = color.price !== '' && color.price != null ? Number(color.price) : price;
+      const colorSalePrice = discountRate > 0 ? Math.round(colorPrice * (1 - discountRate/100)) : 0;
       savedColors.push({
         colorName: color.colorName.trim(),
+        barcode: String(color.barcode).trim(),
         stock: Number(color.stock) || 0,
+        price: colorPrice,
+        salePrice: colorSalePrice,
         mainImageUrl: urls.main || '',
         detailImageUrls: [urls.detail1, urls.detail2, urls.detail3, urls.detail4].filter(Boolean)
       });
@@ -1466,7 +1484,6 @@ async function saveProductEdit() {
 
     await window._updateDoc(window._doc(window._db, 'products', editingProductId), {
       modelName,
-      barcode: document.getElementById('editBarcode').value.trim(),
       size: document.getElementById('editSize').value.trim(),
       category: document.getElementById('editCategory').value,
       type: document.getElementById('editType').value,
@@ -1594,7 +1611,7 @@ function initRegisterTable() {
 function addProductCard() {
   const cardId = ++cardIdCounter;
   productCards.push({
-    cardId, modelName:'', barcode:'', size:'', category:'', type:'',
+    cardId, modelName:'', size:'', category:'', type:'',
     price:'', discountRate:'', colors:[]
   });
   const card = productCards[productCards.length - 1];
@@ -1618,7 +1635,9 @@ function addColorToCard(card, rerender=true) {
   card.colors.push({
     colorId: ++colorIdCounter,
     colorName: '',
+    barcode: '',
     stock: '',
+    price: '',
     images: { main:null, detail1:null, detail2:null, detail3:null, detail4:null }
   });
   if(rerender) renderProductCards();
@@ -1698,11 +1717,6 @@ function renderProductCards() {
             onchange="updateCardField(${card.cardId},'modelName',this.value)">
         </div>
         <div class="reg-field">
-          <label>바코드</label>
-          <input type="text" placeholder="바코드" value="${card.barcode||''}"
-            onchange="updateCardField(${card.cardId},'barcode',this.value)">
-        </div>
-        <div class="reg-field">
           <label>사이즈</label>
           <input type="text" placeholder="53-20-149" value="${card.size||''}"
             onchange="updateCardField(${card.cardId},'size',this.value)">
@@ -1727,7 +1741,7 @@ function renderProductCards() {
           </select>
         </div>
         <div class="reg-field">
-          <label>정가 <span style="color:var(--red);">*</span></label>
+          <label>기본 정가 <span style="color:var(--red);">*</span></label>
           <input type="number" placeholder="정가" value="${card.price||''}"
             onchange="updateCardField(${card.cardId},'price',this.value)">
         </div>
@@ -1762,11 +1776,20 @@ function renderProductCards() {
                 onchange="updateColorField(${card.cardId},${color.colorId},'colorName',this.value)">
             </div>
             <div>
+              <label>바코드 <span style="color:var(--red);">*</span></label>
+              <input type="text" placeholder="색상별 바코드" value="${color.barcode||''}"
+                onchange="updateColorField(${card.cardId},${color.colorId},'barcode',this.value)">
+            </div>
+            <div>
               <label>재고 <span style="color:var(--red);">*</span></label>
               <input type="number" placeholder="재고수량" value="${color.stock||''}"
                 onchange="updateColorField(${card.cardId},${color.colorId},'stock',this.value)">
             </div>
-            <div></div>
+            <div>
+              <label>가격 <span style="font-weight:400;color:var(--g3);">(비워두면 기본가)</span></label>
+              <input type="number" placeholder="${card.price||'기본가 사용'}" value="${color.price||''}"
+                onchange="updateColorField(${card.cardId},${color.colorId},'price',this.value)">
+            </div>
           </div>
           <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
           <div class="color-img-row">
@@ -1824,6 +1847,7 @@ async function submitBulkRegister() {
     if(!card.price) { showToast(`[${card.modelName}] 정가를 입력해주세요.`, 'error'); return; }
     for(const color of card.colors) {
       if(!color.colorName) { showToast(`[${card.modelName}] 색상명을 입력해주세요.`, 'error'); return; }
+      if(!color.barcode) { showToast(`[${card.modelName} · ${color.colorName||'색상'}] 바코드를 입력해주세요.`, 'error'); return; }
       if(!color.images.main) { showToast(`[${card.modelName} · ${color.colorName}] 메인 이미지를 등록해주세요.`, 'error'); return; }
     }
   }
@@ -1868,9 +1892,15 @@ async function submitBulkRegister() {
             imgUrls[slot] = await window._getDownloadURL(fileRef);
           }
         }
+        // 색상별 가격: 비워두면 기본가(card.price) 그대로 사용, 입력하면 그 색상만 다른 가격 적용
+        const colorPrice = color.price !== '' && color.price != null ? Number(color.price) : price;
+        const colorSalePrice = discountRate > 0 ? Math.round(colorPrice * (1 - discountRate/100)) : 0;
         uploadedColors.push({
           colorName: color.colorName.trim(),
+          barcode: color.barcode.trim(),
           stock: Number(color.stock) || 0,
+          price: colorPrice,
+          salePrice: colorSalePrice,
           mainImageUrl: imgUrls.main || '',
           detailImageUrls: [imgUrls.detail1, imgUrls.detail2, imgUrls.detail3, imgUrls.detail4].filter(Boolean)
         });
@@ -1881,14 +1911,13 @@ async function submitBulkRegister() {
         brandName: brandInfo?.brandName || '',
         brandOwnerUid: uid,
         modelName: card.modelName.trim(),
-        barcode: card.barcode || '',
         size: card.size || '',
         category: card.category || '',
         type: card.type || '',
         price,
         discountRate,
         salePrice,
-        colors: uploadedColors, // 색상 배열 저장
+        colors: uploadedColors, // 색상 배열 저장 (색상별 바코드/가격 포함)
         // 목록/상세에서 빠르게 보여줄 대표 이미지 (첫 번째 색상 기준)
         mainImageUrl: uploadedColors[0]?.mainImageUrl || '',
         colorNames: uploadedColors.map(c => c.colorName), // 목록 카드 색상 칩용
