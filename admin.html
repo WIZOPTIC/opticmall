@@ -1805,7 +1805,16 @@ const orderManageStatusLabel = {
   shipping:  { label: '배송중',     cls: 'role-optician' },
   delivered: { label: '배송완료',   cls: 'approved' }
 };
-let orderManageCache = [];
+const CANCEL_FAMILY_STATUSES = ['cancel_requested', 'return_requested', 'cancel_completed', 'cancelled'];
+function computeOverallOrderStatus(shipments) {
+  if(!Array.isArray(shipments) || shipments.length === 0) return null;
+  const statuses = shipments.map(s => s.status);
+  if(statuses.every(s => s === 'delivered')) return 'delivered';
+  if(statuses.some(s => s === 'shipping' || s === 'delivered')) return 'shipping';
+  if(statuses.some(s => s === 'preparing')) return 'preparing';
+  return 'paid';
+}
+let orderManageCache = []; // 평탄화된 행: 주문+브랜드 배송묶음 단위 (구주문은 브랜드 없이 1행)
 let orderManageCurrentFilter = 'all';
 
 async function loadOrderManage() {
@@ -1816,14 +1825,38 @@ async function loadOrderManage() {
       window._collection(window._db, 'orders'),
       window._where('status', 'in', ORDER_MANAGE_STATUSES)
     ));
-    const orders = [];
-    snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
-    orders.sort((a,b) => {
+    const rows = [];
+    snap.forEach(d => {
+      const o = { id: d.id, ...d.data() };
+      const items = Array.isArray(o.items) ? o.items : [];
+      if(Array.isArray(o.shipments) && o.shipments.length > 0) {
+        // 브랜드별 배송묶음이 있는 주문(신규) → 브랜드별로 행 분리
+        o.shipments.forEach(s => {
+          const myItems = items.filter(it => it.brandOwnerUid === s.brandOwnerUid);
+          const amount = myItems.reduce((sum,it) => sum + Number(it.subtotal||0), 0);
+          rows.push({
+            orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
+            createdAt: o.createdAt, brandName: s.brandName||'-', brandOwnerUid: s.brandOwnerUid||null,
+            items: myItems, amount, status: s.status,
+            trackingCompany: s.trackingCompany, trackingNumber: s.trackingNumber, legacy: false
+          });
+        });
+      } else {
+        // 브랜드 구분 이전에 생성된 구주문 → 주문 전체를 한 행으로 표시
+        rows.push({
+          orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
+          createdAt: o.createdAt, brandName: '-', brandOwnerUid: null,
+          items, amount: o.totalAmount, status: o.status,
+          trackingCompany: o.trackingCompany, trackingNumber: o.trackingNumber, legacy: true
+        });
+      }
+    });
+    rows.sort((a,b) => {
       const da = a.createdAt?.toDate?.() || new Date(0);
       const db2 = b.createdAt?.toDate?.() || new Date(0);
       return db2 - da;
     });
-    orderManageCache = orders;
+    orderManageCache = rows;
     renderOrderManageTable();
   } catch(e) {
     console.error(e);
@@ -1840,14 +1873,14 @@ function filterOrderManage(status, el) {
 
 function renderOrderManageTable() {
   const tableEl = document.getElementById('orderManageTable');
-  const orders = orderManageCurrentFilter === 'all'
+  const rows = orderManageCurrentFilter === 'all'
     ? orderManageCache
-    : orderManageCache.filter(o => {
-        if(orderManageCurrentFilter === 'paid') return o.status === 'paid' || o.status === 'payment_window_passed';
-        return o.status === orderManageCurrentFilter;
+    : orderManageCache.filter(r => {
+        if(orderManageCurrentFilter === 'paid') return r.status === 'paid' || r.status === 'payment_window_passed';
+        return r.status === orderManageCurrentFilter;
       });
 
-  if(orders.length === 0) {
+  if(rows.length === 0) {
     tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);">해당하는 주문이 없습니다.</div>';
     return;
   }
@@ -1855,45 +1888,45 @@ function renderOrderManageTable() {
   tableEl.innerHTML = `
     <table>
       <thead><tr>
-        <th>주문번호</th><th>회원</th><th>상품 요약</th><th>결제금액</th>
+        <th>주문번호</th><th>회원</th><th>브랜드</th><th>상품 요약</th><th>금액</th>
         <th>상태</th><th>배송정보</th><th>주문일</th><th>처리</th>
       </tr></thead>
       <tbody>
-        ${orders.map(o => {
-          const items = Array.isArray(o.items) ? o.items : [];
-          const firstItem = items[0] ? items[0].productName||'-' : '-';
-          const itemSummary = items.length > 1 ? firstItem + ' 외 ' + (items.length-1) + '건' : firstItem;
-          const statusInfo = orderManageStatusLabel[o.status] || { label: o.status, cls: 'pending' };
-          const shipInfo = o.trackingNumber
-            ? `${o.trackingCompany||''} ${o.trackingNumber}`
-            : '-';
+        ${rows.map(r => {
+          const firstItem = r.items[0] ? r.items[0].productName||'-' : '-';
+          const itemSummary = r.items.length > 1 ? firstItem + ' 외 ' + (r.items.length-1) + '건' : firstItem;
+          const statusInfo = orderManageStatusLabel[r.status] || { label: r.status, cls: 'pending' };
+          const shipInfo = r.trackingNumber ? `${r.trackingCompany||''} ${r.trackingNumber}` : '-';
+          // 식별자: 신규 주문은 orderDocId+brandOwnerUid 조합으로 특정 배송묶음을 가리킴, 구주문은 orderDocId만
+          const ref = r.legacy ? `'${r.orderDocId}', null` : `'${r.orderDocId}', '${r.brandOwnerUid}'`;
 
           let actionBtn = '';
-          if(o.status === 'payment_window_passed' || o.status === 'paid') {
-            actionBtn = `<button class="btn-approve" onclick="advanceToPreparing('${o.id}')">📦 출고준비</button>`;
-          } else if(o.status === 'preparing') {
+          if(r.status === 'payment_window_passed' || r.status === 'paid') {
+            actionBtn = `<button class="btn-approve" onclick="advanceToPreparing(${ref})">📦 출고준비</button>`;
+          } else if(r.status === 'preparing') {
             actionBtn = `
-              <button class="btn-ship" onclick="advanceToShipping('${o.id}')">🚚 배송시작</button>
-              <button class="btn-view" onclick="revertOrderStatus('${o.id}','paid','결제완료')">↩ 되돌리기</button>`;
-          } else if(o.status === 'shipping') {
+              <button class="btn-ship" onclick="advanceToShipping(${ref})">🚚 배송시작</button>
+              <button class="btn-view" onclick="revertOrderStatus(${ref},'paid','결제완료')">↩</button>`;
+          } else if(r.status === 'shipping') {
             actionBtn = `
-              <button class="btn-approve" onclick="advanceToDelivered('${o.id}')">✅ 배송완료</button>
-              <button class="btn-view" onclick="revertOrderStatus('${o.id}','preparing','출고준비중')">↩ 되돌리기</button>`;
-          } else if(o.status === 'delivered') {
+              <button class="btn-approve" onclick="advanceToDelivered(${ref})">✅ 배송완료</button>
+              <button class="btn-view" onclick="revertOrderStatus(${ref},'preparing','출고준비중')">↩</button>`;
+          } else if(r.status === 'delivered') {
             actionBtn = `
               <span style="font-size:11px;color:var(--g3);">처리 완료</span>
-              <button class="btn-view" onclick="revertOrderStatus('${o.id}','shipping','배송중')">↩ 되돌리기</button>`;
+              <button class="btn-view" onclick="revertOrderStatus(${ref},'shipping','배송중')">↩</button>`;
           }
 
           return `
             <tr>
-              <td style="font-size:11px;color:var(--sky);">${o.orderId||o.id}</td>
-              <td>${o.userName||o.userEmail||'-'}</td>
+              <td style="font-size:11px;color:var(--sky);">${r.orderId}</td>
+              <td>${r.userName}</td>
+              <td style="font-size:12px;font-weight:600;">${r.brandName}</td>
               <td style="font-size:12px;">${itemSummary}</td>
-              <td>₩${Number(o.totalAmount||0).toLocaleString()}</td>
+              <td>₩${Number(r.amount||0).toLocaleString()}</td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>
-              <td style="font-size:11px;">${formatDate(o.createdAt)}</td>
+              <td style="font-size:11px;">${formatDate(r.createdAt)}</td>
               <td><div class="action-btns">${actionBtn}</div></td>
             </tr>`;
         }).join('')}
@@ -1901,13 +1934,34 @@ function renderOrderManageTable() {
     </table>`;
 }
 
-async function revertOrderStatus(orderId, targetStatus, targetLabel) {
-  if(!confirm(`이 주문을 '${targetLabel}' 상태로 되돌리시겠습니까?\n(운송장 정보는 그대로 유지됩니다. 필요시 다시 배송시작 처리 시 새로 입력할 수 있습니다.)`)) return;
+// orderDocId + brandOwnerUid(구주문은 null)를 받아 해당 배송묶음(또는 구주문 전체)의 상태를 갱신
+async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
+  const orderRef = window._doc(window._db, 'orders', orderDocId);
+  if(brandOwnerUid === null) {
+    // 구주문: 예전 방식 그대로 주문 전체 상태 갱신
+    await window._updateDoc(orderRef, patch);
+    return;
+  }
+  const snap = await window._getDoc(orderRef);
+  if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
+  const data = snap.data();
+  const shipments = Array.isArray(data.shipments) ? [...data.shipments] : [];
+  const idx = shipments.findIndex(s => s.brandOwnerUid === brandOwnerUid);
+  if(idx === -1) throw new Error('배송 정보를 찾을 수 없습니다.');
+  shipments[idx] = { ...shipments[idx], ...patch };
+
+  const updatePayload = { shipments };
+  if(!CANCEL_FAMILY_STATUSES.includes(data.status)) {
+    const overall = computeOverallOrderStatus(shipments);
+    if(overall) updatePayload.status = overall;
+  }
+  await window._updateDoc(orderRef, updatePayload);
+}
+
+async function revertOrderStatus(orderDocId, brandOwnerUid, targetStatus, targetLabel) {
+  if(!confirm(`이 배송건을 '${targetLabel}' 상태로 되돌리시겠습니까?\n(운송장 정보는 그대로 유지됩니다.)`)) return;
   try {
-    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
-      status: targetStatus,
-      statusRevertedAt: window._serverTimestamp()
-    });
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: targetStatus, statusRevertedAt: window._serverTimestamp() });
     showToast(`↩ '${targetLabel}' 상태로 되돌렸습니다.`, 'success');
     loadOrderManage();
     loadDashboard();
@@ -1916,13 +1970,10 @@ async function revertOrderStatus(orderId, targetStatus, targetLabel) {
   }
 }
 
-async function advanceToPreparing(orderId) {
-  if(!confirm('이 주문을 출고준비중 상태로 변경하시겠습니까?')) return;
+async function advanceToPreparing(orderDocId, brandOwnerUid) {
+  if(!confirm('이 배송건을 출고준비중 상태로 변경하시겠습니까?')) return;
   try {
-    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
-      status: 'preparing',
-      preparingAt: window._serverTimestamp()
-    });
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'preparing', preparingAt: window._serverTimestamp() });
     showToast('✅ 출고준비중으로 변경되었습니다.', 'success');
     loadOrderManage();
     loadDashboard();
@@ -1937,14 +1988,16 @@ const COURIER_CODE_MAP = {
   '22': '대신택배', '23': '경동택배'
 };
 let shipStartTargetOrderId = null;
+let shipStartTargetBrandOwnerUid = null;
 
 function onShipCourierChange() {
   const val = document.getElementById('shipCourierSelect').value;
   document.getElementById('shipCourierEtcWrap').style.display = (val === 'etc') ? 'block' : 'none';
 }
 
-function openShipStartModal(orderId) {
-  shipStartTargetOrderId = orderId;
+function openShipStartModal(orderDocId, brandOwnerUid) {
+  shipStartTargetOrderId = orderDocId;
+  shipStartTargetBrandOwnerUid = (brandOwnerUid === undefined) ? null : brandOwnerUid;
   document.getElementById('shipCourierSelect').value = '04';
   document.getElementById('shipCourierEtcWrap').style.display = 'none';
   document.getElementById('shipCourierEtc').value = '';
@@ -1955,6 +2008,7 @@ function openShipStartModal(orderId) {
 function closeShipStartModal() {
   document.getElementById('shipStartModal').classList.remove('open');
   shipStartTargetOrderId = null;
+  shipStartTargetBrandOwnerUid = null;
 }
 
 async function confirmShipStart() {
@@ -1971,7 +2025,7 @@ async function confirmShipStart() {
   if(!trackingNumber) { showToast('운송장 번호를 입력해주세요.', 'error'); return; }
 
   try {
-    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
+    await updateShipmentOrLegacy(orderId, shipStartTargetBrandOwnerUid, {
       status: 'shipping',
       trackingCompany,
       trackingCompanyCode: courierCode === 'etc' ? null : courierCode,
@@ -1987,17 +2041,14 @@ async function confirmShipStart() {
   }
 }
 
-async function advanceToShipping(orderId) {
-  openShipStartModal(orderId);
+async function advanceToShipping(orderDocId, brandOwnerUid) {
+  openShipStartModal(orderDocId, brandOwnerUid);
 }
 
-async function advanceToDelivered(orderId) {
-  if(!confirm('이 주문을 배송완료 상태로 변경하시겠습니까?')) return;
+async function advanceToDelivered(orderDocId, brandOwnerUid) {
+  if(!confirm('이 배송건을 배송완료 상태로 변경하시겠습니까?')) return;
   try {
-    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
-      status: 'delivered',
-      deliveredAt: window._serverTimestamp()
-    });
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'delivered', deliveredAt: window._serverTimestamp() });
     showToast('✅ 배송완료로 변경되었습니다.', 'success');
     loadOrderManage();
     loadDashboard();

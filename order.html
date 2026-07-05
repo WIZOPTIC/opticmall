@@ -576,6 +576,26 @@ async function startPayment() {
     : firstName;
   const finalPayAmount = totalAmount + currentShippingFee;
 
+  // 브랜드사별로 배송을 따로 처리할 수 있도록, 상품을 브랜드별로 묶어 shipments 생성
+  const shipmentsMap = {};
+  orderItems.forEach(item => {
+    const p = item.product;
+    const bId = p.brandId || 'unknown';
+    if(!shipmentsMap[bId]) {
+      shipmentsMap[bId] = {
+        brandId: bId,
+        brandName: p.brandName || '기타',
+        brandOwnerUid: p.brandOwnerUid || '',
+        status: 'payment_pending',
+        trackingCompany: '',
+        trackingCompanyCode: '',
+        trackingNumber: ''
+      };
+    }
+  });
+  const shipments = Object.values(shipmentsMap);
+  const shipmentBrandOwnerUids = [...new Set(shipments.map(s => s.brandOwnerUid).filter(Boolean))];
+
   // 주문 정보를 Firestore에 임시 저장 (결제 시도 단계, 상태: payment_pending)
   try {
     await _db.collection('orders').doc(orderId).set({
@@ -594,6 +614,7 @@ async function startPayment() {
           productName: p.modelName || '',
           brandId: p.brandId || '',
           brandName: p.brandName || '',
+          brandOwnerUid: p.brandOwnerUid || '',
           mainImageUrl: thumbUrl,
           selectedColor: item.selectedColor || '',
           selectedColorIdx: colorIdx,
@@ -604,6 +625,8 @@ async function startPayment() {
           subtotal: Number(p.effectivePrice || p.price || 0) * item.qty
         };
       }),
+      shipments,
+      shipmentBrandOwnerUids,
       itemCount: totalItemCount,
       productAmount: totalAmount,
       shippingFee: currentShippingFee,

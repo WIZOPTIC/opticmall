@@ -80,6 +80,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .ship-dot-wrap.current .ship-dot-label{color:var(--sky);font-weight:800;}
 .ship-track-btn{display:block;width:100%;padding:13px;margin:2px 0 18px;background:var(--g1);border:none;border-radius:8px;font-size:13.5px;font-weight:700;color:var(--navy);cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .ship-track-btn:hover{background:var(--g2);}
+
+/* 다중 브랜드 주문 배송 현황 (브랜드별로 상태가 다를 때) */
+.brand-ship-list{margin:14px 0 18px;display:flex;flex-direction:column;gap:10px;}
+.brand-ship-item{background:var(--g1);border-radius:10px;padding:14px 16px;}
+.brand-ship-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.brand-ship-name{font-size:13px;font-weight:700;color:var(--navy);}
 .order-block-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--g1);}
 .chip-action-btn{padding:9px 16px;border-radius:8px;border:1.5px solid var(--g2);background:var(--white);color:var(--g4);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;}
 .chip-action-btn:hover{border-color:var(--navy);color:var(--navy);}
@@ -807,6 +813,39 @@ function buildShipStepper(status) {
     </div>`;
 }
 
+function getStatusPillInfo(st) {
+  if(st === 'preparing') return { cls:'c-ready', label:'출고준비중' };
+  if(st === 'shipping') return { cls:'c-ship', label:'배송중' };
+  if(st === 'delivered') return { cls:'c-done', label:'배송완료' };
+  if(st === 'cancel_requested') return { cls:'c-cancel', label:'취소신청' };
+  if(st === 'return_requested') return { cls:'c-cancel', label:'반품신청' };
+  if(st === 'cancel_completed') return { cls:'c-cancel', label:'취소/환불완료' };
+  if(st === 'cancelled') return { cls:'c-cancel', label:'취소됨' };
+  return { cls:'c-pay', label:'결제완료' };
+}
+
+function buildBrandShipmentBreakdown(o) {
+  // 서로 다른 브랜드 상품이 함께 주문된 경우에만, 브랜드별로 상태를 따로 보여줌
+  if(!Array.isArray(o.shipments) || o.shipments.length <= 1) return '';
+  return `
+    <div class="brand-ship-list">
+      ${o.shipments.map(s => {
+        const info = getStatusPillInfo(s.status);
+        const sub = s.trackingNumber ? `${s.trackingCompany||''} ${s.trackingNumber}` : (s.status === 'preparing' ? '상품을 준비하고 있어요' : '주문이 접수되었어요');
+        const canTrack = s.trackingNumber && (s.status === 'shipping' || s.status === 'delivered');
+        return `
+          <div class="brand-ship-item">
+            <div class="brand-ship-top">
+              <span class="brand-ship-name">${s.brandName||'브랜드'}</span>
+              <span class="status-pill ${info.cls}" style="font-size:12px;">${info.label}</span>
+            </div>
+            <div class="status-sub" style="margin-top:4px;">${sub}</div>
+            ${canTrack ? `<button class="ship-track-btn" style="margin-top:10px;margin-bottom:0;" onclick="openTrackModal('${o.id}','${s.brandOwnerUid}')">배송조회</button>` : ''}
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
 function formatFullDateTime(ts) {
   const d = ts?.toDate ? ts.toDate() : new Date(ts || 0);
   const h = d.getHours(), ampm = h < 12 ? '오전' : '오후';
@@ -817,13 +856,13 @@ function formatFullDateTime(ts) {
 // 배송조회 프록시 함수 주소 (Firebase Functions 배포 후 실제 데이터 연동됨)
 const TRACKING_FUNCTION_URL = 'https://asia-northeast3-opticmall.cloudfunctions.net/getTrackingInfo';
 
-function renderInternalTimeline(o) {
+function renderInternalTimeline(target, order) {
   // 우리가 실제로 기록한 상태 변경 시각을 타임라인으로 구성 (최신순, Functions 미배포/실패 시 폴백)
   const timeline = [];
-  if(o.deliveredAt) timeline.push({ place: '배송완료', meta: formatFullDateTime(o.deliveredAt) });
-  if(o.shippingStartedAt) timeline.push({ place: `${o.trackingCompany||'택배'} 접수`, meta: formatFullDateTime(o.shippingStartedAt) });
-  if(o.preparingAt) timeline.push({ place: '출고 준비 시작', meta: formatFullDateTime(o.preparingAt) });
-  if(o.createdAt) timeline.push({ place: '주문/결제 완료', meta: formatFullDateTime(o.createdAt) });
+  if(target.deliveredAt) timeline.push({ place: '배송완료', meta: formatFullDateTime(target.deliveredAt) });
+  if(target.shippingStartedAt) timeline.push({ place: `${target.trackingCompany||'택배'} 접수`, meta: formatFullDateTime(target.shippingStartedAt) });
+  if(target.preparingAt) timeline.push({ place: '출고 준비 시작', meta: formatFullDateTime(target.preparingAt) });
+  if(order.createdAt) timeline.push({ place: '주문/결제 완료', meta: formatFullDateTime(order.createdAt) });
   return timeline;
 }
 
@@ -849,28 +888,43 @@ function renderTimelineHtml(timeline) {
   `).join('');
 }
 
-async function openTrackModal(orderId) {
+function computeOverallOrderStatusClient(shipments) {
+  if(!Array.isArray(shipments) || shipments.length === 0) return null;
+  const statuses = shipments.map(s => s.status);
+  if(statuses.every(s => s === 'delivered')) return 'delivered';
+  if(statuses.some(s => s === 'shipping' || s === 'delivered')) return 'shipping';
+  if(statuses.some(s => s === 'preparing')) return 'preparing';
+  return 'paid';
+}
+
+async function openTrackModal(orderId, brandOwnerUid) {
   const o = allOrdersCache.find(x => x.id === orderId);
   if(!o) return;
 
-  let headline = '배송을 준비하고 있어요';
-  if(o.status === 'preparing') headline = '상품을 준비하고 있어요';
-  else if(o.status === 'shipping') headline = '배송이 시작됐어요';
-  else if(o.status === 'delivered') headline = '배송이 완료됐어요';
+  // 여러 브랜드가 섞인 주문이면 해당 브랜드의 배송묶음만, 아니면 주문 전체를 대상으로 함
+  const shipment = brandOwnerUid && Array.isArray(o.shipments)
+    ? o.shipments.find(s => s.brandOwnerUid === brandOwnerUid)
+    : null;
+  const target = shipment || o; // status/trackingCompany/trackingNumber/preparingAt 등을 여기서 읽음
 
-  const courierRowHtml = o.trackingNumber ? `
+  let headline = '배송을 준비하고 있어요';
+  if(target.status === 'preparing') headline = '상품을 준비하고 있어요';
+  else if(target.status === 'shipping') headline = '배송이 시작됐어요';
+  else if(target.status === 'delivered') headline = '배송이 완료됐어요';
+
+  const courierRowHtml = target.trackingNumber ? `
     <div class="track-courier-row">
-      <div class="track-courier-info">${o.trackingCompany||'택배'}<span class="track-courier-num">${o.trackingNumber}</span></div>
-      <button class="track-copy-btn" onclick="copyTrackingNumber('${o.trackingNumber}')">복사하기</button>
+      <div class="track-courier-info">${target.trackingCompany||'택배'}<span class="track-courier-num">${target.trackingNumber}</span></div>
+      <button class="track-copy-btn" onclick="copyTrackingNumber('${target.trackingNumber}')">복사하기</button>
     </div>` : '';
 
-  const externalBtnHtml = o.trackingNumber ? `
-    <button class="track-external-btn" onclick='openTrackingPage(${JSON.stringify(o.trackingCompanyCode||"")}, ${JSON.stringify(o.trackingCompany||"")}, ${JSON.stringify(o.trackingNumber)})'>택배사 사이트에서 상세 위치 확인하기</button>` : '';
+  const externalBtnHtml = target.trackingNumber ? `
+    <button class="track-external-btn" onclick='openTrackingPage(${JSON.stringify(target.trackingCompanyCode||"")}, ${JSON.stringify(target.trackingCompany||"")}, ${JSON.stringify(target.trackingNumber)})'>택배사 사이트에서 상세 위치 확인하기</button>` : '';
 
   const renderBody = (timelineHtml, disclaimerHtml) => {
     document.getElementById('trackModalBody').innerHTML = `
       <div class="track-headline">${headline}</div>
-      ${buildShipStepper(o.status)}
+      ${buildShipStepper(target.status)}
       <div class="track-timeline">${timelineHtml}</div>
       ${courierRowHtml}
       ${externalBtnHtml}
@@ -880,27 +934,44 @@ async function openTrackModal(orderId) {
 
   // 1단계: 우리 기록 기반 타임라인으로 즉시 표시 (로딩 지연 없이)
   const fallbackDisclaimer = `<div class="track-disclaimer">ℹ️ 확인해주세요<br>현재 배송 단계는 판매자가 직접 기록한 정보예요. 실시간 택배 위치 조회는 준비 중이며, 정확한 현재 위치는 위 "택배사 사이트에서 상세 위치 확인하기" 버튼으로 확인하실 수 있어요.</div>`;
-  renderBody(renderTimelineHtml(renderInternalTimeline(o)), fallbackDisclaimer);
+  renderBody(renderTimelineHtml(renderInternalTimeline(target, o)), fallbackDisclaimer);
   document.getElementById('trackModalOverlay').classList.add('open');
 
   // 2단계: 실시간 데이터 시도 (Functions 배포 전이거나 실패하면 위 화면 그대로 유지됨)
-  if(o.trackingNumber && o.trackingCompanyCode) {
+  if(target.trackingNumber && target.trackingCompanyCode) {
     try {
-      const url = `${TRACKING_FUNCTION_URL}?t_code=${encodeURIComponent(o.trackingCompanyCode||'')}&t_invoice=${encodeURIComponent(o.trackingNumber)}`;
+      const url = `${TRACKING_FUNCTION_URL}?t_code=${encodeURIComponent(target.trackingCompanyCode||'')}&t_invoice=${encodeURIComponent(target.trackingNumber)}`;
       const res = await fetch(url);
       const data = await res.json();
       if(data && Array.isArray(data.trackingDetails) && data.trackingDetails.length > 0) {
-        // 실제 택배사가 "배송완료"라고 알려주면, 우리 주문 상태도 자동으로 맞춰줌
-        const stillOpenStatus = ['payment_window_passed', 'paid', 'preparing', 'shipping'].includes(o.status);
+        // 실제 택배사가 "배송완료"라고 알려주면, 우리 주문(또는 해당 브랜드 배송묶음) 상태도 자동으로 맞춰줌
+        const stillOpenStatus = ['payment_window_passed', 'paid', 'preparing', 'shipping'].includes(target.status);
         if(data.complete === true && stillOpenStatus) {
           try {
-            await _db.collection('orders').doc(o.id).update({
-              status: 'delivered',
-              deliveredAt: firebase.firestore.FieldValue.serverTimestamp(),
-              deliveredAutoDetected: true
-            });
-            o.status = 'delivered';
-            o.deliveredAt = { toDate: () => new Date() }; // 화면 즉시 반영용 (다음 새로고침 시 정확한 값으로 교체됨)
+            if(shipment) {
+              // 다중 브랜드 주문: 해당 배송묶음만 갱신 + 전체 주문 상태 재계산
+              const newShipments = o.shipments.map(s => s.brandOwnerUid === brandOwnerUid
+                ? { ...s, status: 'delivered', deliveredAt: firebase.firestore.FieldValue.serverTimestamp(), deliveredAutoDetected: true }
+                : s);
+              const overall = computeOverallOrderStatusClient(newShipments);
+              const updatePayload = { shipments: newShipments };
+              if(overall && !['cancel_requested','return_requested','cancel_completed','cancelled'].includes(o.status)) {
+                updatePayload.status = overall;
+              }
+              await _db.collection('orders').doc(o.id).update(updatePayload);
+              shipment.status = 'delivered';
+              shipment.deliveredAt = { toDate: () => new Date() };
+              o.shipments = newShipments;
+              if(updatePayload.status) o.status = updatePayload.status;
+            } else {
+              await _db.collection('orders').doc(o.id).update({
+                status: 'delivered',
+                deliveredAt: firebase.firestore.FieldValue.serverTimestamp(),
+                deliveredAutoDetected: true
+              });
+              o.status = 'delivered';
+              o.deliveredAt = { toDate: () => new Date() }; // 화면 즉시 반영용 (다음 새로고침 시 정확한 값으로 교체됨)
+            }
             headline = '배송이 완료됐어요';
             renderOrdersList(); // 뒤에 있는 주문 목록 화면도 같이 갱신
           } catch(e) {
@@ -1030,10 +1101,12 @@ function renderOrdersList() {
     else if(st === 'cancel_completed') { pillCls='c-cancel'; pillLabel='취소/환불완료'; subText = o.cancelCompletedAt ? `${formatShortDate(o.cancelCompletedAt)} 환불완료` : ''; }
     else if(st === 'cancelled') { pillCls='c-cancel'; pillLabel='취소됨'; subText=''; }
 
-    const stepperHtml = buildShipStepper(st);
-    const trackBtnHtml = (o.trackingNumber && (st==='shipping'||st==='delivered'))
+    const isMultiBrand = Array.isArray(o.shipments) && o.shipments.length > 1;
+    const stepperHtml = isMultiBrand ? '' : buildShipStepper(st);
+    const trackBtnHtml = (!isMultiBrand && o.trackingNumber && (st==='shipping'||st==='delivered'))
       ? `<button class="ship-track-btn" onclick="openTrackModal('${o.id}')">배송조회</button>`
       : '';
+    const brandBreakdownHtml = isMultiBrand ? buildBrandShipmentBreakdown(o) : '';
 
     return `
       <div class="order-block">
@@ -1048,6 +1121,7 @@ function renderOrdersList() {
           </div>
           ${stepperHtml}
           ${trackBtnHtml}
+          ${brandBreakdownHtml}
           ${items.map(it => `
             <div class="order-item">
               <div class="order-img">
@@ -1056,7 +1130,7 @@ function renderOrdersList() {
                   : `<span style="font-size:24px;opacity:0.3;">👓</span>`}
               </div>
               <div class="order-item-info">
-                <div class="order-item-name">${it.productName||'-'}</div>
+                <div class="order-item-name">${it.productName||'-'}${it.brandName ? ` <span style="color:var(--g3);font-weight:400;">· ${it.brandName}</span>` : ''}</div>
                 <div class="order-item-opt">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
               </div>
               <div class="order-item-price">₩${Number(it.subtotal||0).toLocaleString()}</div>

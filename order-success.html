@@ -183,8 +183,14 @@ async function handleSuccess() {
     }
 
     // 주문 상태 업데이트: 결제창 통과 (실제 승인은 다음 단계 서버 연동에서 처리)
+    // 브랜드별 배송묶음(shipments) 상태도 함께 갱신
+    const updatedShipments = Array.isArray(order.shipments)
+      ? order.shipments.map(s => ({ ...s, status: 'payment_window_passed' }))
+      : [];
+
     await orderRef.update({
       status: 'payment_window_passed',
+      shipments: updatedShipments,
       paymentKey: paymentKey || '',
       paidAmount: Number(amount),
       paymentPassedAt: firebase.firestore.FieldValue.serverTimestamp()
