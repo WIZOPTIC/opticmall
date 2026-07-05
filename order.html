@@ -395,17 +395,17 @@ async function saveNewAddressAndSelect() {
 // ===================== 주문 상품 로드 (단건/다건 모두 지원) =====================
 async function loadOrderProduct() {
   const params = new URLSearchParams(location.search);
-  const itemsParam = params.get('items'); // 장바구니: "id1:qty1,id2:qty2"
+  const itemsParam = params.get('items'); // 장바구니: "id1:qty1:colorIdx1,id2:qty2:colorIdx2"
   const pid = params.get('pid'); // 단건: 바로주문
 
   let pidQtyList = [];
   if(itemsParam) {
     pidQtyList = itemsParam.split(',').map(pair => {
-      const [id, qty] = pair.split(':');
-      return { id, qty: parseInt(qty) || 1 };
+      const [id, qty, colorIdx] = pair.split(':');
+      return { id, qty: parseInt(qty) || 1, colorIdx: colorIdx !== undefined ? parseInt(colorIdx) || 0 : 0 };
     });
   } else if(pid) {
-    pidQtyList = [{ id: pid, qty: parseInt(params.get('qty')) || 1 }];
+    pidQtyList = [{ id: pid, qty: parseInt(params.get('qty')) || 1, colorIdx: parseInt(params.get('colorIdx')) || 0 }];
   }
 
   if(pidQtyList.length === 0) {
@@ -419,10 +419,17 @@ async function loadOrderProduct() {
       pidQtyList.map(({id}) => _db.collection('products').doc(id).get())
     );
 
-    orderItems = pidQtyList.map(({id, qty}, i) => {
+    orderItems = pidQtyList.map(({id, qty, colorIdx}, i) => {
       const docSnap = productDocs[i];
       if(!docSnap.exists) return null;
-      return { product: { id: docSnap.id, ...docSnap.data() }, qty };
+      const product = { id: docSnap.id, ...docSnap.data() };
+      const selectedColorData = Array.isArray(product.colors) ? product.colors[colorIdx] : null;
+      return {
+        product,
+        qty,
+        selectedColorIdx: colorIdx,
+        selectedColor: selectedColorData?.colorName || ''
+      };
     }).filter(Boolean);
 
     if(orderItems.length === 0) {
@@ -448,13 +455,16 @@ async function loadOrderProduct() {
         const eventRate = discountMap[p.id] || 0;
         const productRate = Number(p.discountRate) || 0;
         const finalRate = Math.max(eventRate, productRate);
-        const basePrice = Number(p.price || 0);
+        // 선택된 색상에 별도 가격이 있으면 그 가격을, 없으면 상품 기본가를 기준으로 계산
+        const selectedColorData = Array.isArray(p.colors) ? p.colors[item.selectedColorIdx] : null;
+        const hasColorPrice = selectedColorData && selectedColorData.price != null && selectedColorData.price !== '';
+        const basePrice = hasColorPrice ? Number(selectedColorData.price) : Number(p.price || 0);
 
         if(finalRate > 0) {
           item.product.discountRate = finalRate;
           item.product.originalPrice = basePrice;
-          // salePrice가 있고 상품 자체 할인율이 최종 할인율과 같으면 salePrice 사용
-          if(productRate > 0 && productRate === finalRate && Number(p.salePrice) > 0) {
+          // salePrice가 있고 상품 자체 할인율이 최종 할인율과 같으면 salePrice 사용 (단, 색상별 가격 override가 없을 때만)
+          if(!hasColorPrice && productRate > 0 && productRate === finalRate && Number(p.salePrice) > 0) {
             item.product.effectivePrice = Number(p.salePrice);
           } else {
             item.product.effectivePrice = Math.round(basePrice * (1 - finalRate / 100));
@@ -468,12 +478,16 @@ async function loadOrderProduct() {
       orderItems.forEach(item => {
         const p = item.product;
         const productRate = Number(p.discountRate) || 0;
-        if(productRate > 0 && p.salePrice) {
+        const selectedColorData = Array.isArray(p.colors) ? p.colors[item.selectedColorIdx] : null;
+        const hasColorPrice = selectedColorData && selectedColorData.price != null && selectedColorData.price !== '';
+        const basePrice = hasColorPrice ? Number(selectedColorData.price) : Number(p.price || 0);
+
+        if(!hasColorPrice && productRate > 0 && p.salePrice) {
           item.product.effectivePrice = Number(p.salePrice);
         } else if(productRate > 0) {
-          item.product.effectivePrice = Math.round(Number(p.price||0) * (1 - productRate/100));
+          item.product.effectivePrice = Math.round(basePrice * (1 - productRate/100));
         } else {
-          item.product.effectivePrice = Number(p.price || 0);
+          item.product.effectivePrice = basePrice;
         }
       });
     }
@@ -493,17 +507,22 @@ function renderOrderItems() {
   document.getElementById('itemCount').textContent = orderItems.length;
   document.getElementById('orderItemsList').innerHTML = orderItems.map(item => {
     const p = item.product;
+    const colorIdx = Number(item.selectedColorIdx) || 0;
+    const colorData = Array.isArray(p.colors) ? p.colors[colorIdx] : null;
     const unitPrice = Number(p.effectivePrice || p.price || 0);
     const subtotal = unitPrice * item.qty;
-    const hasImg = !!p.mainImageUrl;
-    const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : `👓`;
+    const thumbUrl = colorData?.mainImageUrl || p.mainImageUrl;
+    const hasImg = !!thumbUrl;
+    const imgHtml = hasImg ? `<img src="${thumbUrl}">` : `👓`;
+    const colorLabel = item.selectedColor || colorData?.colorName || p.color || '';
+    const barcode = colorData?.barcode || p.barcode || '';
     const discountTag = p.discountRate ? `<span style="font-size:11px;color:var(--red);font-weight:700;margin-left:4px;">${p.discountRate}% 할인적용</span>` : '';
     return `
       <div class="order-item">
         <div class="order-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
         <div class="order-item-info">
-          <div class="order-item-name">${p.modelName||'-'}${p.color ? ' · '+p.color : ''}${discountTag}</div>
-          <div class="order-item-opt">${p.barcode||''} · ${item.qty}개</div>
+          <div class="order-item-name">${p.modelName||'-'}${colorLabel ? ' · '+colorLabel : ''}${discountTag}</div>
+          <div class="order-item-opt">${barcode} · ${item.qty}개</div>
         </div>
         <div class="order-item-price">₩${subtotal.toLocaleString()}</div>
       </div>`;

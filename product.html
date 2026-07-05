@@ -660,18 +660,20 @@ function updatePriceDisplay() {
     document.getElementById('price-locked').style.display = 'none';
     document.getElementById('price-visible').style.display = 'block';
 
-    if(currentProduct.discountRate) {
-      const price = Number(currentProduct.price || 0);
-      const discountRate = Number(currentProduct.discountRate);
-      const salePrice = currentProduct.salePrice
-        ? Number(currentProduct.salePrice)
-        : Math.round(price * (1 - discountRate/100));
+    // 선택된 색상에 별도 가격이 지정돼 있으면 그 가격을, 없으면 기본가를 사용
+    const selectedColor = currentProduct.colors && currentProduct.colors[currentColorIdx];
+    const hasColorPrice = selectedColor && selectedColor.price != null && selectedColor.price !== '';
+    const price = hasColorPrice ? Number(selectedColor.price) : Number(currentProduct.price || 0);
+    const discountRate = Number(currentProduct.discountRate) || 0;
+
+    if(discountRate > 0) {
+      const salePrice = Math.round(price * (1 - discountRate/100));
       document.getElementById('priceValue').innerHTML =
         `<span style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-right:8px;">₩${price.toLocaleString()}</span>${salePrice.toLocaleString()} <span style="font-size:16px;color:var(--red);font-weight:800;">${discountRate}%</span>`;
       document.getElementById('spec-price').textContent = '₩' + salePrice.toLocaleString() + ` (${discountRate}% 할인 적용)`;
     } else {
-      document.getElementById('priceValue').textContent = Number(currentProduct.price||0).toLocaleString();
-      document.getElementById('spec-price').textContent = '₩' + Number(currentProduct.price||0).toLocaleString();
+      document.getElementById('priceValue').textContent = price.toLocaleString();
+      document.getElementById('spec-price').textContent = '₩' + price.toLocaleString();
     }
     updateTotal();
   } else {
@@ -847,8 +849,11 @@ function renderProduct(p) {
   checkWishAndRestockStatus(p);
 }
 
+let currentColorIdx = 0;
+
 // 색상 버튼 렌더링 + 클릭 시 사진 전환
 function renderColorButtons(p, selectedIdx) {
+  currentColorIdx = selectedIdx;
   const colorList = document.getElementById('colorList');
   const colors = p.colors;
   colorList.innerHTML = colors.map((c, i) => `
@@ -863,6 +868,7 @@ function renderColorButtons(p, selectedIdx) {
   const selected = colors[selectedIdx];
   applyColorImages(selected);
   updateStockDisplay(Number(selected.stock || 0));
+  updatePriceDisplay(); // 색상마다 가격이 다를 수 있으므로 선택할 때마다 가격도 갱신
 }
 
 function selectColor(idx) {
@@ -1059,12 +1065,11 @@ function changeQty(val) {
 function updateTotal() {
   if(!currentProduct) return;
   const qty = parseInt(document.getElementById('qty').value) || 1;
-  const basePrice = Number(currentProduct.price || 0);
+  const selectedColor = currentProduct.colors && currentProduct.colors[currentColorIdx];
+  const hasColorPrice = selectedColor && selectedColor.price != null && selectedColor.price !== '';
+  const basePrice = hasColorPrice ? Number(selectedColor.price) : Number(currentProduct.price || 0);
   const discountRate = Number(currentProduct.discountRate) || 0;
-  const salePrice = currentProduct.salePrice
-    ? Number(currentProduct.salePrice)
-    : (discountRate > 0 ? Math.round(basePrice * (1 - discountRate/100)) : 0);
-  const price = discountRate > 0 ? salePrice : basePrice;
+  const price = discountRate > 0 ? Math.round(basePrice * (1 - discountRate/100)) : basePrice;
   const total = price * qty;
   document.getElementById('total-price').textContent = '₩' + total.toLocaleString();
 }
@@ -1198,7 +1203,7 @@ function buyNow() {
   const qty = parseInt(document.getElementById('qty').value) || 1;
   showToast('주문 페이지로 이동합니다...', 'success');
   setTimeout(() => {
-    location.href = `order.html?pid=${currentProduct.id}&qty=${qty}`;
+    location.href = `order.html?pid=${currentProduct.id}&qty=${qty}&colorIdx=${currentColorIdx}`;
   }, 500);
 }
 
