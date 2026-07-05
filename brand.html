@@ -1037,8 +1037,8 @@ function renderShipManageTable() {
   tableEl.innerHTML = `
     <table>
       <thead><tr>
-        <th>주문번호</th><th>구매자</th><th>내 상품 (이 브랜드분)</th>
-        <th>상태</th><th>배송정보</th><th>주문일</th><th>처리</th>
+        <th>주문일</th><th>주문번호</th><th>구매자</th><th>내 상품 (이 브랜드분)</th>
+        <th>상태</th><th>배송정보</th><th>처리</th>
       </tr></thead>
       <tbody>
         ${rows.map(r => {
@@ -1065,12 +1065,12 @@ function renderShipManageTable() {
 
           return `
             <tr>
+              <td style="font-size:11px;white-space:nowrap;">${formatDate(r.createdAt)}</td>
               <td style="font-size:11px;color:var(--sky);cursor:pointer;text-decoration:underline;" onclick="openBrandOrderDetail('${r.orderDocId}')">${r.orderId}</td>
               <td>${r.userName}</td>
               <td style="font-size:12px;">${itemSummary}</td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>
-              <td style="font-size:11px;">${formatDate(r.createdAt)}</td>
               <td><div class="action-btns">${actionBtn}</div></td>
             </tr>`;
         }).join('')}

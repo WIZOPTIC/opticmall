@@ -1945,8 +1945,8 @@ function renderOrderManageTable() {
   tableEl.innerHTML = `
     <table>
       <thead><tr>
-        <th>주문번호</th><th>회원</th><th>브랜드</th><th>상품 요약</th><th>금액</th>
-        <th>상태</th><th>배송정보</th><th>주문일</th><th>처리</th>
+        <th>주문일</th><th>주문번호</th><th>회원</th><th>브랜드</th><th>상품 요약</th><th>금액</th>
+        <th>상태</th><th>배송정보</th><th>처리</th>
       </tr></thead>
       <tbody>
         ${rows.map(r => {
@@ -1976,6 +1976,7 @@ function renderOrderManageTable() {
 
           return `
             <tr>
+              <td style="font-size:11px;white-space:nowrap;">${formatDate(r.createdAt)}</td>
               <td style="font-size:11px;color:var(--sky);">${r.orderId}</td>
               <td>${r.userName}</td>
               <td style="font-size:12px;font-weight:600;">${r.brandName}</td>
@@ -1983,7 +1984,6 @@ function renderOrderManageTable() {
               <td>₩${Number(r.amount||0).toLocaleString()}</td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>
-              <td style="font-size:11px;">${formatDate(r.createdAt)}</td>
               <td><div class="action-btns">${actionBtn}</div></td>
             </tr>`;
         }).join('')}
@@ -2145,8 +2145,8 @@ async function loadCancelManage() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>주문번호</th><th>회원</th><th>상품 요약</th><th>결제금액</th>
-          <th>신청유형</th><th>취소사유</th><th>환불예정액</th><th>신청일</th><th>처리</th>
+          <th>신청일</th><th>주문번호</th><th>회원</th><th>상품 요약</th><th>결제금액</th>
+          <th>신청유형</th><th>취소사유</th><th>환불예정액</th><th>처리</th>
         </tr></thead>
         <tbody>
           ${orders.map(o => {
@@ -2163,6 +2163,7 @@ async function loadCancelManage() {
             row.style.cursor = 'pointer';
             row.onclick = () => openCancelDetail(o.id);
             row.innerHTML = `
+              <td style="font-size:11px;white-space:nowrap;">${formatDate(o.cancelRequestedAt)}</td>
               <td style="font-size:11px;color:var(--sky);">${o.orderId||o.id}</td>
               <td>${o.userName||o.userEmail||'-'}</td>
               <td style="font-size:12px;">${itemSummary}</td>
@@ -2170,7 +2171,6 @@ async function loadCancelManage() {
               <td><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품' : '취소'}</span></td>
               <td style="font-size:12px;">${o.cancelReason||'-'}</td>
               <td style="font-weight:700;color:var(--sky);">₩${expectedRefund.toLocaleString()}</td>
-              <td style="font-size:11px;">${formatDate(o.cancelRequestedAt)}</td>
               <td><button class="btn-approve" onclick="event.stopPropagation();openCancelDetail('${o.id}')">📄 상세</button></td>
             `;
             return row.outerHTML;
