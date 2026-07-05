@@ -324,10 +324,33 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
       <div class="section-title">회원 정보 수정</div>
       <div class="form-card">
         <div class="form-group"><label>이름</label><input id="editName"></div>
-        <div class="form-group"><label>이메일</label><input id="editEmail" readonly></div>
+        <div class="form-group"><label>생년월일</label><input id="editBirth" placeholder="19900101" maxlength="8"></div>
+        <div class="form-group">
+          <label>이메일</label>
+          <input id="editEmail" readonly>
+          <div style="font-size:12px;color:var(--g3);margin-top:6px;">이메일은 로그인 아이디로 사용되어 직접 변경할 수 없어요. 변경이 필요하면 고객센터로 문의해주세요.</div>
+        </div>
         <div class="form-group"><label>휴대폰</label><input id="editPhone"></div>
         <div class="form-group" id="storeNameGroup"><label>안경원명</label><input id="editStoreName"></div>
+        <div class="form-group">
+          <label>주소</label>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input id="editZipcode" placeholder="우편번호" readonly style="max-width:140px;">
+            <button type="button" onclick="searchAddrProfile()" style="padding:0 16px;background:var(--g1);color:var(--navy);border:1px solid var(--g2);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">주소 검색</button>
+          </div>
+          <input id="editAddr1" placeholder="주소 검색 후 자동입력" readonly style="margin-bottom:8px;">
+          <input id="editAddr2" placeholder="상세 주소 입력">
+        </div>
         <button class="btn-save" onclick="saveProfile()">수정하기</button>
+      </div>
+
+      <div class="form-card" style="margin-top:20px;">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;">비밀번호 변경</div>
+        <div class="form-group"><label>현재 비밀번호</label><input type="password" id="curPw" autocomplete="current-password"></div>
+        <div class="form-group"><label>새 비밀번호</label><input type="password" id="newPw" placeholder="8자 이상, 영문+숫자+특수문자" autocomplete="new-password"></div>
+        <div class="form-group"><label>새 비밀번호 확인</label><input type="password" id="newPw2" autocomplete="new-password"></div>
+        <div id="pwChangeMsg" style="display:none;font-size:12px;margin-bottom:12px;"></div>
+        <button class="btn-save" onclick="changePassword()">비밀번호 변경</button>
       </div>
     </div>
 
@@ -535,8 +558,12 @@ function renderProfile() {
 
   // 회원정보 폼
   document.getElementById('editName').value = u.name || '';
+  document.getElementById('editBirth').value = u.birth || '';
   document.getElementById('editEmail').value = currentUser.email || '';
   document.getElementById('editPhone').value = u.phone || '';
+  document.getElementById('editZipcode').value = u.zipcode || '';
+  document.getElementById('editAddr1').value = u.addr1 || '';
+  document.getElementById('editAddr2').value = u.addr2 || '';
   if(role === 'brand') {
     document.getElementById('storeNameGroup').querySelector('label').textContent = '브랜드명';
     document.getElementById('editStoreName').value = u.brandName || '';
@@ -558,12 +585,16 @@ function renderProfile() {
 
 async function saveProfile() {
   const name = document.getElementById('editName').value.trim();
+  const birth = document.getElementById('editBirth').value.trim();
   const phone = document.getElementById('editPhone').value.trim();
   const storeName = document.getElementById('editStoreName').value.trim();
+  const zipcode = document.getElementById('editZipcode').value.trim();
+  const addr1 = document.getElementById('editAddr1').value.trim();
+  const addr2 = document.getElementById('editAddr2').value.trim();
   if(!name) { alert('이름을 입력해주세요.'); return; }
 
   const role = currentUserData.role || 'optician';
-  const updateData = { name, phone };
+  const updateData = { name, birth, phone, zipcode, addr1, addr2 };
   if(role === 'brand') updateData.brandName = storeName;
   else updateData.storeName = storeName;
 
@@ -575,6 +606,56 @@ async function saveProfile() {
   } catch(e) {
     console.error(e);
     alert('수정 중 오류가 발생했습니다: ' + e.message);
+  }
+}
+
+// 회원정보 수정 페이지에서 주소 검색 (다음 우편번호 서비스)
+function searchAddrProfile() {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      document.getElementById('editZipcode').value = data.zonecode;
+      document.getElementById('editAddr1').value = data.roadAddress || data.jibunAddress;
+      document.getElementById('editAddr2').focus();
+    }
+  }).open();
+}
+
+// 비밀번호 변경 (현재 비밀번호로 재인증 후 변경)
+async function changePassword() {
+  const curPw = document.getElementById('curPw').value;
+  const newPw = document.getElementById('newPw').value;
+  const newPw2 = document.getElementById('newPw2').value;
+  const msgEl = document.getElementById('pwChangeMsg');
+  msgEl.style.display = 'none';
+
+  const showMsg = (text, isError) => {
+    msgEl.textContent = text;
+    msgEl.style.color = isError ? 'var(--red)' : 'var(--sky)';
+    msgEl.style.display = 'block';
+  };
+
+  if(!curPw || !newPw || !newPw2) { showMsg('모든 항목을 입력해주세요.', true); return; }
+  if(newPw.length < 8) { showMsg('새 비밀번호는 8자 이상이어야 합니다.', true); return; }
+  if(newPw !== newPw2) { showMsg('새 비밀번호가 서로 일치하지 않습니다.', true); return; }
+
+  try {
+    const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, curPw);
+    await currentUser.reauthenticateWithCredential(credential);
+    await currentUser.updatePassword(newPw);
+    showMsg('✓ 비밀번호가 변경되었습니다.', false);
+    document.getElementById('curPw').value = '';
+    document.getElementById('newPw').value = '';
+    document.getElementById('newPw2').value = '';
+  } catch(e) {
+    if(e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      showMsg('현재 비밀번호가 일치하지 않습니다.', true);
+    } else if(e.code === 'auth/weak-password') {
+      showMsg('새 비밀번호가 너무 약합니다. 더 복잡하게 설정해주세요.', true);
+    } else if(e.code === 'auth/too-many-requests') {
+      showMsg('너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.', true);
+    } else {
+      showMsg('오류가 발생했습니다: ' + e.message, true);
+    }
   }
 }
 
