@@ -1622,6 +1622,7 @@ async function saveProductEdit() {
   if(price <= 0) { showToast('도매가는 0보다 커야 합니다.', 'error'); return; }
   for(const color of editingColors) {
     if(!color.colorName || !color.colorName.trim()) { showToast('모든 색상의 색상명을 입력해주세요.', 'error'); return; }
+    if(/[\/\\#\$\[\]\.]/.test(color.colorName)) { showToast(`[${color.colorName}] 색상명에는 슬래시(/)나 특수문자를 넣을 수 없어요. 색상 이름만 입력해주세요.`, 'error'); return; }
     if(!color.barcode || !String(color.barcode).trim()) { showToast(`[${color.colorName}] 바코드를 입력해주세요.`, 'error'); return; }
     const mainSlot = color.slots.main;
     const hasMainImage = mainSlot.newFile || (mainSlot.existingUrl && !mainSlot.removed);
@@ -2063,6 +2064,7 @@ async function submitBulkRegister() {
     if(!card.price) { showToast(`[${card.modelName}] 정가를 입력해주세요.`, 'error'); return; }
     for(const color of card.colors) {
       if(!color.colorName) { showToast(`[${card.modelName}] 색상명을 입력해주세요.`, 'error'); return; }
+      if(/[\/\\#\$\[\]\.]/.test(color.colorName)) { showToast(`[${card.modelName} · ${color.colorName}] 색상명에는 슬래시(/)나 특수문자를 넣을 수 없어요. 색상 이름만 입력해주세요.`, 'error'); return; }
       if(!color.barcode) { showToast(`[${card.modelName} · ${color.colorName||'색상'}] 바코드를 입력해주세요.`, 'error'); return; }
       if(!color.images.main) { showToast(`[${card.modelName} · ${color.colorName}] 메인 이미지를 등록해주세요.`, 'error'); return; }
     }

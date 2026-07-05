@@ -1128,7 +1128,9 @@ async function addCart() {
 
   try {
     const uid = _auth.currentUser.uid;
-    const cartItemId = currentProduct.id + (selectedColorName ? '_' + selectedColorName : '');
+    // 색상명에 '/' 같은 특수문자가 들어있으면 Firestore 문서 경로가 깨지므로, ID로 쓸 때만 안전하게 치환 (실제 색상명 표시에는 영향 없음)
+    const safeColorId = selectedColorName ? selectedColorName.replace(/[\/\.\#\$\[\]]/g, '-') : '';
+    const cartItemId = currentProduct.id + (safeColorId ? '_' + safeColorId : '');
     const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
     const productRef = _db.collection('products').doc(currentProduct.id);
 
