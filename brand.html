@@ -509,7 +509,10 @@ tr:hover td{background:#FAFBFC;}
   <div class="edit-modal-box" style="width:520px;">
     <div class="edit-modal-header">
       <div class="edit-modal-title">📋 주문 상세</div>
-      <button class="edit-modal-close" onclick="closeBrandOrderDetail()">✕</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn-sm btn-ghost" onclick="printBrandOrderDetail()">🖨️ 인쇄하기</button>
+        <button class="edit-modal-close" onclick="closeBrandOrderDetail()">✕</button>
+      </div>
     </div>
     <div class="edit-modal-body" id="brandOrderDetailBody"></div>
   </div>
@@ -857,9 +860,12 @@ async function refreshBrandShipBadge() {
   } catch(e) { console.error('배송 뱃지 로드 실패', e); }
 }
 
+let currentBrandDetailRow = null;
+
 function openBrandOrderDetail(orderDocId) {
   const r = brandShipCache.find(x => x.orderDocId === orderDocId);
   if(!r) return;
+  currentBrandDetailRow = r;
   const rcv = r.receiver || {};
   const statusInfo = BRAND_SHIP_STATUS_LABEL[r.myShipment.status] || { label: r.myShipment.status, cls: 'pending' };
 
@@ -881,7 +887,7 @@ function openBrandOrderDetail(orderDocId) {
     </div>
 
     <div>
-      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">🛍️ 주문 상품 (우리 브랜드분)</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">🛍️ 주문 상품</div>
       <div style="border:1px solid var(--g2);border-radius:8px;overflow:hidden;">
         ${r.myItems.map((it, i) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;${i>0?'border-top:1px solid var(--g1);':''}">
@@ -900,6 +906,63 @@ function openBrandOrderDetail(orderDocId) {
 
 function closeBrandOrderDetail() {
   document.getElementById('brandOrderDetailOverlay').classList.remove('open');
+}
+
+function printBrandOrderDetail() {
+  const r = currentBrandDetailRow;
+  if(!r) return;
+  const rcv = r.receiver || {};
+  const statusInfo = BRAND_SHIP_STATUS_LABEL[r.myShipment.status] || { label: r.myShipment.status, cls: '' };
+  const itemRows = r.myItems.map(it => `
+    <tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #eee;">${it.productName||'-'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">${it.selectedColor||'-'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}개</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;">₩${Number(it.subtotal||0).toLocaleString()}</td>
+    </tr>`).join('');
+
+  const win = window.open('', '_blank', 'width=700,height=900');
+  win.document.write(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <title>주문 상세 - ${r.orderId}</title>
+      <style>
+        body{font-family:'Noto Sans KR',Arial,sans-serif;padding:32px;color:#111;}
+        h1{font-size:18px;margin-bottom:4px;}
+        .meta{font-size:13px;color:#666;margin-bottom:24px;}
+        .section-title{font-size:14px;font-weight:700;margin:20px 0 8px;}
+        .addr-box{background:#f7f7f7;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.9;}
+        table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+        th{background:#f2f2f2;padding:10px 12px;text-align:left;font-size:12px;}
+        @media print{ button{display:none;} }
+      </style>
+    </head>
+    <body>
+      <h1>주문 상세 - ${r.orderId}</h1>
+      <div class="meta">${formatDate(r.createdAt)} 주문 · 상태: ${statusInfo.label}</div>
+
+      <div class="section-title">📦 배송지 정보</div>
+      <div class="addr-box">
+        <div><strong>받는분</strong> ${rcv.name || r.userName || '-'}</div>
+        <div><strong>연락처</strong> ${rcv.phone || '-'}</div>
+        <div><strong>주소</strong> ${rcv.zipcode ? `(${rcv.zipcode}) ` : ''}${rcv.addr1||''} ${rcv.addr2||''}</div>
+        ${rcv.memo ? `<div><strong>배송 메모</strong> ${rcv.memo}</div>` : ''}
+      </div>
+
+      <div class="section-title">🛍️ 주문 상품</div>
+      <table>
+        <thead><tr><th>상품명</th><th style="text-align:center;">색상</th><th style="text-align:center;">수량</th><th style="text-align:right;">금액</th></tr></thead>
+        <tbody>${itemRows}</tbody>
+      </table>
+
+      <button onclick="window.print()" style="margin-top:24px;padding:10px 20px;font-size:13px;cursor:pointer;">🖨️ 인쇄</button>
+    </body>
+    </html>
+  `);
+  win.document.close();
+  win.onload = () => win.print();
 }
 
 async function loadShipManage() {
