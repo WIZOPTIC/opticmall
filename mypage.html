@@ -1440,7 +1440,13 @@ async function submitCancelRequest() {
       expectedRefund = Math.max(0, total2 - returnShippingFee);
     }
 
-    await _db.collection('orders').doc(cancelTargetOrderId).update({
+    // 브랜드별 배송건이 있으면, 각 브랜드가 먼저 승인해야 하므로 승인대기 상태로 초기화
+    const orderData1 = orderSnap1.data();
+    const updatedShipments = Array.isArray(orderData1?.shipments)
+      ? orderData1.shipments.map(s => ({ ...s, cancelApprovalStatus: 'pending', cancelApprovalNote: '' }))
+      : undefined;
+
+    const updatePayload = {
       status: newStatus,
       previousStatus,
       cancelReason: finalReason,
@@ -1448,7 +1454,10 @@ async function submitCancelRequest() {
       returnShippingFee,
       expectedRefund,
       cancelRequestedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    };
+    if(updatedShipments) updatePayload.shipments = updatedShipments;
+
+    await _db.collection('orders').doc(cancelTargetOrderId).update(updatePayload);
 
     closeCancelModal();
     alert(cancelType === 'before_ship'

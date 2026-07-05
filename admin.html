@@ -2274,6 +2274,23 @@ async function advanceToDelivered(orderDocId, brandOwnerUid) {
 const RETURN_SHIPPING_FEE_DEFAULT = 7000;
 let cancelOrdersCache = [];
 
+function getBrandApprovalSummary(o) {
+  const shipments = Array.isArray(o.shipments) ? o.shipments : [];
+  if(shipments.length === 0) return { allApproved: true, hasRejected: false, text: '-', detail: [] };
+  const detail = shipments.map(s => ({
+    brandName: s.brandName || '-',
+    status: s.cancelApprovalStatus || 'pending',
+    note: s.cancelApprovalNote || ''
+  }));
+  const hasRejected = detail.some(d => d.status === 'rejected');
+  const allApproved = detail.every(d => d.status === 'approved');
+  let text;
+  if(hasRejected) text = `❌ 반려 (${detail.filter(d=>d.status==='rejected').map(d=>d.brandName).join(', ')})`;
+  else if(allApproved) text = '✅ 전체 승인';
+  else text = `⏳ 대기 (${detail.filter(d=>d.status!=='approved').map(d=>d.brandName).join(', ')})`;
+  return { allApproved, hasRejected, text, detail };
+}
+
 async function loadCancelManage() {
   const tableEl = document.getElementById('cancelManageTable');
   tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
@@ -2303,7 +2320,7 @@ async function loadCancelManage() {
       <table>
         <thead><tr>
           <th>신청일</th><th>주문번호</th><th>회원</th><th>상품 요약</th><th>결제금액</th>
-          <th>신청유형</th><th>취소사유</th><th>환불예정액</th><th>처리</th>
+          <th>신청유형</th><th>취소사유</th><th>브랜드 승인</th><th>환불예정액</th><th>처리</th>
         </tr></thead>
         <tbody>
           ${orders.map(o => {
@@ -2316,6 +2333,7 @@ async function loadCancelManage() {
             const items = Array.isArray(o.items) ? o.items : [];
             const firstItem = items[0] ? items[0].productName||'-' : '-';
             const itemSummary = items.length > 1 ? firstItem + ' 외 ' + (items.length-1) + '건' : firstItem;
+            const approvalSummary = getBrandApprovalSummary(o);
             const row = document.createElement('tr');
             row.style.cursor = 'pointer';
             row.onclick = () => openCancelDetail(o.id);
@@ -2327,6 +2345,7 @@ async function loadCancelManage() {
               <td>₩${total.toLocaleString()}</td>
               <td><span class="badge ${isReturn ? 'pending' : 'reject'}">${isReturn ? '반품' : '취소'}</span></td>
               <td style="font-size:12px;">${o.cancelReason||'-'}</td>
+              <td style="font-size:11px;">${approvalSummary.text}</td>
               <td style="font-weight:700;color:var(--sky);">₩${expectedRefund.toLocaleString()}</td>
               <td><button class="btn-approve" onclick="event.stopPropagation();openCancelDetail('${o.id}')">📄 상세</button></td>
             `;
@@ -2353,6 +2372,8 @@ function openCancelDetail(orderId) {
   const addr = o.shippingAddress || {};
   const addrStr = [addr.addr1, addr.addr2].filter(Boolean).join(' ') || '-';
 
+  const approvalSummary = getBrandApprovalSummary(o);
+
   document.getElementById('cancelDetailTitle').textContent = isReturn ? '반품 신청 상세' : '취소 신청 상세';
 
   document.getElementById('cancelDetailBody').innerHTML = `
@@ -2366,6 +2387,26 @@ function openCancelDetail(orderId) {
         <div><span style="color:var(--g3);font-size:11px;">주문일시</span><br><strong style="font-size:11px;">${formatDate(o.createdAt)}</strong></div>
       </div>
     </div>
+
+    ${approvalSummary.detail.length > 0 ? `
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:6px;">🏢 브랜드 승인 현황</div>
+      <div style="border:1px solid var(--g2);border-radius:8px;overflow:hidden;">
+        ${approvalSummary.detail.map((d,i) => {
+          const info = { pending:{label:'승인 대기',cls:'pending'}, approved:{label:'승인 완료',cls:'approved'}, rejected:{label:'반려함',cls:'rejected'} }[d.status] || {label:d.status,cls:'pending'};
+          return `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;${i>0?'border-top:1px solid var(--g1);':''}">
+              <div>
+                <span style="font-size:13px;font-weight:600;">${d.brandName}</span>
+                ${d.note ? `<div style="font-size:11px;color:var(--red);margin-top:2px;">사유: ${d.note}</div>` : ''}
+              </div>
+              <span class="badge ${info.cls}">${info.label}</span>
+            </div>`;
+        }).join('')}
+      </div>
+      ${!approvalSummary.allApproved && !approvalSummary.hasRejected ? `<div style="font-size:11px;color:var(--orange);margin-top:6px;">⚠️ 모든 브랜드가 승인해야 환불 처리를 진행할 수 있어요.</div>` : ''}
+      ${approvalSummary.hasRejected ? `<div style="font-size:11px;color:var(--red);margin-top:6px;">⚠️ 브랜드가 반려했어요. 구매자에게 안내 후 "반려" 처리해주세요.</div>` : ''}
+    </div>` : ''}
 
     <div style="margin-bottom:14px;">
       <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:6px;">📦 배송지</div>
@@ -2406,11 +2447,15 @@ function openCancelDetail(orderId) {
     </div>
   `;
 
+  const refundBtnHtml = approvalSummary.allApproved
+    ? `<button class="btn-approve" style="padding:9px 18px;" onclick="closeCancelDetail();processCancel('${o.id}','${o.cancelType||'before_ship'}',${expectedRefund})">✅ 환불완료</button>`
+    : `<span style="font-size:12px;color:var(--g3);align-self:center;padding:0 8px;">브랜드 승인 후 환불 가능</span>`;
+
   document.getElementById('cancelDetailFooter').innerHTML = `
-    <div style="display:flex;gap:8px;justify-content:flex-end;width:100%;">
+    <div style="display:flex;gap:8px;justify-content:flex-end;width:100%;align-items:center;">
       <button class="btn-sm btn-ghost" onclick="closeCancelDetail()">닫기</button>
       <button class="btn-reject" style="padding:9px 18px;" onclick="closeCancelDetail();rejectCancel('${o.id}')">❌ 반려</button>
-      <button class="btn-approve" style="padding:9px 18px;" onclick="closeCancelDetail();processCancel('${o.id}','${o.cancelType||'before_ship'}',${expectedRefund})">✅ 환불완료</button>
+      ${refundBtnHtml}
     </div>`;
 
   document.getElementById('cancelDetailModal').style.display = 'flex';
