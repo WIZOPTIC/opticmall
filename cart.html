@@ -229,10 +229,12 @@ function renderCart() {
       stock = Number(p.stock || 0);
     }
     const isSoldOut = stock <= 0;
-    const hasImg = !!p.mainImageUrl;
-    const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : `👓`;
+    const colorIdxForImg = Number(item.selectedColorIdx) || 0;
+    const colorThumbUrl = (Array.isArray(p.colors) && p.colors[colorIdxForImg]?.mainImageUrl) || p.mainImageUrl;
+    const hasImg = !!colorThumbUrl;
+    const imgHtml = hasImg ? `<img src="${colorThumbUrl}">` : `👓`;
     const priceHtml = memberLevel >= 2
-      ? `<div class="item-price" id="price-${item.cartItemId}">₩${(Number(p.discountRate > 0 ? (p.salePrice || Math.round(Number(p.price||0)*(1-Number(p.discountRate)/100))) : (p.price||0))*item.qty).toLocaleString()}</div>`
+      ? `<div class="item-price" id="price-${item.cartItemId}">₩${(getItemPrice(item)*item.qty).toLocaleString()}</div>`
       : `<div class="item-locked">🔒 로그인 필요</div>`;
 
     return `
@@ -390,12 +392,20 @@ function getItemStock(item) {
   return Number(p.stock || 0);
 }
 
-// 상품 실제 결제가 확인 헬퍼 (할인가 우선)
+// 상품 실제 결제가 확인 헬퍼 (할인가 우선, 색상별 가격 override 지원)
 function getItemPrice(item) {
   const p = item.product;
-  if(Number(p.discountRate) > 0 && Number(p.salePrice) > 0) return Number(p.salePrice);
-  if(Number(p.discountRate) > 0) return Math.round(Number(p.price||0) * (1 - Number(p.discountRate)/100));
-  return Number(p.price || 0);
+  const colorIdx = Number(item.selectedColorIdx) || 0;
+  const colorData = Array.isArray(p.colors) ? p.colors[colorIdx] : null;
+  const hasColorPrice = colorData && colorData.price != null && colorData.price !== '';
+  const basePrice = hasColorPrice ? Number(colorData.price) : Number(p.price || 0);
+  const discountRate = Number(p.discountRate) || 0;
+
+  if(discountRate > 0) {
+    if(!hasColorPrice && Number(p.salePrice) > 0) return Number(p.salePrice);
+    return Math.round(basePrice * (1 - discountRate/100));
+  }
+  return basePrice;
 }
 
 function onItemCheckChange() {
@@ -447,7 +457,7 @@ function updateSummary() {
 function goToOrder() {
   const selectedItems = cartItems.filter(i => i.selected && getItemStock(i) > 0);
   if(selectedItems.length === 0) { alert('주문할 상품을 선택해주세요.'); return; }
-  const param = selectedItems.map(i => `${i.product.id}:${i.qty}`).join(',');
+  const param = selectedItems.map(i => `${i.product.id}:${i.qty}:${i.selectedColorIdx ?? 0}`).join(',');
   location.href = `order.html?items=${encodeURIComponent(param)}`;
 }
 </script>
