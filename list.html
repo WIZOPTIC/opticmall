@@ -459,7 +459,7 @@ function renderProducts(products) {
             const colorNames = p.colorNames || (p.color ? [p.color] : []);
             if(colorNames.length === 0) return '';
             const chips = colorNames.slice(0,6).map(c =>
-              `<div class="p-color-chip" title="${c}" style="background:${getListColorDot(c)};"></div>`
+              `<div class="p-color-chip" title="${c}" style="${getListColorDot(c)}"></div>`
             ).join('');
             const more = colorNames.length > 6 ? `<span class="p-color-more">+${colorNames.length-6}</span>` : '';
             return `<div class="p-colors">${chips}${more}</div>`;
@@ -471,19 +471,47 @@ function renderProducts(products) {
 }
 
 // 카드 클릭 시 상품 데이터를 미리 sessionStorage에 저장해서 상세페이지 로딩 깜빡임 최소화
-function getListColorDot(colorName) {
+// 색상명 안에서 최대 2가지 색상 키워드 + 투명 여부를 인식 (복합색 이름 지원: 로즈골드블랙, 투명실버 등)
+const COLOR_KEYWORD_MAP = [
+  ['로즈골드','#E6B8B0'], ['rose gold','#E6B8B0'],
+  ['아이보리','#F5F0E1'], ['ivory','#F5F0E1'],
+  ['네이비','#1A2D4A'], ['navy','#1A2D4A'],
+  ['그레이','#9BA5B0'], ['회색','#9BA5B0'], ['gray','#9BA5B0'], ['grey','#9BA5B0'],
+  ['카키','#8B8B5A'], ['khaki','#8B8B5A'],
+  ['블랙','#222222'], ['black','#222222'],
+  ['화이트','#F5F5F5'], ['white','#F5F5F5'],
+  ['실버','#C0C0C0'], ['silver','#C0C0C0'],
+  ['골드','#C9A84C'], ['gold','#C9A84C'],
+  ['브라운','#8B4513'], ['brown','#8B4513'],
+  ['레드','#E53935'], ['red','#E53935'],
+  ['블루','#1976D2'], ['blue','#1976D2'],
+  ['핑크','#E91E8C'], ['pink','#E91E8C'],
+  ['그린','#388E3C'], ['green','#388E3C'],
+  ['퍼플','#7B1FA2'], ['purple','#7B1FA2']
+];
+const TRANSPARENT_KEYWORDS = ['투명','clear','transparent','크리스탈','crystal'];
+const CHECKER_BG = "background-image:linear-gradient(45deg,#ddd 25%,transparent 25%),linear-gradient(-45deg,#ddd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ddd 75%),linear-gradient(-45deg,transparent 75%,#ddd 75%);background-size:6px 6px;background-position:0 0,0 3px,3px -3px,-3px 0;background-color:#fff;";
+
+function extractSwatchColors(colorName) {
   const name = (colorName || '').toLowerCase();
-  if(name.includes('블랙') || name.includes('black')) return '#222';
-  if(name.includes('화이트') || name.includes('white')) return '#f0f0f0';
-  if(name.includes('실버') || name.includes('silver')) return '#C0C0C0';
-  if(name.includes('골드') || name.includes('gold')) return '#C9A84C';
-  if(name.includes('브라운') || name.includes('brown')) return '#8B4513';
-  if(name.includes('레드') || name.includes('red')) return '#E53935';
-  if(name.includes('블루') || name.includes('blue')) return '#1976D2';
-  if(name.includes('핑크') || name.includes('pink')) return '#E91E8C';
-  if(name.includes('그린') || name.includes('green')) return '#388E3C';
-  if(name.includes('퍼플') || name.includes('purple')) return '#7B1FA2';
-  return '#888';
+  const isTransparent = TRANSPARENT_KEYWORDS.some(k => name.includes(k));
+  const found = [];
+  for(const [key, hex] of COLOR_KEYWORD_MAP) {
+    if(name.includes(key) && !found.includes(hex)) {
+      found.push(hex);
+      if(found.length >= 2) break;
+    }
+  }
+  return { colors: found, isTransparent };
+}
+
+function getListColorDot(colorName) {
+  const { colors, isTransparent } = extractSwatchColors(colorName);
+  if(isTransparent && colors.length === 0) return CHECKER_BG;
+  if(isTransparent && colors.length >= 1) return `background:linear-gradient(135deg, rgba(255,255,255,0.85), ${colors[0]});`;
+  if(colors.length >= 2) return `background:linear-gradient(90deg, ${colors[0]} 50%, ${colors[1]} 50%);`;
+  if(colors.length === 1) return `background:${colors[0]};`;
+  return `background:#888;`;
 }
 
 function goToProduct(productId) {
