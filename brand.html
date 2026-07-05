@@ -504,6 +504,17 @@ tr:hover td{background:#FAFBFC;}
 <div class="toast" id="toast"></div>
 <input type="file" id="colorImgFileInput" accept="image/*" style="display:none;">
 
+<!-- 주문 상세 모달 -->
+<div class="edit-modal-overlay" id="brandOrderDetailOverlay">
+  <div class="edit-modal-box" style="width:520px;">
+    <div class="edit-modal-header">
+      <div class="edit-modal-title">📋 주문 상세</div>
+      <button class="edit-modal-close" onclick="closeBrandOrderDetail()">✕</button>
+    </div>
+    <div class="edit-modal-body" id="brandOrderDetailBody"></div>
+  </div>
+</div>
+
 <!-- 배송 시작 처리 모달 -->
 <div class="edit-modal-overlay" id="shipStartModalOverlay">
   <div class="edit-modal-box" style="width:420px;">
@@ -846,6 +857,51 @@ async function refreshBrandShipBadge() {
   } catch(e) { console.error('배송 뱃지 로드 실패', e); }
 }
 
+function openBrandOrderDetail(orderDocId) {
+  const r = brandShipCache.find(x => x.orderDocId === orderDocId);
+  if(!r) return;
+  const rcv = r.receiver || {};
+  const statusInfo = BRAND_SHIP_STATUS_LABEL[r.myShipment.status] || { label: r.myShipment.status, cls: 'pending' };
+
+  document.getElementById('brandOrderDetailBody').innerHTML = `
+    <div style="margin-bottom:18px;">
+      <div style="font-size:12px;color:var(--g3);margin-bottom:4px;">주문번호</div>
+      <div style="font-size:14px;font-weight:700;color:var(--navy);">${r.orderId}</div>
+      <div style="font-size:12px;color:var(--g3);margin-top:6px;">${formatDate(r.createdAt)} 주문 · <span class="badge ${statusInfo.cls}">${statusInfo.label}</span></div>
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">📦 배송지 정보</div>
+      <div style="background:var(--g1);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.9;">
+        <div><strong>받는분</strong> ${rcv.name || r.userName || '-'}</div>
+        <div><strong>연락처</strong> ${rcv.phone || '-'}</div>
+        <div><strong>주소</strong> ${rcv.zipcode ? `(${rcv.zipcode}) ` : ''}${rcv.addr1||''} ${rcv.addr2||''}</div>
+        ${rcv.memo ? `<div><strong>배송 메모</strong> ${rcv.memo}</div>` : ''}
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">🛍️ 주문 상품 (우리 브랜드분)</div>
+      <div style="border:1px solid var(--g2);border-radius:8px;overflow:hidden;">
+        ${r.myItems.map((it, i) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;${i>0?'border-top:1px solid var(--g1);':''}">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--navy);">${it.productName||'-'}</div>
+              <div style="font-size:12px;color:var(--g3);margin-top:2px;">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">₩${Number(it.subtotal||0).toLocaleString()}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('brandOrderDetailOverlay').classList.add('open');
+}
+
+function closeBrandOrderDetail() {
+  document.getElementById('brandOrderDetailOverlay').classList.remove('open');
+}
+
 async function loadShipManage() {
   const tableEl = document.getElementById('shipManageTable');
   tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
@@ -868,6 +924,7 @@ async function loadShipManage() {
         orderId: o.orderId || d.id,
         userName: o.userName || o.userEmail || '-',
         createdAt: o.createdAt,
+        receiver: o.receiver || {},
         myItems,
         myShipment
       });
@@ -921,24 +978,24 @@ function renderShipManageTable() {
           const statusInfo = BRAND_SHIP_STATUS_LABEL[s.status] || { label: s.status, cls: 'pending' };
           const shipInfo = s.trackingNumber ? `${s.trackingCompany||''} ${s.trackingNumber}` : '-';
 
-          let actionBtn = '';
+          let actionBtn = `<button class="btn-view" onclick="openBrandOrderDetail('${r.orderDocId}')">📋 상세</button>`;
           if(s.status === 'payment_window_passed' || s.status === 'paid') {
-            actionBtn = `<button class="btn-ship" onclick="brandAdvanceToPreparing('${r.orderDocId}')">📦 출고준비</button>`;
+            actionBtn += `<button class="btn-ship" onclick="brandAdvanceToPreparing('${r.orderDocId}')">📦 출고준비</button>`;
           } else if(s.status === 'preparing') {
-            actionBtn = `
+            actionBtn += `
               <button class="btn-ship" onclick="openShipStartModal('${r.orderDocId}')">🚚 배송시작</button>
               <button class="btn-view" onclick="brandRevertShipment('${r.orderDocId}','paid','결제완료')">↩</button>`;
           } else if(s.status === 'shipping') {
-            actionBtn = `
+            actionBtn += `
               <button class="btn-ship" onclick="brandAdvanceToDelivered('${r.orderDocId}')">✅ 배송완료</button>
               <button class="btn-view" onclick="brandRevertShipment('${r.orderDocId}','preparing','출고준비중')">↩</button>`;
           } else if(s.status === 'delivered') {
-            actionBtn = `<span style="font-size:11px;color:var(--g3);">처리 완료</span>`;
+            actionBtn += `<span style="font-size:11px;color:var(--g3);">처리 완료</span>`;
           }
 
           return `
             <tr>
-              <td style="font-size:11px;color:var(--sky);">${r.orderId}</td>
+              <td style="font-size:11px;color:var(--sky);cursor:pointer;text-decoration:underline;" onclick="openBrandOrderDetail('${r.orderDocId}')">${r.orderId}</td>
               <td>${r.userName}</td>
               <td style="font-size:12px;">${itemSummary}</td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
