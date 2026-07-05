@@ -519,6 +519,15 @@ tr:hover td{background:#FAFBFC;}
 </div>
 
 <!-- 배송 시작 처리 모달 -->
+<!-- 상품 등록 진행중 오버레이 (정중앙, 다른 곳 클릭 차단) -->
+<div class="edit-modal-overlay" id="bulkRegisterOverlay" style="z-index:3000;">
+  <div style="background:#fff;border-radius:16px;padding:44px 56px;text-align:center;min-width:300px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div class="spinner" style="margin:0 auto 20px;"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px;" id="bulkRegisterTitle">상품을 등록하고 있어요</div>
+    <div style="font-size:13px;color:var(--g4);" id="bulkRegisterProgress">잠시만 기다려주세요...</div>
+  </div>
+</div>
+
 <div class="edit-modal-overlay" id="shipStartModalOverlay">
   <div class="edit-modal-box" style="width:420px;">
     <div class="edit-modal-header">
@@ -1757,11 +1766,18 @@ async function submitBulkRegister() {
   btn.disabled = true;
   btn.textContent = '등록 중...';
 
+  const overlay = document.getElementById('bulkRegisterOverlay');
+  const progressEl = document.getElementById('bulkRegisterProgress');
+  overlay.classList.add('open');
+  progressEl.textContent = `0/${validCards.length}건 등록 준비 중...`;
+
   const uid = window._getCurrentBrandUid();
   let successCount = 0;
 
   try {
-    for(const card of validCards) {
+    for(let idx = 0; idx < validCards.length; idx++) {
+      const card = validCards[idx];
+      progressEl.textContent = `${idx+1}/${validCards.length}건 등록 중 · ${card.modelName}`;
       const price = Number(card.price) || 0;
       const discountRate = Number(card.discountRate) || 0;
       const salePrice = discountRate > 0 ? Math.round(price * (1 - discountRate/100)) : 0;
@@ -1770,6 +1786,7 @@ async function submitBulkRegister() {
       const uploadedColors = [];
       for(let ci = 0; ci < card.colors.length; ci++) {
         const color = card.colors[ci];
+        progressEl.textContent = `${idx+1}/${validCards.length}건 등록 중 · ${card.modelName} (${color.colorName||'색상 '+(ci+1)} 이미지 업로드)`;
         const imgUrls = {};
         for(const slot of SLOT_KEYS) {
           const img = color.images[slot];
@@ -1813,6 +1830,7 @@ async function submitBulkRegister() {
       successCount++;
     }
 
+    progressEl.textContent = `${successCount}/${validCards.length}건 등록 완료!`;
     showToast(`✅ [${brandInfo?.brandName}] 브랜드로 ${successCount}건 등록 완료! 관리자 승인 후 노출됩니다.`, 'success');
     productCards = [];
     cardIdCounter = 0;
@@ -1825,6 +1843,7 @@ async function submitBulkRegister() {
   } finally {
     btn.disabled = false;
     btn.textContent = '상품 등록하기';
+    overlay.classList.remove('open');
   }
 }
 
