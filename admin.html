@@ -340,6 +340,17 @@ tr:hover td{background:#FAFBFC;}
       </div>
     </div>
 
+    <!-- 이벤트 상세 모달 -->
+    <div class="modal-bg" id="promoDetailModal" style="display:none;">
+      <div class="modal" style="max-width:520px;width:92vw;">
+        <div class="modal-header">
+          <div class="modal-title">🎉 이벤트 상세</div>
+          <button class="modal-close" onclick="closePromoDetail()">✕</button>
+        </div>
+        <div class="modal-body" id="promoDetailBody" style="flex:1;overflow-y:auto;padding:20px;"></div>
+      </div>
+    </div>
+
     <!-- 취소/반품 상세 모달 -->
     <div class="modal-bg" id="cancelDetailModal" style="display:none;">
       <div class="modal" style="max-width:560px;width:92vw;">
@@ -1378,6 +1389,7 @@ function renderPromoRow(promo, isApprovalView) {
       <td><span class="badge ${promoStatusClassMap[promo.status]||'pending'}">${promoStatusLabelMap[promo.status]||'대기'}</span></td>
       <td>
         <div class="action-btns">
+          <button class="btn-view" onclick="openPromoDetail('${promo.id}')">📋 상세</button>
           ${isApprovalView ? `
             <button class="btn-approve" onclick="approvePromo('${promo.id}')">✅ 승인</button>
             <button class="btn-reject" onclick="rejectPromo('${promo.id}')">❌ 반려</button>
@@ -1387,6 +1399,51 @@ function renderPromoRow(promo, isApprovalView) {
         </div>
       </td>
     </tr>`;
+}
+
+async function openPromoDetail(promoId) {
+  document.getElementById('promoDetailModal').style.display = 'flex';
+  const bodyEl = document.getElementById('promoDetailBody');
+  bodyEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const promoSnap = await window._getDoc(window._doc(window._db, 'promotions', promoId));
+    if(!promoSnap.exists()) { bodyEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--red);">이벤트 정보를 찾을 수 없습니다.</div>'; return; }
+    const promo = { id: promoSnap.id, ...promoSnap.data() };
+
+    const ids = Array.isArray(promo.targetProductIds) ? promo.targetProductIds : [];
+    const productDocs = await Promise.all(ids.map(id => window._getDoc(window._doc(window._db, 'products', id))));
+    const products = productDocs.filter(d => d.exists()).map(d => ({ id: d.id, ...d.data() }));
+
+    const rate = Number(promo.discountRate) || 0;
+    const productRows = products.map(p => {
+      const price = Number(p.price) || 0;
+      const salePrice = Math.round(price * (1 - rate/100));
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--g1);">
+          <div style="font-size:13px;font-weight:600;color:var(--navy);">${p.modelName||'-'}</div>
+          <div style="text-align:right;font-size:12px;">
+            <span style="color:var(--g3);text-decoration:line-through;">₩${price.toLocaleString()}</span>
+            <span style="color:var(--red);font-weight:700;margin-left:6px;">₩${salePrice.toLocaleString()}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    bodyEl.innerHTML = `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:800;color:var(--navy);">${promo.title||'-'}</div>
+        <div style="font-size:12px;color:var(--g3);margin-top:4px;">${promo.brandName||'-'} · 할인율 ${rate}%</div>
+        <div style="font-size:12px;color:var(--g3);margin-top:4px;">기간: ${formatDate(promo.startDate)} ~ ${formatDate(promo.endDate)}</div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">대상 상품 (${products.length}개)</div>
+      <div>${productRows || '<div style="color:var(--g3);font-size:13px;padding:12px 0;">대상 상품 정보를 찾을 수 없습니다.</div>'}</div>
+    `;
+  } catch(e) {
+    bodyEl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--red);">로드 실패: ${e.message}</div>`;
+  }
+}
+
+function closePromoDetail() {
+  document.getElementById('promoDetailModal').style.display = 'none';
 }
 
 async function loadPromoApproval() {
