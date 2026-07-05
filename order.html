@@ -515,13 +515,15 @@ function renderOrderItems() {
     const hasImg = !!thumbUrl;
     const imgHtml = hasImg ? `<img src="${thumbUrl}">` : `👓`;
     const colorLabel = item.selectedColor || colorData?.colorName || p.color || '';
+    const colorCode = colorData?.colorCode || '';
+    const colorLabelWithCode = colorLabel + (colorCode ? ` (${colorCode})` : '');
     const barcode = colorData?.barcode || p.barcode || '';
     const discountTag = p.discountRate ? `<span style="font-size:11px;color:var(--red);font-weight:700;margin-left:4px;">${p.discountRate}% 할인적용</span>` : '';
     return `
       <div class="order-item">
         <div class="order-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
         <div class="order-item-info">
-          <div class="order-item-name">${p.modelName||'-'}${colorLabel ? ' · '+colorLabel : ''}${discountTag}</div>
+          <div class="order-item-name">${p.modelName||'-'}${colorLabelWithCode ? ' · '+colorLabelWithCode : ''}${discountTag}</div>
           <div class="order-item-opt">${barcode} · ${item.qty}개</div>
         </div>
         <div class="order-item-price">₩${subtotal.toLocaleString()}</div>
@@ -642,6 +644,8 @@ async function startPayment() {
           mainImageUrl: thumbUrl,
           selectedColor: item.selectedColor || '',
           selectedColorIdx: colorIdx,
+          colorCode: colorData?.colorCode || '',
+          barcode: colorData?.barcode || p.barcode || '',
           qty: item.qty,
           unitPrice: Number(p.effectivePrice || p.price || 0),
           originalUnitPrice: Number(p.price || 0),

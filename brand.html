@@ -180,7 +180,7 @@ table.reg-table select{width:100%;padding:8px 6px;border:1.5px solid var(--g2);b
 .color-card{background:var(--g1);border-radius:10px;padding:16px;margin-bottom:10px;border:1.5px solid var(--g2);}
 .color-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .color-card-label{font-size:11px;font-weight:700;color:var(--g3);}
-.color-card-fields{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.color-card-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:12px;}
 .color-card-fields label{display:block;font-size:11px;font-weight:700;color:var(--g4);margin-bottom:4px;}
 .color-card-fields input{width:100%;padding:8px 10px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);}
 .color-card-fields input:focus{border-color:var(--sky);}
@@ -920,7 +920,7 @@ function openBrandOrderDetail(orderDocId) {
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;${i>0?'border-top:1px solid var(--g1);':''}">
             <div>
               <div style="font-size:13px;font-weight:600;color:var(--navy);">${it.productName||'-'}</div>
-              <div style="font-size:12px;color:var(--g3);margin-top:2px;">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
+              <div style="font-size:12px;color:var(--g3);margin-top:2px;">${it.selectedColor ? it.selectedColor + (it.colorCode ? `(${it.colorCode})` : '') + ' · ' : ''}${it.qty}개</div>
             </div>
             <div style="font-size:13px;font-weight:700;color:var(--navy);">₩${Number(it.subtotal||0).toLocaleString()}</div>
           </div>
@@ -944,6 +944,7 @@ function printBrandOrderDetail() {
     <tr>
       <td style="padding:10px 12px;border-bottom:1px solid #eee;">${it.productName||'-'}</td>
       <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">${it.selectedColor||'-'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;">${it.colorCode||'-'}</td>
       <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}개</td>
       <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;">₩${Number(it.subtotal||0).toLocaleString()}</td>
     </tr>`).join('');
@@ -987,7 +988,7 @@ function printBrandOrderDetail() {
 
       <div class="section-title">🛍️ 주문 상품</div>
       <table>
-        <thead><tr><th>상품명</th><th style="text-align:center;">색상</th><th style="text-align:center;">수량</th><th style="text-align:right;">금액</th></tr></thead>
+        <thead><tr><th>상품명</th><th style="text-align:center;">색상</th><th style="text-align:center;">컬러번호</th><th style="text-align:center;">수량</th><th style="text-align:right;">금액</th></tr></thead>
         <tbody>${itemRows}</tbody>
       </table>
 
@@ -1376,7 +1377,7 @@ function renderProductTable(products, withActions=true) {
 
 function renderProductRowHtml(p, withActions) {
   const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
-  const colorDisplay = hasColors ? (p.colorNames||p.colors.map(c=>c.colorName)).join(', ') : (p.color || '-');
+  const colorDisplay = hasColors ? p.colors.map(c => c.colorName + (c.colorCode ? `(${c.colorCode})` : '')).join(', ') : (p.color || '-');
   const stockDisplay = hasColors ? p.colors.reduce((sum,c) => sum + (Number(c.stock)||0), 0) : (p.stock ?? '-');
   const barcodeDisplay = hasColors ? p.colors.map(c=>c.barcode).filter(Boolean).join(', ') || '-' : (p.barcode || '-');
   const priceDisplay = (() => {
@@ -1483,6 +1484,11 @@ function renderEditColorCards() {
           <label>색상명 <span style="color:var(--red);">*</span></label>
           <input type="text" placeholder="블랙, 실버, 골드..." value="${color.colorName||''}"
             onchange="updateEditColorField(${color.colorId},'colorName',this.value)">
+        </div>
+        <div>
+          <label>컬러번호 <span style="font-weight:400;color:var(--g3);">(예: C01)</span></label>
+          <input type="text" placeholder="C01" value="${color.colorCode||''}"
+            onchange="updateEditColorField(${color.colorId},'colorCode',this.value)">
         </div>
         <div>
           <label>바코드 <span style="color:var(--red);">*</span></label>
@@ -1822,6 +1828,7 @@ function addColorToCard(card, rerender=true) {
   card.colors.push({
     colorId: ++colorIdCounter,
     colorName: '',
+    colorCode: '',
     barcode: '',
     stock: '',
     price: '',
@@ -1992,6 +1999,11 @@ function renderProductCards() {
                 onchange="updateColorField(${card.cardId},${color.colorId},'colorName',this.value)">
             </div>
             <div>
+              <label>컬러번호 <span style="font-weight:400;color:var(--g3);">(예: C01)</span></label>
+              <input type="text" placeholder="C01" value="${color.colorCode||''}"
+                onchange="updateColorField(${card.cardId},${color.colorId},'colorCode',this.value)">
+            </div>
+            <div>
               <label>바코드 <span style="color:var(--red);">*</span></label>
               <input type="text" placeholder="색상별 바코드" value="${color.barcode||''}"
                 onchange="updateColorField(${card.cardId},${color.colorId},'barcode',this.value)">
@@ -2115,6 +2127,7 @@ async function submitBulkRegister() {
         const colorSalePrice = discountRate > 0 ? Math.round(colorPrice * (1 - discountRate/100)) : 0;
         uploadedColors.push({
           colorName: color.colorName.trim(),
+          colorCode: (color.colorCode||'').trim(),
           barcode: color.barcode.trim(),
           stock: Number(color.stock) || 0,
           price: colorPrice,

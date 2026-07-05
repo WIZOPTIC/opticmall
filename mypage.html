@@ -1222,7 +1222,7 @@ function renderOrdersList() {
               </div>
               <div class="order-item-info">
                 <div class="order-item-name">${it.productName||'-'}${it.brandName ? ` <span style="color:var(--g3);font-weight:400;">· ${it.brandName}</span>` : ''}</div>
-                <div class="order-item-opt">${it.selectedColor ? it.selectedColor + ' · ' : ''}${it.qty}개</div>
+                <div class="order-item-opt">${it.selectedColor ? it.selectedColor + (it.colorCode ? `(${it.colorCode})` : '') + ' · ' : ''}${it.qty}개</div>
               </div>
               <div class="order-item-price">₩${Number(it.subtotal||0).toLocaleString()}</div>
             </div>

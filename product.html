@@ -859,13 +859,22 @@ function renderColorButtons(p, selectedIdx) {
   colorList.innerHTML = colors.map((c, i) => `
     <button class="color-btn ${i === selectedIdx ? 'active' : ''}" onclick="selectColor(${i})">
       <div class="color-dot" style="${getColorDot(c.colorName)}"></div>
-      ${c.colorName}
+      ${c.colorName}${c.colorCode ? ` <span style="opacity:0.6;">(${c.colorCode})</span>` : ''}
     </button>
   `).join('');
-  document.getElementById('selected-color').textContent = colors[selectedIdx].colorName;
+  const selected = colors[selectedIdx];
+  document.getElementById('selected-color').textContent = selected.colorName + (selected.colorCode ? ` (${selected.colorCode})` : '');
+
+  // 선택한 색상의 바코드/컬러번호로 상품코드 영역도 갱신
+  const codeEl = document.getElementById('productCode');
+  if(codeEl) {
+    const codeParts = [`상품코드: ${selected.barcode || p.barcode || '-'}`];
+    if(selected.colorCode) codeParts.push(`컬러번호: ${selected.colorCode}`);
+    if(p.size) codeParts.push(`사이즈: ${p.size}`);
+    codeEl.textContent = codeParts.join('  ·  ');
+  }
 
   // 선택한 색상의 이미지로 교체
-  const selected = colors[selectedIdx];
   applyColorImages(selected);
   updateStockDisplay(Number(selected.stock || 0));
   updatePriceDisplay(); // 색상마다 가격이 다를 수 있으므로 선택할 때마다 가격도 갱신
