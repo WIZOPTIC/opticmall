@@ -1571,15 +1571,24 @@ async function openProductModal(pid) {
 
     // 색상별 이미지 섹션 생성 (새 구조 우선, 구버전 호환)
     let imagesSection = '';
-    if(p.colors && p.colors.length > 0) {
+    const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
+    if(hasColors) {
       imagesSection = p.colors.map((c, i) => {
         const detailImgs = (c.detailImageUrls || []).map(url =>
           `<img src="${url}" class="doc-img" onclick="window.open('${url}','_blank')" style="width:calc(50% - 4px);display:inline-block;margin:2px;">`
         ).join('');
+        const colorPrice = (c.price != null && c.price !== '') ? Number(c.price) : Number(p.price||0);
+        const colorSalePrice = p.discountRate ? Math.round(colorPrice * (1 - Number(p.discountRate)/100)) : null;
+        const priceText = colorSalePrice != null
+          ? `₩${colorPrice.toLocaleString()} → ₩${colorSalePrice.toLocaleString()} (${p.discountRate}%)`
+          : `₩${colorPrice.toLocaleString()}`;
         return `
           <div style="margin-top:16px;padding:12px;background:var(--g1);border-radius:8px;">
-            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;">
+            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px;">
               🎨 색상 ${i+1}: ${c.colorName} (재고 ${c.stock}개)
+            </div>
+            <div style="font-size:11px;color:var(--g4);margin-bottom:10px;">
+              바코드 ${c.barcode||'-'} · 가격 ${priceText}
             </div>
             ${c.mainImageUrl ? `<img src="${c.mainImageUrl}" class="doc-img" onclick="window.open('${c.mainImageUrl}','_blank')" style="margin-bottom:6px;">` : ''}
             ${detailImgs ? `<div>${detailImgs}</div>` : ''}
@@ -1595,18 +1604,26 @@ async function openProductModal(pid) {
         ${detailImgs ? `<div style="margin-top:8px;">${detailImgs}</div>` : ''}`;
     }
 
+    const barcodeDisplay = hasColors ? p.colors.map(c=>c.barcode).filter(Boolean).join(', ') || '-' : (p.barcode || '-');
+    const priceRowDisplay = (() => {
+      if(!hasColors) return p.price ? '₩'+Number(p.price).toLocaleString() : '-';
+      const prices = p.colors.map(c => Number(c.price) || Number(p.price) || 0);
+      const min = Math.min(...prices), max = Math.max(...prices);
+      return min === max ? `₩${min.toLocaleString()} (전 색상 동일)` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()} (색상별 상이, 아래 참고)`;
+    })();
+
     body.innerHTML = `
       <div class="info-row"><div class="info-label">모델명</div><div class="info-value"><strong>${p.modelName||'-'}</strong></div></div>
-      <div class="info-row"><div class="info-label">바코드</div><div class="info-value">${p.barcode||'-'}</div></div>
+      <div class="info-row"><div class="info-label">바코드</div><div class="info-value">${barcodeDisplay}</div></div>
       <div class="info-row"><div class="info-label">사이즈</div><div class="info-value">${p.size||'-'}</div></div>
       <div class="info-row"><div class="info-label">브랜드</div><div class="info-value">${p.brandName||'-'}</div></div>
       <div class="info-row"><div class="info-label">색상</div><div class="info-value">${p.colorNames ? p.colorNames.join(', ') : (p.color||'-')}</div></div>
       <div class="info-row"><div class="info-label">타입</div><div class="info-value">${p.type||'-'}</div></div>
-      <div class="info-row"><div class="info-label">정가</div><div class="info-value">${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}${p.discountRate ? ` <span style="color:var(--red);font-size:11px;">${p.discountRate}% 할인</span>` : ''}</div></div>
+      <div class="info-row"><div class="info-label">기본 정가</div><div class="info-value">${priceRowDisplay}${p.discountRate ? ` <span style="color:var(--red);font-size:11px;">${p.discountRate}% 할인</span>` : ''}</div></div>
       <div class="info-row"><div class="info-label">등록일</div><div class="info-value">${formatDate(p.createdAt)}</div></div>
       <div class="info-row"><div class="info-label">상태</div><div class="info-value"><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></div></div>
 
-      <div style="margin-top:16px;margin-bottom:6px;font-size:12px;font-weight:700;color:var(--g4);">🖼️ 색상별 이미지</div>
+      <div style="margin-top:16px;margin-bottom:6px;font-size:12px;font-weight:700;color:var(--g4);">🖼️ 색상별 이미지·가격·바코드</div>
       ${imagesSection}
     `;
 
