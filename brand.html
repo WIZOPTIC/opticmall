@@ -936,7 +936,14 @@ function printBrandOrderDetail() {
         .addr-box{background:#f7f7f7;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.9;}
         table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
         th{background:#f2f2f2;padding:10px 12px;text-align:left;font-size:12px;}
-        @media print{ button{display:none;} }
+        @page{ margin:18mm 16mm; }
+        thead{ display:table-header-group; } /* 페이지 넘어가도 표 제목줄이 매 페이지 상단에 반복됨 */
+        tr{ page-break-inside:avoid; } /* 한 상품 행이 페이지 경계에서 어색하게 잘리지 않도록 */
+        .addr-box{ page-break-inside:avoid; }
+        @media print{
+          body{ padding:0; }
+          button{ display:none; }
+        }
       </style>
     </head>
     <body>
