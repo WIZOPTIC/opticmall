@@ -951,7 +951,7 @@ async function openTrackModal(orderId, brandOwnerUid) {
             if(shipment) {
               // 다중 브랜드 주문: 해당 배송묶음만 갱신 + 전체 주문 상태 재계산
               const newShipments = o.shipments.map(s => s.brandOwnerUid === brandOwnerUid
-                ? { ...s, status: 'delivered', deliveredAt: firebase.firestore.FieldValue.serverTimestamp(), deliveredAutoDetected: true }
+                ? { ...s, status: 'delivered', deliveredAt: new Date(), deliveredAutoDetected: true }
                 : s);
               const overall = computeOverallOrderStatusClient(newShipments);
               const updatePayload = { shipments: newShipments };

@@ -1961,7 +1961,7 @@ async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
 async function revertOrderStatus(orderDocId, brandOwnerUid, targetStatus, targetLabel) {
   if(!confirm(`이 배송건을 '${targetLabel}' 상태로 되돌리시겠습니까?\n(운송장 정보는 그대로 유지됩니다.)`)) return;
   try {
-    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: targetStatus, statusRevertedAt: window._serverTimestamp() });
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: targetStatus, statusRevertedAt: new Date() });
     showToast(`↩ '${targetLabel}' 상태로 되돌렸습니다.`, 'success');
     loadOrderManage();
     loadDashboard();
@@ -1973,7 +1973,7 @@ async function revertOrderStatus(orderDocId, brandOwnerUid, targetStatus, target
 async function advanceToPreparing(orderDocId, brandOwnerUid) {
   if(!confirm('이 배송건을 출고준비중 상태로 변경하시겠습니까?')) return;
   try {
-    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'preparing', preparingAt: window._serverTimestamp() });
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'preparing', preparingAt: new Date() });
     showToast('✅ 출고준비중으로 변경되었습니다.', 'success');
     loadOrderManage();
     loadDashboard();
@@ -2030,7 +2030,7 @@ async function confirmShipStart() {
       trackingCompany,
       trackingCompanyCode: courierCode === 'etc' ? null : courierCode,
       trackingNumber,
-      shippingStartedAt: window._serverTimestamp()
+      shippingStartedAt: new Date()
     });
     closeShipStartModal();
     showToast('✅ 배송중 상태로 변경되었습니다.', 'success');
@@ -2048,7 +2048,7 @@ async function advanceToShipping(orderDocId, brandOwnerUid) {
 async function advanceToDelivered(orderDocId, brandOwnerUid) {
   if(!confirm('이 배송건을 배송완료 상태로 변경하시겠습니까?')) return;
   try {
-    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'delivered', deliveredAt: window._serverTimestamp() });
+    await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'delivered', deliveredAt: new Date() });
     showToast('✅ 배송완료로 변경되었습니다.', 'success');
     loadOrderManage();
     loadDashboard();
