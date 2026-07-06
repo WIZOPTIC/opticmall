@@ -446,32 +446,30 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
     <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:none;font-size:20px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;transition:color 0.15s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#bbb'">✕</button>
     <div style="padding:48px 44px 40px;">
       <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:28px;">LOGIN</div>
-      <div style="display:flex;gap:10px;margin-bottom:12px;">
-        <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <input type="email" id="loginEmail" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
-          </div>
-          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
-          </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="email" id="loginEmail" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
         </div>
-        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;transition:background 0.15s;" onmouseover="this.style.background='#1B9FD8'" onmouseout="this.style.background='#1A2D4A'">로그인</button>
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
       </div>
-      <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <button id="loginSubmitBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.05em;transition:background 0.15s;margin-bottom:10px;" onmouseover="this.style.background='#1B9FD8'" onmouseout="this.style.background='#1A2D4A'">로그인</button>
+      <a href="join.html" style="display:block;width:100%;box-sizing:border-box;padding:14px;background:#fff;color:#1A2D4A;border:1.5px solid #1A2D4A;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;text-align:center;text-decoration:none;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;" onmouseover="this.style.background='#f5f8fb'" onmouseout="this.style.background='#fff'">회원가입</a>
+      <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin:12px 0 0;text-align:center;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;">
           <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
         </label>
         <span onclick="openForgotPw()" style="font-size:12px;color:#999;cursor:pointer;text-decoration:underline;">비밀번호 찾기</span>
       </div>
-      <div style="border-top:1px solid #f0f0f0;margin:20px 0;"></div>
-      <p style="font-size:12px;color:#bbb;line-height:1.9;margin-bottom:14px;">
+      <div style="border-top:1px solid #f0f0f0;margin:20px 0 14px;"></div>
+      <p style="font-size:12px;color:#bbb;line-height:1.9;">
         안경사 면허 인증 회원만 로그인이 가능합니다.<br>
         아직 회원이 아니시라면 회원가입 후 이용해 주세요.
       </p>
-      <a href="join.html" style="font-size:13px;color:#1A2D4A;font-weight:600;text-decoration:underline;">회원가입 →</a>
     </div>
   </div>
 </div>
