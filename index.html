@@ -1080,6 +1080,13 @@ async function toggleMainWish(event, productId) {
       btn.textContent = '❤️';
       btn.classList.add('active');
       showMainToast('관심상품에 추가되었습니다.', 'success');
+      // [임시 진단] 저장 직후 서버에서 다시 읽어서 진짜 저장됐는지 화면에 바로 표시
+      try {
+        const verifySnap = await wishRef.get();
+        alert('[찜 저장 진단]\nuid: ' + uid + '\n상품ID: ' + productId + '\n경로: ' + wishRef.path + '\n서버에 실제로 존재함?: ' + verifySnap.exists);
+      } catch(verifyErr) {
+        alert('[찜 저장 진단] 재조회 중 에러 발생: ' + verifyErr.message);
+      }
     }
   } catch(e) {
     console.error(e);

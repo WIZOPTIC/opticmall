@@ -1537,6 +1537,8 @@ async function loadWishlist() {
   updateWishToolbar();
   try {
     const snap = await _db.collection('wishlists').doc(currentUser.uid).collection('items').get();
+    // [임시 진단] 화면에 바로 조회 결과 표시
+    alert('[관심상품 조회 진단]\nuid: ' + currentUser.uid + '\n경로: wishlists/' + currentUser.uid + '/items\n조회된 건수: ' + snap.size);
     const ids = [];
     snap.forEach(doc => ids.push(doc.id));
 
@@ -1580,6 +1582,7 @@ async function loadWishlist() {
     }).join('')}</div>`;
   } catch(e) {
     console.error(e);
+    alert('[관심상품 조회 진단] 에러 발생: ' + e.message);
     listEl.innerHTML = `<div class="empty-box" style="color:var(--red);">불러오지 못했습니다.</div>`;
   }
 }
