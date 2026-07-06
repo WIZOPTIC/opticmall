@@ -459,10 +459,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
       <button id="loginSubmitBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.05em;transition:background 0.15s;margin-bottom:10px;" onmouseover="this.style.background='#1B9FD8'" onmouseout="this.style.background='#1A2D4A'">로그인</button>
       <a href="join.html" style="display:block;width:100%;box-sizing:border-box;padding:14px;background:#fff;color:#1A2D4A;border:1.5px solid #1A2D4A;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;text-align:center;text-decoration:none;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;" onmouseover="this.style.background='#f5f8fb'" onmouseout="this.style.background='#fff'">회원가입</a>
       <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin:12px 0 0;text-align:center;"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;">
-          <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
-        </label>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:16px;">
         <span onclick="openForgotPw()" style="font-size:12px;color:#999;cursor:pointer;text-decoration:underline;">비밀번호 찾기</span>
       </div>
       <div style="border-top:1px solid #f0f0f0;margin:20px 0 14px;"></div>
@@ -858,7 +855,6 @@ const _db = firebase.firestore();
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pw = document.getElementById('loginPw').value;
-  const keepLogin = document.getElementById('keepLoginChk').checked;
   const errEl = document.getElementById('loginError');
   const btn = document.getElementById('loginSubmitBtn');
   errEl.style.display = 'none';
@@ -866,9 +862,8 @@ async function doLogin() {
   btn.textContent = '로그인 중...';
   btn.disabled = true;
   try {
-    // 체크박스 선택 시에만 브라우저를 닫아도 로그인 유지 (LOCAL), 기본은 탭/창을 닫으면 로그아웃 (SESSION)
-    const persistence = keepLogin ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-    await _auth.setPersistence(persistence);
+    // 여러 탭을 동시에 띄워놓고 쓰는 경우가 많아 항상 LOCAL로 유지 (탭마다 로그인이 끊기는 문제 방지)
+    await _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     await _auth.signInWithEmailAndPassword(email, pw);
     closeLogin();
     showToastMain('✓ 로그인되었습니다!', 'success');
