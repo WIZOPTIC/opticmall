@@ -53,9 +53,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
 /* 주문 블록 (쿠팡 스타일: 날짜별 그룹) */
 .order-block{background:var(--white);border-radius:12px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;}
-.order-block-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--g1);}
+.order-block-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--g1);cursor:pointer;user-select:none;transition:background 0.12s;gap:12px;}
+.order-block-header:hover{background:var(--g1);}
+.order-block-header.closed{border-bottom:none;}
 .order-block-date{font-size:15px;font-weight:800;color:var(--navy);}
-.order-block-num{font-size:11px;color:var(--g3);font-family:'Inter',sans-serif;}
+.order-block-num{font-size:11px;color:var(--g3);font-family:'Inter',sans-serif;margin-top:2px;}
+.order-block-summary{font-size:12.5px;color:var(--g4);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.order-block-summary .amt{font-weight:700;color:var(--navy);}
+.order-block-toggle{flex-shrink:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--g3);transition:transform 0.2s;}
+.order-block-toggle.open{transform:rotate(180deg);}
 .order-block-body{padding:16px 20px 20px;}
 .order-status-line{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;}
 .status-pill{font-size:14px;font-weight:800;}
@@ -65,6 +71,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .status-pill.c-done{color:var(--green);}
 .status-pill.c-cancel{color:var(--red);}
 .status-sub{font-size:12px;color:var(--g4);}
+.status-pill-mini{font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px;white-space:nowrap;}
+.status-pill-mini.c-pay{background:var(--sky-lt);color:var(--sky);}
+.status-pill-mini.c-ready{background:#FEF6E7;color:var(--orange);}
+.status-pill-mini.c-ship{background:var(--sky-lt);color:var(--sky-dk);}
+.status-pill-mini.c-done{background:#EAF9EE;color:var(--green);}
+.status-pill-mini.c-cancel{background:#FEECEC;color:var(--red);}
 
 /* 배송 진행 상태 바 (네이버 스타일) */
 .ship-progress{position:relative;margin:16px 6px 20px;}
@@ -1173,7 +1185,7 @@ function renderOrdersList() {
     return;
   }
 
-  listEl.innerHTML = orders.map(o => {
+  listEl.innerHTML = orders.map((o, idx) => {
     const items = getOrderItems(o);
     const st = o.status;
 
@@ -1199,13 +1211,24 @@ function renderOrdersList() {
       : '';
     const brandBreakdownHtml = isMultiBrand ? buildBrandShipmentBreakdown(o) : '';
 
+    // 접혀있을 때도 한눈에 보이는 요약 (첫 상품명 + 나머지 건수 + 합계)
+    const firstItemName = items[0]?.productName || '상품';
+    const itemSummary = items.length > 1 ? `${firstItemName} 외 ${items.length - 1}건` : firstItemName;
+    const isOpen = idx === 0; // 가장 최근 주문만 기본으로 펼쳐서 보여줌
+
     return `
       <div class="order-block">
-        <div class="order-block-header">
-          <div class="order-block-date">${formatDateOnly(o.createdAt)} 주문</div>
-          <div class="order-block-num">${o.orderId || o.id}</div>
+        <div class="order-block-header${isOpen ? '' : ' closed'}" onclick="toggleOrderBlock('${o.id}')">
+          <div>
+            <div class="order-block-date">${formatDateOnly(o.createdAt)} 주문 <span class="status-pill-mini ${pillCls}">${pillLabel}</span></div>
+            <div class="order-block-summary">${itemSummary} · <span class="amt">₩${Number(o.totalAmount||0).toLocaleString()}</span></div>
+            <div class="order-block-num">${o.orderId || o.id}</div>
+          </div>
+          <div class="order-block-toggle${isOpen ? ' open' : ''}" id="toggle-${o.id}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-        <div class="order-block-body">
+        <div class="order-block-body" id="body-${o.id}" style="display:${isOpen ? 'block' : 'none'};">
           <div class="order-status-line">
             <span class="status-pill ${pillCls}">${pillLabel}</span>
             ${subText ? `<span class="status-sub">· ${subText}</span>` : ''}
@@ -1230,8 +1253,8 @@ function renderOrdersList() {
           <div style="text-align:right;font-size:12px;color:var(--g3);margin-top:8px;">합계 <strong style="color:var(--navy);font-size:14px;">₩${Number(o.totalAmount||0).toLocaleString()}</strong></div>
 
           <div class="order-block-actions">
-            ${canCancel ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','before_ship')">주문취소</button>` : ''}
-            ${canReturn ? `<button class="chip-action-btn danger" onclick="openCancelModal('${o.id}','after_ship')">교환, 반품 신청</button>` : ''}
+            ${canCancel ? `<button class="chip-action-btn danger" onclick="event.stopPropagation();openCancelModal('${o.id}','before_ship')">주문취소</button>` : ''}
+            ${canReturn ? `<button class="chip-action-btn danger" onclick="event.stopPropagation();openCancelModal('${o.id}','after_ship')">교환, 반품 신청</button>` : ''}
             ${isPendingCancel ? `<span style="font-size:12px;color:var(--orange);font-weight:600;align-self:center;">처리 대기중</span>` : ''}
           </div>
           ${o.cancelReason ? `<div style="font-size:12px;color:var(--g3);margin-top:10px;">취소사유: ${o.cancelReason}</div>` : ''}
@@ -1239,6 +1262,17 @@ function renderOrdersList() {
         </div>
       </div>`;
   }).join('');
+}
+
+// 주문 블록 펼치기/접기
+function toggleOrderBlock(orderId) {
+  const body = document.getElementById(`body-${orderId}`);
+  const toggle = document.getElementById(`toggle-${orderId}`);
+  if(!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  toggle.classList.toggle('open', !isOpen);
+  toggle.closest('.order-block').querySelector('.order-block-header').classList.toggle('closed', isOpen);
 }
 
 // 택배사 코드/이름 → 배송조회 페이지 URL
