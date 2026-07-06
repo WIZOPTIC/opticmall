@@ -103,6 +103,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 </style>
 </head>
 <body>
+<div style="background:red;color:white;text-align:center;padding:10px;font-weight:800;font-size:14px;">🔴 진단버전 v2 로드됨 (이 배너가 안 보이면 예전 파일이 캐시된 것)</div>
 
 <!-- 로그인 팝업 -->
 <div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:1000;">
@@ -278,6 +279,7 @@ const _auth = firebase.auth();
 const _db = firebase.firestore();
 
 let memberLevel = 0; // 0=비회원, 1=대기, 2=승인완료(가격공개)
+let wishlistIds = new Set();
 let allProducts = []; // Firestore에서 불러온 승인 상품 전체
 
 // ===================== 로그인 모달 =====================
@@ -376,12 +378,17 @@ _auth.onAuthStateChanged(async (user) => {
       updateHeaderLoggedIn(user.email.split('@')[0], 0, null);
     }
     updateCartCount();
+    try {
+      const wishSnap = await _db.collection('wishlists').doc(user.uid).collection('items').get();
+      wishlistIds = new Set(wishSnap.docs.map(d => d.id));
+    } catch(e) { console.error(e); }
   } else {
     memberLevel = 0;
+    wishlistIds = new Set();
     updateHeaderLoggedOut();
     document.getElementById('cartCountBadge').style.display = 'none';
   }
-  renderProducts(allProducts); // 로그인 상태 바뀌면 가격 잠금 표시 다시 그림
+  renderProducts(allProducts); // 로그인 상태 바뀌면 가격 잠금 표시/찜 상태 다시 그림
 });
 
 async function updateCartCount() {
@@ -448,9 +455,10 @@ function renderProducts(products) {
       : `👓`;
     const catLabel = p.category || p.type || p.brandName || '안경테';
 
+    const isWished = wishlistIds.has(p.id);
     return `
       <div class="product-card" onclick="goToProduct('${p.id}')">
-        <div class="product-img${hasImg ? '' : ' no-img'}">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button></div>
+        <div class="product-img${hasImg ? '' : ' no-img'}">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleListWish(event,'${p.id}')">${isWished ? '❤️' : '🤍'}</button></div>
         <div class="product-info">
           <div class="p-cat">${catLabel}</div>
           <div class="p-name">${p.modelName || '-'}</div>
@@ -512,6 +520,59 @@ function getListColorDot(colorName) {
   if(colors.length >= 2) return `background:linear-gradient(90deg, ${colors[0]} 50%, ${colors[1]} 50%);`;
   if(colors.length === 1) return `background:${colors[0]};`;
   return `background:#888;`;
+}
+
+async function toggleListWish(event, productId) {
+  event.stopPropagation();
+  if(memberLevel < 2) { openLogin(); return; }
+  const btn = event.currentTarget;
+  const uid = _auth.currentUser.uid;
+  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(productId);
+  try {
+    if(wishlistIds.has(productId)) {
+      await wishRef.delete();
+      wishlistIds.delete(productId);
+      btn.textContent = '🤍';
+      btn.classList.remove('active');
+      showListToast('관심상품에서 제거되었습니다.');
+    } else {
+      await wishRef.set({ productId, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      wishlistIds.add(productId);
+      btn.textContent = '❤️';
+      btn.classList.add('active');
+      showListToast('관심상품에 추가되었습니다.', 'success');
+      // [임시 진단] 저장 직후 서버에서 다시 읽어서 진짜 저장됐는지 화면에 바로 표시
+      try {
+        const verifySnap = await wishRef.get();
+        alert('[찜 저장 진단]\nuid: ' + uid + '\n상품ID: ' + productId + '\n경로: ' + wishRef.path + '\n서버에 실제로 존재함?: ' + verifySnap.exists);
+      } catch(verifyErr) {
+        alert('[찜 저장 진단] 재조회 중 에러 발생: ' + verifyErr.message);
+      }
+    }
+  } catch(e) {
+    console.error('[찜 진단] 에러 발생:', e);
+    alert('[찜 저장 진단] 저장 실패!\n에러: ' + e.message);
+    showListToast('처리 중 오류가 발생했습니다.');
+  }
+}
+
+function showListToast(msg, type) {
+  let toast = document.getElementById('listFloatToast');
+  if(!toast) {
+    toast = document.createElement('div');
+    toast.id = 'listFloatToast';
+    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A2D4A;color:#fff;padding:12px 22px;border-radius:100px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = type === 'success' ? '#1B9FD8' : '#1A2D4A';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 1800);
 }
 
 function goToProduct(productId) {
