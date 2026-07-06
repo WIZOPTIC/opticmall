@@ -173,6 +173,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .track-external-btn:hover{border-color:var(--sky);color:var(--sky);}
 .track-disclaimer{font-size:11.5px;color:var(--g3);line-height:1.6;background:var(--g1);border-radius:8px;padding:12px 14px;}
 .order-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--g1);}
+.order-item.clickable{cursor:pointer;transition:background 0.12s;border-radius:8px;}
+.order-item.clickable:hover{background:var(--sky-lt);}
+.order-item.clickable:hover .order-item-name{color:var(--sky-dk);}
 .order-item:last-child{border-bottom:none;}
 .order-img{width:56px;height:56px;background:var(--sky-lt);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;}
 .order-img img{width:100%;height:100%;object-fit:cover;}
@@ -1231,7 +1234,7 @@ function renderOrdersList() {
           ${trackBtnHtml}
           ${brandBreakdownHtml}
           ${items.map(it => `
-            <div class="order-item">
+            <div class="order-item${it.productId ? ' clickable' : ''}" ${it.productId ? `onclick="event.stopPropagation();location.href='product.html?id=${it.productId}'"` : ''}>
               <div class="order-img">
                 ${it.mainImageUrl
                   ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
