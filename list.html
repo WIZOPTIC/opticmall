@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTICMALL | 상품 목록</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sky: #1B9FD8; --sky-lt: #E6F5FB; --sky-dk: #1480B0;
+  --navy: #1A2D4A; --white: #FFFFFF;
+  --g1: #F2F4F6; --g2: #E0E4E8; --g3: #9BA5B0; --g4: #5A6472;
+  --black: #111318; --red: #FF4444; --yellow: #F5C518;
+}
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color: var(--black); padding-bottom: 80px; }
+.header { background: var(--white); border-bottom: 1px solid var(--g2); position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 24px; }
+.logo { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: var(--navy); text-decoration: none; }
+.logo span { color: var(--sky); }
+.header-search { flex: 1; max-width: 480px; display: flex; border: 1.5px solid var(--g2); border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
+.header-search:focus-within { border-color: var(--sky); }
+.header-search input { flex: 1; padding: 10px 16px; border: none; outline: none; font-size: 14px; font-family: inherit; }
+.search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
+.search-btn:hover { color: var(--sky); }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.h-btn { padding: 7px 12px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--g4); font-family: inherit; cursor: pointer; }
+.h-sep { color: var(--g2); }
+.h-join { padding: 7px 14px; border: none; background: var(--sky); color: var(--white); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 4px; }
+.icon-btn { width: 36px; height: 36px; border: none; background: none; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--g4); position: relative; }
+.cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; }
+.gnb { background: var(--white); border-bottom: 2px solid var(--sky); position: sticky; top: 64px; z-index: 99; }
+.gnb-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; }
+.gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
+.gnb-item:hover, .gnb-item.active { color: var(--sky); font-weight: 700; }
+
+/* 레이아웃 */
+.page-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; display: flex; gap: 24px; }
+
+/* 사이드 필터 */
+.sidebar { width: 220px; flex-shrink: 0; }
+.filter-section { background: var(--white); border: 1px solid var(--g2); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.filter-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 12px; display: flex; justify-content: space-between; cursor: pointer; }
+.filter-title span { color: var(--g3); font-weight: 400; font-size: 11px; }
+.filter-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; }
+.filter-item input[type="checkbox"] { accent-color: var(--sky); width: 15px; height: 15px; cursor: pointer; }
+.filter-item label { font-size: 13px; color: var(--g4); cursor: pointer; flex: 1; }
+.filter-item .cnt { font-size: 11px; color: var(--g3); }
+.price-range { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.price-input { flex: 1; padding: 8px 10px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 12px; font-family: inherit; outline: none; }
+.price-input:focus { border-color: var(--sky); }
+.btn-filter-apply { width: 100%; padding: 9px; background: var(--sky); color: var(--white); border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 8px; }
+.btn-reset { width: 100%; padding: 8px; background: none; color: var(--g3); border: 1px solid var(--g2); border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; margin-top: 6px; }
+
+/* 상품 목록 */
+.products-area { flex: 1; }
+.list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.list-title { font-size: 18px; font-weight: 700; color: var(--navy); }
+.list-count { font-size: 13px; color: var(--g3); }
+.list-count strong { color: var(--navy); }
+.list-controls { display: flex; align-items: center; gap: 10px; }
+.sort-select { padding: 8px 12px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 13px; font-family: inherit; outline: none; cursor: pointer; background: var(--white); }
+.view-btns { display: flex; gap: 4px; }
+.view-btn { width: 32px; height: 32px; border: 1.5px solid var(--g2); background: var(--white); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
+.view-btn.active { border-color: var(--sky); color: var(--sky); background: var(--sky-lt); }
+
+/* 상품 그리드 */
+.product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.product-card { border: 1px solid var(--g2); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; background: var(--white); }
+.product-card:hover { border-color: var(--sky); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.product-img { aspect-ratio: 4/3; background: var(--g1); display: flex; align-items: center; justify-content: center; position: relative; font-size: 60px; }
+.product-img.no-img { opacity: 0.12; }
+.p-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+.p-badge.new { background: var(--yellow); color: var(--black); }
+.p-badge.hot { background: var(--red); color: var(--white); }
+.p-badge.best { background: var(--navy); color: var(--white); }
+.p-badge.out { background: var(--g3); color: var(--white); }
+.wish-btn { position: absolute; bottom: 8px; right: 8px; width: 30px; height: 30px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.color-dots { display: flex; gap: 4px; padding: 10px 10px 0; }
+.color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.1); }
+.product-info { padding: 8px 10px 12px; }
+.p-cat { font-size: 10px; font-weight: 700; color: var(--sky); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+.p-name { font-size: 13px; font-weight: 600; color: var(--black); margin-bottom: 3px; line-height: 1.3; }
+.p-size { font-size: 11px; color: var(--g3); margin-bottom: 6px; }
+.p-colors { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+.p-color-chip { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex-shrink: 0; title: attr(title); }
+.p-color-more { font-size: 10px; color: var(--g3); align-self: center; }
+.p-price { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: var(--navy); }
+.p-price .won { font-size: 12px; font-weight: 500; }
+.p-locked { font-size: 12px; color: var(--g3); display: flex; align-items: center; gap: 4px; }
+
+/* 페이지네이션 */
+.pagination { display: flex; justify-content: center; gap: 6px; margin-top: 32px; }
+.page-btn { width: 36px; height: 36px; border: 1.5px solid var(--g2); background: var(--white); border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-family: inherit; }
+.page-btn.active { background: var(--sky); color: var(--white); border-color: var(--sky); font-weight: 700; }
+.page-btn:hover:not(.active) { border-color: var(--sky); color: var(--sky); }
+
+/* 하단 네비 */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--white); border-top: 1px solid var(--g2); display: flex; z-index: 300; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: none; background: none; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; color: var(--g3); cursor: pointer; font-family: inherit; }
+.bnav-item.active { color: var(--sky); }
+.bnav-item svg { width: 22px; height: 22px; }
+</style>
+</head>
+<body>
+<div style="background:red;color:white;text-align:center;padding:10px;font-weight:800;font-size:14px;">🔴 진단버전 v2 로드됨 (이 배너가 안 보이면 예전 파일이 캐시된 것)</div>
+
+<!-- 로그인 팝업 -->
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:1000;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeLogin()"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:460px;max-width:90vw;border-radius:6px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:none;font-size:20px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;transition:color 0.15s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#bbb'">✕</button>
+    <div style="padding:48px 44px 40px;">
+      <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:28px;">LOGIN</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="email" id="loginEmail" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#1B9FD8'" onfocusout="this.style.borderColor='#e8e8e8'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+        </div>
+        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;transition:background 0.15s;" onmouseover="this.style.background='#1B9FD8'" onmouseout="this.style.background='#1A2D4A'">로그인</button>
+      </div>
+      <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
+      <div style="margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;">
+          <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
+        </label>
+      </div>
+      <div style="border-top:1px solid #f0f0f0;margin:20px 0;"></div>
+      <p style="font-size:12px;color:#bbb;line-height:1.9;margin-bottom:14px;">
+        안경사 면허 인증 회원만 로그인이 가능합니다.<br>
+        아직 회원이 아니시라면 회원가입 후 이용해 주세요.
+      </p>
+      <a href="join.html" style="font-size:13px;color:#1A2D4A;font-weight:600;text-decoration:underline;">회원가입 →</a>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
+    <div class="header-search">
+      <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" onkeydown="if(event.key==='Enter') doSearch()">
+      <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+    </div>
+    <div class="header-right">
+      <button class="h-btn" onclick="location.href='mypage.html?tab=orders'">주문조회</button><span class="h-sep">|</span>
+      <button class="h-btn" id="loginBtn" onclick="openLogin()">로그인</button><span class="h-sep">|</span>
+      <button class="h-join" onclick="location.href='join.html'">회원가입</button>
+      <div style="position:relative;margin-left:8px;" id="userMenuWrap">
+        <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
+          <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+          <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+          <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
+          <a href="mypage.html?tab=recent" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="location.href='cart.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg><span class="cart-count" id="cartCountBadge" style="display:none;">0</span></button>
+    </div>
+  </div>
+</header>
+<nav class="gnb">
+  <div class="gnb-inner">
+    <button class="gnb-item active" onclick="filterByGnb('전체', this)">전체상품</button>
+    <button class="gnb-item" onclick="filterByGnb('하금테', this)">하금테</button>
+    <button class="gnb-item" onclick="filterByGnb('뿔테', this)">뿔테</button>
+    <button class="gnb-item" onclick="filterByGnb('메탈', this)">메탈</button>
+    <button class="gnb-item" onclick="filterByGnb('선글라스', this)">선글라스</button>
+    <button class="gnb-item" onclick="location.href='brands.html'">브랜드관</button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <!-- 사이드 필터 -->
+  <aside class="sidebar">
+    <div class="filter-section">
+      <div class="filter-title">카테고리</div>
+      <div class="filter-item"><input type="checkbox" id="cat-all" checked onchange="onCategoryFilterChange()"><label for="cat-all">전체</label><span class="cnt" id="cnt-all">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-하금테" onchange="onCategoryFilterChange()"><label for="cat-하금테">하금테</label><span class="cnt" id="cnt-하금테">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-뿔테" onchange="onCategoryFilterChange()"><label for="cat-뿔테">뿔테</label><span class="cnt" id="cnt-뿔테">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-메탈" onchange="onCategoryFilterChange()"><label for="cat-메탈">메탈</label><span class="cnt" id="cnt-메탈">(0)</span></div>
+      <div class="filter-item"><input type="checkbox" id="cat-선글라스" onchange="onCategoryFilterChange()"><label for="cat-선글라스">선글라스</label><span class="cnt" id="cnt-선글라스">(0)</span></div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">타입</div>
+      <div class="filter-item"><input type="checkbox" id="type-하프" onchange="onFilterChange()"><label for="type-하프">하프</label></div>
+      <div class="filter-item"><input type="checkbox" id="type-온" onchange="onFilterChange()"><label for="type-온">온</label></div>
+      <div class="filter-item"><input type="checkbox" id="type-림리스" onchange="onFilterChange()"><label for="type-림리스">림리스</label></div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">재고</div>
+      <div class="filter-item"><input type="checkbox" id="s1" onchange="onFilterChange()"><label for="s1">재고있음만</label></div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">가격대 <span>(회원 전용)</span></div>
+      <div class="price-range">
+        <input class="price-input" type="text" id="priceMin" placeholder="최소">
+        <span style="color:var(--g3);font-size:12px;">~</span>
+        <input class="price-input" type="text" id="priceMax" placeholder="최대">
+      </div>
+      <button class="btn-filter-apply" onclick="onFilterChange()">필터 적용</button>
+      <button class="btn-reset" onclick="resetFilters()">초기화</button>
+    </div>
+  </aside>
+
+  <!-- 상품 목록 -->
+  <div class="products-area">
+    <div class="list-header">
+      <div>
+        <div class="list-title" id="listTitle">전체상품</div>
+        <div class="list-count">총 <strong>124</strong>개 상품</div>
+      </div>
+      <div class="list-controls">
+        <select class="sort-select">
+          <option>신상품순</option>
+          <option>판매량순</option>
+          <option>낮은가격순</option>
+          <option>높은가격순</option>
+        </select>
+        <div class="view-btns">
+          <button class="view-btn active">⊞</button>
+          <button class="view-btn">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+      <!-- 상품 카드들 JS로 생성 -->
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn">‹</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">4</button>
+      <button class="page-btn">5</button>
+      <button class="page-btn">›</button>
+    </div>
+  </div>
+</div>
+
+<!-- 하단 네비 -->
+<nav class="bottom-nav">
+  <button class="bnav-item" onclick="location.href='index.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>HOME
+  </button>
+  <button class="bnav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>CATE
+  </button>
+  <button class="bnav-item" onclick="location.href='cart.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>ORDER
+  </button>
+  <button class="bnav-item" onclick="location.href='mypage.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>MY
+  </button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
+
+let memberLevel = 0; // 0=비회원, 1=대기, 2=승인완료(가격공개)
+let wishlistIds = new Set();
+let allProducts = []; // Firestore에서 불러온 승인 상품 전체
+
+// ===================== 로그인 모달 =====================
+function openLogin() { document.getElementById('loginOverlay').style.display = 'block'; }
+function closeLogin() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('loginError').style.display='none'; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin(); });
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const keepLogin = document.getElementById('keepLoginChk').checked;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginSubmitBtn');
+  errEl.style.display = 'none';
+  if(!email || !pw) { errEl.textContent='이메일과 비밀번호를 입력해주세요.'; errEl.style.display='block'; return; }
+  btn.textContent = '...';
+  btn.disabled = true;
+  try {
+    const persistence = keepLogin ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+    await _auth.setPersistence(persistence);
+    await _auth.signInWithEmailAndPassword(email, pw);
+    closeLogin();
+  } catch(e) {
+    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = '로그인';
+    btn.disabled = false;
+  }
+}
+async function doLogout() { await _auth.signOut(); }
+
+function updateHeaderLoggedIn(name, level, role) {
+  const loginBtn = document.getElementById('loginBtn');
+  const joinBtn = document.querySelector('.h-join');
+  if(loginBtn) loginBtn.style.display = 'none';
+  if(joinBtn) joinBtn.style.display = 'none';
+
+  let adminLinkHtml = '';
+  if(role === 'brand') {
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+  } else if(role === 'master' || role === 'submaster') {
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;">⚙️ 관리자 모드</a>`;
+  }
+
+  const dropdown = document.getElementById('userDropdown');
+  if(dropdown) {
+    dropdown.innerHTML = `
+      <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
+        <div style="font-size:13px;font-weight:700;color:#1A2D4A;">${name}님</div>
+        <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
+      </div>
+      ${adminLinkHtml}
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+      <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
+      <a href="mypage.html?tab=recent" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
+      <a href="#" onclick="doLogout()" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
+  }
+}
+function updateHeaderLoggedOut() {
+  const loginBtn = document.getElementById('loginBtn');
+  const joinBtn = document.querySelector('.h-join');
+  if(loginBtn) loginBtn.style.display = '';
+  if(joinBtn) joinBtn.style.display = '';
+
+  const dropdown = document.getElementById('userDropdown');
+  if(dropdown) {
+    dropdown.innerHTML = `
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
+      <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>`;
+  }
+}
+
+document.getElementById('userMenuBtn')?.addEventListener('click', () => {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+});
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('userMenuWrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('userDropdown').style.display = 'none';
+});
+
+_auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    try {
+      const userDoc = await _db.collection('users').doc(user.uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      const name = userData.name || user.email.split('@')[0];
+      memberLevel = userData.member_level || 0;
+      updateHeaderLoggedIn(name, memberLevel, userData.role);
+    } catch(e) {
+      memberLevel = 0;
+      updateHeaderLoggedIn(user.email.split('@')[0], 0, null);
+    }
+    updateCartCount();
+    try {
+      const wishSnap = await _db.collection('wishlists').doc(user.uid).collection('items').get();
+      wishlistIds = new Set(wishSnap.docs.map(d => d.id));
+    } catch(e) { console.error(e); }
+  } else {
+    memberLevel = 0;
+    wishlistIds = new Set();
+    updateHeaderLoggedOut();
+    document.getElementById('cartCountBadge').style.display = 'none';
+  }
+  renderProducts(allProducts); // 로그인 상태 바뀌면 가격 잠금 표시/찜 상태 다시 그림
+});
+
+async function updateCartCount() {
+  try {
+    const uid = _auth.currentUser.uid;
+    const snap = await _db.collection('carts').doc(uid).collection('items').get();
+    const badge = document.getElementById('cartCountBadge');
+    if(snap.size > 0) {
+      badge.textContent = snap.size;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ===================== 상품 목록 (Firestore 연동) =====================
+const grid = document.getElementById('productGrid');
+let currentGnbCategory = '전체';
+let currentBrandFilter = null;
+
+function renderEmptyState(message) {
+  grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#9BA5B0;">
+    <div style="font-size:40px;margin-bottom:12px;">👓</div>
+    <div style="font-size:14px;font-weight:600;">${message || '아직 등록된 상품이 없습니다.'}</div>
+  </div>`;
+}
+
+function renderProducts(products) {
+  if(!products || products.length === 0) {
+    renderEmptyState(allProducts.length === 0 ? '아직 등록된 상품이 없습니다.' : '조건에 맞는 상품이 없습니다.');
+    updateCount(0);
+    return;
+  }
+
+  grid.innerHTML = products.map(p => {
+    const badgeHtml = p.discountRate ? `<span class="p-badge hot">${p.discountRate}% SALE</span>` : (p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '');
+    const totalStock = p.colors && p.colors.length > 0
+      ? p.colors.reduce((sum, c) => sum + Number(c.stock || 0), 0)
+      : Number(p.stock || 0);
+    const outHtml = totalStock <= 0 ? `<span class="p-badge out">SOLD OUT</span>` : '';
+    let priceHtml;
+    if(memberLevel >= 2) {
+      const discountRate = Number(p.discountRate) || 0;
+      const price = Number(p.price) || 0;
+      const salePrice = p.salePrice ? Number(p.salePrice) : (discountRate > 0 ? Math.round(price * (1 - discountRate/100)) : 0);
+      if(discountRate > 0 && price > 0) {
+        priceHtml = `<div class="p-price">
+          <span style="font-size:11px;color:var(--g3);text-decoration:line-through;margin-right:4px;">₩${price.toLocaleString()}</span>
+          <span class="won">₩</span>${salePrice.toLocaleString()}
+          <span style="font-size:11px;color:var(--red);font-weight:700;margin-left:2px;">${discountRate}%</span>
+        </div>`;
+      } else {
+        priceHtml = `<div class="p-price"><span class="won">₩</span>${price.toLocaleString()}</div>`;
+      }
+    } else {
+      priceHtml = `<div class="p-locked">🔒 로그인 후 가격확인</div>`;
+    }
+    const hasImg = !!p.mainImageUrl;
+    const imgHtml = hasImg
+      ? `<img src="${p.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">`
+      : `👓`;
+    const catLabel = p.category || p.type || p.brandName || '안경테';
+
+    const isWished = wishlistIds.has(p.id);
+    return `
+      <div class="product-card" onclick="goToProduct('${p.id}')">
+        <div class="product-img${hasImg ? '' : ' no-img'}">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleListWish(event,'${p.id}')">${isWished ? '❤️' : '🤍'}</button></div>
+        <div class="product-info">
+          <div class="p-cat">${catLabel}</div>
+          <div class="p-name">${p.modelName || '-'}</div>
+          <div class="p-size">${p.size ? p.size + ' · ' : ''}${p.barcode || ''}</div>
+          ${(() => {
+            const colorNames = p.colorNames || (p.color ? [p.color] : []);
+            if(colorNames.length === 0) return '';
+            const chips = colorNames.slice(0,6).map(c =>
+              `<div class="p-color-chip" title="${c}" style="${getListColorDot(c)}"></div>`
+            ).join('');
+            const more = colorNames.length > 6 ? `<span class="p-color-more">+${colorNames.length-6}</span>` : '';
+            return `<div class="p-colors">${chips}${more}</div>`;
+          })()}
+          ${priceHtml}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// 카드 클릭 시 상품 데이터를 미리 sessionStorage에 저장해서 상세페이지 로딩 깜빡임 최소화
+// 색상명 안에서 최대 2가지 색상 키워드 + 투명 여부를 인식 (복합색 이름 지원: 로즈골드블랙, 투명실버 등)
+const COLOR_KEYWORD_MAP = [
+  ['로즈골드','#E6B8B0'], ['rose gold','#E6B8B0'],
+  ['아이보리','#F5F0E1'], ['ivory','#F5F0E1'],
+  ['네이비','#1A2D4A'], ['navy','#1A2D4A'],
+  ['그레이','#9BA5B0'], ['회색','#9BA5B0'], ['gray','#9BA5B0'], ['grey','#9BA5B0'],
+  ['카키','#8B8B5A'], ['khaki','#8B8B5A'],
+  ['블랙','#222222'], ['black','#222222'],
+  ['화이트','#F5F5F5'], ['white','#F5F5F5'],
+  ['실버','#C0C0C0'], ['silver','#C0C0C0'],
+  ['골드','#C9A84C'], ['gold','#C9A84C'],
+  ['브라운','#8B4513'], ['brown','#8B4513'],
+  ['레드','#E53935'], ['red','#E53935'],
+  ['블루','#1976D2'], ['blue','#1976D2'],
+  ['핑크','#E91E8C'], ['pink','#E91E8C'],
+  ['그린','#388E3C'], ['green','#388E3C'],
+  ['퍼플','#7B1FA2'], ['purple','#7B1FA2']
+];
+const TRANSPARENT_KEYWORDS = ['투명','clear','transparent','크리스탈','crystal'];
+const CHECKER_BG = "background-image:linear-gradient(45deg,#ddd 25%,transparent 25%),linear-gradient(-45deg,#ddd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ddd 75%),linear-gradient(-45deg,transparent 75%,#ddd 75%);background-size:6px 6px;background-position:0 0,0 3px,3px -3px,-3px 0;background-color:#fff;";
+
+function extractSwatchColors(colorName) {
+  const name = (colorName || '').toLowerCase();
+  const isTransparent = TRANSPARENT_KEYWORDS.some(k => name.includes(k));
+  const found = [];
+  for(const [key, hex] of COLOR_KEYWORD_MAP) {
+    if(name.includes(key) && !found.includes(hex)) {
+      found.push(hex);
+      if(found.length >= 2) break;
+    }
+  }
+  return { colors: found, isTransparent };
+}
+
+function getListColorDot(colorName) {
+  const { colors, isTransparent } = extractSwatchColors(colorName);
+  if(isTransparent && colors.length === 0) return CHECKER_BG;
+  if(isTransparent && colors.length >= 1) return `background:linear-gradient(135deg, rgba(255,255,255,0.85), ${colors[0]});`;
+  if(colors.length >= 2) return `background:linear-gradient(90deg, ${colors[0]} 50%, ${colors[1]} 50%);`;
+  if(colors.length === 1) return `background:${colors[0]};`;
+  return `background:#888;`;
+}
+
+async function toggleListWish(event, productId) {
+  event.stopPropagation();
+  if(memberLevel < 2) { openLogin(); return; }
+  const btn = event.currentTarget;
+  const uid = _auth.currentUser.uid;
+  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(productId);
+  try {
+    if(wishlistIds.has(productId)) {
+      await wishRef.delete();
+      wishlistIds.delete(productId);
+      btn.textContent = '🤍';
+      btn.classList.remove('active');
+      showListToast('관심상품에서 제거되었습니다.');
+    } else {
+      await wishRef.set({ productId, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      wishlistIds.add(productId);
+      btn.textContent = '❤️';
+      btn.classList.add('active');
+      showListToast('관심상품에 추가되었습니다.', 'success');
+      // [임시 진단] 저장 직후 서버에서 다시 읽어서 진짜 저장됐는지 화면에 바로 표시
+      try {
+        const verifySnap = await wishRef.get();
+        alert('[찜 저장 진단]\nuid: ' + uid + '\n상품ID: ' + productId + '\n경로: ' + wishRef.path + '\n서버에 실제로 존재함?: ' + verifySnap.exists);
+      } catch(verifyErr) {
+        alert('[찜 저장 진단] 재조회 중 에러 발생: ' + verifyErr.message);
+      }
+    }
+  } catch(e) {
+    console.error('[찜 진단] 에러 발생:', e);
+    alert('[찜 저장 진단] 저장 실패!\n에러: ' + e.message);
+    showListToast('처리 중 오류가 발생했습니다.');
+  }
+}
+
+function showListToast(msg, type) {
+  let toast = document.getElementById('listFloatToast');
+  if(!toast) {
+    toast = document.createElement('div');
+    toast.id = 'listFloatToast';
+    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A2D4A;color:#fff;padding:12px 22px;border-radius:100px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = type === 'success' ? '#1B9FD8' : '#1A2D4A';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 1800);
+}
+
+function goToProduct(productId) {
+  const product = allProducts.find(p => p.id === productId);
+  if(product) {
+    try {
+      sessionStorage.setItem('preloadProduct_' + productId, JSON.stringify(product));
+    } catch(e) { console.error('상품 미리보기 데이터 저장 실패:', e); }
+  }
+  location.href = 'product.html?id=' + productId;
+}
+
+function updateCount(n) {
+  document.querySelector('.list-count').innerHTML = `총 <strong>${n}</strong>개 상품`;
+}
+
+const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
+const TYPES = ['하프', '온', '림리스'];
+
+function updateCategoryCounts() {
+  const counts = { '전체': allProducts.length };
+  CATEGORIES.forEach(c => counts[c] = 0);
+  allProducts.forEach(p => { if(counts[p.category] !== undefined) counts[p.category]++; });
+  document.getElementById('cnt-all').textContent = `(${counts['전체']})`;
+  CATEGORIES.forEach(c => { document.getElementById('cnt-'+c).textContent = `(${counts[c]})`; });
+}
+
+// GNB 클릭: 카테고리 단독 선택
+function filterByGnb(category, el) {
+  currentGnbCategory = category;
+  currentBrandFilter = null;
+  document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('listTitle').textContent = category === '전체' ? '전체상품' : category;
+
+  // 사이드바 체크박스도 동기화
+  document.getElementById('cat-all').checked = (category === '전체');
+  CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = (category === c); });
+
+  applyFilters();
+}
+
+// 사이드바 카테고리 체크박스 변경
+function onCategoryFilterChange() {
+  const allCb = document.getElementById('cat-all');
+  const checkedCats = CATEGORIES.filter(c => document.getElementById('cat-'+c).checked);
+
+  document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
+
+  if(checkedCats.length === 0) {
+    allCb.checked = true;
+    currentGnbCategory = '전체';
+    document.getElementById('listTitle').textContent = '전체상품';
+  } else {
+    allCb.checked = false;
+    currentGnbCategory = checkedCats;
+    document.getElementById('listTitle').textContent = checkedCats.join(', ');
+  }
+  applyFilters();
+}
+
+function onFilterChange() {
+  applyFilters();
+}
+
+function resetFilters() {
+  document.getElementById('cat-all').checked = true;
+  CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = false; });
+  TYPES.forEach(t => { document.getElementById('type-'+t).checked = false; });
+  document.getElementById('s1').checked = false;
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
+  document.getElementById('searchInput').value = '';
+  currentGnbCategory = '전체';
+  currentBrandFilter = null;
+  document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
+  document.querySelector('.gnb-item').classList.add('active');
+  document.getElementById('listTitle').textContent = '전체상품';
+  applyFilters();
+}
+
+function doSearch() {
+  applyFilters();
+}
+
+function applyFilters() {
+  let result = [...allProducts];
+
+  // 브랜드 필터 (브랜드관에서 진입한 경우)
+  if(currentBrandFilter) {
+    result = result.filter(p => p.brandId === currentBrandFilter);
+  }
+
+  // 카테고리 필터 (메인)
+  if(Array.isArray(currentGnbCategory)) {
+    result = result.filter(p => currentGnbCategory.includes(p.category));
+  } else if(currentGnbCategory !== '전체') {
+    result = result.filter(p => p.category === currentGnbCategory);
+  }
+
+  // 타입 필터 (서브: 하프/온/림리스)
+  const checkedTypes = TYPES.filter(t => document.getElementById('type-'+t).checked);
+  if(checkedTypes.length > 0) {
+    result = result.filter(p => checkedTypes.includes(p.type));
+  }
+
+  // 검색어 필터
+  const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+  if(keyword) {
+    result = result.filter(p =>
+      (p.modelName||'').toLowerCase().includes(keyword) ||
+      (p.barcode||'').toLowerCase().includes(keyword) ||
+      (p.brandName||'').toLowerCase().includes(keyword)
+    );
+  }
+
+  // 재고 필터
+  if(document.getElementById('s1').checked) {
+    result = result.filter(p => {
+      // 새 구조: colors 배열에서 하나라도 재고 있으면 OK
+      if(p.colors && p.colors.length > 0) {
+        return p.colors.some(c => Number(c.stock || 0) > 0);
+      }
+      // 구버전: p.stock
+      return Number(p.stock || 0) > 0;
+    });
+  }
+
+  // 가격대 필터 (회원만 의미있음)
+  const minP = parseInt(document.getElementById('priceMin').value) || null;
+  const maxP = parseInt(document.getElementById('priceMax').value) || null;
+  if(minP !== null) result = result.filter(p => Number(p.price||0) >= minP);
+  if(maxP !== null) result = result.filter(p => Number(p.price||0) <= maxP);
+
+  // 정렬
+  const sortV = document.querySelector('.sort-select').value;
+  if(sortV === '낮은가격순') result.sort((a,b) => (a.price||0) - (b.price||0));
+  else if(sortV === '높은가격순') result.sort((a,b) => (b.price||0) - (a.price||0));
+
+  renderProducts(result);
+  updateCount(result.length);
+}
+
+async function loadActivePromotions() {
+  try {
+    const snap = await _db.collection('promotions').where('status', '==', 'approved').get();
+    const today = new Date().toISOString().slice(0,10);
+    const discountMap = {}; // productId -> discountRate
+
+    snap.forEach(doc => {
+      const promo = doc.data();
+      if(promo.startDate > today || promo.endDate < today) return; // 기간 외
+      (promo.targetProductIds || []).forEach(pid => {
+        // 여러 이벤트가 겹치면 더 높은 할인율 적용
+        if(!discountMap[pid] || promo.discountRate > discountMap[pid]) {
+          discountMap[pid] = promo.discountRate;
+        }
+      });
+    });
+    return discountMap;
+  } catch(e) {
+    console.error('이벤트 로드 실패:', e);
+    return {};
+  }
+}
+
+async function loadApprovedProducts() {
+  try {
+    const snap = await _db.collection('products').where('status', '==', 'approved').get();
+    const products = [];
+    snap.forEach(doc => products.push({id: doc.id, ...doc.data()}));
+    // 최신순 정렬
+    products.sort((a,b) => {
+      const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const dbb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return dbb - da;
+    });
+
+    // 진행중 이벤트 할인가 매칭
+    const discountMap = await loadActivePromotions();
+    products.forEach(p => {
+      if(discountMap[p.id]) {
+        p.discountRate = discountMap[p.id];
+        p.originalPrice = Number(p.price || 0);
+        p.salePrice = Math.round(p.originalPrice * (1 - discountMap[p.id]/100));
+      }
+    });
+
+    allProducts = products;
+    updateCategoryCounts();
+
+    // URL의 brand 파라미터 처리 (브랜드관에서 넘어온 경우)
+    const urlParams = new URLSearchParams(location.search);
+    const brandId = urlParams.get('brand');
+    if(brandId) {
+      currentBrandFilter = brandId;
+      const brandProduct = allProducts.find(p => p.brandId === brandId);
+      document.getElementById('listTitle').textContent = brandProduct ? `${brandProduct.brandName} 상품` : '브랜드 상품';
+    }
+
+    applyFilters();
+  } catch(e) {
+    console.error(e);
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:#FF4444;">상품을 불러오는 중 오류가 발생했습니다.</div>`;
+  }
+}
+
+// 정렬 변경
+document.querySelector('.sort-select')?.addEventListener('change', applyFilters);
+
+loadApprovedProducts();
+</script>
+</body>
+</html>
