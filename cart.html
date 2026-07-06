@@ -143,6 +143,7 @@ const _db = firebase.firestore();
 
 let memberLevel = 0;
 let cartItems = []; // [{cartItemId, productId, qty, product:{...}}]
+let defaultAddrForShipping = ''; // 기본 배송지 주소(도서산간 여부 판단용)
 
 _auth.onAuthStateChanged(async (user) => {
   if(!user) {
@@ -154,6 +155,16 @@ _auth.onAuthStateChanged(async (user) => {
     const userDoc = await _db.collection('users').doc(user.uid).get();
     const userData = userDoc.exists ? userDoc.data() : {};
     memberLevel = userData.member_level || 0;
+
+    // 배송비 미리보기 정확도를 위해 기본 배송지(또는 첫 배송지) 주소를 가져와둠 (실제 배송지는 주문 시 다시 선택)
+    try {
+      const addrSnap = await _db.collection('users').doc(user.uid).collection('addresses').get();
+      const addresses = [];
+      addrSnap.forEach(d => addresses.push(d.data()));
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+      defaultAddrForShipping = defaultAddr?.addr1 || '';
+    } catch(e) { console.error(e); }
+
     await loadCart();
   } catch(e) {
     console.error(e);
@@ -420,6 +431,13 @@ function onItemCheckChange() {
 
 const FREE_SHIPPING_THRESHOLD = 100000;
 const BASE_SHIPPING_FEE = 3500;
+const JEJU_EXTRA_FEE = 3000; // 제주/도서산간 추가비
+
+function isJejuAddress(addr) {
+  if(!addr) return false;
+  const remoteKeywords = ['제주', '울릉', '독도', '가거도', '거문도', '고흥', '신안', '완도', '진도', '홍도'];
+  return remoteKeywords.some(kw => addr.includes(kw));
+}
 
 function updateSummary() {
   const selectedItems = cartItems.filter(i => i.selected && getItemStock(i) > 0);
@@ -432,13 +450,17 @@ function updateSummary() {
   const feeDisplay = document.getElementById('shippingFeeDisplay');
 
   if(memberLevel >= 2) {
-    const shippingFee = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : BASE_SHIPPING_FEE;
+    let shippingFee = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : BASE_SHIPPING_FEE;
+    const isRemote = isJejuAddress(defaultAddrForShipping);
+    if(isRemote && total > 0) shippingFee += JEJU_EXTRA_FEE;
     document.getElementById('sumProducts').textContent = '₩' + total.toLocaleString();
     if(shippingFee === 0) {
       feeDisplay.textContent = '무료';
       feeDisplay.style.color = 'var(--green)';
     } else {
-      feeDisplay.textContent = '₩' + shippingFee.toLocaleString();
+      let label = '₩' + shippingFee.toLocaleString();
+      if(isRemote) label += ' (도서산간 포함)';
+      feeDisplay.textContent = label;
       feeDisplay.style.color = 'var(--black)';
     }
     document.getElementById('sumTotal').textContent = '₩' + (total + shippingFee).toLocaleString();
