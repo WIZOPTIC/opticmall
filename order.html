@@ -633,7 +633,7 @@ async function startPayment() {
         const p = item.product;
         const colorIdx = Number(item.selectedColorIdx) || 0;
         const colorData = p.colors && p.colors.length > colorIdx ? p.colors[colorIdx] : null;
-        const thumbUrl = colorData ? colorData.mainImageUrl : (p.mainImageUrl || '');
+        const thumbUrl = colorData?.mainImageUrl || p.mainImageUrl || '';
 
         return {
           productId: p.id,
