@@ -316,6 +316,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
         <div class="section-title" style="margin-bottom:0;">관심상품</div>
         <div id="wishToolbar" style="display:none;align-items:center;gap:8px;">
           <span id="wishSelectedCount" style="font-size:12.5px;color:var(--g4);margin-right:4px;">0개 선택</span>
+          <button class="chip-action-btn danger" onclick="removeSelectedWish()">선택삭제</button>
           <button class="chip-action-btn primary" onclick="addSelectedWishToCart()">장바구니 담기</button>
           <button class="chip-action-btn primary" onclick="buyNowSelectedWish()" style="background:var(--sky);border-color:var(--sky);color:var(--white);">바로구매</button>
         </div>
@@ -1713,6 +1714,22 @@ function buyNowSelectedWish() {
     return `${it.product.id}:1:${colorIdx}`;
   }).join(',');
   location.href = `order.html?items=${encodeURIComponent(itemsParam)}`;
+}
+
+async function removeSelectedWish() {
+  if(selectedWishIds.size === 0) return;
+  if(!confirm(`선택한 ${selectedWishIds.size}개 상품을 관심상품에서 삭제할까요?`)) return;
+  try {
+    const batch = _db.batch();
+    selectedWishIds.forEach(wishId => {
+      batch.delete(_db.collection('wishlists').doc(currentUser.uid).collection('items').doc(wishId));
+    });
+    await batch.commit();
+    loadWishlist();
+  } catch(e) {
+    console.error(e);
+    alert('삭제 중 오류가 발생했습니다.');
+  }
 }
 
 async function removeWish(wishId) {
