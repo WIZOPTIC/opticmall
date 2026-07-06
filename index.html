@@ -826,13 +826,7 @@ document.querySelectorAll('.gnb-item').forEach(item => {
   });
 });
 
-// 찜버튼
-document.querySelectorAll('.wish-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    btn.textContent = btn.textContent === '🤍' ? '❤️' : '🤍';
-  });
-});
+// 찜버튼은 toggleMainWish()에서 실제 Firestore 연동 처리 (동적 렌더링이라 여기서 미리 바인딩 불필요)
 
 // 하단 네비
 document.querySelectorAll('.bnav-item').forEach(btn => {
@@ -1007,6 +1001,7 @@ function updateHeaderLoggedOut() {
 
 // 로그인 상태 감지
 let mainMemberLevel = 0;
+let mainWishlistIds = new Set();
 _auth.onAuthStateChanged(async (user) => {
   if (user) {
     try {
@@ -1019,11 +1014,16 @@ _auth.onAuthStateChanged(async (user) => {
       mainMemberLevel = level;
       updateHeaderLoggedIn(name, level, status, role);
       updateMainCartCount(user.uid);
+      try {
+        const wishSnap = await _db.collection('wishlists').doc(user.uid).collection('items').get();
+        mainWishlistIds = new Set(wishSnap.docs.map(d => d.id));
+      } catch(e) { console.error(e); }
     } catch(e) {
       updateHeaderLoggedIn(user.email.split('@')[0], 0, 'pending', 'optician');
     }
   } else {
     mainMemberLevel = 0;
+    mainWishlistIds = new Set();
     updateHeaderLoggedOut();
     if(new URLSearchParams(location.search).get('openLogin') === '1' && !window._autoLoginOpened) {
       window._autoLoginOpened = true;
@@ -1066,6 +1066,51 @@ function getMainColorDot(colorName) {
   return '#888';
 }
 
+async function toggleMainWish(event, productId) {
+  event.stopPropagation();
+  if(mainMemberLevel < 2) { showMainToast('로그인(승인회원) 후 이용 가능합니다.', 'error'); openLogin(); return; }
+  const btn = event.currentTarget;
+  const uid = _auth.currentUser.uid;
+  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(productId);
+  try {
+    if(mainWishlistIds.has(productId)) {
+      await wishRef.delete();
+      mainWishlistIds.delete(productId);
+      btn.textContent = '🤍';
+      btn.classList.remove('active');
+      showMainToast('관심상품에서 제거되었습니다.');
+    } else {
+      await wishRef.set({ productId, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      mainWishlistIds.add(productId);
+      btn.textContent = '❤️';
+      btn.classList.add('active');
+      showMainToast('관심상품에 추가되었습니다.', 'success');
+    }
+  } catch(e) {
+    console.error(e);
+    showMainToast('처리 중 오류가 발생했습니다.');
+  }
+}
+
+function showMainToast(msg, type) {
+  let toast = document.getElementById('mainFloatToast');
+  if(!toast) {
+    toast = document.createElement('div');
+    toast.id = 'mainFloatToast';
+    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A2D4A;color:#fff;padding:12px 22px;border-radius:100px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = type === 'success' ? '#1B9FD8' : '#1A2D4A';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 1800);
+}
+
 function goToProductFromMain(productId) {
   const product = mainAllProducts.find(p => p.id === productId);
   if(product) {
@@ -1095,12 +1140,13 @@ function renderMainProductCard(p, badgeText, badgeClass) {
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
   const codeLabel = p.brandName ? `[${p.brandName}]` : '';
 
+  const isWished = mainWishlistIds.has(p.id);
   return `
     <div class="product-card" onclick="goToProductFromMain('${p.id}')" style="cursor:pointer;">
       <div class="product-img-wrap">
         <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
         ${badgeHtml}
-        <button class="wish-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button>
+        <button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleMainWish(event,'${p.id}')">${isWished ? '❤️' : '🤍'}</button>
       </div>
       <div class="product-info">
         <div class="product-code">${codeLabel}</div>
