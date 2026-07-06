@@ -1061,32 +1061,31 @@ function getMainColorDot(colorName) {
   return '#888';
 }
 
-async function toggleMainWish(event, productId) {
+async function toggleMainWish(event, productId, wishId, colorName) {
   event.stopPropagation();
   if(mainMemberLevel < 2) { showMainToast('로그인(승인회원) 후 이용 가능합니다.', 'error'); openLogin(); return; }
   const btn = event.currentTarget;
   const uid = _auth.currentUser.uid;
-  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(productId);
+  wishId = wishId || productId;
+  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(wishId);
   try {
-    if(mainWishlistIds.has(productId)) {
+    if(mainWishlistIds.has(wishId)) {
       await wishRef.delete();
-      mainWishlistIds.delete(productId);
+      mainWishlistIds.delete(wishId);
       btn.textContent = '🤍';
       btn.classList.remove('active');
       showMainToast('관심상품에서 제거되었습니다.');
     } else {
-      await wishRef.set({ productId, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
-      mainWishlistIds.add(productId);
+      await wishRef.set({
+        productId,
+        colorIdx: wishId !== productId ? 0 : null,
+        colorName: colorName || '',
+        addedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      mainWishlistIds.add(wishId);
       btn.textContent = '❤️';
       btn.classList.add('active');
       showMainToast('관심상품에 추가되었습니다.', 'success');
-      // [임시 진단] 저장 직후 서버에서 다시 읽어서 진짜 저장됐는지 화면에 바로 표시
-      try {
-        const verifySnap = await wishRef.get();
-        alert('[찜 저장 진단]\nuid: ' + uid + '\n상품ID: ' + productId + '\n경로: ' + wishRef.path + '\n서버에 실제로 존재함?: ' + verifySnap.exists);
-      } catch(verifyErr) {
-        alert('[찜 저장 진단] 재조회 중 에러 발생: ' + verifyErr.message);
-      }
     }
   } catch(e) {
     console.error(e);
@@ -1142,13 +1141,14 @@ function renderMainProductCard(p, badgeText, badgeClass) {
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
   const codeLabel = p.brandName ? `[${p.brandName}]` : '';
 
-  const isWished = mainWishlistIds.has(p.id);
+  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
+  const isWished = mainWishlistIds.has(mainWishId);
   return `
     <div class="product-card" onclick="goToProductFromMain('${p.id}')" style="cursor:pointer;">
       <div class="product-img-wrap">
         <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
         ${badgeHtml}
-        <button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleMainWish(event,'${p.id}')">${isWished ? '❤️' : '🤍'}</button>
+        <button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleMainWish(event,'${p.id}','${mainWishId}',${(p.colors&&p.colors[0])?`'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'`:'null'})">${isWished ? '❤️' : '🤍'}</button>
       </div>
       <div class="product-info">
         <div class="product-code">${codeLabel}</div>

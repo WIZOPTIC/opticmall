@@ -883,6 +883,7 @@ function renderColorButtons(p, selectedIdx) {
 function selectColor(idx) {
   if(!currentProduct || !currentProduct.colors) return;
   renderColorButtons(currentProduct, idx);
+  refreshWishBtnState();
 }
 
 function applyColorImages(color) {
@@ -991,24 +992,41 @@ function getColorDot(colorName) {
   return `background:#888;`;
 }
 
+// 상품에 색상이 있으면 "상품ID_c색상인덱스", 없으면 상품ID 그대로 찜 문서 ID로 사용
+function buildWishDocId(productId, colors, colorIdx) {
+  return (Array.isArray(colors) && colors.length > 0) ? `${productId}_c${colorIdx}` : productId;
+}
+
 async function checkWishAndRestockStatus(p) {
   if(!_auth.currentUser) return;
-  const uid = _auth.currentUser.uid;
-  try {
-    const wishDoc = await _db.collection('wishlists').doc(uid).collection('items').doc(p.id).get();
-    if(wishDoc.exists) {
-      const btn = document.getElementById('wish-btn');
-      btn.textContent = '❤️';
-      btn.classList.add('active');
-    }
-  } catch(e) { console.error(e); }
+  await refreshWishBtnState();
 
+  const uid = _auth.currentUser.uid;
   try {
     const alarmDoc = await _db.collection('restockAlerts').doc(uid).collection('items').doc(p.id).get();
     if(alarmDoc.exists) {
       const btn = document.getElementById('restock-btn');
       btn.classList.add('requested');
       btn.innerHTML = '✓ 재입고 알림 신청완료 (취소하려면 클릭)';
+    }
+  } catch(e) { console.error(e); }
+}
+
+// 현재 선택된 색상 기준으로 하트 상태를 다시 확인 (색상 바꿀 때마다 호출됨)
+async function refreshWishBtnState() {
+  if(!_auth.currentUser || !currentProduct) return;
+  const uid = _auth.currentUser.uid;
+  const btn = document.getElementById('wish-btn');
+  if(!btn) return;
+  const wishDocId = buildWishDocId(currentProduct.id, currentProduct.colors, currentColorIdx || 0);
+  try {
+    const wishDoc = await _db.collection('wishlists').doc(uid).collection('items').doc(wishDocId).get();
+    if(wishDoc.exists) {
+      btn.textContent = '❤️';
+      btn.classList.add('active');
+    } else {
+      btn.textContent = '🤍';
+      btn.classList.remove('active');
     }
   } catch(e) { console.error(e); }
 }
@@ -1117,20 +1135,22 @@ async function toggleWish() {
   if(!currentProduct) return;
   const btn = document.getElementById('wish-btn');
   const uid = _auth.currentUser.uid;
-  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(currentProduct.id);
+  const colorIdx = currentColorIdx || 0;
+  const selectedColor = currentProduct.colors && currentProduct.colors[colorIdx];
+  const wishDocId = buildWishDocId(currentProduct.id, currentProduct.colors, colorIdx);
+  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(wishDocId);
   try {
     if (btn.textContent === '🤍') {
-      await wishRef.set({ productId: currentProduct.id, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await wishRef.set({
+        productId: currentProduct.id,
+        colorIdx: selectedColor ? colorIdx : null,
+        colorName: selectedColor ? (selectedColor.colorName || '') : '',
+        colorCode: selectedColor ? (selectedColor.colorCode || '') : '',
+        addedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
       btn.textContent = '❤️';
       btn.classList.add('active');
-      showToast('관심상품에 추가되었습니다.', 'success');
-      // [임시 진단] 저장 직후 서버에서 다시 읽어서 진짜 저장됐는지 화면에 바로 표시
-      try {
-        const verifySnap = await wishRef.get();
-        alert('[찜 저장 진단]\nuid: ' + uid + '\n상품ID: ' + currentProduct.id + '\n경로: ' + wishRef.path + '\n서버에 실제로 존재함?: ' + verifySnap.exists);
-      } catch(verifyErr) {
-        alert('[찜 저장 진단] 재조회 중 에러 발생: ' + verifyErr.message);
-      }
+      showToast(selectedColor ? `${selectedColor.colorName} 색상을 관심상품에 추가했습니다.` : '관심상품에 추가되었습니다.', 'success');
     } else {
       await wishRef.delete();
       btn.textContent = '🤍';
@@ -1139,7 +1159,6 @@ async function toggleWish() {
     }
   } catch(e) {
     console.error(e);
-    alert('[찜 저장 진단] 저장 실패!\n에러: ' + e.message);
     showToast('처리 중 오류가 발생했습니다.', 'error');
   }
 }

@@ -1537,22 +1537,40 @@ async function loadWishlist() {
   updateWishToolbar();
   try {
     const snap = await _db.collection('wishlists').doc(currentUser.uid).collection('items').get();
-    // [임시 진단] 화면에 바로 조회 결과 표시
-    alert('[관심상품 조회 진단]\nuid: ' + currentUser.uid + '\n경로: wishlists/' + currentUser.uid + '/items\n조회된 건수: ' + snap.size);
-    const ids = [];
-    snap.forEach(doc => ids.push(doc.id));
+    const wishItems = [];
+    snap.forEach(doc => wishItems.push({ wishId: doc.id, ...doc.data() }));
 
-    if(ids.length === 0) {
+    if(wishItems.length === 0) {
       listEl.innerHTML = `<div class="empty-box">아직 관심상품이 없습니다.</div>`;
       document.getElementById('wishSelectAllWrap').style.display = 'none';
       return;
     }
 
-    const productDocs = await Promise.all(ids.map(id => _db.collection('products').doc(id).get()));
-    const products = productDocs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() }));
-    wishProductsCache = products;
+    // 같은 상품이 여러 색상으로 찜되어 있을 수 있으므로, 상품 조회는 중복 없이 한 번씩만
+    const uniqueProductIds = [...new Set(wishItems.map(w => w.productId))];
+    const productDocs = await Promise.all(uniqueProductIds.map(id => _db.collection('products').doc(id).get()));
+    const productMap = {};
+    productDocs.forEach(d => { if(d.exists) productMap[d.id] = { id: d.id, ...d.data() }; });
 
-    if(products.length === 0) {
+    // 각 찜 항목에 실제 상품/색상 정보를 결합 (상품이 삭제된 경우는 제외)
+    const items = wishItems.map(w => {
+      const p = productMap[w.productId];
+      if(!p) return null;
+      const colorIdx = (w.colorIdx !== null && w.colorIdx !== undefined) ? w.colorIdx : null;
+      const color = (colorIdx !== null && Array.isArray(p.colors)) ? p.colors[colorIdx] : null;
+      return {
+        wishId: w.wishId,
+        product: p,
+        colorIdx,
+        colorName: color ? (color.colorName || w.colorName || '') : (w.colorName || ''),
+        mainImageUrl: (color && color.mainImageUrl) || p.mainImageUrl || '',
+        stock: color ? Number(color.stock || 0) : getWishProductStock(p),
+        price: (color && color.price) ? Number(color.price) : Number(p.price || 0)
+      };
+    }).filter(Boolean);
+    wishProductsCache = items;
+
+    if(items.length === 0) {
       listEl.innerHTML = `<div class="empty-box">아직 관심상품이 없습니다.</div>`;
       document.getElementById('wishSelectAllWrap').style.display = 'none';
       return;
@@ -1561,20 +1579,21 @@ async function loadWishlist() {
     document.getElementById('wishSelectAllWrap').style.display = 'flex';
     document.getElementById('wishSelectAllChk').checked = false;
 
-    listEl.innerHTML = `<div class="wish-grid">${products.map(p => {
-      const hasImg = !!p.mainImageUrl;
-      const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : '👓';
-      const inStock = getWishProductStock(p) > 0;
+    listEl.innerHTML = `<div class="wish-grid">${items.map(it => {
+      const p = it.product;
+      const hasImg = !!it.mainImageUrl;
+      const imgHtml = hasImg ? `<img src="${it.mainImageUrl}">` : '👓';
+      const inStock = it.stock > 0;
       const priceHtml = (currentUserData.member_level||0) >= 2
-        ? `₩${Number(p.price||0).toLocaleString()}`
+        ? `₩${it.price.toLocaleString()}`
         : `🔒 로그인 후 확인`;
       return `
-        <div class="wish-card" id="wishcard-${p.id}" onclick="location.href='product.html?id=${p.id}'">
-          <input type="checkbox" class="wish-check" onclick="event.stopPropagation();toggleWishSelect('${p.id}',this.checked)">
-          <button class="wish-del" onclick="event.stopPropagation();removeWish('${p.id}')">✕</button>
+        <div class="wish-card" id="wishcard-${it.wishId}" onclick="location.href='product.html?id=${p.id}'">
+          <input type="checkbox" class="wish-check" onclick="event.stopPropagation();toggleWishSelect('${it.wishId}',this.checked)">
+          <button class="wish-del" onclick="event.stopPropagation();removeWish('${it.wishId}')">✕</button>
           <div class="wish-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
           <div class="wish-info">
-            <div class="wish-name">${p.modelName||'-'}</div>
+            <div class="wish-name">${p.modelName||'-'}${it.colorName ? ` <span style="color:var(--g3);font-weight:400;">· ${it.colorName}</span>` : ''}</div>
             <div class="wish-price">${priceHtml}</div>
             ${!inStock ? `<div style="font-size:11px;color:var(--red);font-weight:700;margin-top:2px;">품절</div>` : ''}
           </div>
@@ -1582,7 +1601,6 @@ async function loadWishlist() {
     }).join('')}</div>`;
   } catch(e) {
     console.error(e);
-    alert('[관심상품 조회 진단] 에러 발생: ' + e.message);
     listEl.innerHTML = `<div class="empty-box" style="color:var(--red);">불러오지 못했습니다.</div>`;
   }
 }
@@ -1598,20 +1616,20 @@ function getWishProductStock(p) {
   return Number(p.stock || 0);
 }
 
-function toggleWishSelect(productId, checked) {
-  if(checked) selectedWishIds.add(productId);
-  else selectedWishIds.delete(productId);
-  document.getElementById(`wishcard-${productId}`)?.classList.toggle('selected', checked);
+function toggleWishSelect(wishId, checked) {
+  if(checked) selectedWishIds.add(wishId);
+  else selectedWishIds.delete(wishId);
+  document.getElementById(`wishcard-${wishId}`)?.classList.toggle('selected', checked);
   updateWishToolbar();
 }
 
 function toggleAllWishSelect(checked) {
-  wishProductsCache.forEach(p => {
-    if(getWishProductStock(p) <= 0) return; // 품절 상품은 전체선택에서 제외
-    selectedWishIds[checked ? 'add' : 'delete'](p.id);
-    const cb = document.querySelector(`#wishcard-${p.id} .wish-check`);
+  wishProductsCache.forEach(it => {
+    if(it.stock <= 0) return; // 품절 상품은 전체선택에서 제외
+    selectedWishIds[checked ? 'add' : 'delete'](it.wishId);
+    const cb = document.querySelector(`#wishcard-${it.wishId} .wish-check`);
     if(cb) cb.checked = checked;
-    document.getElementById(`wishcard-${p.id}`)?.classList.toggle('selected', checked);
+    document.getElementById(`wishcard-${it.wishId}`)?.classList.toggle('selected', checked);
   });
   updateWishToolbar();
 }
@@ -1628,11 +1646,15 @@ async function addSelectedWishToCart() {
   const uid = currentUser.uid;
   let successCount = 0, failCount = 0;
 
-  for(const productId of selectedWishIds) {
-    const p = wishProductsCache.find(x => x.id === productId);
-    if(!p) { failCount++; continue; }
+  for(const wishId of selectedWishIds) {
+    const it = wishProductsCache.find(x => x.wishId === wishId);
+    if(!it) { failCount++; continue; }
+    const productId = it.product.id;
+    const colorIdx = it.colorIdx !== null ? it.colorIdx : 0;
+    // 색상마다 장바구니 아이템을 분리해서 담기 위해 상품ID+색상인덱스로 키를 만듦
+    const cartItemId = it.colorIdx !== null ? `${productId}_c${colorIdx}` : productId;
     try {
-      const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(productId);
+      const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
       const productRef = _db.collection('products').doc(productId);
       await _db.runTransaction(async (tx) => {
         const productSnap = await tx.get(productRef);
@@ -1641,13 +1663,12 @@ async function addSelectedWishToCart() {
         const cartSnap = await tx.get(cartItemRef);
         const existingQty = cartSnap.exists ? (cartSnap.data().qty || 0) : 0;
 
-        let selectedColorName = '';
+        let selectedColorName = it.colorName || '';
         if(pData.colors && pData.colors.length > 0) {
-          const currentStock = Number(pData.colors[0].stock || 0);
+          const currentStock = Number(pData.colors[colorIdx]?.stock || 0);
           if(currentStock < 1) throw new Error('재고 부족');
-          selectedColorName = pData.colors[0].colorName || '';
           const colors = [...pData.colors];
-          colors[0] = { ...colors[0], stock: currentStock - 1 };
+          colors[colorIdx] = { ...colors[colorIdx], stock: currentStock - 1 };
           tx.update(productRef, { colors });
         } else {
           const currentStock = Number(pData.stock || 0);
@@ -1659,7 +1680,7 @@ async function addSelectedWishToCart() {
           tx.update(cartItemRef, { qty: existingQty + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
         } else {
           tx.set(cartItemRef, {
-            productId, selectedColor: selectedColorName, selectedColorIdx: 0,
+            productId, selectedColor: selectedColorName, selectedColorIdx: colorIdx,
             qty: 1, addedAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         }
@@ -1671,27 +1692,31 @@ async function addSelectedWishToCart() {
     }
   }
 
-  alert(`${successCount}건 장바구니에 담았습니다.${failCount > 0 ? `\n${failCount}건은 재고 부족 등으로 담지 못했습니다.` : ''}\n(색상은 기본값으로 담겼어요. 장바구니에서 확인해주세요.)`);
+  alert(`${successCount}건 장바구니에 담았습니다.${failCount > 0 ? `\n${failCount}건은 재고 부족 등으로 담지 못했습니다.` : ''}`);
   loadWishlist();
 }
 
 function buyNowSelectedWish() {
   if(selectedWishIds.size === 0) return;
-  const outOfStock = [...selectedWishIds].filter(id => {
-    const p = wishProductsCache.find(x => x.id === id);
-    return p && getWishProductStock(p) <= 0;
+  const outOfStock = [...selectedWishIds].filter(wishId => {
+    const it = wishProductsCache.find(x => x.wishId === wishId);
+    return it && it.stock <= 0;
   });
   if(outOfStock.length > 0) {
     alert('품절된 상품이 선택되어 있어 주문할 수 없습니다. 선택을 확인해주세요.');
     return;
   }
-  const itemsParam = [...selectedWishIds].map(id => `${id}:1:0`).join(',');
+  const itemsParam = [...selectedWishIds].map(wishId => {
+    const it = wishProductsCache.find(x => x.wishId === wishId);
+    const colorIdx = it.colorIdx !== null ? it.colorIdx : 0;
+    return `${it.product.id}:1:${colorIdx}`;
+  }).join(',');
   location.href = `order.html?items=${encodeURIComponent(itemsParam)}`;
 }
 
-async function removeWish(productId) {
+async function removeWish(wishId) {
   try {
-    await _db.collection('wishlists').doc(currentUser.uid).collection('items').doc(productId).delete();
+    await _db.collection('wishlists').doc(currentUser.uid).collection('items').doc(wishId).delete();
     loadWishlist();
   } catch(e) {
     console.error(e);

@@ -103,7 +103,6 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 </style>
 </head>
 <body>
-<div style="background:red;color:white;text-align:center;padding:10px;font-weight:800;font-size:14px;">🔴 진단버전 v2 로드됨 (이 배너가 안 보이면 예전 파일이 캐시된 것)</div>
 
 <!-- 로그인 팝업 -->
 <div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:1000;">
@@ -455,10 +454,11 @@ function renderProducts(products) {
       : `👓`;
     const catLabel = p.category || p.type || p.brandName || '안경테';
 
-    const isWished = wishlistIds.has(p.id);
+    const wishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
+    const isWished = wishlistIds.has(wishId);
     return `
       <div class="product-card" onclick="goToProduct('${p.id}')">
-        <div class="product-img${hasImg ? '' : ' no-img'}">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleListWish(event,'${p.id}')">${isWished ? '❤️' : '🤍'}</button></div>
+        <div class="product-img${hasImg ? '' : ' no-img'}">${imgHtml}${badgeHtml}${outHtml}<button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleListWish(event,'${p.id}','${wishId}',${(p.colors&&p.colors[0])?`'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'`:'null'})">${isWished ? '❤️' : '🤍'}</button></div>
         <div class="product-info">
           <div class="p-cat">${catLabel}</div>
           <div class="p-name">${p.modelName || '-'}</div>
@@ -522,36 +522,34 @@ function getListColorDot(colorName) {
   return `background:#888;`;
 }
 
-async function toggleListWish(event, productId) {
+async function toggleListWish(event, productId, wishId, colorName) {
   event.stopPropagation();
   if(memberLevel < 2) { openLogin(); return; }
   const btn = event.currentTarget;
   const uid = _auth.currentUser.uid;
-  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(productId);
+  wishId = wishId || productId;
+  const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(wishId);
   try {
-    if(wishlistIds.has(productId)) {
+    if(wishlistIds.has(wishId)) {
       await wishRef.delete();
-      wishlistIds.delete(productId);
+      wishlistIds.delete(wishId);
       btn.textContent = '🤍';
       btn.classList.remove('active');
       showListToast('관심상품에서 제거되었습니다.');
     } else {
-      await wishRef.set({ productId, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
-      wishlistIds.add(productId);
+      await wishRef.set({
+        productId,
+        colorIdx: wishId !== productId ? 0 : null,
+        colorName: colorName || '',
+        addedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      wishlistIds.add(wishId);
       btn.textContent = '❤️';
       btn.classList.add('active');
       showListToast('관심상품에 추가되었습니다.', 'success');
-      // [임시 진단] 저장 직후 서버에서 다시 읽어서 진짜 저장됐는지 화면에 바로 표시
-      try {
-        const verifySnap = await wishRef.get();
-        alert('[찜 저장 진단]\nuid: ' + uid + '\n상품ID: ' + productId + '\n경로: ' + wishRef.path + '\n서버에 실제로 존재함?: ' + verifySnap.exists);
-      } catch(verifyErr) {
-        alert('[찜 저장 진단] 재조회 중 에러 발생: ' + verifyErr.message);
-      }
     }
   } catch(e) {
-    console.error('[찜 진단] 에러 발생:', e);
-    alert('[찜 저장 진단] 저장 실패!\n에러: ' + e.message);
+    console.error(e);
     showListToast('처리 중 오류가 발생했습니다.');
   }
 }
