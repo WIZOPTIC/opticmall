@@ -209,6 +209,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .wish-price{font-size:13px;color:var(--sky);font-weight:700;margin-top:4px;}
 .wish-del{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.9);border:none;cursor:pointer;font-size:13px;color:var(--g4);display:flex;align-items:center;justify-content:center;}
 .wish-del:hover{color:var(--red);}
+.wish-check{position:absolute;top:8px;left:8px;width:20px;height:20px;accent-color:var(--sky);cursor:pointer;z-index:2;}
+.wish-card.selected{border-color:var(--sky);box-shadow:0 0 0 2px var(--sky-lt);}
 
 /* 재입고 알림 */
 .restock-card{background:var(--white);border-radius:10px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
@@ -309,7 +311,18 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
     <!-- 관심상품 -->
     <div id="section-wish" style="display:none;">
-      <div class="section-title">관심상품</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+        <div class="section-title" style="margin-bottom:0;">관심상품</div>
+        <div id="wishToolbar" style="display:none;align-items:center;gap:8px;">
+          <span id="wishSelectedCount" style="font-size:12.5px;color:var(--g4);margin-right:4px;">0개 선택</span>
+          <button class="chip-action-btn primary" onclick="addSelectedWishToCart()">장바구니 담기</button>
+          <button class="chip-action-btn primary" onclick="buyNowSelectedWish()" style="background:var(--sky);border-color:var(--sky);color:var(--white);">바로구매</button>
+        </div>
+      </div>
+      <label id="wishSelectAllWrap" style="display:none;align-items:center;gap:8px;font-size:13px;color:var(--g4);margin-bottom:12px;cursor:pointer;">
+        <input type="checkbox" id="wishSelectAllChk" onchange="toggleAllWishSelect(this.checked)" style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+        전체선택
+      </label>
       <div id="wishList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
 
@@ -495,7 +508,10 @@ async function doLogout() {
   }
 }
 
+let currentMypageSection = 'orders';
+
 function showSection(name, el) {
+  currentMypageSection = name;
   ['orders','wish','recent','restock','profile','biz','address'].forEach(s => {
     const sec = document.getElementById('section-'+s);
     if(sec) sec.style.display = s===name ? 'block' : 'none';
@@ -508,6 +524,15 @@ function showSection(name, el) {
   if(name === 'restock') loadRestockAlerts();
   if(name === 'address') loadAddresses();
 }
+
+// 다른 탭에서 장바구니/찜 등을 변경하고 이 탭으로 돌아왔을 때 자동으로 최신 데이터를 다시 불러옴
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState !== 'visible' || !currentUser) return;
+  if(currentMypageSection === 'wish') loadWishlist();
+  else if(currentMypageSection === 'orders') loadOrders();
+  else if(currentMypageSection === 'recent') loadRecentlyViewed();
+  else if(currentMypageSection === 'restock') loadRestockAlerts();
+});
 
 function formatDate(ts) {
   if(!ts) return '-';
@@ -1508,6 +1533,8 @@ async function submitCancelRequest() {
 async function loadWishlist() {
   const listEl = document.getElementById('wishList');
   listEl.innerHTML = `<div class="loading-box"><div class="spinner"></div>불러오는 중...</div>`;
+  selectedWishIds.clear();
+  updateWishToolbar();
   try {
     const snap = await _db.collection('wishlists').doc(currentUser.uid).collection('items').get();
     const ids = [];
@@ -1515,30 +1542,39 @@ async function loadWishlist() {
 
     if(ids.length === 0) {
       listEl.innerHTML = `<div class="empty-box">아직 관심상품이 없습니다.</div>`;
+      document.getElementById('wishSelectAllWrap').style.display = 'none';
       return;
     }
 
     const productDocs = await Promise.all(ids.map(id => _db.collection('products').doc(id).get()));
     const products = productDocs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() }));
+    wishProductsCache = products;
 
     if(products.length === 0) {
       listEl.innerHTML = `<div class="empty-box">아직 관심상품이 없습니다.</div>`;
+      document.getElementById('wishSelectAllWrap').style.display = 'none';
       return;
     }
+
+    document.getElementById('wishSelectAllWrap').style.display = 'flex';
+    document.getElementById('wishSelectAllChk').checked = false;
 
     listEl.innerHTML = `<div class="wish-grid">${products.map(p => {
       const hasImg = !!p.mainImageUrl;
       const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : '👓';
+      const inStock = getWishProductStock(p) > 0;
       const priceHtml = (currentUserData.member_level||0) >= 2
         ? `₩${Number(p.price||0).toLocaleString()}`
         : `🔒 로그인 후 확인`;
       return `
-        <div class="wish-card" onclick="location.href='product.html?id=${p.id}'">
+        <div class="wish-card" id="wishcard-${p.id}" onclick="location.href='product.html?id=${p.id}'">
+          <input type="checkbox" class="wish-check" onclick="event.stopPropagation();toggleWishSelect('${p.id}',this.checked)">
           <button class="wish-del" onclick="event.stopPropagation();removeWish('${p.id}')">✕</button>
           <div class="wish-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
           <div class="wish-info">
             <div class="wish-name">${p.modelName||'-'}</div>
             <div class="wish-price">${priceHtml}</div>
+            ${!inStock ? `<div style="font-size:11px;color:var(--red);font-weight:700;margin-top:2px;">품절</div>` : ''}
           </div>
         </div>`;
     }).join('')}</div>`;
@@ -1546,6 +1582,108 @@ async function loadWishlist() {
     console.error(e);
     listEl.innerHTML = `<div class="empty-box" style="color:var(--red);">불러오지 못했습니다.</div>`;
   }
+}
+
+// ===================== 관심상품 선택/일괄 장바구니/바로구매 =====================
+let selectedWishIds = new Set();
+let wishProductsCache = [];
+
+function getWishProductStock(p) {
+  if(Array.isArray(p.colors) && p.colors.length > 0) {
+    return p.colors.reduce((sum, c) => sum + (Number(c.stock) || 0), 0);
+  }
+  return Number(p.stock || 0);
+}
+
+function toggleWishSelect(productId, checked) {
+  if(checked) selectedWishIds.add(productId);
+  else selectedWishIds.delete(productId);
+  document.getElementById(`wishcard-${productId}`)?.classList.toggle('selected', checked);
+  updateWishToolbar();
+}
+
+function toggleAllWishSelect(checked) {
+  wishProductsCache.forEach(p => {
+    if(getWishProductStock(p) <= 0) return; // 품절 상품은 전체선택에서 제외
+    selectedWishIds[checked ? 'add' : 'delete'](p.id);
+    const cb = document.querySelector(`#wishcard-${p.id} .wish-check`);
+    if(cb) cb.checked = checked;
+    document.getElementById(`wishcard-${p.id}`)?.classList.toggle('selected', checked);
+  });
+  updateWishToolbar();
+}
+
+function updateWishToolbar() {
+  const toolbar = document.getElementById('wishToolbar');
+  const count = selectedWishIds.size;
+  document.getElementById('wishSelectedCount').textContent = `${count}개 선택`;
+  toolbar.style.display = count > 0 ? 'flex' : 'none';
+}
+
+async function addSelectedWishToCart() {
+  if(selectedWishIds.size === 0) return;
+  const uid = currentUser.uid;
+  let successCount = 0, failCount = 0;
+
+  for(const productId of selectedWishIds) {
+    const p = wishProductsCache.find(x => x.id === productId);
+    if(!p) { failCount++; continue; }
+    try {
+      const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(productId);
+      const productRef = _db.collection('products').doc(productId);
+      await _db.runTransaction(async (tx) => {
+        const productSnap = await tx.get(productRef);
+        if(!productSnap.exists) throw new Error('상품 없음');
+        const pData = productSnap.data();
+        const cartSnap = await tx.get(cartItemRef);
+        const existingQty = cartSnap.exists ? (cartSnap.data().qty || 0) : 0;
+
+        let selectedColorName = '';
+        if(pData.colors && pData.colors.length > 0) {
+          const currentStock = Number(pData.colors[0].stock || 0);
+          if(currentStock < 1) throw new Error('재고 부족');
+          selectedColorName = pData.colors[0].colorName || '';
+          const colors = [...pData.colors];
+          colors[0] = { ...colors[0], stock: currentStock - 1 };
+          tx.update(productRef, { colors });
+        } else {
+          const currentStock = Number(pData.stock || 0);
+          if(currentStock < 1) throw new Error('재고 부족');
+          tx.update(productRef, { stock: currentStock - 1 });
+        }
+
+        if(cartSnap.exists) {
+          tx.update(cartItemRef, { qty: existingQty + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } else {
+          tx.set(cartItemRef, {
+            productId, selectedColor: selectedColorName, selectedColorIdx: 0,
+            qty: 1, addedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      });
+      successCount++;
+    } catch(e) {
+      console.error(e);
+      failCount++;
+    }
+  }
+
+  alert(`${successCount}건 장바구니에 담았습니다.${failCount > 0 ? `\n${failCount}건은 재고 부족 등으로 담지 못했습니다.` : ''}\n(색상은 기본값으로 담겼어요. 장바구니에서 확인해주세요.)`);
+  loadWishlist();
+}
+
+function buyNowSelectedWish() {
+  if(selectedWishIds.size === 0) return;
+  const outOfStock = [...selectedWishIds].filter(id => {
+    const p = wishProductsCache.find(x => x.id === id);
+    return p && getWishProductStock(p) <= 0;
+  });
+  if(outOfStock.length > 0) {
+    alert('품절된 상품이 선택되어 있어 주문할 수 없습니다. 선택을 확인해주세요.');
+    return;
+  }
+  const itemsParam = [...selectedWishIds].map(id => `${id}:1:0`).join(',');
+  location.href = `order.html?items=${encodeURIComponent(itemsParam)}`;
 }
 
 async function removeWish(productId) {
