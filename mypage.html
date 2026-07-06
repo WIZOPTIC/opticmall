@@ -107,8 +107,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .chip-action-btn.danger{border-color:var(--g2);color:var(--g4);}
 .chip-action-btn.danger:hover{border-color:var(--red);color:var(--red);}
 .chip-action-btn:disabled{opacity:0.4;cursor:not-allowed;pointer-events:none;}
-.wish-toolbar-bar{display:flex;align-items:center;flex-wrap:wrap;gap:14px;background:var(--white);border:1px solid var(--g2);border-radius:10px;padding:12px 16px;margin-bottom:16px;}
-.wish-toolbar-divider{width:1px;height:18px;background:var(--g2);}
+.wish-toolbar-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--white);border:1px solid var(--g2);border-radius:10px;padding:12px 16px;margin-bottom:16px;position:sticky;top:64px;z-index:90;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.wish-toolbar-left{display:flex;align-items:center;gap:10px;}
 
 /* 요약 카드 (레거시, 미사용) */
 .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
@@ -317,12 +317,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     <div id="section-wish" style="display:none;">
       <div class="section-title" style="margin-bottom:14px;">관심상품</div>
       <div class="wish-toolbar-bar">
-        <label id="wishSelectAllWrap" style="display:none;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;">
-          <input type="checkbox" id="wishSelectAllChk" onchange="toggleAllWishSelect(this.checked)" style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
-          전체선택
-        </label>
-        <span id="wishSelectedCount" style="font-size:13px;font-weight:700;color:var(--sky-dk);">0개 선택</span>
-        <div class="wish-toolbar-divider"></div>
+        <div class="wish-toolbar-left">
+          <label id="wishSelectAllWrap" style="display:none;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;">
+            <input type="checkbox" id="wishSelectAllChk" onchange="toggleAllWishSelect(this.checked)" style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
+            전체선택
+          </label>
+          <span id="wishSelectedCount" style="font-size:13px;font-weight:700;color:var(--sky-dk);">0개 선택</span>
+        </div>
         <div id="wishToolbar" style="display:flex;align-items:center;gap:8px;">
           <button class="chip-action-btn primary" id="wishBtnDelete" onclick="removeSelectedWish()">선택삭제</button>
           <button class="chip-action-btn primary" id="wishBtnCart" onclick="addSelectedWishToCart()">장바구니 담기</button>
