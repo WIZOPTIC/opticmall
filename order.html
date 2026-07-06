@@ -543,7 +543,8 @@ let currentShippingFee = 0;
 
 function isJejuAddress(addr) {
   if(!addr) return false;
-  return addr.includes('제주') || addr.includes('울릉') || addr.includes('독도');
+  const remoteKeywords = ['제주', '울릉', '독도', '가거도', '거문도', '고흥', '신안', '완도', '진도', '홍도'];
+  return remoteKeywords.some(kw => addr.includes(kw));
 }
 
 function calcShippingFee() {
