@@ -95,7 +95,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 
 /* 다중 브랜드 주문 배송 현황 (브랜드별로 상태가 다를 때) */
 .brand-ship-list{margin:14px 0 18px;display:flex;flex-direction:column;gap:10px;}
-.brand-ship-item{background:var(--g1);border-radius:10px;padding:14px 16px;}
+.brand-ship-item{background:var(--sky-lt);border-radius:10px;padding:14px 16px;}
 .brand-ship-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .brand-ship-name{font-size:13px;font-weight:700;color:var(--navy);}
 .order-block-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--g1);}
@@ -291,12 +291,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
     <div id="section-orders">
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
         <div class="section-title" style="margin-bottom:0;">주문 내역</div>
-        <select id="orderPeriodFilter" onchange="changeOrderPeriod(this.value)" style="padding:8px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:12px;font-family:inherit;color:var(--navy);background:var(--white);cursor:pointer;outline:none;">
-          <option value="3m">최근 3개월</option>
-          <option value="6m">최근 6개월</option>
-          <option value="1y">최근 1년</option>
-          <option value="all">전체 기간</option>
-        </select>
       </div>
 
       <div class="chip-row" id="statusChips" style="margin-bottom:20px;">
@@ -859,7 +853,7 @@ function getOrderItems(order) {
 
 let allOrdersCache = [];
 let currentOrderFilter = null; // null = 전체, 'paid'|'shipping'|'done'|'cancel'
-let currentPeriodFilter = '3m'; // '3m'|'6m'|'1y'|'all'
+let currentPeriodFilter = 'all'; // 기간 드롭다운은 제거, 항상 전체 기간 표시 (나중에 필요하면 UI 복구)
 const orderFilterGroups = {
   // 결제완료 = "결제내역" 개념. 배송중/배송완료로 넘어가도 계속 여기 포함됨(취소된 건 제외)
   paid: ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered'],
