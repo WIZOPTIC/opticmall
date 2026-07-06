@@ -1124,6 +1124,13 @@ async function toggleWish() {
       btn.textContent = '❤️';
       btn.classList.add('active');
       showToast('관심상품에 추가되었습니다.', 'success');
+      // [임시 진단] 저장 직후 서버에서 다시 읽어서 진짜 저장됐는지 화면에 바로 표시
+      try {
+        const verifySnap = await wishRef.get();
+        alert('[찜 저장 진단]\nuid: ' + uid + '\n상품ID: ' + currentProduct.id + '\n경로: ' + wishRef.path + '\n서버에 실제로 존재함?: ' + verifySnap.exists);
+      } catch(verifyErr) {
+        alert('[찜 저장 진단] 재조회 중 에러 발생: ' + verifyErr.message);
+      }
     } else {
       await wishRef.delete();
       btn.textContent = '🤍';
@@ -1132,6 +1139,7 @@ async function toggleWish() {
     }
   } catch(e) {
     console.error(e);
+    alert('[찜 저장 진단] 저장 실패!\n에러: ' + e.message);
     showToast('처리 중 오류가 발생했습니다.', 'error');
   }
 }
