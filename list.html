@@ -777,6 +777,25 @@ async function loadApprovedProducts() {
       document.getElementById('listTitle').textContent = brandProduct ? `${brandProduct.brandName} 상품` : '브랜드 상품';
     }
 
+    // URL의 cat 파라미터 처리 (다른 페이지 GNB/카테고리 링크로 넘어온 경우)
+    const catParam = urlParams.get('cat');
+    if(catParam && CATEGORIES.includes(catParam)) {
+      currentGnbCategory = catParam;
+      document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
+      const matchingGnbBtn = [...document.querySelectorAll('.gnb-item')].find(b => b.textContent.trim() === catParam);
+      if(matchingGnbBtn) matchingGnbBtn.classList.add('active');
+      document.getElementById('listTitle').textContent = catParam;
+      document.getElementById('cat-all').checked = false;
+      CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = (c === catParam); });
+    }
+
+    // URL의 q 파라미터 처리 (다른 페이지 검색창으로 넘어온 경우)
+    const qParam = urlParams.get('q');
+    if(qParam) {
+      document.getElementById('searchInput').value = qParam;
+      document.getElementById('listTitle').textContent = `'${qParam}' 검색결과`;
+    }
+
     applyFilters();
   } catch(e) {
     console.error(e);
