@@ -653,7 +653,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
 <div class="main-wrap">
 
   <!-- 타임세일 -->
-  <div class="product-section">
+  <div class="product-section" id="timesale">
     <div style="text-align:center;margin:48px 0 28px;position:relative;">
       <h2 style="color:var(--black);font-size:26px;font-weight:700;letter-spacing:-0.01em;margin-bottom:6px;">타임세일</h2>
       <div style="font-size:11px;color:var(--g3);font-weight:400;margin-bottom:8px;">종료까지</div>
@@ -1223,6 +1223,16 @@ async function loadMainProducts() {
 }
 
 loadMainProducts();
+</script>
+<script>
+// 다른 페이지에서 index.html#timesale 로 들어온 경우, 타임세일 섹션으로 자동 스크롤
+if(location.hash === '#timesale') {
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('timesale')?.scrollIntoView({behavior:'smooth'});
+    }, 400);
+  });
+}
 </script>
 </body>
 </html>

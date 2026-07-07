@@ -167,7 +167,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--b
     <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
     <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
     <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
-    <button class="gnb-item" onclick="location.href='index.html'">타임세일</button>
+    <button class="gnb-item" onclick="location.href='index.html#timesale'">타임세일</button>
     <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     <button class="gnb-item active">고객센터</button>
   </div>
@@ -441,7 +441,7 @@ function fmtDate(ts) {
 function renderBoardTable(posts) {
   const area = document.getElementById('csListArea');
   if(posts.length === 0) {
-    area.innerHTML = `<div class="empty-box">등록된 ${TAB_LABELS[currentTab]}이(가) 없습니다.</div>`;
+    area.innerHTML = `<div class="empty-box">등록된 ${TAB_LABELS[currentTab]} 게시글이 없습니다.</div>`;
     return;
   }
 
