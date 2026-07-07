@@ -1266,7 +1266,8 @@ function applyAdminProductSearch() {
         (p.modelName||'').toLowerCase().includes(keyword) ||
         (p.barcode||'').toLowerCase().includes(keyword) ||
         (p.brandName||'').toLowerCase().includes(keyword) ||
-        (p.color||'').toLowerCase().includes(keyword)
+        (p.color||'').toLowerCase().includes(keyword) ||
+        (Array.isArray(p.colors) && p.colors.some(c => (c.barcode||'').toLowerCase().includes(keyword) || (c.colorName||'').toLowerCase().includes(keyword)))
       )
     : products;
 

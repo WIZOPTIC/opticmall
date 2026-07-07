@@ -393,7 +393,11 @@ _auth.onAuthStateChanged(async (user) => {
     updateHeaderLoggedOut();
     document.getElementById('cartCountBadge').style.display = 'none';
   }
-  renderProducts(allProducts); // 로그인 상태 바뀌면 가격 잠금 표시/찜 상태 다시 그림
+  // 로그인 상태 바뀌면 가격 잠금 표시/찜 상태를 다시 그려야 하지만,
+  // 검색/카테고리 필터링 결과를 무시하고 전체상품으로 덮어쓰면 안 되므로 applyFilters()로 현재 필터를 유지한 채 재렌더링
+  if(typeof applyFilters === 'function' && allProducts.length > 0) {
+    applyFilters();
+  }
 });
 
 async function updateCartCount() {
@@ -684,14 +688,16 @@ function applyFilters() {
     result = result.filter(p => checkedTypes.includes(p.type));
   }
 
-  // 검색어 필터
+  // 검색어 필터 (모델명 / 브랜드명 / 대표바코드 / 색상별 바코드까지 모두 확인)
   const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
   if(keyword) {
-    result = result.filter(p =>
-      (p.modelName||'').toLowerCase().includes(keyword) ||
-      (p.barcode||'').toLowerCase().includes(keyword) ||
-      (p.brandName||'').toLowerCase().includes(keyword)
-    );
+    result = result.filter(p => {
+      const modelMatch = (p.modelName||'').toLowerCase().includes(keyword);
+      const brandMatch = (p.brandName||'').toLowerCase().includes(keyword);
+      const topBarcodeMatch = (p.barcode||'').toLowerCase().includes(keyword);
+      const colorBarcodeMatch = Array.isArray(p.colors) && p.colors.some(c => (c.barcode||'').toLowerCase().includes(keyword));
+      return modelMatch || brandMatch || topBarcodeMatch || colorBarcodeMatch;
+    });
   }
 
   // 재고 필터
