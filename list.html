@@ -608,6 +608,7 @@ function updateCategoryCounts() {
 function filterByGnb(category, el) {
   currentGnbCategory = category;
   currentBrandFilter = null;
+  document.getElementById('searchInput').value = ''; // 카테고리 탭 전환 시 이전 검색어가 몰래 남아있지 않도록 초기화
   document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('listTitle').textContent = category === '전체' ? '전체상품' : category;
