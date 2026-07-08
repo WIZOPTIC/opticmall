@@ -87,7 +87,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--b
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
     <div class="header-search">
-      <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" onkeydown="if(event.key==='Enter') doSearch()">
+      <input type="text" id="searchInput" placeholder="이벤트 상품 검색" onkeydown="if(event.key==='Enter') doSearch()">
       <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
     <div class="header-right">
@@ -222,9 +222,22 @@ async function updateCartCount(uid) {
   } catch(e) { console.error(e); }
 }
 
+let allPromos = [];
+let allProductMap = {};
+let currentEventKeyword = '';
+
 function doSearch() {
-  const keyword = document.getElementById('searchInput').value.trim();
-  location.href = 'list.html' + (keyword ? `?q=${encodeURIComponent(keyword)}` : '');
+  currentEventKeyword = document.getElementById('searchInput').value.trim();
+  renderEvents(currentEventKeyword);
+}
+
+// 이벤트에 걸린 상품이 검색어와 일치하는지 확인 (모델명/브랜드명/대표바코드/색상별 바코드)
+function eventProductMatches(prod, kw) {
+  const modelMatch = (prod.modelName||'').toLowerCase().includes(kw);
+  const brandMatch = (prod.brandName||'').toLowerCase().includes(kw);
+  const topBarcodeMatch = (prod.barcode||'').toLowerCase().includes(kw);
+  const colorBarcodeMatch = Array.isArray(prod.colors) && prod.colors.some(c => (c.barcode||'').toLowerCase().includes(kw));
+  return modelMatch || brandMatch || topBarcodeMatch || colorBarcodeMatch;
 }
 
 function escapeHtml(str) {
@@ -233,6 +246,7 @@ function escapeHtml(str) {
 
 async function loadEvents() {
   const area = document.getElementById('eventArea');
+  area.innerHTML = `<div class="loading-box"><div class="spinner"></div>이벤트를 불러오는 중...</div>`;
   try {
     const snap = await _db.collection('promotions').where('status', '==', 'approved').get();
     let promos = [];
@@ -252,65 +266,91 @@ async function loadEvents() {
       return dbb - da;
     });
 
-    if(promos.length === 0) {
-      area.innerHTML = `<div class="empty-box"><div class="big">🎉</div>지금 진행중인 이벤트가 없어요.<br><span style="font-size:13px;">조금만 기다려주세요, 곧 새로운 이벤트가 올라올 예정이에요!</span></div>`;
-      return;
-    }
-
     // 이벤트에 포함된 상품들을 한 번에 조회 (중복 없이)
     const allProductIds = [...new Set(promos.flatMap(p => p.targetProductIds || []))];
     const productDocs = await Promise.all(allProductIds.map(id => _db.collection('products').doc(id).get()));
     const productMap = {};
     productDocs.forEach(d => { if(d.exists) productMap[d.id] = { id: d.id, ...d.data() }; });
 
-    area.innerHTML = promos.map(p => {
-      const products = (p.targetProductIds || []).map(id => productMap[id]).filter(Boolean);
-      const period = (p.startDate && p.endDate) ? `${p.startDate} ~ ${p.endDate}` : '';
-      const MAX_SHOW = 5;
-      const shownProducts = products.slice(0, MAX_SHOW);
-      const moreCount = products.length - shownProducts.length;
-
-      const productsHtml = shownProducts.length > 0 ? `
-        <div class="event-products-grid">
-          ${shownProducts.map(prod => {
-            const hasImg = !!prod.mainImageUrl;
-            const imgHtml = hasImg ? `<img src="${prod.mainImageUrl}">` : `<span style="opacity:0.2;">👓</span>`;
-            const basePrice = Number(prod.price || 0);
-            const discountRate = Number(p.discountRate || 0);
-            const salePrice = Math.round(basePrice * (1 - discountRate / 100));
-            const priceHtml = memberLevel >= 2
-              ? `<span class="orig">₩${basePrice.toLocaleString()}</span>₩${salePrice.toLocaleString()}`
-              : `🔒 로그인 후 확인`;
-            return `
-              <div class="event-product-card" onclick="location.href='product.html?id=${prod.id}'">
-                <div class="event-product-img">${imgHtml}</div>
-                <div class="event-product-name">${prod.modelName||'-'}</div>
-                <div class="event-product-price">${priceHtml}</div>
-              </div>`;
-          }).join('')}
-        </div>
-        ${moreCount > 0 ? `<div class="event-more-count">외 ${moreCount}개 상품 더보기 →</div>` : ''}
-      ` : `<div style="text-align:center;color:var(--g3);font-size:13px;padding:20px 0;">적용 상품 정보를 불러올 수 없어요.</div>`;
-
-      return `
-        <div class="event-block">
-          <div class="event-banner">
-            <div class="event-banner-left">
-              <div class="event-discount">${p.discountRate}%</div>
-              <div class="event-title-group">
-                <div class="event-brand-tag">${escapeHtml(p.brandName || '브랜드')}</div>
-                <div class="event-title">${escapeHtml(p.title || '이벤트')}</div>
-              </div>
-            </div>
-            ${period ? `<div class="event-period">${period}</div>` : ''}
-          </div>
-          <div class="event-products">${productsHtml}</div>
-        </div>`;
-    }).join('');
+    allPromos = promos;
+    allProductMap = productMap;
+    // 로그인 상태가 바뀌어 다시 불러올 때도 기존 검색어(currentEventKeyword)를 유지한 채로 다시 그림
+    renderEvents(currentEventKeyword);
   } catch(e) {
     console.error(e);
     area.innerHTML = `<div class="empty-box" style="color:var(--red);">이벤트를 불러오지 못했습니다.</div>`;
   }
+}
+
+function renderEvents(keyword) {
+  const area = document.getElementById('eventArea');
+  const kw = (keyword || '').trim().toLowerCase();
+
+  if(allPromos.length === 0) {
+    area.innerHTML = `<div class="empty-box"><div class="big">🎉</div>지금 진행중인 이벤트가 없어요.<br><span style="font-size:13px;">조금만 기다려주세요, 곧 새로운 이벤트가 올라올 예정이에요!</span></div>`;
+    return;
+  }
+
+  // 이벤트 블록별로 보여줄 상품 목록을 계산 (검색어 있으면 그 이벤트 상품 중 일치하는 것만, 없으면 원래대로 최대 5개+더보기)
+  const blocks = allPromos.map(p => {
+    const products = (p.targetProductIds || []).map(id => allProductMap[id]).filter(Boolean);
+    let shownProducts, moreCount;
+    if(kw) {
+      shownProducts = products.filter(prod => eventProductMatches(prod, kw));
+      moreCount = 0;
+    } else {
+      const MAX_SHOW = 5;
+      shownProducts = products.slice(0, MAX_SHOW);
+      moreCount = products.length - shownProducts.length;
+    }
+    return { promo: p, shownProducts, moreCount };
+  }).filter(block => !kw || block.shownProducts.length > 0); // 검색중일땐 매칭 상품 없는 이벤트는 통째로 숨김
+
+  if(kw && blocks.length === 0) {
+    area.innerHTML = `<div class="empty-box"><div class="big">🔍</div>'${escapeHtml(keyword.trim())}'에 해당하는 이벤트 상품이 없어요.</div>`;
+    return;
+  }
+
+  area.innerHTML = blocks.map(({ promo: p, shownProducts, moreCount }) => {
+    const period = (p.startDate && p.endDate) ? `${p.startDate} ~ ${p.endDate}` : '';
+
+    const productsHtml = shownProducts.length > 0 ? `
+      <div class="event-products-grid">
+        ${shownProducts.map(prod => {
+          const hasImg = !!prod.mainImageUrl;
+          const imgHtml = hasImg ? `<img src="${prod.mainImageUrl}">` : `<span style="opacity:0.2;">👓</span>`;
+          const basePrice = Number(prod.price || 0);
+          const discountRate = Number(p.discountRate || 0);
+          const salePrice = Math.round(basePrice * (1 - discountRate / 100));
+          const priceHtml = memberLevel >= 2
+            ? `<span class="orig">₩${basePrice.toLocaleString()}</span>₩${salePrice.toLocaleString()}`
+            : `🔒 로그인 후 확인`;
+          return `
+            <div class="event-product-card" onclick="location.href='product.html?id=${prod.id}'">
+              <div class="event-product-img">${imgHtml}</div>
+              <div class="event-product-name">${prod.modelName||'-'}</div>
+              <div class="event-product-price">${priceHtml}</div>
+            </div>`;
+        }).join('')}
+      </div>
+      ${moreCount > 0 ? `<div class="event-more-count">외 ${moreCount}개 상품 더보기 →</div>` : ''}
+    ` : `<div style="text-align:center;color:var(--g3);font-size:13px;padding:20px 0;">적용 상품 정보를 불러올 수 없어요.</div>`;
+
+    return `
+      <div class="event-block">
+        <div class="event-banner">
+          <div class="event-banner-left">
+            <div class="event-discount">${p.discountRate}%</div>
+            <div class="event-title-group">
+              <div class="event-brand-tag">${escapeHtml(p.brandName || '브랜드')}</div>
+              <div class="event-title">${escapeHtml(p.title || '이벤트')}</div>
+            </div>
+          </div>
+          ${period ? `<div class="event-period">${period}</div>` : ''}
+        </div>
+        <div class="event-products">${productsHtml}</div>
+      </div>`;
+  }).join('');
 }
 </script>
 </body>
