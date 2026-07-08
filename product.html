@@ -1463,14 +1463,14 @@ function renderReviews() {
     const stars = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
     const maskedName = (r.userName||'회원').length > 1 ? r.userName[0] + '**' : (r.userName||'회원');
     return `
-      <div style="padding:16px 0;border-bottom:1px solid var(--g1);">
+      <div style="padding:18px 0;border-bottom:1px solid var(--g2);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
             <span style="color:#F5C518;font-size:13px;letter-spacing:1px;">${stars}</span>
             <span style="font-size:12px;color:var(--g4);font-weight:700;margin-left:8px;">${escapeHtml(maskedName)}</span>
             <span style="font-size:11px;color:var(--g3);margin-left:6px;">${formatSimpleDate(r.createdAt)}</span>
           </div>
-          ${canDelete ? `<button onclick="deleteReview('${r.id}')" style="border:1px solid var(--g2);background:#fff;color:var(--red);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;">🗑 삭제</button>` : ''}
+          ${canDelete ? `<button onclick="deleteReview('${r.id}')" style="border:1px solid var(--sky-lt);background:var(--sky-lt);color:var(--sky-dk);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;">🗑 삭제</button>` : ''}
         </div>
         <div style="font-size:13px;color:var(--black);margin-top:8px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(r.content)}</div>
       </div>`;
@@ -1583,7 +1583,7 @@ function renderInquiries() {
     const isOpen = openInquiryId === q.id;
     const statusColor = q.status === '답변완료' ? 'var(--sky)' : 'var(--g3)';
     return `
-      <div style="border-bottom:1px solid var(--g1);">
+      <div style="border-bottom:1px solid var(--g2);">
         <div style="padding:14px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:10px;" onclick="toggleInquiry('${q.id}')">
           <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;">
             ${q.secret ? '<span style="font-size:12px;flex-shrink:0;">🔒</span>' : ''}
@@ -1615,7 +1615,7 @@ function renderInquiryBody(q, canView, canDelete) {
     <div style="padding:0 0 16px;">
       <div style="font-size:13px;color:var(--black);white-space:pre-wrap;line-height:1.6;">${escapeHtml(q.content)}</div>
       ${answerHtml}
-      ${canDelete ? `<button onclick="deleteInquiry('${q.id}')" style="margin-top:10px;border:1px solid var(--g2);background:#fff;color:var(--red);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;">🗑 삭제</button>` : ''}
+      ${canDelete ? `<button onclick="deleteInquiry('${q.id}')" style="margin-top:10px;border:1px solid var(--sky-lt);background:var(--sky-lt);color:var(--sky-dk);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;">🗑 삭제</button>` : ''}
     </div>`;
 }
 
