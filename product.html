@@ -1470,7 +1470,7 @@ function renderReviews() {
             <span style="font-size:12px;color:var(--g4);font-weight:700;margin-left:8px;">${escapeHtml(maskedName)}</span>
             <span style="font-size:11px;color:var(--g3);margin-left:6px;">${formatSimpleDate(r.createdAt)}</span>
           </div>
-          ${canDelete ? `<button onclick="deleteReview('${r.id}')" style="border:none;background:none;color:var(--g3);font-size:12px;cursor:pointer;">삭제</button>` : ''}
+          ${canDelete ? `<button onclick="deleteReview('${r.id}')" style="border:1px solid var(--g2);background:#fff;color:var(--red);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;">🗑 삭제</button>` : ''}
         </div>
         <div style="font-size:13px;color:var(--black);margin-top:8px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(r.content)}</div>
       </div>`;
@@ -1615,7 +1615,7 @@ function renderInquiryBody(q, canView, canDelete) {
     <div style="padding:0 0 16px;">
       <div style="font-size:13px;color:var(--black);white-space:pre-wrap;line-height:1.6;">${escapeHtml(q.content)}</div>
       ${answerHtml}
-      ${canDelete ? `<button onclick="deleteInquiry('${q.id}')" style="margin-top:10px;border:none;background:none;color:var(--g3);font-size:12px;cursor:pointer;">삭제</button>` : ''}
+      ${canDelete ? `<button onclick="deleteInquiry('${q.id}')" style="margin-top:10px;border:1px solid var(--g2);background:#fff;color:var(--red);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;">🗑 삭제</button>` : ''}
     </div>`;
 }
 
