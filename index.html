@@ -862,21 +862,28 @@ function scrollToSection(id) {
   const target = document.getElementById(id);
   const stickyWrap = document.getElementById('stickyHeaderWrap');
   if(!target) return;
-  const offset = (stickyWrap ? stickyWrap.offsetHeight : 0) + 12;
-  // 직접 좌표를 계산해서 이동하는 대신, 브라우저 내장 스크롤 기능에 "이 요소 위쪽에 이만큼 여백을 둬라"라고 알려주고
-  // 이동은 브라우저가 알아서 정확하게 처리하도록 위임 (수동 계산보다 오차가 없음)
-  target.style.scrollMarginTop = offset + 'px';
+
+  function currentOffset() {
+    return (stickyWrap ? stickyWrap.offsetHeight : 0) + 12;
+  }
+
+  target.style.scrollMarginTop = currentOffset() + 'px';
   target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // 스무스 스크롤 애니메이션이 끝났을 시점에, 혹시 위치가 살짝 어긋나 있으면(위쪽 배너가 살짝 보이는 등) 애니메이션 없이 즉시 미세 보정
-  clearTimeout(window._scrollFixTimer);
-  window._scrollFixTimer = setTimeout(() => {
-    const currentOffset = (stickyWrap ? stickyWrap.offsetHeight : 0) + 12;
-    const gap = target.getBoundingClientRect().top - currentOffset;
+  // 롤링배너 이미지·상품 데이터 등이 늦게 로딩되면서 페이지 높이가 스크롤 이후에도 계속 바뀔 수 있어서,
+  // 한 번만 보정하지 않고 약 1.8초 동안 주기적으로 위치를 재확인하며 계속 맞춰줌
+  clearInterval(window._scrollFixInterval);
+  let checkCount = 0;
+  window._scrollFixInterval = setInterval(() => {
+    checkCount++;
+    const offset = currentOffset();
+    target.style.scrollMarginTop = offset + 'px';
+    const gap = target.getBoundingClientRect().top - offset;
     if (Math.abs(gap) > 3) {
       window.scrollBy({ top: gap, behavior: 'auto' });
     }
-  }, 650);
+    if (checkCount >= 12) clearInterval(window._scrollFixInterval);
+  }, 150);
 }
 
 // Firebase 로그인
