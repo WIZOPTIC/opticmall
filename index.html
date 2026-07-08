@@ -867,6 +867,16 @@ function scrollToSection(id) {
   // 이동은 브라우저가 알아서 정확하게 처리하도록 위임 (수동 계산보다 오차가 없음)
   target.style.scrollMarginTop = offset + 'px';
   target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // 스무스 스크롤 애니메이션이 끝났을 시점에, 혹시 위치가 살짝 어긋나 있으면(위쪽 배너가 살짝 보이는 등) 애니메이션 없이 즉시 미세 보정
+  clearTimeout(window._scrollFixTimer);
+  window._scrollFixTimer = setTimeout(() => {
+    const currentOffset = (stickyWrap ? stickyWrap.offsetHeight : 0) + 12;
+    const gap = target.getBoundingClientRect().top - currentOffset;
+    if (Math.abs(gap) > 3) {
+      window.scrollBy({ top: gap, behavior: 'auto' });
+    }
+  }, 650);
 }
 
 // Firebase 로그인
