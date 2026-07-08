@@ -105,8 +105,6 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 </style>
 </head>
 <body>
-<div style="height:61px;"></div> <!-- 홈페이지 상단 배너(카카오채널+쿠폰안내) 높이만큼 여백을 줘서 GNB 위치를 홈페이지와 동일하게 맞춤 -->
-
 <!-- 로그인 팝업 -->
 <div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:1000;">
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeLogin()"></div>
@@ -144,6 +142,9 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 </div>
 
 <header class="header">
+<div style="max-width:1280px;margin:0 auto;padding:6px 24px;text-align:right;"><!-- 메인페이지 쿠폰 안내줄과 높이를 맞추기 위한 투명 줄 (스크롤해도 헤더와 함께 고정되어 항상 정확히 일치) -->
+  <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;border:1px solid transparent;visibility:hidden;">🎁 가입시 15% 할인쿠폰 즉시 지급!</span>
+</div>
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
     <div class="header-search">
@@ -393,11 +394,7 @@ _auth.onAuthStateChanged(async (user) => {
     updateHeaderLoggedOut();
     document.getElementById('cartCountBadge').style.display = 'none';
   }
-  // 로그인 상태 바뀌면 가격 잠금 표시/찜 상태를 다시 그려야 하지만,
-  // 검색/카테고리 필터링 결과를 무시하고 전체상품으로 덮어쓰면 안 되므로 applyFilters()로 현재 필터를 유지한 채 재렌더링
-  if(typeof applyFilters === 'function' && allProducts.length > 0) {
-    applyFilters();
-  }
+  renderProducts(allProducts); // 로그인 상태 바뀌면 가격 잠금 표시/찜 상태 다시 그림
 });
 
 async function updateCartCount() {
@@ -688,16 +685,14 @@ function applyFilters() {
     result = result.filter(p => checkedTypes.includes(p.type));
   }
 
-  // 검색어 필터 (모델명 / 브랜드명 / 대표바코드 / 색상별 바코드까지 모두 확인)
+  // 검색어 필터
   const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
   if(keyword) {
-    result = result.filter(p => {
-      const modelMatch = (p.modelName||'').toLowerCase().includes(keyword);
-      const brandMatch = (p.brandName||'').toLowerCase().includes(keyword);
-      const topBarcodeMatch = (p.barcode||'').toLowerCase().includes(keyword);
-      const colorBarcodeMatch = Array.isArray(p.colors) && p.colors.some(c => (c.barcode||'').toLowerCase().includes(keyword));
-      return modelMatch || brandMatch || topBarcodeMatch || colorBarcodeMatch;
-    });
+    result = result.filter(p =>
+      (p.modelName||'').toLowerCase().includes(keyword) ||
+      (p.barcode||'').toLowerCase().includes(keyword) ||
+      (p.brandName||'').toLowerCase().includes(keyword)
+    );
   }
 
   // 재고 필터
