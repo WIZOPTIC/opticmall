@@ -553,7 +553,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
     <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
     <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
     <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
-    <button class="gnb-item" onclick="scrollToSection('timesale')">타임세일</button>
+    <button class="gnb-item" onclick="location.href='timesale.html'">타임세일</button>
     <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     <button class="gnb-item" onclick="location.href='board.html'">고객센터</button>
   </div>
@@ -596,7 +596,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <h2>이번 주 특가<br><span class="ac-red">최대 30% 할인</span></h2>
           <div class="slide-sub">티타늄·울템·뿔테 전 품목</div>
           <div class="slide-date">26.06.09 — 26.06.15</div>
-          <button class="slide-btn sb-red" onclick="scrollToSection('timesaleGrid')">타임세일 보러가기</button>
+          <button class="slide-btn sb-red" onclick="location.href='timesale.html'">타임세일 보러가기</button>
         </div>
       </div>
       <div class="slide slide-2">
@@ -1257,16 +1257,6 @@ async function loadMainProducts() {
 }
 
 loadMainProducts();
-</script>
-<script>
-// 다른 페이지에서 index.html#timesale 로 들어온 경우, 타임세일 섹션으로 자동 스크롤
-if(location.hash === '#timesale') {
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      scrollToSection('timesale');
-    }, 400);
-  });
-}
 </script>
 </body>
 </html>
