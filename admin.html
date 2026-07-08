@@ -1266,8 +1266,7 @@ function applyAdminProductSearch() {
         (p.modelName||'').toLowerCase().includes(keyword) ||
         (p.barcode||'').toLowerCase().includes(keyword) ||
         (p.brandName||'').toLowerCase().includes(keyword) ||
-        (p.color||'').toLowerCase().includes(keyword) ||
-        (Array.isArray(p.colors) && p.colors.some(c => (c.barcode||'').toLowerCase().includes(keyword) || (c.colorName||'').toLowerCase().includes(keyword)))
+        (p.color||'').toLowerCase().includes(keyword)
       )
     : products;
 
@@ -1419,8 +1418,12 @@ function renderPromoRow(promo, isApprovalView) {
     </tr>`;
 }
 
+let currentPromoDetail = null;
+let currentPromoEditProducts = null; // 수정모드에서 쓸 '해당 브랜드 전체 상품' 캐시
+
 async function openPromoDetail(promoId) {
   document.getElementById('promoDetailModal').style.display = 'flex';
+  currentPromoEditProducts = null;
   const bodyEl = document.getElementById('promoDetailBody');
   bodyEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
   try {
@@ -1432,31 +1435,143 @@ async function openPromoDetail(promoId) {
     const productDocs = await Promise.all(ids.map(id => window._getDoc(window._doc(window._db, 'products', id))));
     const products = productDocs.filter(d => d.exists()).map(d => ({ id: d.id, ...d.data() }));
 
-    const rate = Number(promo.discountRate) || 0;
-    const productRows = products.map(p => {
-      const price = Number(p.price) || 0;
-      const salePrice = Math.round(price * (1 - rate/100));
-      return `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--g1);">
-          <div style="font-size:13px;font-weight:600;color:var(--navy);">${p.modelName||'-'}</div>
-          <div style="text-align:right;font-size:12px;">
-            <span style="color:var(--g3);text-decoration:line-through;">₩${price.toLocaleString()}</span>
-            <span style="color:var(--red);font-weight:700;margin-left:6px;">₩${salePrice.toLocaleString()}</span>
-          </div>
-        </div>`;
-    }).join('');
-
-    bodyEl.innerHTML = `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:16px;font-weight:800;color:var(--navy);">${promo.title||'-'}</div>
-        <div style="font-size:12px;color:var(--g3);margin-top:4px;">${promo.brandName||'-'} · 할인율 ${rate}%</div>
-        <div style="font-size:12px;color:var(--g3);margin-top:4px;">기간: ${formatDate(promo.startDate)} ~ ${formatDate(promo.endDate)}</div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">대상 상품 (${products.length}개)</div>
-      <div>${productRows || '<div style="color:var(--g3);font-size:13px;padding:12px 0;">대상 상품 정보를 찾을 수 없습니다.</div>'}</div>
-    `;
+    currentPromoDetail = { promo, products };
+    renderPromoDetailView();
   } catch(e) {
     bodyEl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--red);">로드 실패: ${e.message}</div>`;
+  }
+}
+
+function renderPromoDetailView() {
+  const bodyEl = document.getElementById('promoDetailBody');
+  const { promo, products } = currentPromoDetail;
+  const rate = Number(promo.discountRate) || 0;
+  const productRows = products.map(p => {
+    const price = Number(p.price) || 0;
+    const salePrice = Math.round(price * (1 - rate/100));
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--g1);">
+        <div style="font-size:13px;font-weight:600;color:var(--navy);">${p.modelName||'-'}</div>
+        <div style="text-align:right;font-size:12px;">
+          <span style="color:var(--g3);text-decoration:line-through;">₩${price.toLocaleString()}</span>
+          <span style="color:var(--red);font-weight:700;margin-left:6px;">₩${salePrice.toLocaleString()}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  bodyEl.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--navy);">${promo.title||'-'}</div>
+        <div style="font-size:12px;color:var(--g3);margin-top:4px;">${promo.brandName||'-'} · 할인율 ${rate}%</div>
+        <div style="font-size:12px;color:var(--g3);margin-top:4px;">기간: ${promo.startDate||'-'} ~ ${promo.endDate||'-'}</div>
+      </div>
+      <button class="btn-sm btn-ghost" onclick="enterPromoEditMode()" style="white-space:nowrap;">✏️ 수정</button>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">대상 상품 (${products.length}개)</div>
+    <div>${productRows || '<div style="color:var(--g3);font-size:13px;padding:12px 0;">대상 상품 정보를 찾을 수 없습니다.</div>'}</div>
+  `;
+}
+
+async function enterPromoEditMode() {
+  const bodyEl = document.getElementById('promoDetailBody');
+  const { promo } = currentPromoDetail;
+  bodyEl.innerHTML = '<div class="loading"><div class="spinner"></div>상품 목록 불러오는 중...</div>';
+  try {
+    if(!currentPromoEditProducts) {
+      // 같은 브랜드의 전체 상품을 대상 상품 후보로 불러옴 (기존 대상상품은 브랜드가 달라도 후보에 포함)
+      const snap = await window._getDocs(window._query(
+        window._collection(window._db, 'products'),
+        window._where('brandName', '==', promo.brandName || '')
+      ));
+      const brandProducts = [];
+      snap.forEach(d => brandProducts.push({ id: d.id, ...d.data() }));
+      const brandProductIds = new Set(brandProducts.map(p => p.id));
+      const extra = (currentPromoDetail.products || []).filter(p => !brandProductIds.has(p.id));
+      currentPromoEditProducts = [...brandProducts, ...extra];
+    }
+    renderPromoEditForm();
+  } catch(e) {
+    bodyEl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--red);">상품 목록 로드 실패: ${e.message}</div>`;
+  }
+}
+
+function renderPromoEditForm() {
+  const bodyEl = document.getElementById('promoDetailBody');
+  const { promo } = currentPromoDetail;
+  const targetIds = new Set(Array.isArray(promo.targetProductIds) ? promo.targetProductIds : []);
+  const inputStyle = 'width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;';
+  const labelStyle = 'display:block;font-size:12px;font-weight:700;color:var(--g4);margin-bottom:6px;';
+
+  const productChecks = (currentPromoEditProducts || []).map(p => `
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--g1);font-size:13px;cursor:pointer;">
+      <input type="checkbox" class="promo-edit-product-chk" value="${p.id}" ${targetIds.has(p.id) ? 'checked' : ''}>
+      <span>${p.modelName||'-'}</span>
+      <span style="margin-left:auto;color:var(--g3);font-size:12px;">₩${Number(p.price||0).toLocaleString()}</span>
+    </label>
+  `).join('') || '<div style="color:var(--g3);font-size:13px;padding:12px 0;">이 브랜드의 등록된 상품이 없습니다.</div>';
+
+  bodyEl.innerHTML = `
+    <div style="margin-bottom:14px;">
+      <label style="${labelStyle}">이벤트명</label>
+      <input type="text" id="promoEditTitle" style="${inputStyle}" value="${(promo.title||'').replace(/"/g,'&quot;')}">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="${labelStyle}">브랜드명</label>
+      <input type="text" id="promoEditBrandName" style="${inputStyle}" value="${(promo.brandName||'').replace(/"/g,'&quot;')}">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="${labelStyle}">할인율 (%)</label>
+      <input type="number" id="promoEditDiscountRate" style="${inputStyle}" min="1" max="90" value="${Number(promo.discountRate)||0}">
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="flex:1;">
+        <label style="${labelStyle}">시작일</label>
+        <input type="date" id="promoEditStartDate" style="${inputStyle}" value="${promo.startDate||''}">
+      </div>
+      <div style="flex:1;">
+        <label style="${labelStyle}">종료일</label>
+        <input type="date" id="promoEditEndDate" style="${inputStyle}" value="${promo.endDate||''}">
+      </div>
+    </div>
+    <div style="margin-bottom:6px;font-size:13px;font-weight:700;color:var(--navy);">대상 상품 선택</div>
+    <div style="max-height:220px;overflow-y:auto;border:1px solid var(--g2);border-radius:8px;padding:0 12px;margin-bottom:16px;">
+      ${productChecks}
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-sm btn-ghost" style="flex:1;" onclick="renderPromoDetailView()">취소</button>
+      <button class="btn-sm btn-primary" style="flex:1;" onclick="savePromoEdit()">💾 저장</button>
+    </div>
+  `;
+}
+
+async function savePromoEdit() {
+  const promoId = currentPromoDetail.promo.id;
+  const title = document.getElementById('promoEditTitle').value.trim();
+  const brandName = document.getElementById('promoEditBrandName').value.trim();
+  const discountRate = Number(document.getElementById('promoEditDiscountRate').value);
+  const startDate = document.getElementById('promoEditStartDate').value;
+  const endDate = document.getElementById('promoEditEndDate').value;
+  const targetProductIds = [...document.querySelectorAll('.promo-edit-product-chk:checked')].map(cb => cb.value);
+
+  if(!title) { showToast('이벤트명을 입력해주세요.', 'error'); return; }
+  if(!discountRate || discountRate < 1 || discountRate > 90) { showToast('할인율을 1~90 사이로 입력해주세요.', 'error'); return; }
+  if(!startDate || !endDate) { showToast('시작일과 종료일을 입력해주세요.', 'error'); return; }
+  if(new Date(startDate) > new Date(endDate)) { showToast('종료일은 시작일보다 늦어야 합니다.', 'error'); return; }
+  if(targetProductIds.length === 0) { showToast('대상 상품을 1개 이상 선택해주세요.', 'error'); return; }
+
+  try {
+    await window._updateDoc(window._doc(window._db, 'promotions', promoId), {
+      title, brandName, discountRate, startDate, endDate,
+      targetProductIds, targetProductCount: targetProductIds.length,
+      updatedAt: window._serverTimestamp()
+    });
+    showToast('✅ 이벤트가 수정되었습니다.', 'success');
+    await openPromoDetail(promoId); // 수정된 내용으로 상세보기 다시 로드
+    if(document.getElementById('page-promoApproval').classList.contains('active')) loadPromoApproval();
+    if(document.getElementById('page-allPromos').classList.contains('active')) loadAllPromos();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
   }
 }
 
