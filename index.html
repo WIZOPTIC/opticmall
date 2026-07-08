@@ -505,7 +505,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
 
 
 <!-- HEADER -->
-<div style="position:sticky;top:0;z-index:200;">
+<div style="position:sticky;top:0;z-index:200;" id="stickyHeaderWrap">
 <header style="position:relative;">
   <!-- 헤더 1행: 쿠폰 안내 -->
   <div style="max-width:1280px;margin:0 auto;padding:6px 24px;text-align:right;">
@@ -553,7 +553,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
     <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
     <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
     <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
-    <button class="gnb-item" onclick="document.querySelector('.product-section').scrollIntoView({behavior:'smooth'})">타임세일<span class="dot"></span></button>
+    <button class="gnb-item" onclick="scrollToSection('timesale')">타임세일</button>
     <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     <button class="gnb-item" onclick="location.href='board.html'">고객센터</button>
   </div>
@@ -596,7 +596,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <h2>이번 주 특가<br><span class="ac-red">최대 30% 할인</span></h2>
           <div class="slide-sub">티타늄·울템·뿔테 전 품목</div>
           <div class="slide-date">26.06.09 — 26.06.15</div>
-          <button class="slide-btn sb-red" onclick="document.getElementById('timesaleGrid').scrollIntoView({behavior:'smooth'})">타임세일 보러가기</button>
+          <button class="slide-btn sb-red" onclick="scrollToSection('timesaleGrid')">타임세일 보러가기</button>
         </div>
       </div>
       <div class="slide slide-2">
@@ -607,7 +607,7 @@ footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var
           <h2>6월 신상품<br><span class="ac-blue">120종 입고 완료</span></h2>
           <div class="slide-sub">티타늄 슬림라인 · TR90 컬러 시리즈</div>
           <div class="slide-date">2026년 6월 신상품</div>
-          <button class="slide-btn sb-blue" onclick="document.getElementById('newArrivalGrid').scrollIntoView({behavior:'smooth'})">신상품 확인하기</button>
+          <button class="slide-btn sb-blue" onclick="scrollToSection('newArrivalGrid')">신상품 확인하기</button>
         </div>
       </div>
       <div class="slide slide-3">
@@ -855,6 +855,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const _auth = firebase.auth();
 const _db = firebase.firestore();
+
+// 스티키 헤더(카카오배너 제외, 헤더+GNB)의 실제 높이만큼 오프셋을 두고 특정 섹션으로 스크롤
+// 헤더 구조가 나중에 바뀌어도 항상 정확하도록 매직넘버 대신 실제 렌더링된 높이를 그때그때 측정
+function scrollToSection(id) {
+  const target = document.getElementById(id);
+  const stickyWrap = document.getElementById('stickyHeaderWrap');
+  if(!target) return;
+  const offset = (stickyWrap ? stickyWrap.offsetHeight : 0) + 12;
+  const y = target.getBoundingClientRect().top + window.pageYOffset - offset;
+  window.scrollTo({ top: y, behavior: 'smooth' });
+}
 
 // Firebase 로그인
 async function doLogin() {
@@ -1233,7 +1244,7 @@ loadMainProducts();
 if(location.hash === '#timesale') {
   window.addEventListener('load', () => {
     setTimeout(() => {
-      document.getElementById('timesale')?.scrollIntoView({behavior:'smooth'});
+      scrollToSection('timesale');
     }, 400);
   });
 }
