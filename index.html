@@ -863,8 +863,10 @@ function scrollToSection(id) {
   const stickyWrap = document.getElementById('stickyHeaderWrap');
   if(!target) return;
   const offset = (stickyWrap ? stickyWrap.offsetHeight : 0) + 12;
-  const y = target.getBoundingClientRect().top + window.pageYOffset - offset;
-  window.scrollTo({ top: y, behavior: 'smooth' });
+  // 직접 좌표를 계산해서 이동하는 대신, 브라우저 내장 스크롤 기능에 "이 요소 위쪽에 이만큼 여백을 둬라"라고 알려주고
+  // 이동은 브라우저가 알아서 정확하게 처리하도록 위임 (수동 계산보다 오차가 없음)
+  target.style.scrollMarginTop = offset + 'px';
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Firebase 로그인
