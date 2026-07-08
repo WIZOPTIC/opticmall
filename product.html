@@ -493,16 +493,17 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 
   <!-- 후기 -->
   <div id="tab-review" style="display:none;">
-    <div style="text-align:center;padding:60px;color:var(--g3);">
-      <div style="font-size:14px;color:var(--g3);">아직 등록된 후기가 없습니다.</div>
+    <div id="reviewWriteArea" style="margin-bottom:20px;"></div>
+    <div id="reviewListArea">
+      <div style="text-align:center;padding:60px;color:var(--g3);font-size:14px;">불러오는 중...</div>
     </div>
   </div>
 
   <!-- 문의 -->
   <div id="tab-qna" style="display:none;">
-    <div style="text-align:center;padding:60px;color:var(--g3);">
-      <div style="font-size:48px;margin-bottom:16px;">💬</div>
-      <div style="font-size:14px;">1:1 문의는 로그인 후 이용 가능합니다.</div>
+    <div id="qnaWriteArea" style="margin-bottom:20px;"></div>
+    <div id="qnaListArea">
+      <div style="text-align:center;padding:60px;color:var(--g3);font-size:14px;">불러오는 중...</div>
     </div>
   </div>
 </div>
@@ -550,6 +551,14 @@ let authChecked = false; // Firebase 로그인 상태 확인이 끝났는지 여
 let currentProduct = null;
 let currentPrice = 0;
 let currentImgIndex = 0;
+let currentUserName = '';
+let currentUserRole = null;
+let reviewsLoaded = false;
+let inquiriesLoaded = false;
+let allReviews = [];
+let allInquiries = [];
+
+function isMaster() { return currentUserRole === 'master' || currentUserRole === 'submaster'; }
 
 // ===================== 로그인 모달 =====================
 function openLogin() { document.getElementById('loginOverlay').style.display = 'block'; }
@@ -635,20 +644,28 @@ _auth.onAuthStateChanged(async (user) => {
       const userDoc = await _db.collection('users').doc(user.uid).get();
       const userData = userDoc.exists ? userDoc.data() : {};
       memberLevel = userData.member_level || 0;
-      updateHeaderLoggedIn(userData.name || user.email.split('@')[0], memberLevel, userData.role);
+      currentUserName = userData.name || user.email.split('@')[0];
+      currentUserRole = userData.role || null;
+      updateHeaderLoggedIn(currentUserName, memberLevel, currentUserRole);
     } catch(e) {
       memberLevel = 0;
-      updateHeaderLoggedIn(user.email.split('@')[0], 0, null);
+      currentUserName = user.email.split('@')[0];
+      currentUserRole = null;
+      updateHeaderLoggedIn(currentUserName, 0, null);
     }
     updateCartCount();
     if(currentProduct) checkWishAndRestockStatus(currentProduct);
   } else {
     memberLevel = 0;
+    currentUserName = '';
+    currentUserRole = null;
     updateHeaderLoggedOut();
     document.getElementById('cartCountBadge').style.display = 'none';
   }
   authChecked = true;
   updatePriceDisplay(); // 로그인 상태 바뀌면 가격 표시 갱신
+  if(reviewsLoaded) renderReviewWriteArea();
+  if(inquiriesLoaded) renderQnaWriteArea();
 });
 
 function doSearch() {
@@ -1338,6 +1355,301 @@ function switchTab(tab, name) {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t === name ? 'block' : 'none';
   });
+  if(name === 'review' && !reviewsLoaded) { reviewsLoaded = true; loadReviews(); }
+  if(name === 'qna' && !inquiriesLoaded) { inquiriesLoaded = true; loadInquiries(); }
+}
+
+function escapeHtml(str) {
+  return String(str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function formatSimpleDate(ts) {
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('ko-KR', {year:'numeric',month:'2-digit',day:'2-digit'});
+}
+
+// ===================== 구매 후기 =====================
+async function loadReviews() {
+  renderReviewWriteArea();
+  const listEl = document.getElementById('reviewListArea');
+  try {
+    await loadReviewsQuiet();
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);font-size:14px;">후기를 불러오지 못했습니다.</div>`;
+  }
+}
+
+async function loadReviewsQuiet() {
+  const snap = await _db.collection('reviews').where('productId', '==', currentProduct.id).get();
+  allReviews = [];
+  snap.forEach(d => allReviews.push({ id: d.id, ...d.data() }));
+  allReviews.sort((a,b) => {
+    const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+    const db2 = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+    return db2 - da;
+  });
+  renderReviews();
+}
+
+function renderReviewWriteArea() {
+  const area = document.getElementById('reviewWriteArea');
+  if(!authChecked) { area.innerHTML = ''; return; }
+  if(!_auth.currentUser) {
+    area.innerHTML = `
+      <div style="background:var(--g1);border-radius:10px;padding:20px;text-align:center;">
+        <div style="font-size:13px;color:var(--g4);margin-bottom:10px;">로그인 후 구매 후기를 작성할 수 있어요.</div>
+        <button onclick="openLogin()" style="padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;">로그인</button>
+      </div>`;
+    return;
+  }
+  area.innerHTML = `<button onclick="openReviewForm()" style="padding:10px 18px;background:var(--sky);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">✏️ 후기 작성하기</button>`;
+}
+
+let selectedReviewRating = 5;
+
+function openReviewForm() {
+  selectedReviewRating = 5;
+  const area = document.getElementById('reviewWriteArea');
+  area.innerHTML = `
+    <div style="background:var(--g1);border-radius:10px;padding:18px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">후기 작성</div>
+      <div id="reviewStarPicker" style="margin-bottom:12px;font-size:22px;letter-spacing:2px;"></div>
+      <textarea id="reviewContentInput" placeholder="상품에 대한 솔직한 후기를 남겨주세요." style="width:100%;min-height:80px;padding:12px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button onclick="renderReviewWriteArea()" style="flex:1;padding:10px;background:#fff;color:var(--g4);border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">취소</button>
+        <button onclick="submitReview()" style="flex:1;padding:10px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">등록</button>
+      </div>
+    </div>`;
+  renderStarPicker();
+}
+
+function renderStarPicker() {
+  const el = document.getElementById('reviewStarPicker');
+  if(!el) return;
+  el.innerHTML = [1,2,3,4,5].map(n => `<span onclick="setReviewRating(${n})" style="cursor:pointer;color:${n <= selectedReviewRating ? '#F5C518' : 'var(--g2)'};">★</span>`).join('');
+}
+function setReviewRating(n) { selectedReviewRating = n; renderStarPicker(); }
+
+async function submitReview() {
+  const content = document.getElementById('reviewContentInput').value.trim();
+  if(!content) { showToast('후기 내용을 입력해주세요.', 'error'); return; }
+  try {
+    await _db.collection('reviews').add({
+      productId: currentProduct.id,
+      userId: _auth.currentUser.uid,
+      userName: currentUserName || '회원',
+      rating: selectedReviewRating,
+      content,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('후기가 등록되었습니다.', 'success');
+    renderReviewWriteArea();
+    loadReviewsQuiet();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+function renderReviews() {
+  const listEl = document.getElementById('reviewListArea');
+  if(allReviews.length === 0) {
+    listEl.innerHTML = `<div style="text-align:center;padding:60px 0;color:var(--g3);font-size:14px;">아직 등록된 후기가 없습니다.</div>`;
+    return;
+  }
+  const myUid = _auth.currentUser?.uid;
+  listEl.innerHTML = allReviews.map(r => {
+    const canDelete = isMaster() || (myUid && r.userId === myUid);
+    const stars = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
+    const maskedName = (r.userName||'회원').length > 1 ? r.userName[0] + '**' : (r.userName||'회원');
+    return `
+      <div style="padding:16px 0;border-bottom:1px solid var(--g1);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="color:#F5C518;font-size:13px;letter-spacing:1px;">${stars}</span>
+            <span style="font-size:12px;color:var(--g4);font-weight:700;margin-left:8px;">${escapeHtml(maskedName)}</span>
+            <span style="font-size:11px;color:var(--g3);margin-left:6px;">${formatSimpleDate(r.createdAt)}</span>
+          </div>
+          ${canDelete ? `<button onclick="deleteReview('${r.id}')" style="border:none;background:none;color:var(--g3);font-size:12px;cursor:pointer;">삭제</button>` : ''}
+        </div>
+        <div style="font-size:13px;color:var(--black);margin-top:8px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(r.content)}</div>
+      </div>`;
+  }).join('');
+}
+
+async function deleteReview(reviewId) {
+  if(!confirm('이 후기를 삭제하시겠습니까?')) return;
+  try {
+    await _db.collection('reviews').doc(reviewId).delete();
+    showToast('후기가 삭제되었습니다.', 'success');
+    loadReviewsQuiet();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+// ===================== 상품 문의 =====================
+async function loadInquiries() {
+  renderQnaWriteArea();
+  const listEl = document.getElementById('qnaListArea');
+  try {
+    await loadInquiriesQuiet();
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);font-size:14px;">문의를 불러오지 못했습니다.</div>`;
+  }
+}
+
+async function loadInquiriesQuiet() {
+  const snap = await _db.collection('inquiries').where('productId', '==', currentProduct.id).get();
+  allInquiries = [];
+  snap.forEach(d => allInquiries.push({ id: d.id, ...d.data() }));
+  allInquiries.sort((a,b) => {
+    const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+    const db2 = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+    return db2 - da;
+  });
+  renderInquiries();
+}
+
+function renderQnaWriteArea() {
+  const area = document.getElementById('qnaWriteArea');
+  if(!authChecked) { area.innerHTML = ''; return; }
+  if(!_auth.currentUser) {
+    area.innerHTML = `
+      <div style="text-align:center;padding:40px 0 20px;color:var(--g3);">
+        <div style="font-size:40px;margin-bottom:12px;">💬</div>
+        <div style="font-size:14px;margin-bottom:14px;">1:1 문의는 로그인 후 이용 가능합니다.</div>
+        <button onclick="openLogin()" style="padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;">로그인</button>
+      </div>`;
+    return;
+  }
+  area.innerHTML = `<button onclick="openInquiryForm()" style="padding:10px 18px;background:var(--sky);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">✏️ 문의 작성하기</button>`;
+}
+
+function openInquiryForm() {
+  const area = document.getElementById('qnaWriteArea');
+  area.innerHTML = `
+    <div style="background:var(--g1);border-radius:10px;padding:18px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">문의 작성</div>
+      <input type="text" id="inquiryTitleInput" placeholder="제목" style="width:100%;padding:11px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;margin-bottom:8px;box-sizing:border-box;">
+      <textarea id="inquiryContentInput" placeholder="문의하실 내용을 입력해주세요." style="width:100%;min-height:80px;padding:12px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--g4);margin-top:8px;cursor:pointer;">
+        <input type="checkbox" id="inquirySecretChk">비밀글로 작성 (작성자와 관리자만 볼 수 있어요)
+      </label>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button onclick="renderQnaWriteArea()" style="flex:1;padding:10px;background:#fff;color:var(--g4);border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">취소</button>
+        <button onclick="submitInquiry()" style="flex:1;padding:10px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">등록</button>
+      </div>
+    </div>`;
+}
+
+async function submitInquiry() {
+  const title = document.getElementById('inquiryTitleInput').value.trim();
+  const content = document.getElementById('inquiryContentInput').value.trim();
+  const secret = document.getElementById('inquirySecretChk').checked;
+  if(!title || !content) { showToast('제목과 내용을 입력해주세요.', 'error'); return; }
+  try {
+    await _db.collection('inquiries').add({
+      productId: currentProduct.id,
+      productName: currentProduct.modelName || '',
+      userId: _auth.currentUser.uid,
+      userName: currentUserName || '회원',
+      title, content, secret,
+      answer: '', status: '답변대기',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('문의가 등록되었습니다.', 'success');
+    renderQnaWriteArea();
+    loadInquiriesQuiet();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+let openInquiryId = null;
+
+function renderInquiries() {
+  const listEl = document.getElementById('qnaListArea');
+  if(allInquiries.length === 0) {
+    listEl.innerHTML = `<div style="text-align:center;padding:60px 0;color:var(--g3);font-size:14px;">아직 등록된 문의가 없습니다.</div>`;
+    return;
+  }
+  const myUid = _auth.currentUser?.uid;
+  listEl.innerHTML = allInquiries.map(q => {
+    const isAuthor = myUid && q.userId === myUid;
+    const canView = !q.secret || isAuthor || isMaster();
+    const canDelete = isMaster() || isAuthor;
+    const isOpen = openInquiryId === q.id;
+    const statusColor = q.status === '답변완료' ? 'var(--sky)' : 'var(--g3)';
+    return `
+      <div style="border-bottom:1px solid var(--g1);">
+        <div style="padding:14px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:10px;" onclick="toggleInquiry('${q.id}')">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;">
+            ${q.secret ? '<span style="font-size:12px;flex-shrink:0;">🔒</span>' : ''}
+            <span style="font-size:13px;font-weight:600;color:var(--black);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${canView ? escapeHtml(q.title) : '비밀글입니다'}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <span style="font-size:11px;font-weight:700;color:${statusColor};">${q.status||'답변대기'}</span>
+            <span style="font-size:11px;color:var(--g3);">${formatSimpleDate(q.createdAt)}</span>
+          </div>
+        </div>
+        ${isOpen ? renderInquiryBody(q, canView, canDelete) : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderInquiryBody(q, canView, canDelete) {
+  if(!canView) {
+    return `<div style="padding:0 0 16px;font-size:13px;color:var(--g3);">비밀글은 작성자와 관리자만 볼 수 있어요.</div>`;
+  }
+  const answerHtml = q.answer
+    ? `<div style="margin-top:10px;background:var(--g1);border-radius:8px;padding:12px;font-size:13px;color:var(--navy);"><strong>💬 답변</strong><div style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(q.answer)}</div></div>`
+    : (isMaster() ? `
+        <div style="margin-top:10px;">
+          <textarea id="answerInput-${q.id}" placeholder="답변을 입력해주세요." style="width:100%;min-height:60px;padding:10px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+          <button onclick="submitAnswer('${q.id}')" style="margin-top:6px;padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">답변 등록</button>
+        </div>`
+      : `<div style="margin-top:10px;font-size:12px;color:var(--g3);">아직 답변이 등록되지 않았습니다.</div>`);
+  return `
+    <div style="padding:0 0 16px;">
+      <div style="font-size:13px;color:var(--black);white-space:pre-wrap;line-height:1.6;">${escapeHtml(q.content)}</div>
+      ${answerHtml}
+      ${canDelete ? `<button onclick="deleteInquiry('${q.id}')" style="margin-top:10px;border:none;background:none;color:var(--g3);font-size:12px;cursor:pointer;">삭제</button>` : ''}
+    </div>`;
+}
+
+function toggleInquiry(id) {
+  openInquiryId = openInquiryId === id ? null : id;
+  renderInquiries();
+}
+
+async function submitAnswer(inquiryId) {
+  const input = document.getElementById('answerInput-'+inquiryId);
+  const answer = input.value.trim();
+  if(!answer) { showToast('답변 내용을 입력해주세요.', 'error'); return; }
+  try {
+    await _db.collection('inquiries').doc(inquiryId).update({
+      answer, status: '답변완료',
+      answeredAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('답변이 등록되었습니다.', 'success');
+    loadInquiriesQuiet();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function deleteInquiry(inquiryId) {
+  if(!confirm('이 문의를 삭제하시겠습니까?')) return;
+  try {
+    await _db.collection('inquiries').doc(inquiryId).delete();
+    showToast('문의가 삭제되었습니다.', 'success');
+    openInquiryId = null;
+    loadInquiriesQuiet();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
 }
 
 function showToast(msg, type='') {
