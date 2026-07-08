@@ -25,7 +25,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 /* 사이드바 */
 .sidebar{width:var(--sidebar);background:var(--navy);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
 .sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
-.sidebar-logo .logo{font-family:'Inter',sans-serif;font-size:18px;font-weight:800;color:var(--white);}
+.sidebar-logo .logo{font-family:'Inter',sans-serif;font-size:18px;font-weight:800;color:var(--white);display:block;text-decoration:none;cursor:pointer;transition:opacity 0.15s;}
+.sidebar-logo .logo:hover{opacity:0.8;}
 .sidebar-logo .logo span{color:var(--sky);}
 .sidebar-logo .admin-badge{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;letter-spacing:0.1em;}
 .sidebar-menu{flex:1;padding:12px 0;overflow-y:auto;}
@@ -203,7 +204,7 @@ tr:hover td{background:#FAFBFC;}
 <!-- 사이드바 -->
 <aside class="sidebar" id="sidebar" style="display:none;">
   <div class="sidebar-logo">
-    <div class="logo">OPTIC<span>MALL</span></div>
+    <a href="index.html" class="logo" title="홈페이지로 이동">OPTIC<span>MALL</span></a>
     <div class="admin-badge">ADMIN PANEL</div>
   </div>
   <nav class="sidebar-menu">
