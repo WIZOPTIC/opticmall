@@ -22,7 +22,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .bnav-item svg{width:22px;height:22px;}
 
 /* 헤더 */
-.header { background: var(--white); border-bottom: 1px solid var(--g2); position: sticky; top: 0; z-index: 100; }
+.header{background:var(--white);border-bottom:1px solid var(--g2);}
 .header-search { flex: 1; max-width: 480px; display: flex; border: 1.5px solid var(--g2); border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
 .header-search:focus-within { border-color: var(--sky); }
 .header-search input { flex: 1; padding: 10px 16px; border: none; outline: none; font-size: 14px; font-family: inherit; }
@@ -39,7 +39,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; min-width: 15px; text-align: center; }
 
 /* GNB */
-.gnb { background: var(--white); border-bottom: 2px solid var(--sky); position: sticky; top: 64px; z-index: 99; }
+.gnb{background:var(--white);border-bottom:2px solid var(--sky);}
 .gnb-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; }
 .gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
 .gnb-item:hover { color: var(--sky); }
@@ -293,7 +293,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   카카오채널 추가하고 <span style="background:#FF4444;color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;">10,000원 쿠폰받기</span>
   →
 </div>
-<header class="header">
+<div style="position:sticky;top:0;z-index:200;"><header class="header">
 <div style="max-width:1280px;margin:0 auto;padding:6px 24px;text-align:right;"><!-- 메인페이지 쿠폰 안내줄과 높이를 맞추기 위한 투명 줄 (스크롤해도 헤더와 함께 고정되어 항상 정확히 일치) -->
   <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;border:1px solid transparent;visibility:hidden;">🎁 가입시 15% 할인쿠폰 즉시 지급!</span>
 </div>
@@ -341,7 +341,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
     <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     <button class="gnb-item" onclick="location.href='board.html'">고객센터</button>
   </div>
-</nav>
+</nav></div>
 
 <!-- 브레드크럼 -->
 <div class="breadcrumb" id="breadcrumb">
