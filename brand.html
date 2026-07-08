@@ -10,6 +10,17 @@
 :root{--sky:#1B9FD8;--sky-lt:#E6F5FB;--navy:#1A2D4A;--white:#fff;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--orange:#F39C12;--purple:#8E44AD;--sidebar:220px;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);display:flex;min-height:100vh;}
 
+/* 스크롤바 (기본 브라우저 스크롤바 대신 얇고 은은한 디자인으로 통일) */
+*{scrollbar-width:thin;scrollbar-color:var(--g2) transparent;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--g2);border-radius:100px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-thumb:hover{background:var(--g3);background-clip:padding-box;}
+/* 사이드바(네이비 배경)는 밝은 반투명 스크롤바로 별도 적용 */
+.sidebar-menu{scrollbar-color:rgba(255,255,255,0.18) transparent;}
+.sidebar-menu::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);}
+.sidebar-menu::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.3);}
+
 /* 로그인 화면 */
 .login-screen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:1000;}
 .login-box{background:var(--white);border-radius:12px;padding:40px;width:360px;text-align:center;}
@@ -42,6 +53,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .menu-item.active{background:rgba(27,159,216,0.15);color:var(--white);}
 .menu-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sky);border-radius:0 2px 2px 0;}
 .menu-badge{margin-left:auto;background:var(--red);color:var(--white);font-size:10px;font-weight:700;padding:1px 6px;border-radius:100px;}
+.menu-badge:empty{display:none;}
 .sidebar-user{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
 .user-avatar{width:32px;height:32px;background:var(--purple);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);}
 .user-info .name{font-size:13px;font-weight:600;color:var(--white);}
