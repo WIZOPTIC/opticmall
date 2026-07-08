@@ -149,8 +149,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--b
     </div>
     <div class="header-right">
       <button class="h-btn" onclick="location.href='mypage.html?tab=orders'">주문조회</button>
-      <button class="h-btn" id="loginBtn" onclick="location.href='index.html?openLogin=1'">로그인</button>
-      <button class="h-join" id="joinBtn" onclick="location.href='join.html'">회원가입</button>
+      <button class="h-btn" id="loginBtn" onclick="location.href='index.html?openLogin=1'" style="display:none;">로그인</button>
+      <button class="h-join" id="joinBtn" onclick="location.href='join.html'" style="display:none;">회원가입</button>
       <div style="position:relative;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
         <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
@@ -293,6 +293,10 @@ _auth.onAuthStateChanged(async (user) => {
     }
   } else {
     currentUserData = null;
+    document.getElementById('loginBtn').style.display = '';
+    document.getElementById('joinBtn').style.display = '';
+    const welcomeMsg = document.getElementById('welcomeMsg');
+    if(welcomeMsg) welcomeMsg.remove();
   }
   initTabs();
 });
@@ -302,6 +306,17 @@ function isMaster() {
 }
 
 function updateHeaderLoggedIn(name, level, role) {
+  const headerRight = document.querySelector('.header-right');
+  if(headerRight && !document.getElementById('welcomeMsg')) {
+    const levelBadge = level >= 2
+      ? '<span style="font-size:10px;background:#E8FBF0;color:#27AE60;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">B2B</span>'
+      : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
+    const welcomeEl = document.createElement('div');
+    welcomeEl.id = 'welcomeMsg';
+    welcomeEl.style.cssText = 'font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;margin-right:8px;';
+    welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
+    headerRight.insertBefore(welcomeEl, headerRight.firstChild);
+  }
   let adminLinkHtml = '';
   if(role === 'brand') {
     adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;

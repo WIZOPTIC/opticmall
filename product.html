@@ -306,9 +306,9 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
     <div class="header-right">
       <button class="h-btn" onclick="location.href='mypage.html?tab=orders'">주문조회</button>
       <span style="color:var(--g2);">|</span>
-      <button class="h-btn" id="loginBtn" onclick="openLogin()">로그인</button>
-      <span style="color:var(--g2);" id="loginSep">|</span>
-      <button class="h-join" id="joinBtn" onclick="location.href='join.html'">회원가입</button>
+      <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button>
+      <span style="color:var(--g2);display:none;" id="loginSep">|</span>
+      <button class="h-join" id="joinBtn" onclick="location.href='join.html'" style="display:none;">회원가입</button>
       <div style="position:relative;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -595,6 +595,19 @@ function updateHeaderLoggedIn(name, level, role) {
   document.getElementById('loginSep').style.display = 'none';
   document.getElementById('joinBtn').style.display = 'none';
 
+  // 헤더에 환영 메시지 추가 (메인페이지와 동일하게)
+  const headerRight = document.querySelector('.header-right');
+  if(headerRight && !document.getElementById('welcomeMsg')) {
+    const levelBadge = level >= 2
+      ? '<span style="font-size:10px;background:#E8FBF0;color:#27AE60;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">B2B</span>'
+      : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
+    const welcomeEl = document.createElement('div');
+    welcomeEl.id = 'welcomeMsg';
+    welcomeEl.style.cssText = 'font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;margin-right:8px;';
+    welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
+    headerRight.insertBefore(welcomeEl, headerRight.firstChild);
+  }
+
   let adminLinkHtml = '';
   if(role === 'brand') {
     adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
@@ -619,6 +632,10 @@ function updateHeaderLoggedOut() {
   document.getElementById('loginBtn').style.display = '';
   document.getElementById('loginSep').style.display = '';
   document.getElementById('joinBtn').style.display = '';
+
+  // 환영 메시지 제거
+  const welcomeMsg = document.getElementById('welcomeMsg');
+  if(welcomeMsg) welcomeMsg.remove();
 
   const dropdown = document.getElementById('userDropdown');
   if(dropdown) {
