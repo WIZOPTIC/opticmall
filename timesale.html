@@ -9,7 +9,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{overflow-y:scroll;}
 :root{--sky:#1B9FD8;--sky-lt:#E6F5FB;--sky-dk:#1480B0;--navy:#1A2D4A;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--black);padding-bottom:80px;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--black);}
 
 /* 헤더 */
 .header{background:var(--white);border-bottom:1px solid var(--g2);}
@@ -72,12 +72,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--b
 .empty-box{grid-column:1/-1;text-align:center;padding:100px 20px;color:var(--g3);}
 
 /* 하단 네비 */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--white);border-top:1px solid var(--g2);display:flex;justify-content:center;align-items:center;gap:18px;z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
-.bnav-item{flex:0 0 auto;width:68px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;border-radius:14px;font-size:10px;font-weight:700;color:var(--g3);cursor:pointer;font-family:inherit;transition:all 0.15s;}
-.bnav-item:hover{background:var(--sky-lt);color:var(--sky-dk);}
-.bnav-item.active{color:var(--white);background:var(--sky);}
-.bnav-item svg{width:22px;height:22px;}
-
 i[class^='ic-']{display:inline-block;width:1em;height:1em;vertical-align:-0.15em;background-color:currentColor;
 -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;
 -webkit-mask-size:contain;mask-size:contain;flex-shrink:0;}
@@ -188,22 +182,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 <div class="ts-wrap">
   <div class="product-grid" id="timesaleGrid"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
 </div>
-
-<!-- 하단 네비 -->
-<nav class="bottom-nav">
-  <button class="bnav-item" onclick="location.href='index.html'">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>HOME
-  </button>
-  <button class="bnav-item" onclick="location.href='list.html'">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>CATE
-  </button>
-  <button class="bnav-item" onclick="location.href='cart.html'">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>ORDER
-  </button>
-  <button class="bnav-item" onclick="location.href='mypage.html'">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>MY
-  </button>
-</nav>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
