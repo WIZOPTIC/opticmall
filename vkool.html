@@ -38,7 +38,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 /* V.KOOL 내부 서브탭 */
 .vk-subtab { padding: 14px 18px; font-size: 13px; font-weight: 600; color: var(--g4); cursor: pointer; border: none; background: none; font-family: inherit; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
 .vk-subtab:hover { color: var(--navy); }
-.vk-subtab.active { color: #14171C; border-bottom-color: #D4AF37; font-weight: 700; }
+.vk-subtab.active { color: var(--navy); border-bottom-color: #D4AF37; font-weight: 700; }
 .vk-cnt { font-size: 11px; color: var(--g3); font-weight: 400; }
 
 /* 레이아웃 */
@@ -243,13 +243,19 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 </nav></div>
 
 <!-- V.KOOL 브랜드 히어로 -->
-<div style="background:linear-gradient(135deg,#14171C 0%,#1F242C 100%);padding:36px 24px;">
+<div style="background:var(--white);border-bottom:1px solid var(--g2);padding:28px 24px;">
   <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-    <div>
-      <div style="font-family:'Inter',sans-serif;font-size:32px;font-weight:800;color:#fff;letter-spacing:0.02em;">V<span style="color:#D4AF37;">.</span>KOOL</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:6px;">스포츠고글 · 선글라스 · 변색렌즈 전문 브랜드</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+        <path d="M4 30C10 22 16 26 20 18C23 12 22 6 18 2C28 4 34 14 30 24C26 34 14 34 4 30Z" fill="#D4AF37"/>
+        <path d="M44 30C38 22 32 26 28 18C25 12 26 6 30 2C20 4 14 14 18 24C22 34 34 34 44 30Z" fill="#D4AF37" opacity="0.55"/>
+      </svg>
+      <div>
+        <div style="font-family:'Inter',sans-serif;font-size:28px;font-weight:800;color:var(--navy);letter-spacing:0.01em;line-height:1;">V<span style="color:#D4AF37;">.</span>KOOL</div>
+        <div style="font-size:13px;color:var(--g4);margin-top:6px;">스포츠고글 · 선글라스 · 변색렌즈 전문 브랜드</div>
+      </div>
     </div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.45);">입점 브랜드관 · OPTICMALL</div>
+    <div style="font-size:12px;color:var(--g3);">입점 브랜드관 · OPTICMALL</div>
   </div>
 </div>
 
