@@ -48,7 +48,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .filter-item label { font-size: 13px; color: var(--g4); cursor: pointer; flex: 1; }
 .filter-item .cnt { font-size: 11px; color: var(--g3); }
 .price-range { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-.price-input { flex: 1; padding: 8px 10px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 12px; font-family: inherit; outline: none; }
+.price-input { flex: 1; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 12px; font-family: inherit; outline: none; }
 .price-input:focus { border-color: var(--sky); }
 .btn-filter-apply { width: 100%; padding: 9px; background: var(--sky); color: var(--white); border: none; border-radius: 6px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 8px; }
 .btn-reset { width: 100%; padding: 8px; background: none; color: var(--g3); border: 1px solid var(--g2); border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; margin-top: 6px; }
@@ -294,7 +294,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <!-- 상품 카드들 JS로 생성 -->
     </div>
 
-    <div class="pagination">
+    <div class="pagination" style="display:none;"><!-- 실제 페이지네이션 기능이 아직 구현 안 되어 있어 임시로 숨김 -->
       <button class="page-btn">‹</button>
       <button class="page-btn active">1</button>
       <button class="page-btn">2</button>
