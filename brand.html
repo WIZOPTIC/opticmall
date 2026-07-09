@@ -681,6 +681,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
             <option value="뿔테">뿔테</option>
             <option value="메탈">메탈</option>
             <option value="선글라스">선글라스</option>
+            <option value="스포츠고글">스포츠고글</option>
           </select>
         </div>
         <div class="edit-form-group">
@@ -691,6 +692,13 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
             <option value="온">온</option>
             <option value="림리스">림리스</option>
           </select>
+        </div>
+        <div class="edit-form-group">
+          <label>렌즈 옵션</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;color:var(--g4);cursor:pointer;height:38px;">
+            <input type="checkbox" id="editPhotochromic" style="width:16px;height:16px;cursor:pointer;">
+            변색렌즈 적용 상품
+          </label>
         </div>
       </div>
       <div class="edit-form-row">
@@ -1491,6 +1499,7 @@ function startEditRow(pid) {
   document.getElementById('editSize').value = product.size || '';
   document.getElementById('editCategory').value = product.category || '';
   document.getElementById('editType').value = product.type || '';
+  document.getElementById('editPhotochromic').checked = !!product.photochromic;
   document.getElementById('editPrice').value = product.price || 0;
   document.getElementById('editDiscountRate').value = product.discountRate || 0;
   updateEditSalePricePreview();
@@ -1741,6 +1750,7 @@ async function saveProductEdit() {
       size: document.getElementById('editSize').value.trim(),
       category: document.getElementById('editCategory').value,
       type: document.getElementById('editType').value,
+      photochromic: document.getElementById('editPhotochromic').checked,
       price,
       discountRate,
       salePrice,
@@ -2013,6 +2023,7 @@ function renderProductCards() {
             <option value="뿔테" ${card.category==='뿔테'?'selected':''}>뿔테</option>
             <option value="메탈" ${card.category==='메탈'?'selected':''}>메탈</option>
             <option value="선글라스" ${card.category==='선글라스'?'selected':''}>선글라스</option>
+            <option value="스포츠고글" ${card.category==='스포츠고글'?'selected':''}>스포츠고글</option>
           </select>
         </div>
         <div class="reg-field">
@@ -2023,6 +2034,13 @@ function renderProductCards() {
             <option value="온" ${card.type==='온'?'selected':''}>온</option>
             <option value="림리스" ${card.type==='림리스'?'selected':''}>림리스</option>
           </select>
+        </div>
+        <div class="reg-field">
+          <label>렌즈 옵션</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;color:var(--g4);cursor:pointer;height:38px;">
+            <input type="checkbox" ${card.photochromic?'checked':''} onchange="updateCardField(${card.cardId},'photochromic',this.checked)" style="width:16px;height:16px;cursor:pointer;">
+            변색렌즈
+          </label>
         </div>
         <div class="reg-field">
           <label>기본 정가 <span style="color:var(--red);">*</span></label>
@@ -2206,6 +2224,7 @@ async function submitBulkRegister() {
         size: card.size || '',
         category: card.category || '',
         type: card.type || '',
+        photochromic: !!card.photochromic,
         price,
         discountRate,
         salePrice,

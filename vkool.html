@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPTICMALL | 상품 목록</title>
+<title>OPTICMALL | V.KOOL 브랜드관</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,6 +34,12 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .gnb-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; }
 .gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
 .gnb-item:hover, .gnb-item.active { color: var(--sky); font-weight: 700; }
+
+/* V.KOOL 내부 서브탭 */
+.vk-subtab { padding: 14px 18px; font-size: 13px; font-weight: 600; color: var(--g4); cursor: pointer; border: none; background: none; font-family: inherit; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+.vk-subtab:hover { color: var(--navy); }
+.vk-subtab.active { color: #14171C; border-bottom-color: #D4AF37; font-weight: 700; }
+.vk-cnt { font-size: 11px; color: var(--g3); font-weight: 400; }
 
 /* 레이아웃 */
 .page-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; display: flex; gap: 24px; }
@@ -201,7 +207,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
     <div class="header-search">
-      <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" onkeydown="if(event.key==='Enter') doSearch()">
+      <input type="text" id="searchInput" placeholder="V.KOOL 상품 검색" onkeydown="if(event.key==='Enter') doSearch()">
       <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
     <div class="header-right">
@@ -223,30 +229,43 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 </header>
 <nav class="gnb">
   <div class="gnb-inner">
-    <button class="gnb-item active" onclick="filterByGnb('전체', this)">전체상품</button>
+    <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
     <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
-    <button class="gnb-item" onclick="filterByGnb('하금테', this)">하금테</button>
-    <button class="gnb-item" onclick="filterByGnb('뿔테', this)">뿔테</button>
-    <button class="gnb-item" onclick="filterByGnb('메탈', this)">메탈</button>
-    <button class="gnb-item" onclick="filterByGnb('선글라스', this)">선글라스</button>
-    <button class="gnb-item" onclick="location.href='vkool.html'">V.KOOL</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+    <button class="gnb-item active" onclick="location.href='vkool.html'">V.KOOL</button>
     <button class="gnb-item" onclick="location.href='timesale.html'">타임세일</button>
     <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     <button class="gnb-item" onclick="location.href='board.html'">고객센터</button>
   </div>
 </nav></div>
 
+<!-- V.KOOL 브랜드 히어로 -->
+<div style="background:linear-gradient(135deg,#14171C 0%,#1F242C 100%);padding:36px 24px;">
+  <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>
+      <div style="font-family:'Inter',sans-serif;font-size:32px;font-weight:800;color:#fff;letter-spacing:0.02em;">V<span style="color:#D4AF37;">.</span>KOOL</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:6px;">스포츠고글 · 선글라스 · 변색렌즈 전문 브랜드</div>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.45);">입점 브랜드관 · OPTICMALL</div>
+  </div>
+</div>
+
+<!-- V.KOOL 내부 서브탭 -->
+<div style="background:var(--white);border-bottom:1px solid var(--g2);">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;display:flex;gap:4px;" id="vkoolSubTabs">
+    <button class="vk-subtab active" data-cat="전체" onclick="filterVkoolTab('전체', this)">전체 <span class="vk-cnt" id="vkcnt-전체">(0)</span></button>
+    <button class="vk-subtab" data-cat="스포츠고글" onclick="filterVkoolTab('스포츠고글', this)">스포츠고글 <span class="vk-cnt" id="vkcnt-스포츠고글">(0)</span></button>
+    <button class="vk-subtab" data-cat="선글라스" onclick="filterVkoolTab('선글라스', this)">선글라스 <span class="vk-cnt" id="vkcnt-선글라스">(0)</span></button>
+    <button class="vk-subtab" data-cat="변색렌즈" onclick="filterVkoolTab('변색렌즈', this)">변색렌즈 <span class="vk-cnt" id="vkcnt-변색렌즈">(0)</span></button>
+  </div>
+</div>
+
 <div class="page-wrap">
   <!-- 사이드 필터 -->
   <aside class="sidebar">
-    <div class="filter-section">
-      <div class="filter-title">카테고리</div>
-      <div class="filter-item"><input type="checkbox" id="cat-all" checked onchange="onCategoryFilterChange()"><label for="cat-all">전체</label><span class="cnt" id="cnt-all">(0)</span></div>
-      <div class="filter-item"><input type="checkbox" id="cat-하금테" onchange="onCategoryFilterChange()"><label for="cat-하금테">하금테</label><span class="cnt" id="cnt-하금테">(0)</span></div>
-      <div class="filter-item"><input type="checkbox" id="cat-뿔테" onchange="onCategoryFilterChange()"><label for="cat-뿔테">뿔테</label><span class="cnt" id="cnt-뿔테">(0)</span></div>
-      <div class="filter-item"><input type="checkbox" id="cat-메탈" onchange="onCategoryFilterChange()"><label for="cat-메탈">메탈</label><span class="cnt" id="cnt-메탈">(0)</span></div>
-      <div class="filter-item"><input type="checkbox" id="cat-선글라스" onchange="onCategoryFilterChange()"><label for="cat-선글라스">선글라스</label><span class="cnt" id="cnt-선글라스">(0)</span></div>
-    </div>
     <div class="filter-section">
       <div class="filter-title">타입</div>
       <div class="filter-item"><input type="checkbox" id="type-하프" onchange="onFilterChange()"><label for="type-하프">하프</label></div>
@@ -273,7 +292,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
   <div class="products-area">
     <div class="list-header">
       <div>
-        <div class="list-title" id="listTitle">전체상품</div>
+        <div class="list-title" id="listTitle">V.KOOL 전체상품</div>
         <div class="list-count">총 <strong>0</strong>개 상품</div>
       </div>
       <div class="list-controls">
@@ -494,8 +513,8 @@ async function updateCartCount() {
 
 // ===================== 상품 목록 (Firestore 연동) =====================
 const grid = document.getElementById('productGrid');
-let currentGnbCategory = '전체';
-let currentBrandFilter = null;
+let currentVkoolTab = '전체';
+const VKOOL_BRAND_NAME = 'V.KOOL';
 
 function renderEmptyState(message) {
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#9BA5B0;">
@@ -506,7 +525,7 @@ function renderEmptyState(message) {
 
 function renderProducts(products) {
   if(!products || products.length === 0) {
-    renderEmptyState(allProducts.length === 0 ? '아직 등록된 상품이 없습니다.' : '조건에 맞는 상품이 없습니다.');
+    renderEmptyState(allProducts.length === 0 ? 'V.KOOL 상품이 곧 준비될 예정이에요.' : '조건에 맞는 상품이 없습니다.');
     updateCount(0);
     return;
   }
@@ -673,49 +692,29 @@ function updateCount(n) {
   document.querySelector('.list-count').innerHTML = `총 <strong>${n}</strong>개 상품`;
 }
 
-const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
+const VK_SUBCATS = ['스포츠고글', '선글라스', '변색렌즈'];
 const TYPES = ['하프', '온', '림리스'];
 
-function updateCategoryCounts() {
-  const counts = { '전체': allProducts.length };
-  CATEGORIES.forEach(c => counts[c] = 0);
-  allProducts.forEach(p => { if(counts[p.category] !== undefined) counts[p.category]++; });
-  document.getElementById('cnt-all').textContent = `(${counts['전체']})`;
-  CATEGORIES.forEach(c => { document.getElementById('cnt-'+c).textContent = `(${counts[c]})`; });
+function updateVkoolTabCounts() {
+  const counts = { '전체': allProducts.length, '스포츠고글': 0, '선글라스': 0, '변색렌즈': 0 };
+  allProducts.forEach(p => {
+    if(p.category === '스포츠고글') counts['스포츠고글']++;
+    if(p.category === '선글라스') counts['선글라스']++;
+    if(p.photochromic === true) counts['변색렌즈']++;
+  });
+  Object.keys(counts).forEach(k => {
+    const el = document.getElementById('vkcnt-'+k);
+    if(el) el.textContent = `(${counts[k]})`;
+  });
 }
 
-// GNB 클릭: 카테고리 단독 선택
-function filterByGnb(category, el) {
-  currentGnbCategory = category;
-  currentBrandFilter = null;
-  document.getElementById('searchInput').value = ''; // 카테고리 탭 전환 시 이전 검색어가 몰래 남아있지 않도록 초기화
-  document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
+// V.KOOL 내부 서브탭 클릭
+function filterVkoolTab(cat, el) {
+  currentVkoolTab = cat;
+  document.getElementById('searchInput').value = ''; // 탭 전환 시 이전 검색어가 몰래 남아있지 않도록 초기화
+  document.querySelectorAll('.vk-subtab').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('listTitle').textContent = category === '전체' ? '전체상품' : category;
-
-  // 사이드바 체크박스도 동기화
-  document.getElementById('cat-all').checked = (category === '전체');
-  CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = (category === c); });
-
-  applyFilters();
-}
-
-// 사이드바 카테고리 체크박스 변경
-function onCategoryFilterChange() {
-  const allCb = document.getElementById('cat-all');
-  const checkedCats = CATEGORIES.filter(c => document.getElementById('cat-'+c).checked);
-
-  document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
-
-  if(checkedCats.length === 0) {
-    allCb.checked = true;
-    currentGnbCategory = '전체';
-    document.getElementById('listTitle').textContent = '전체상품';
-  } else {
-    allCb.checked = false;
-    currentGnbCategory = checkedCats;
-    document.getElementById('listTitle').textContent = checkedCats.join(', ');
-  }
+  document.getElementById('listTitle').textContent = cat === '전체' ? 'V.KOOL 전체상품' : `V.KOOL ${cat}`;
   applyFilters();
 }
 
@@ -724,18 +723,15 @@ function onFilterChange() {
 }
 
 function resetFilters() {
-  document.getElementById('cat-all').checked = true;
-  CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = false; });
   TYPES.forEach(t => { document.getElementById('type-'+t).checked = false; });
   document.getElementById('s1').checked = false;
   document.getElementById('priceMin').value = '';
   document.getElementById('priceMax').value = '';
   document.getElementById('searchInput').value = '';
-  currentGnbCategory = '전체';
-  currentBrandFilter = null;
-  document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
-  document.querySelector('.gnb-item').classList.add('active');
-  document.getElementById('listTitle').textContent = '전체상품';
+  currentVkoolTab = '전체';
+  document.querySelectorAll('.vk-subtab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.vk-subtab').classList.add('active');
+  document.getElementById('listTitle').textContent = 'V.KOOL 전체상품';
   applyFilters();
 }
 
@@ -744,18 +740,13 @@ function doSearch() {
 }
 
 function applyFilters() {
-  let result = [...allProducts];
+  let result = [...allProducts]; // allProducts는 이미 V.KOOL 상품으로만 로드됨
 
-  // 브랜드 필터 (브랜드관에서 진입한 경우)
-  if(currentBrandFilter) {
-    result = result.filter(p => p.brandId === currentBrandFilter);
-  }
-
-  // 카테고리 필터 (메인)
-  if(Array.isArray(currentGnbCategory)) {
-    result = result.filter(p => currentGnbCategory.includes(p.category));
-  } else if(currentGnbCategory !== '전체') {
-    result = result.filter(p => p.category === currentGnbCategory);
+  // V.KOOL 내부 서브탭 필터
+  if(currentVkoolTab === '변색렌즈') {
+    result = result.filter(p => p.photochromic === true);
+  } else if(currentVkoolTab !== '전체') {
+    result = result.filter(p => p.category === currentVkoolTab);
   }
 
   // 타입 필터 (서브: 하프/온/림리스)
@@ -764,16 +755,15 @@ function applyFilters() {
     result = result.filter(p => checkedTypes.includes(p.type));
   }
 
-  // 검색어 필터 (모델명 / 브랜드명 / 대표바코드 / 색상별 바코드 / 카테고리명까지 모두 확인)
+  // 검색어 필터 (모델명 / 대표바코드 / 색상별 바코드 / 카테고리명까지 모두 확인 - V.KOOL 상품 안에서만)
   const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
   if(keyword) {
     result = result.filter(p => {
       const modelMatch = (p.modelName||'').toLowerCase().includes(keyword);
-      const brandMatch = (p.brandName||'').toLowerCase().includes(keyword);
       const catMatch = (p.category||'').toLowerCase().includes(keyword);
       const topBarcodeMatch = (p.barcode||'').toLowerCase().includes(keyword);
       const colorBarcodeMatch = Array.isArray(p.colors) && p.colors.some(c => (c.barcode||'').toLowerCase().includes(keyword));
-      return modelMatch || brandMatch || catMatch || topBarcodeMatch || colorBarcodeMatch;
+      return modelMatch || catMatch || topBarcodeMatch || colorBarcodeMatch;
     });
   }
 
@@ -849,28 +839,19 @@ async function loadApprovedProducts() {
       }
     });
 
-    allProducts = products;
-    updateCategoryCounts();
+    // V.KOOL 브랜드 상품만 (이 페이지는 V.KOOL 전용관이므로)
+    allProducts = products.filter(p => (p.brandName||'').trim() === VKOOL_BRAND_NAME);
+    updateVkoolTabCounts();
 
-    // URL의 brand 파라미터 처리 (브랜드관에서 넘어온 경우)
+    // URL의 subcat 파라미터 처리 (다른 페이지에서 특정 서브탭으로 바로 들어온 경우)
     const urlParams = new URLSearchParams(location.search);
-    const brandId = urlParams.get('brand');
-    if(brandId) {
-      currentBrandFilter = brandId;
-      const brandProduct = allProducts.find(p => p.brandId === brandId);
-      document.getElementById('listTitle').textContent = brandProduct ? `${brandProduct.brandName} 상품` : '브랜드 상품';
-    }
-
-    // URL의 cat 파라미터 처리 (다른 페이지 GNB/카테고리 링크로 넘어온 경우)
-    const catParam = urlParams.get('cat');
-    if(catParam && CATEGORIES.includes(catParam)) {
-      currentGnbCategory = catParam;
-      document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
-      const matchingGnbBtn = [...document.querySelectorAll('.gnb-item')].find(b => b.textContent.trim() === catParam);
-      if(matchingGnbBtn) matchingGnbBtn.classList.add('active');
-      document.getElementById('listTitle').textContent = catParam;
-      document.getElementById('cat-all').checked = false;
-      CATEGORIES.forEach(c => { document.getElementById('cat-'+c).checked = (c === catParam); });
+    const subcatParam = urlParams.get('subcat');
+    if(subcatParam && (subcatParam === '스포츠고글' || subcatParam === '선글라스' || subcatParam === '변색렌즈')) {
+      currentVkoolTab = subcatParam;
+      document.querySelectorAll('.vk-subtab').forEach(b => b.classList.remove('active'));
+      const matchingTab = document.querySelector(`.vk-subtab[data-cat="${subcatParam}"]`);
+      if(matchingTab) matchingTab.classList.add('active');
+      document.getElementById('listTitle').textContent = `V.KOOL ${subcatParam}`;
     }
 
     // URL의 q 파라미터 처리 (다른 페이지 검색창으로 넘어온 경우)

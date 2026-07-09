@@ -599,6 +599,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
             <option value="뿔테">뿔테</option>
             <option value="메탈">메탈</option>
             <option value="선글라스">선글라스</option>
+            <option value="스포츠고글">스포츠고글</option>
           </select>
         </div>
         <div class="edit-form-group">
@@ -609,6 +610,13 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
             <option value="온">온</option>
             <option value="림리스">림리스</option>
           </select>
+        </div>
+        <div class="edit-form-group">
+          <label>렌즈 옵션</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;color:var(--g4);cursor:pointer;height:38px;">
+            <input type="checkbox" id="aEditPhotochromic" style="width:16px;height:16px;cursor:pointer;">
+            변색렌즈 적용 상품
+          </label>
         </div>
       </div>
       <div class="edit-form-row">
@@ -1905,6 +1913,7 @@ function startAdminEditRow(pid) {
   document.getElementById('aEditSize').value = product.size || '';
   document.getElementById('aEditCategory').value = product.category || '';
   document.getElementById('aEditType').value = product.type || '';
+  document.getElementById('aEditPhotochromic').checked = !!product.photochromic;
   document.getElementById('aEditPrice').value = product.price || 0;
   document.getElementById('aEditDiscountRate').value = product.discountRate || 0;
   updateAdminSalePricePreview();
@@ -2173,6 +2182,7 @@ async function saveAdminProductEdit() {
       size: document.getElementById('aEditSize').value.trim(),
       category: document.getElementById('aEditCategory').value,
       type: document.getElementById('aEditType').value,
+      photochromic: document.getElementById('aEditPhotochromic').checked,
       price,
       discountRate,
       salePrice,
