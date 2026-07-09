@@ -15,33 +15,37 @@ html { overflow-y: scroll; }
   --g1: #F2F4F6; --g2: #E0E4E8; --g3: #9BA5B0; --g4: #5A6472;
   --black: #111318; --red: #FF4444; --yellow: #F5C518;
 }
-body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--black); padding-bottom: 80px; }
-.header{background:var(--white);border-bottom:1px solid var(--g2);}
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color: var(--black); padding-bottom: 80px; }
+.header{background:var(--navy);border-bottom:none;}
 .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 24px; }
-.logo { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: var(--navy); text-decoration: none; }
-.logo span { color: var(--sky); }
-.header-search { flex: 1; max-width: 480px; display: flex; border: 1.5px solid var(--g2); border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
-.header-search:focus-within { border-color: var(--sky); }
-.header-search input { flex: 1; padding: 10px 16px; border: none; outline: none; font-size: 14px; font-family: inherit; }
-.search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
-.search-btn:hover { color: var(--sky); }
+.logo { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: var(--white); text-decoration: none; }
+.logo span { color: var(--gold); }
+.header-search { flex: 1; max-width: 480px; display: flex; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.16); border-radius: 6px; overflow: hidden; transition: all 0.2s; }
+.header-search:focus-within { border-color: var(--gold); background: var(--white); }
+.header-search:focus-within input { color: var(--black); }
+.header-search:focus-within input::placeholder { color: var(--g3); }
+.header-search input { flex: 1; padding: 10px 16px; border: none; outline: none; font-size: 14px; font-family: inherit; background: transparent; color: var(--white); }
+.header-search input::placeholder { color: rgba(255,255,255,0.5); }
+.search-btn { padding: 0 14px; background: transparent; border: none; cursor: pointer; color: rgba(255,255,255,0.7); border-left: 1.5px solid rgba(255,255,255,0.16); }
+.search-btn:hover { color: var(--gold); }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
-.h-btn { padding: 7px 12px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--g4); font-family: inherit; cursor: pointer; }
-.h-sep { color: var(--g2); }
-.h-join { padding: 7px 14px; border: none; background: var(--sky); color: var(--white); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 4px; }
-.icon-btn { width: 36px; height: 36px; border: none; background: none; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--g4); position: relative; }
-.cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; }
-.gnb{background:var(--white);border-bottom:2px solid var(--sky);}
+.h-btn { padding: 7px 12px; border: none; background: none; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.75); font-family: inherit; cursor: pointer; }
+.h-sep { color: rgba(255,255,255,0.2); }
+.h-join { padding: 7px 14px; border: none; background: var(--gold); color: var(--navy); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 4px; }
+.icon-btn { width: 36px; height: 36px; border: none; background: none; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.85); position: relative; }
+.cart-count { position: absolute; top: 2px; right: 2px; background: var(--gold); color: var(--navy); font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; }
+.gnb{background:var(--navy);border-bottom:3px solid var(--gold);}
 .gnb-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; }
-.gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: var(--black); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
-.gnb-item:hover, .gnb-item.active { color: var(--sky); font-weight: 700; }
+.gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
+.gnb-item:hover { color: var(--white); }
+.gnb-item.active { color: var(--gold); font-weight: 700; }
 
 /* 레이아웃 */
 .page-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; display: flex; gap: 24px; }
 
 /* 사이드 필터 */
 .sidebar { width: 220px; flex-shrink: 0; }
-.filter-section { background: var(--white); border: none; box-shadow: 0 1px 3px rgba(20,20,15,0.05); border-radius: 12px; padding: 18px; margin-bottom: 12px; }
+.filter-section { background: var(--gold-lt); border: none; box-shadow: 0 1px 3px rgba(20,20,15,0.05); border-radius: 12px; padding: 18px; margin-bottom: 12px; }
 .filter-title { font-size: 12px; font-weight: 700; color: var(--navy); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 14px; display: flex; justify-content: space-between; cursor: pointer; }
 .filter-title span { color: var(--g3); font-weight: 400; font-size: 11px; }
 .filter-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; }
@@ -391,7 +395,7 @@ function updateHeaderLoggedIn(name, level, role) {
       : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
     const welcomeEl = document.createElement('div');
     welcomeEl.id = 'welcomeMsg';
-    welcomeEl.style.cssText = 'font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;margin-right:8px;';
+    welcomeEl.style.cssText = 'font-size:13px;font-weight:600;color:rgba(255,255,255,0.9);display:flex;align-items:center;margin-right:8px;';
     welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
     headerRight.insertBefore(welcomeEl, headerRight.firstChild);
   }
