@@ -614,7 +614,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <div class="slide slide-1">
         <div class="slide-deco">SALE</div>
         <div class="slide-content">
-          <div class="slide-icon">🔥</div>
           <div class="slide-eyebrow ey-red">TIME SALE</div>
           <h2>이번 주 특가<br><span class="ac-red">최대 30% 할인</span></h2>
           <div class="slide-sub">티타늄·울템·뿔테 전 품목</div>
@@ -625,7 +624,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <div class="slide slide-2">
         <div class="slide-deco">NEW</div>
         <div class="slide-content">
-          <div class="slide-icon">📦</div>
           <div class="slide-eyebrow ey-blue">NEW ARRIVAL</div>
           <h2>6월 신상품<br><span class="ac-blue">120종 입고 완료</span></h2>
           <div class="slide-sub">티타늄 슬림라인 · TR90 컬러 시리즈</div>
@@ -633,24 +631,9 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
           <button class="slide-btn sb-blue" onclick="scrollToSection('newArrivalGrid')">신상품 확인하기</button>
         </div>
       </div>
-      <div class="slide slide-3">
-        <div class="slide-deco">💬</div>
-        <div class="slide-content">
-          <div class="slide-icon">🎁</div>
-          <div class="slide-eyebrow ey-yellow">회원가입 혜택</div>
-          <h2>가입하면 즉시<br><span class="ac-yellow">최대 25,000원 혜택</span></h2>
-          <div class="slide-sub" style="color:rgba(255,255,255,0.7);line-height:1.9;">
-            💬 카카오채널 추가 시 <strong style="color:#F5C518;">10,000원</strong> 쿠폰<br>
-            🎁 첫 구매 할인 <strong style="color:#F5C518;">15%</strong> 쿠폰 즉시 지급
-          </div>
-          <div class="slide-date">신규 회원 전용 · 중복 적용 가능</div>
-          <button class="slide-btn sb-yellow" onclick="alert('카카오톡에서 옵틱몰을 검색하거나 채널 추가해주세요!')">💬 카카오채널 추가하기</button>
-        </div>
-      </div>
       <div class="slide slide-4">
         <div class="slide-deco">SOON</div>
         <div class="slide-content">
-          <div class="slide-icon">📅</div>
           <div class="slide-eyebrow ey-purple">COMING SOON</div>
           <h2>7월 입고 예정<br><span class="ac-purple">신규 브랜드 론칭</span></h2>
           <div class="slide-sub">프리미엄 신규 브랜드 입점 예정</div>
@@ -667,7 +650,27 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <button class="s-dot active"></button>
       <button class="s-dot"></button>
       <button class="s-dot"></button>
-      <button class="s-dot"></button>
+    </div>
+  </div>
+</div>
+
+<!-- 회원가입 혜택 팝업 (하루 1회) -->
+<div id="joinPopup" style="display:none;position:fixed;inset:0;background:rgba(15,20,30,0.55);z-index:900;align-items:center;justify-content:center;">
+  <div style="background:var(--white);border-radius:14px;width:340px;max-width:90vw;overflow:hidden;">
+    <div style="background:var(--navy);padding:28px 28px 24px;text-align:center;">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:var(--sky);margin-bottom:10px;">신규 회원 혜택</div>
+      <div style="font-size:22px;font-weight:800;color:#fff;line-height:1.4;">가입하면 즉시<br><span style="color:var(--yellow);">최대 25,000원 혜택</span></div>
+    </div>
+    <div style="padding:22px 26px;">
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g1);font-size:13px;color:var(--g4);">
+        <span>카카오채널 추가</span><strong style="color:var(--navy);">10,000원 쿠폰</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px;color:var(--g4);">
+        <span>첫 구매 할인</span><strong style="color:var(--navy);">15% 쿠폰</strong>
+      </div>
+      <div style="font-size:11px;color:var(--g3);margin-top:4px;margin-bottom:18px;">신규 회원 전용 · 중복 적용 가능</div>
+      <button onclick="closeJoinPopup();location.href='join.html'" style="width:100%;padding:12px;background:var(--sky);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:8px;">회원가입하고 혜택받기</button>
+      <button onclick="closeJoinPopup()" style="width:100%;padding:10px;background:none;color:var(--g3);border:none;font-size:12px;font-family:inherit;cursor:pointer;">오늘 하루 보지 않기</button>
     </div>
   </div>
 </div>
@@ -810,7 +813,7 @@ setInterval(updateTimer, 1000);
 
 // 슬라이드
 let cur = 0;
-const total = 4;
+const total = 3;
 const container = document.getElementById('slideContainer');
 const dots = document.querySelectorAll('.s-dot');
 function goTo(n) {
@@ -822,6 +825,21 @@ document.getElementById('nextBtn').addEventListener('click', () => goTo(cur + 1)
 document.getElementById('prevBtn').addEventListener('click', () => goTo(cur - 1));
 dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
 setInterval(() => goTo(cur + 1), 5000);
+
+// 회원가입 혜택 팝업 (하루 1회만 표시)
+function closeJoinPopup() {
+  document.getElementById('joinPopup').style.display = 'none';
+}
+(function() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const lastShown = localStorage.getItem('joinPopupLastShown');
+  if (lastShown !== todayStr) {
+    setTimeout(() => {
+      document.getElementById('joinPopup').style.display = 'flex';
+      localStorage.setItem('joinPopupLastShown', todayStr);
+    }, 600);
+  }
+})();
 
 // GNB
 document.querySelectorAll('.gnb-item').forEach(item => {
