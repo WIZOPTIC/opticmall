@@ -570,27 +570,28 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       </button>
     </div>
   </div>
-</header>
-<!-- 검색 오버레이 -->
-<div id="searchOverlay" style="display:none;background:var(--g1);border-bottom:1px solid var(--g2);">
-  <div style="max-width:600px;margin:0 auto;padding:32px 24px;">
-    <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:8px;overflow:hidden;">
-      <input type="text" id="mainSearchInput" placeholder="검색어를 입력해주세요." autocomplete="off" style="flex:1;padding:14px 18px;border:none;outline:none;font-size:15px;font-family:inherit;" onkeydown="if(event.key==='Enter') doMainSearch()">
-      <button onclick="doMainSearch()" style="padding:0 18px;background:none;border:none;cursor:pointer;color:var(--g4);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
-    </div>
-    <div style="margin-top:18px;">
-      <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;">인기 검색어</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="search-tag" onclick="quickSearch('선글라스')">선글라스</button>
-        <button class="search-tag" onclick="quickSearch('메탈')">메탈</button>
-        <button class="search-tag" onclick="quickSearch('뿔테')">뿔테</button>
-        <button class="search-tag" onclick="quickSearch('V.KOOL')">V.KOOL</button>
+  <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--g1);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
+    <div style="max-width:600px;margin:0 auto;padding:32px 24px;">
+      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:8px;overflow:hidden;">
+        <input type="text" id="mainSearchInput" placeholder="검색어를 입력해주세요." autocomplete="off" style="flex:1;padding:14px 18px;border:none;outline:none;font-size:15px;font-family:inherit;" onkeydown="if(event.key==='Enter') doMainSearch()">
+        <button onclick="doMainSearch()" style="padding:0 18px;background:none;border:none;cursor:pointer;color:var(--g4);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+      <div style="margin-top:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;">인기 검색어</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="search-tag" onclick="quickSearch('선글라스')">선글라스</button>
+          <button class="search-tag" onclick="quickSearch('메탈')">메탈</button>
+          <button class="search-tag" onclick="quickSearch('뿔테')">뿔테</button>
+          <button class="search-tag" onclick="quickSearch('V.KOOL')">V.KOOL</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+</header>
+<!-- 검색 오버레이 뒤 배경 블러 (헤더 바로 아래부터 화면 끝까지, GNB도 함께 블러 처리됨) -->
+<div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 <!-- GNB -->
 <nav class="gnb">
   <div class="gnb-inner">
@@ -1125,8 +1126,16 @@ function doMainSearch() {
 
 function toggleSearchOverlay() {
   const overlay = document.getElementById('searchOverlay');
+  const backdrop = document.getElementById('searchBackdrop');
   const isOpen = overlay.style.display === 'block';
+  if (!isOpen) {
+    const headerEl = document.querySelector('header');
+    const headerBottom = headerEl.getBoundingClientRect().bottom + 'px';
+    overlay.style.top = headerBottom;
+    backdrop.style.top = headerBottom;
+  }
   overlay.style.display = isOpen ? 'none' : 'block';
+  backdrop.style.display = isOpen ? 'none' : 'block';
   document.getElementById('searchIcon').style.display = isOpen ? '' : 'none';
   document.getElementById('closeIcon').style.display = isOpen ? 'none' : '';
   if (!isOpen) document.getElementById('mainSearchInput').focus();
