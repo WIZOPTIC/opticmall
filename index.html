@@ -88,7 +88,7 @@ header {
 .logo { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; color: var(--navy); text-decoration: none; }
 .logo span { color: var(--navy); }
 .header-search {
-  flex: 1; max-width: 480px;
+  flex: 1; max-width: 360px;
   display: flex; border: 1.5px solid var(--g2);
   border-radius: 6px; overflow: hidden;
   transition: border-color 0.2s;
@@ -548,7 +548,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button>
       <span class="h-sep" id="loginSep" style="display:none;">|</span>
       <button class="h-join" onclick="location.href='join.html'" style="display:none;">회원가입</button>
-      <div style="position:relative;margin-left:8px;" id="userMenuWrap">
+      <div style="position:relative;margin-left:8px;display:none;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </button>
@@ -984,6 +984,8 @@ function updateHeaderLoggedIn(name, level, status, role) {
   if(loginBtn) loginBtn.style.display = 'none';
   if(loginSep) loginSep.style.display = 'none';
   if(joinBtn) joinBtn.style.display = 'none';
+  const userMenuWrap = document.getElementById('userMenuWrap');
+  if(userMenuWrap) userMenuWrap.style.display = '';
 
   // 헤더에 환영 메시지 추가
   const headerRight = document.querySelector('.header-right');
@@ -1030,6 +1032,8 @@ function updateHeaderLoggedOut() {
   if(loginBtn) loginBtn.style.display = '';
   if(loginSep) loginSep.style.display = '';
   if(joinBtn) joinBtn.style.display = '';
+  const userMenuWrap = document.getElementById('userMenuWrap');
+  if(userMenuWrap) userMenuWrap.style.display = 'none';
 
   // 환영 메시지 제거
   const welcomeMsg = document.getElementById('welcomeMsg');
