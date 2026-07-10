@@ -173,9 +173,9 @@ header {
 /* ── HERO ── */
 .hero-wrap { display: flex; background: var(--navy); }
 .hero-left {
-  flex: 0 0 340px;
+  flex: 0 0 max(340px, calc(50vw - 300px));
   background: linear-gradient(135deg, var(--navy) 0%, #1E3A60 100%);
-  padding: 36px 40px 32px;
+  padding: 36px 40px 32px max(40px, calc(50vw - 616px));
   display: flex; flex-direction: column; justify-content: center;
   position: relative; overflow: hidden;
 }
