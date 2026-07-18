@@ -9,13 +9,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 :root {
-  --sky: #7C3AED;
-  --sky-lt: #F3EFF7;
-  --sky-dk: #6D28D9;
-  --pink: #EC4899;
-  --grad: linear-gradient(90deg, var(--sky), var(--pink));
+  --sky: #002366;
+  --sky-lt: #EEF1F5;
+  --sky-dk: #001A4D;
+  --pink: #708090;
+  --gold: #C5A059;
+  --grad: linear-gradient(90deg, var(--sky), var(--sky-dk));
   --paper: #FAF8F4;
-  --navy: #1A1225;
+  --navy: #002366;
   --white: #FFFFFF;
   --off: #F8F9FA;
   --g1: #F2F4F6;
@@ -71,7 +72,7 @@ header {
   display: flex; align-items: center; gap: 44px;
 }
 .logo { font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; color: var(--navy); text-decoration: none; }
-.logo span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo span { color: var(--gold); }
 .search-tag {
   padding: 7px 16px; background: var(--white); border: 1px solid var(--g2);
   border-radius: 100px; font-size:12px; color: var(--g4); font-family: inherit;
@@ -115,9 +116,9 @@ header {
   display: flex;
 }
 .gnb-item {
-  padding: 8px 16px; font-size:13px; font-weight: 500;
+  padding: 8px 16px; font-size:16px; font-weight: 600;
   color: var(--black); cursor: pointer; border: none; background: none;
-  font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap; font-weight: 500;
+  font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap;
 }
 .gnb-item:hover { color: var(--sky); }
 .gnb-item.active { color: var(--navy); font-weight: 700; }
@@ -132,15 +133,15 @@ header {
 .static-blob-1, .static-blob-2 {
   position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none;
 }
-.static-blob-1 { width: 420px; height: 420px; background: radial-gradient(circle, var(--sky) 0%, transparent 70%); opacity: 0.35; }
-.static-blob-2 { width: 380px; height: 380px; background: radial-gradient(circle, var(--pink) 0%, transparent 70%); opacity: 0.30; }
+.static-blob-1 { width: 420px; height: 420px; background: radial-gradient(circle, var(--sky) 0%, transparent 70%); opacity: 0.22; }
+.static-blob-2 { width: 380px; height: 380px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); opacity: 0.28; }
 .hero-inner { max-width: 1280px; margin: 0 auto; padding: 56px 24px 64px; position: relative; z-index: 2; }
 .hero-badge {
   font-family: 'Inter', monospace; font-size: 12px; color: var(--sky); font-weight: 600;
   letter-spacing: 0.06em; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 6px;
 }
 .hero-left h1 {
-  font-size: 44px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em;
+  font-size: 34px; font-weight: 800; line-height: 1.25; letter-spacing: -0.02em;
   color: var(--navy); max-width: 720px; margin-bottom: 20px; word-break: keep-all;
 }
 .hero-left h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -754,7 +755,7 @@ function updateHeaderLoggedIn(name, level, status, role) {
       : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
     const welcomeEl = document.createElement('div');
     welcomeEl.id = 'welcomeMsg';
-    welcomeEl.style.cssText = 'font-size:12px;font-weight:600;color:var(--navy);display:flex;align-items:center;';
+    welcomeEl.style.cssText = 'font-size:12px;font-weight:600;color:var(--navy);display:flex;align-items:center;white-space:nowrap;';
     welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
     headerRight.insertBefore(welcomeEl, headerRight.firstChild);
   }
