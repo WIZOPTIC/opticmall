@@ -16,7 +16,7 @@ html { overflow-y: scroll; }
 }
 body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color: var(--black); }
 .header{background:var(--white);border-bottom:1px solid var(--g2);}
-.header-inner { max-width: 1280px; margin: 0 auto; padding: 100px 24px 28px; display: flex; align-items: center; gap: 36px; }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 100px 24px 28px; display: flex; align-items: center; gap: 44px; }
 .logo { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); text-decoration: none; letter-spacing: 0.03em; }
 .logo span { color: #C5A059; }
 .header-search { flex: 1; max-width: 480px; display: flex; border: 1.5px solid var(--g2); border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
@@ -32,7 +32,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .icon-btn { width: 36px; height: 36px; border: none; background: none; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--g4); position: relative; }
 .cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; }
 .gnb-inner { display: flex; }
-.gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: var(--black); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
+.gnb-item { padding: 8px 16px; font-size: 14px; font-weight: 500; color: var(--black); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
 .gnb-item:hover, .gnb-item.active { color: var(--sky); font-weight: 700; }
 
 /* V.KOOL 내부 서브탭 */
@@ -205,13 +205,13 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     </nav>
     <div class="header-right">
-      <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
-        <svg id="searchIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <svg id="closeIcon" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
 
       <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button><span class="h-sep" id="loginSep" style="display:none;">|</span>
       <button class="h-join" onclick="location.href='join.html'" style="display:none;">회원가입</button>
+            <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
+        <svg id="searchIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg id="closeIcon" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       <div style="position:relative;margin-left:8px;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
         <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
