@@ -9,8 +9,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 :root {
-  --sky:#7C3AED; --sky-lt:#F3EFF7; --sky-dk:#6D28D9;
-  --navy:#1A1225; --white: #FFFFFF;
+  --sky:#002366; --sky-lt:#EEF1F5; --sky-dk:#001A4D;
+  --navy:#002366; --white: #FFFFFF;
   --g1: #F2F4F6; --g2: #E0E4E8; --g3: #9BA5B0; --g4: #5A6472;
   --black: #111318; --red: #FF4444; --green: #2ECC71; --orange: #F39C12;
 }
@@ -24,7 +24,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .search-btn:hover { color: var(--sky); }
 .header-inner { max-width: 1280px; margin: 0 auto; padding: 28px 24px; display: flex; align-items: center; gap: 36px; }
 .logo { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); text-decoration: none; }
-.logo span { background: linear-gradient(90deg, var(--sky), #EC4899); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo span { color: #C5A059; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .h-btn { padding: 7px 14px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--g4); font-family: inherit; cursor: pointer; border-radius: 4px; }
 .h-btn:hover { color: var(--navy); }
@@ -300,12 +300,12 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
             <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
           </div>
         </div>
-        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#1A1225;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;">로그인</button>
+        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#002366;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;">로그인</button>
       </div>
       <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
       <div style="margin-bottom:16px;">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;">
-          <input type="checkbox" id="keepLoginChk" style="accent-color:#1A1225;">로그인 상태 유지
+          <input type="checkbox" id="keepLoginChk" style="accent-color:#002366;">로그인 상태 유지
         </label>
       </div>
       <div style="border-top:1px solid #f0f0f0;margin:20px 0;"></div>
@@ -313,7 +313,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         안경사 면허 인증 회원만 로그인이 가능합니다.<br>
         아직 회원이 아니시라면 회원가입 후 이용해 주세요.
       </p>
-      <a href="join.html" style="font-size:13px;color:#1A1225;font-weight:600;text-decoration:underline;">회원가입 →</a>
+      <a href="join.html" style="font-size:13px;color:#002366;font-weight:600;text-decoration:underline;">회원가입 →</a>
     </div>
   </div>
 </div>
@@ -649,15 +649,15 @@ function updateHeaderLoggedIn(name, level, role) {
 
   let adminLinkHtml = '';
   if(role === 'brand') {
-    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#7C3AED;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#002366;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
   } else if(role === 'master' || role === 'submaster') {
-    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#7C3AED;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#002366;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
   }
 
   const dropdown = document.getElementById('userDropdown');
   dropdown.innerHTML = `
     <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
-      <div style="font-size:13px;font-weight:700;color:#1A1225;">${name}님</div>
+      <div style="font-size:13px;font-weight:700;color:#002366;">${name}님</div>
       <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
     </div>
     ${adminLinkHtml}
@@ -1074,7 +1074,7 @@ function updateStockDisplay(stock) {
 const COLOR_KEYWORD_MAP = [
   ['로즈골드','#E6B8B0'], ['rose gold','#E6B8B0'],
   ['아이보리','#F5F0E1'], ['ivory','#F5F0E1'],
-  ['네이비','#1A1225'], ['navy','#1A1225'],
+  ['네이비','#002366'], ['navy','#002366'],
   ['그레이','#9BA5B0'], ['회색','#9BA5B0'], ['gray','#9BA5B0'], ['grey','#9BA5B0'],
   ['카키','#8B8B5A'], ['khaki','#8B8B5A'],
   ['블랙','#222222'], ['black','#222222'],
