@@ -7,11 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&family=Montserrat:wght@700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--sky:#1B9FD8;--sky-dk:#1480B0;--navy:#1A2D4A;--white:#fff;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
+:root{--sky:#7C3AED;--sky-dk:#6D28D9;--navy:#1A1225;--white:#fff;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);}
 .header{background:var(--white);border-bottom:1px solid var(--g2);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; color: var(--navy); text-decoration: none; }
-.logo span { color: var(--navy); }
+.logo { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); text-decoration: none; }
+.logo span { background: linear-gradient(90deg, var(--sky), #EC4899); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .back{font-size:13px;color:var(--g3);text-decoration:none;}
 .back:hover{color:var(--sky);}
 .steps-wrap{background:var(--white);border-bottom:1px solid var(--g2);padding:20px 24px;}
@@ -51,7 +51,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .pw-bar.medium{background:#F5C518;}
 .pw-bar.strong{background:var(--green);}
 .upload-box{border:2px dashed var(--g2);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--g1);}
-.upload-box:hover{border-color:var(--sky);background:#E6F5FB;}
+.upload-box:hover{border-color:var(--sky);background:#F3EFF7;}
 .upload-box.has-file{border-color:var(--green);background:#F0FFF6;}
 .upload-icon{font-size:28px;margin-bottom:8px;}
 .upload-text{font-size:13px;color:var(--g3);}
@@ -70,14 +70,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 .btn-submit:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;}
 .login-link{text-align:center;margin-top:16px;font-size:13px;color:var(--g3);}
 .login-link a{color:var(--sky);font-weight:600;text-decoration:none;}
-.info-box{background:#E6F5FB;border:1px solid #B3E0F5;border-radius:8px;padding:14px 16px;margin-bottom:16px;}
-.info-box p{font-size:12px;color:#1480B0;line-height:1.8;}
+.info-box{background:#F3EFF7;border:1px solid #B3E0F5;border-radius:8px;padding:14px 16px;margin-bottom:16px;}
+.info-box p{font-size:12px;color:#6D28D9;line-height:1.8;}
 
 /* 가입 유형 선택 */
 .role-select{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;}
 .role-btn{padding:20px 16px;border:2px solid var(--g2);border-radius:10px;background:var(--white);cursor:pointer;text-align:center;transition:all 0.2s;font-family:inherit;}
 .role-btn:hover{border-color:var(--sky);}
-.role-btn.active{border-color:var(--sky);background:#E6F5FB;}
+.role-btn.active{border-color:var(--sky);background:#F3EFF7;}
 .role-btn .role-icon{font-size:28px;margin-bottom:8px;}
 .role-btn .role-name{font-size:14px;font-weight:700;color:var(--navy);}
 .role-btn .role-desc{font-size:11px;color:var(--g3);margin-top:3px;line-height:1.5;}

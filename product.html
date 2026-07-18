@@ -9,8 +9,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 :root {
-  --sky: #1B9FD8; --sky-lt: #E6F5FB; --sky-dk: #1480B0;
-  --navy: #1A2D4A; --white: #FFFFFF;
+  --sky:#7C3AED; --sky-lt:#F3EFF7; --sky-dk:#6D28D9;
+  --navy:#1A1225; --white: #FFFFFF;
   --g1: #F2F4F6; --g2: #E0E4E8; --g3: #9BA5B0; --g4: #5A6472;
   --black: #111318; --red: #FF4444; --green: #2ECC71; --orange: #F39C12;
 }
@@ -22,9 +22,9 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .header-search input { flex: 1; padding: 10px 16px; border: none; outline: none; font-size: 14px; font-family: inherit; }
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
-.header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 24px; }
-.logo { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; color: var(--navy); text-decoration: none; }
-.logo span { color: var(--navy); }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 28px 24px; display: flex; align-items: center; gap: 36px; }
+.logo { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); text-decoration: none; }
+.logo span { background: linear-gradient(90deg, var(--sky), #EC4899); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .h-btn { padding: 7px 14px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--g4); font-family: inherit; cursor: pointer; border-radius: 4px; }
 .h-btn:hover { color: var(--navy); }
@@ -34,8 +34,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; min-width: 15px; text-align: center; }
 
 /* GNB */
-.gnb{background:var(--white);border-bottom:2px solid var(--sky);}
-.gnb-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; }
+.gnb-inner { display: flex; }
 .gnb-item { padding: 13px 18px; font-size: 14px; font-weight: 500; color: var(--black); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
 .gnb-item:hover { color: var(--sky); }
 
@@ -301,12 +300,12 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
             <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
           </div>
         </div>
-        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#1A2D4A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;">로그인</button>
+        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#1A1225;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;">로그인</button>
       </div>
       <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
       <div style="margin-bottom:16px;">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#999;cursor:pointer;">
-          <input type="checkbox" id="keepLoginChk" style="accent-color:#1A2D4A;">로그인 상태 유지
+          <input type="checkbox" id="keepLoginChk" style="accent-color:#1A1225;">로그인 상태 유지
         </label>
       </div>
       <div style="border-top:1px solid #f0f0f0;margin:20px 0;"></div>
@@ -314,7 +313,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         안경사 면허 인증 회원만 로그인이 가능합니다.<br>
         아직 회원이 아니시라면 회원가입 후 이용해 주세요.
       </p>
-      <a href="join.html" style="font-size:13px;color:#1A2D4A;font-weight:600;text-decoration:underline;">회원가입 →</a>
+      <a href="join.html" style="font-size:13px;color:#1A1225;font-weight:600;text-decoration:underline;">회원가입 →</a>
     </div>
   </div>
 </div>
@@ -331,24 +330,25 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 </div>
 
 <!-- 헤더 -->
-<div style="background:#FAE300;text-align:center;padding:10px;font-size:13px;font-weight:700;color:#1A1A1A;display:flex;align-items:center;justify-content:center;gap:8px;visibility:hidden;pointer-events:none;" aria-hidden="true"><!-- 메인페이지 카카오배너와 높이를 맞추기 위한 투명 줄 (스크롤하면 메인과 동일하게 같이 사라짐) -->
-  <span style="font-size:18px;"><i class=ic-chat></i></span>
-  카카오채널 추가하고 <span style="background:#FF4444;color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;">10,000원 쿠폰받기</span>
-  →
-</div>
 <div style="position:sticky;top:0;z-index:200;"><header class="header">
-<div style="max-width:1280px;margin:0 auto;padding:6px 24px;text-align:right;"><!-- 메인페이지 쿠폰 안내줄과 높이를 맞추기 위한 투명 줄 (스크롤해도 헤더와 함께 고정되어 항상 정확히 일치) -->
-  <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;border:1px solid transparent;visibility:hidden;"><i class=ic-gift></i> 가입시 15% 할인쿠폰 즉시 지급!</span>
-</div>
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
-    <div class="header-search">
-      <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" onkeydown="if(event.key==='Enter') doSearch()">
-      <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
-    </div>
+    <nav class="gnb-inner">
+    <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
+    <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+    <button class="gnb-item" onclick="location.href='vkool.html'">V.KOOL</button>
+    <button class="gnb-item" onclick="location.href='timesale.html'">타임세일</button>
+    <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
+    </nav>
     <div class="header-right">
-      <button class="h-btn" onclick="location.href='mypage.html?tab=orders'">주문조회</button>
-      <span style="color:var(--g2);">|</span>
+      <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
+        <svg id="searchIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg id="closeIcon" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button>
       <span style="color:var(--g2);display:none;" id="loginSep">|</span>
       <button class="h-join" id="joinBtn" onclick="location.href='join.html'" style="display:none;">회원가입</button>
@@ -369,23 +369,17 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       </button>
     </div>
   </div>
-</header>
-
-<!-- GNB -->
-<nav class="gnb">
-  <div class="gnb-inner">
-    <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
-    <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
-    <button class="gnb-item" onclick="location.href='vkool.html'">V.KOOL</button>
-    <button class="gnb-item" onclick="location.href='timesale.html'">타임세일</button>
-    <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
-    <button class="gnb-item" onclick="location.href='board.html'">고객센터</button>
+  <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
+    <div style="max-width:600px;margin:0 auto;padding:20px 24px;">
+      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:8px;overflow:hidden;">
+        <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" autocomplete="off" style="flex:1;padding:12px 16px;border:none;outline:none;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter') doSearch()">
+        <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      </div>
+    </div>
   </div>
-</nav></div>
+</header>
+<div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
+</div>
 
 <!-- 브레드크럼 -->
 <div class="breadcrumb" id="breadcrumb">
@@ -655,15 +649,15 @@ function updateHeaderLoggedIn(name, level, role) {
 
   let adminLinkHtml = '';
   if(role === 'brand') {
-    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#7C3AED;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
   } else if(role === 'master' || role === 'submaster') {
-    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#1B9FD8;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#7C3AED;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
   }
 
   const dropdown = document.getElementById('userDropdown');
   dropdown.innerHTML = `
     <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
-      <div style="font-size:13px;font-weight:700;color:#1A2D4A;">${name}님</div>
+      <div style="font-size:13px;font-weight:700;color:#1A1225;">${name}님</div>
       <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
     </div>
     ${adminLinkHtml}
@@ -729,6 +723,26 @@ _auth.onAuthStateChanged(async (user) => {
   if(reviewsLoaded) { refreshPurchaseStatus().then(renderReviewWriteArea); }
   if(inquiriesLoaded) renderQnaWriteArea();
 });
+
+function toggleSearchOverlay() {
+  const overlay = document.getElementById('searchOverlay');
+  const backdrop = document.getElementById('searchBackdrop');
+  const searchIcon = document.getElementById('searchIcon');
+  const closeIcon = document.getElementById('closeIcon');
+  const isOpen = overlay.style.display === 'block';
+  if (isOpen) {
+    overlay.style.display = 'none';
+    backdrop.style.display = 'none';
+    searchIcon.style.display = '';
+    closeIcon.style.display = 'none';
+  } else {
+    overlay.style.display = 'block';
+    backdrop.style.display = 'block';
+    searchIcon.style.display = 'none';
+    closeIcon.style.display = '';
+    setTimeout(() => document.getElementById('searchInput').focus(), 50);
+  }
+}
 
 function doSearch() {
   const keyword = document.getElementById('searchInput').value.trim();
@@ -1060,7 +1074,7 @@ function updateStockDisplay(stock) {
 const COLOR_KEYWORD_MAP = [
   ['로즈골드','#E6B8B0'], ['rose gold','#E6B8B0'],
   ['아이보리','#F5F0E1'], ['ivory','#F5F0E1'],
-  ['네이비','#1A2D4A'], ['navy','#1A2D4A'],
+  ['네이비','#1A1225'], ['navy','#1A1225'],
   ['그레이','#9BA5B0'], ['회색','#9BA5B0'], ['gray','#9BA5B0'], ['grey','#9BA5B0'],
   ['카키','#8B8B5A'], ['khaki','#8B8B5A'],
   ['블랙','#222222'], ['black','#222222'],

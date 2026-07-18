@@ -9,10 +9,13 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 :root {
-  --sky: #1B9FD8;
-  --sky-lt: #E6F5FB;
-  --sky-dk: #1480B0;
-  --navy: #1A2D4A;
+  --sky: #7C3AED;
+  --sky-lt: #F3EFF7;
+  --sky-dk: #6D28D9;
+  --pink: #EC4899;
+  --grad: linear-gradient(90deg, var(--sky), var(--pink));
+  --paper: #FAF8F4;
+  --navy: #1A1225;
   --white: #FFFFFF;
   --off: #F8F9FA;
   --g1: #F2F4F6;
@@ -53,25 +56,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   50% { opacity: 0.5; transform: scale(1.04); }
 }
 
-/* ── 카카오 상단 바 ── */
-.kakao-bar {
-  background: #FAE300;
-  text-align: center;
-  padding: 6px;
-  font-size:11px;
-  font-weight: 700;
-  color: #1A1A1A;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.kakao-bar:hover { background: #E8D100; }
-.coupon-badge {
-  background: #FF4444; color: #fff;
-  font-size:11px; font-weight: 700;
-  padding: 2px 10px; border-radius: 100px;
-}
-
-/* ── 쿠폰 안내줄 ── */
+/* 쿠폰바 삭제됨 */
 
 
 /* ── HEADER ── */
@@ -82,39 +67,17 @@ header {
 }
 .header-main {
   max-width: 1280px; margin: 0 auto;
-  padding: 52px 24px 20px;
-  display: flex; align-items: center; gap: 24px;
+  padding: 100px 24px 28px;
+  display: flex; align-items: center; gap: 44px;
 }
-.logo { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; color: var(--navy); text-decoration: none; }
-.logo span { color: var(--navy); }
-.header-search {
-  flex: 1; max-width: 360px;
-  display: flex; border: 1.5px solid var(--g2);
-  border-radius: 6px; overflow: hidden;
-  transition: border-color 0.2s;
-}
-.header-search:focus-within { border-color: var(--sky); }
-.header-search input {
-  flex: 1; padding: 10px 16px;
-  border: none; outline: none;
-  font-size:13px; font-family: inherit;
-}
-.header-search input::placeholder { color: var(--g3); }
+.logo { font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; color: var(--navy); text-decoration: none; }
+.logo span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .search-tag {
   padding: 7px 16px; background: var(--white); border: 1px solid var(--g2);
   border-radius: 100px; font-size:12px; color: var(--g4); font-family: inherit;
   cursor: pointer; transition: all 0.15s;
 }
 .search-tag:hover { border-color: var(--sky); color: var(--sky); }
-.search-btn {
-  padding: 0 14px; background: var(--white);
-  border: none; cursor: pointer;
-  color: var(--g4); font-size:13px;
-  display: flex; align-items: center;
-  border-left: 1.5px solid var(--g2);
-  transition: color 0.15s;
-}
-.search-btn:hover { color: var(--sky); }
 .header-right { display: flex; align-items: center; gap: 2px; margin-left: auto; }
 .h-btn {
   padding: 7px 12px; border: none; background: none;
@@ -147,161 +110,54 @@ header {
   min-width: 15px; text-align: center;
 }
 
-/* ── GNB ── */
-.gnb { background: var(--white); border-bottom: 2px solid var(--sky); }
+/* ── GNB (헤더와 한 줄로 통합) ── */
 .gnb-inner {
-  max-width: 1280px; margin: 0 auto;
-  padding: 0 24px; display: flex;
+  display: flex;
 }
 .gnb-item {
-  padding: 13px 18px; font-size:13px; font-weight: 500;
+  padding: 8px 16px; font-size:13px; font-weight: 500;
   color: var(--black); cursor: pointer; border: none; background: none;
   font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap; font-weight: 500;
 }
 .gnb-item:hover { color: var(--sky); }
 .gnb-item.active { color: var(--navy); font-weight: 700; }
-.gnb-item.active::after {
-  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
-  height: 2px; background: var(--sky);
-}
 .gnb-item .dot {
   display: inline-block; width: 5px; height: 5px;
   background: var(--red); border-radius: 50%;
   vertical-align: super; margin-left: 2px;
 }
 
-/* ── HERO ── */
-.hero-wrap { display: flex; background: var(--navy); }
-.hero-left {
-  flex: 0 0 max(340px, calc(50vw - 300px));
-  background: linear-gradient(135deg, var(--navy) 0%, #1E3A60 100%);
-  padding: 36px 40px 32px max(40px, calc(50vw - 616px));
-  display: flex; flex-direction: column; justify-content: center;
-  position: relative; overflow: hidden;
+/* ── HERO (블롭 디자인) ── */
+.hero { background: var(--paper); position: relative; overflow: hidden; padding-bottom: 8px; }
+.static-blob-1, .static-blob-2 {
+  position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none;
 }
-.hero-left::before {
-  content: ''; position: absolute;
-  width: 280px; height: 280px;
-  background: radial-gradient(circle, rgba(27,159,216,0.1) 0%, transparent 70%);
-  top: -60px; right: -60px; pointer-events: none;
-}
+.static-blob-1 { width: 420px; height: 420px; background: radial-gradient(circle, var(--sky) 0%, transparent 70%); opacity: 0.35; }
+.static-blob-2 { width: 380px; height: 380px; background: radial-gradient(circle, var(--pink) 0%, transparent 70%); opacity: 0.30; }
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 56px 24px 64px; position: relative; z-index: 2; }
 .hero-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(27,159,216,0.2); border: 1px solid rgba(27,159,216,0.35);
-  color: #7DD4F5; font-size:11px; font-weight: 600;
-  letter-spacing: 0.1em; padding: 5px 12px; border-radius: 100px;
-  margin-bottom: 12px; width: fit-content;
+  font-family: 'Inter', monospace; font-size: 12px; color: var(--sky); font-weight: 600;
+  letter-spacing: 0.06em; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 6px;
 }
 .hero-left h1 {
-  font-size:19px; font-weight: 700; color: var(--white);
-  line-height: 1.35; letter-spacing: -0.02em; margin-bottom: 8px;
-  word-break: keep-all;
+  font-size: 44px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em;
+  color: var(--navy); max-width: 720px; margin-bottom: 20px; word-break: keep-all;
 }
-.hero-left h1 em { font-style: normal; color: var(--sky); }
+.hero-left h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero-left p {
-  font-size:12px; color: rgba(255,255,255,0.45);
-  font-weight: 300; line-height: 1.6; margin-bottom: 14px;
-  word-break: keep-all;
+  font-size: 16px; font-weight: 500; color: #4A4453; max-width: 480px;
+  line-height: 1.6; margin-bottom: 28px; word-break: keep-all;
 }
-.hero-btns { display: flex; flex-direction: column; gap: 8px; }
+.hero-btns { display: flex; gap: 10px; }
 .btn-hero-main {
-  padding: 10px 18px; background: var(--sky); color: var(--white);
-  border: none; border-radius: 6px; font-size:13px; font-weight: 700;
-  font-family: inherit; cursor: pointer; transition: all 0.2s;
+  padding: 14px 26px; background: var(--grad); color: #fff; border: none;
+  font-size: 13.5px; font-weight: 700; cursor: pointer; border-radius: 100px; font-family: inherit;
 }
-.btn-hero-main:hover { background: var(--sky-dk); }
 .btn-hero-sub {
-  padding: 10px 18px; background: transparent;
-  color: rgba(255,255,255,0.6); border: 1.5px solid rgba(255,255,255,0.2);
-  border-radius: 6px; font-size:13px; font-family: inherit; cursor: pointer;
-  transition: all 0.2s;
+  padding: 14px 26px; background: transparent; color: var(--navy); border: 1px solid var(--g2);
+  font-size: 13.5px; font-weight: 600; cursor: pointer; border-radius: 100px; font-family: inherit;
 }
 .btn-hero-sub:hover { border-color: var(--sky); color: var(--sky); }
-.hero-stats {
-  display: flex; gap: 20px; margin-top: 14px;
-  padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);
-}
-.hero-stat-num {
-  font-family: 'Inter', sans-serif;
-  font-size:18px; font-weight: 800; color: var(--white); line-height: 1;
-}
-.hero-stat-num span { color: var(--sky); font-size:12px; }
-.hero-stat-label { font-size:10px; color: rgba(255,255,255,0.35); margin-top: 3px; }
-
-/* ── 슬라이드 ── */
-.hero-right { flex: 1; position: relative; overflow: hidden; min-height: 240px; }
-.slide-container { display: flex; height: 100%; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); }
-.slide {
-  flex-shrink: 0; width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px; position: relative; overflow: hidden;
-}
-.slide-1 { background: linear-gradient(135deg, #0D1B2E 0%, #1A3A5C 100%); }
-.slide-2 { background: linear-gradient(135deg, #1A2D4A 0%, #0E4D6E 100%); }
-.slide-3 { background: linear-gradient(135deg, #1A2A1A 0%, #2A4A1A 100%); }
-.slide-4 { background: linear-gradient(135deg, #2D1A4A 0%, #4A1A6E 100%); }
-.slide-deco {
-  position: absolute; opacity: 0.05; pointer-events: none;
-  font-size: 90px; font-weight: 900; color: var(--white);
-  bottom: -10px; right: 10px; font-family: 'Inter', sans-serif;
-}
-.slide-content { position: relative; z-index: 2; text-align: center; width: 100%; }
-.slide-eyebrow {
-  font-size:11px; font-weight: 700; letter-spacing: 0.18em;
-  text-transform: uppercase; margin-bottom: 8px;
-  display: inline-block; padding: 4px 14px; border-radius: 100px;
-}
-.ey-red { background: rgba(255,68,68,0.2); color: #FF8888; border: 1px solid rgba(255,68,68,0.3); }
-.ey-blue { background: rgba(27,159,216,0.2); color: #7DD4F5; border: 1px solid rgba(27,159,216,0.3); }
-.ey-yellow { background: rgba(245,197,24,0.2); color: #F5C518; border: 1px solid rgba(245,197,24,0.3); }
-.ey-purple { background: rgba(150,100,220,0.2); color: #C090FF; border: 1px solid rgba(150,100,220,0.3); }
-.slide-icon { margin-bottom: 6px; font-size: 24px; }
-.slide h2 {
-  font-size:19px; font-weight: 700; color: var(--white);
-  line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 6px;
-}
-.ac-red { color: #FF6B6B; }
-.ac-blue { color: var(--sky); }
-.ac-yellow { color: var(--yellow); }
-.ac-purple { color: #C090FF; }
-.slide-sub { font-size:12px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-.slide-date { font-size:11px; color: rgba(255,255,255,0.3); margin-bottom: 20px; font-family: 'Inter', sans-serif; }
-.slide-btn {
-  display: inline-block; padding: 11px 26px;
-  border-radius: 6px; font-size:13px; font-weight: 700;
-  font-family: inherit; cursor: pointer; border: none; transition: all 0.2s;
-}
-.sb-red { background: #FF4444; color: #fff; }
-.sb-red:hover { background: #E63030; }
-.sb-blue { background: var(--sky); color: #fff; }
-.sb-blue:hover { background: var(--sky-dk); }
-.sb-yellow { background: var(--yellow); color: #1A1A1A; }
-.sb-yellow:hover { background: #E8D100; }
-.sb-purple { background: #9664DC; color: #fff; }
-.sb-purple:hover { background: #7A4FBF; }
-.slide-arrows {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 100%; display: flex; justify-content: space-between;
-  padding: 0 12px; z-index: 10; pointer-events: none;
-}
-.s-arrow {
-  width: 34px; height: 34px;
-  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 50%; color: var(--white); font-size:16px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; pointer-events: all; transition: all 0.15s;
-}
-.s-arrow:hover { background: rgba(255,255,255,0.25); }
-.slide-dots {
-  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 6px; z-index: 10;
-}
-.s-dot {
-  width: 6px; height: 6px; border-radius: 100px;
-  background: rgba(255,255,255,0.3); cursor: pointer;
-  transition: all 0.3s; border: none;
-}
-.s-dot.active { width: 20px; background: var(--sky); }
 
 /* ── MAIN ── */
 .main-wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
@@ -524,25 +380,24 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 </div>
 
 
-<!-- 카카오 상단 바 -->
-<div class="kakao-bar">
-  <span style="font-size:14px;">💬</span>
-  카카오채널 추가하고 <span class="coupon-badge">10,000원 쿠폰받기</span>
-  →
-</div>
-
-
-
 <!-- HEADER -->
 <div style="position:sticky;top:0;z-index:200;" id="stickyHeaderWrap">
 <header style="position:relative;">
   <!-- 헤더 2행: 메인 -->
   <div class="header-main">
     <a href="#" class="logo">OPTIC<span>MALL</span></a>
-    <div style="flex:1;"></div>
+    <nav class="gnb-inner">
+      <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
+      <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
+      <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
+      <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+      <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
+      <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+      <button class="gnb-item" onclick="location.href='vkool.html'">V.KOOL</button>
+      <button class="gnb-item" onclick="location.href='timesale.html'">타임세일</button>
+      <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
+    </nav>
     <div class="header-right">
-      <button class="h-btn" onclick="location.href='mypage.html?tab=orders'">주문조회</button>
-      <span class="h-sep">|</span>
       <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button>
       <span class="h-sep" id="loginSep" style="display:none;">|</span>
       <button class="h-join" onclick="location.href='join.html'" style="display:none;">회원가입</button>
@@ -587,116 +442,26 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     </div>
   </div>
 </header>
-<!-- 검색 오버레이 뒤 배경 블러 (헤더 바로 아래부터 화면 끝까지, GNB도 함께 블러 처리됨) -->
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
-<!-- GNB -->
-<nav class="gnb">
-  <div class="gnb-inner">
-    <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
-    <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
-    <button class="gnb-item" onclick="location.href='vkool.html'">V.KOOL</button>
-    <button class="gnb-item" onclick="location.href='timesale.html'">타임세일</button>
-    <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
-    <button class="gnb-item" onclick="location.href='board.html'">고객센터</button>
-  </div>
-</nav>
 </div>
 
 <!-- HERO -->
-<div class="hero-wrap">
-  <div class="hero-left">
-    <div class="hero-badge">✦ OPTICIAN ONLY · B2B 전용</div>
-    <h1>25년의 신뢰,<br><em>트렌디한 안경사를 위한</em><br>프리미엄 도매몰</h1>
-    <p>안경사 면허 인증 후 이용 가능합니다.</p>
-    <div class="hero-btns">
-      <button class="btn-hero-main" onclick="location.href='join.html'">회원가입하고 전상품 보기</button>
-      <button class="btn-hero-sub" onclick="openLogin()">로그인</button>
-    </div>
-    <div class="hero-stats">
-      <div>
-        <div class="hero-stat-num">25<span>년</span></div>
-        <div class="hero-stat-label">업계 경력</div>
-      </div>
-      <div>
-        <div class="hero-stat-num">1000<span>+</span></div>
-        <div class="hero-stat-label">상품 보유</div>
-      </div>
-      <div>
-        <div class="hero-stat-num">익일</div>
-        <div class="hero-stat-label">전국 배송</div>
+<section class="hero">
+  <div class="static-blob-1" style="top:20px;left:8%;"></div>
+  <div class="static-blob-2" style="top:90px;left:22%;"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">OPTICIAN ONLY · B2B WHOLESALE</div>
+      <h1>한 끗 다른 안목,<br><em>가장 정직한 도매몰</em></h1>
+      <p>안경사를 위해 엄선된 브랜드만 진열장에 올립니다.</p>
+      <div class="hero-btns">
+        <button class="btn-hero-main" onclick="location.href='join.html'">회원가입하고 전상품 보기</button>
+        <button class="btn-hero-sub" onclick="openLogin()">로그인</button>
       </div>
     </div>
   </div>
+</section>
 
-  <div class="hero-right">
-    <div class="slide-container" id="slideContainer">
-      <div class="slide slide-1">
-        <div class="slide-deco">SALE</div>
-        <div class="slide-content">
-          <div class="slide-eyebrow ey-red">TIME SALE</div>
-          <h2>이번 주 특가<br><span class="ac-red">최대 30% 할인</span></h2>
-          <div class="slide-sub">티타늄·울템·뿔테 전 품목</div>
-          <div class="slide-date">26.06.09 — 26.06.15</div>
-          <button class="slide-btn sb-red" onclick="location.href='timesale.html'">타임세일 보러가기</button>
-        </div>
-      </div>
-      <div class="slide slide-2">
-        <div class="slide-deco">NEW</div>
-        <div class="slide-content">
-          <div class="slide-eyebrow ey-blue">NEW ARRIVAL</div>
-          <h2>6월 신상품<br><span class="ac-blue">120종 입고 완료</span></h2>
-          <div class="slide-sub">티타늄 슬림라인 · TR90 컬러 시리즈</div>
-          <div class="slide-date">2026년 6월 신상품</div>
-          <button class="slide-btn sb-blue" onclick="scrollToSection('newArrivalGrid')">신상품 확인하기</button>
-        </div>
-      </div>
-      <div class="slide slide-4">
-        <div class="slide-deco">SOON</div>
-        <div class="slide-content">
-          <div class="slide-eyebrow ey-purple">COMING SOON</div>
-          <h2>7월 입고 예정<br><span class="ac-purple">신규 브랜드 론칭</span></h2>
-          <div class="slide-sub">프리미엄 신규 브랜드 입점 예정</div>
-          <div class="slide-date">2026년 7월 예정</div>
-          <button class="slide-btn sb-purple" onclick="alert('신규 브랜드 입점 알림은 추후 신청 기능이 추가됩니다.')">사전 알림 신청</button>
-        </div>
-      </div>
-    </div>
-    <div class="slide-arrows">
-      <button class="s-arrow" id="prevBtn">‹</button>
-      <button class="s-arrow" id="nextBtn">›</button>
-    </div>
-    <div class="slide-dots" id="slideDots">
-      <button class="s-dot active"></button>
-      <button class="s-dot"></button>
-      <button class="s-dot"></button>
-    </div>
-  </div>
-</div>
-
-<!-- 회원가입 혜택 팝업 (하루 1회) -->
-<div id="joinPopup" style="display:none;position:fixed;inset:0;background:rgba(15,20,30,0.55);z-index:900;align-items:center;justify-content:center;">
-  <div style="background:var(--white);border-radius:14px;width:340px;max-width:90vw;overflow:hidden;">
-    <div style="background:var(--navy);padding:28px 28px 24px;text-align:center;">
-      <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:var(--sky);margin-bottom:10px;">신규 회원 혜택</div>
-      <div style="font-size:19px;font-weight:800;color:#fff;line-height:1.4;">가입하면 즉시<br><span style="color:var(--yellow);">최대 25,000원 혜택</span></div>
-    </div>
-    <div style="padding:22px 26px;">
-      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g1);font-size:12px;color:var(--g4);">
-        <span>카카오채널 추가</span><strong style="color:var(--navy);">10,000원 쿠폰</strong>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:12px;color:var(--g4);">
-        <span>첫 구매 할인</span><strong style="color:var(--navy);">15% 쿠폰</strong>
-      </div>
-      <div style="font-size:10px;color:var(--g3);margin-top:4px;margin-bottom:18px;">신규 회원 전용 · 중복 적용 가능</div>
-      <button onclick="closeJoinPopup();location.href='join.html'" style="width:100%;padding:12px;background:var(--sky);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:8px;">회원가입하고 혜택받기</button>
-      <button onclick="closeJoinPopup()" style="width:100%;padding:10px;background:none;color:var(--g3);border:none;font-size:11px;font-family:inherit;cursor:pointer;">오늘 하루 보지 않기</button>
-    </div>
-  </div>
-</div>
 
 <!-- MAIN -->
 <div class="main-wrap">
@@ -833,36 +598,6 @@ function updateTimer() {
 }
 updateTimer();
 setInterval(updateTimer, 1000);
-
-// 슬라이드
-let cur = 0;
-const total = 3;
-const container = document.getElementById('slideContainer');
-const dots = document.querySelectorAll('.s-dot');
-function goTo(n) {
-  cur = (n + total) % total;
-  container.style.transform = `translateX(-${cur * 100}%)`;
-  dots.forEach((d, i) => d.classList.toggle('active', i === cur));
-}
-document.getElementById('nextBtn').addEventListener('click', () => goTo(cur + 1));
-document.getElementById('prevBtn').addEventListener('click', () => goTo(cur - 1));
-dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
-setInterval(() => goTo(cur + 1), 5000);
-
-// 회원가입 혜택 팝업 (하루 1회만 표시)
-function closeJoinPopup() {
-  document.getElementById('joinPopup').style.display = 'none';
-}
-(function() {
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const lastShown = localStorage.getItem('joinPopupLastShown');
-  if (lastShown !== todayStr) {
-    setTimeout(() => {
-      document.getElementById('joinPopup').style.display = 'flex';
-      localStorage.setItem('joinPopupLastShown', todayStr);
-    }, 600);
-  }
-})();
 
 // GNB
 document.querySelectorAll('.gnb-item').forEach(item => {
