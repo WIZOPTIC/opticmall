@@ -23,7 +23,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
 .header-inner { max-width: 1280px; margin: 0 auto; padding: 100px 24px 28px; display: flex; align-items: center; gap: 44px; }
-.logo { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); text-decoration: none; letter-spacing: 0.03em; }
+.logo { font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; color: var(--navy); text-decoration: none; letter-spacing: 0.03em; }
 .logo span { color: #C5A059; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .h-btn {
@@ -664,11 +664,11 @@ function updateHeaderLoggedIn(name, level, role) {
   const headerRight = document.querySelector('.header-right');
   if(headerRight && !document.getElementById('welcomeMsg')) {
     const levelBadge = level >= 2
-      ? '<span style="font-size:10px;background:#E8FBF0;color:#27AE60;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">B2B</span>'
+      ? '<span style="font-size:10px;background:#FBF3E5;color:#9C7A2E;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;letter-spacing:0.02em;">B2B</span>'
       : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
     const welcomeEl = document.createElement('div');
     welcomeEl.id = 'welcomeMsg';
-    welcomeEl.style.cssText = 'font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;margin-right:8px;';
+    welcomeEl.style.cssText = 'font-size:12px;font-weight:600;color:var(--navy);display:flex;align-items:center;white-space:nowrap;';
     welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
     headerRight.insertBefore(welcomeEl, headerRight.firstChild);
   }
