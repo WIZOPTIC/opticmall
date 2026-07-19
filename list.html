@@ -25,15 +25,40 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-subtle); co
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
-.h-btn { padding: 7px 12px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--g4); font-family: inherit; cursor: pointer; }
-.h-sep { color: var(--g2); }
-.h-join { padding: 7px 12px; border: none; background: none; color: var(--sky); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.h-btn {
+  padding: 7px 12px; border: none; background: none;
+  font-size:12px; font-weight: 500; color: var(--g4);
+  font-family: inherit; cursor: pointer; border-radius: 4px;
+  transition: color 0.15s; white-space: nowrap;
+}
+.h-sep { color: var(--g2); font-size:12px; }
+.h-join {
+  padding: 7px 12px; border: none;
+  color: var(--sky); background: none;
+  font-size:12px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  white-space: nowrap;
+}
 .h-join:hover { color: var(--sky-dk); }
-.icon-btn { width: 36px; height: 36px; border: none; background: none; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--g4); position: relative; }
+.icon-btn {
+  width: 36px; height: 36px; border: none; background: none;
+  cursor: pointer; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--g4); transition: all 0.15s; position: relative;
+}
 .cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; }
 .gnb-inner { display: flex; }
-.gnb-item { padding: 8px 16px; font-size: 14px; font-weight: 500; color: var(--black); cursor: pointer; border: none; background: none; font-family: inherit; transition: color 0.15s; white-space: nowrap; }
-.gnb-item:hover, .gnb-item.active { color: var(--sky); font-weight: 700; }
+.gnb-item {
+  padding: 8px 16px; font-size:14px; font-weight: 500;
+  color: var(--black); cursor: pointer; border: none; background: none;
+  font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap;
+}
+.gnb-item:hover { color: var(--sky); }
+.gnb-item.active { color: var(--navy); font-weight: 700; }
+.gnb-item:hover::after, .gnb-item.active::after {
+  content: ''; position: absolute; left: 16px; right: 16px; bottom: -2px;
+  height: 2px; background: var(--gold);
+}
 
 /* 레이아웃 */
 .page-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; display: flex; gap: 24px; }
@@ -203,8 +228,8 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button><span class="h-sep" id="loginSep" style="display:none;">|</span>
       <button class="h-join" onclick="location.href='join.html'" style="display:none;">회원가입</button>
             <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
-        <svg id="searchIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <svg id="closeIcon" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg id="searchIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg id="closeIcon" style="display:none;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <div style="position:relative;margin-left:8px;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
