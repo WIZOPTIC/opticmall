@@ -112,6 +112,17 @@ header {
 }
 
 /* ── GNB (헤더와 한 줄로 통합) ── */
+/* ── 에디토리얼 배너 ── */
+.editorial-section { background: var(--off); padding: 56px 0; }
+.editorial-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.editorial-card { cursor: default; }
+.editorial-photo { position: relative; aspect-ratio: 4/5; background: var(--g1); border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.editorial-photo img { width: 100%; height: 100%; object-fit: cover; }
+.editorial-photo .ph { font-size: 12px; color: var(--g3); }
+.editorial-tag { font-size: 11px; color: var(--gold); font-weight: 700; margin: 14px 0 6px; letter-spacing: 0.03em; }
+.editorial-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 6px; line-height: 1.4; }
+.editorial-sub { font-size: 12.5px; color: var(--g4); line-height: 1.6; }
+
 .gnb-inner {
   display: flex;
 }
@@ -529,6 +540,12 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 
 
 </div>
+
+<!-- 에디토리얼 배너 -->
+<section class="editorial-section">
+  <div class="editorial-inner" id="editorialGrid">
+  </div>
+</section>
 
 <!-- FOOTER -->
 <footer>
@@ -1062,6 +1079,32 @@ async function loadMainProducts() {
 }
 
 loadMainProducts();
+
+async function loadEditorialSection() {
+  const grid = document.getElementById('editorialGrid');
+  try {
+    const snap = await _db.collection('editorialBanners').get();
+    const bySlot = {};
+    snap.forEach(d => { bySlot[d.id] = d.data(); });
+    const slots = ['slot1','slot2','slot3'].map(id => bySlot[id] || null).filter(s => s && (s.title || s.imageUrl));
+    if (slots.length === 0) { grid.closest('.editorial-section').style.display = 'none'; return; }
+    grid.innerHTML = slots.map(s => `
+      <div class="editorial-card">
+        <div class="editorial-photo">
+          ${s.imageUrl ? `<img src="${s.imageUrl}" alt="">` : `<span class="ph">이미지 준비중</span>`}
+        </div>
+        ${s.tag ? `<div class="editorial-tag">${s.tag}</div>` : ''}
+        ${s.title ? `<div class="editorial-title">${s.title}</div>` : ''}
+        ${s.subtitle ? `<div class="editorial-sub">${s.subtitle}</div>` : ''}
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error(e);
+    grid.closest('.editorial-section').style.display = 'none';
+  }
+}
+loadEditorialSection();
+
 </script>
 </body>
 </html>

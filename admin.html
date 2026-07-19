@@ -36,7 +36,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--blac
 /* 사이드바 */
 .sidebar{width:var(--sidebar);background:var(--navy);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
 .sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
-.sidebar-logo .logo{font-family:'Inter',sans-serif;font-size:18px;font-weight:800;color:var(--white);display:block;text-decoration:none;cursor:pointer;transition:opacity 0.15s;}
+.sidebar-logo .logo{font-family:'Inter',sans-serif;font-size:18px;font-weight:800;color:var(--white);display:block;text-decoration:none;cursor:pointer;transition:opacity 0.15s;letter-spacing:0.03em;}
 .sidebar-logo .logo:hover{opacity:0.8;}
 .sidebar-logo .logo span{color:#C5A059;}
 .sidebar-logo .admin-badge{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;letter-spacing:0.1em;}
@@ -279,6 +279,8 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <div class="menu-section">프로모션</div>
     <button class="menu-item" onclick="showPage('promoApproval',this)"><span><i class=ic-party></i></span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge"></span></button>
     <button class="menu-item" onclick="showPage('allPromos',this)"><span><i class=ic-tag></i>️</span> 전체 이벤트 목록</button>
+    <div class="menu-section">메인 화면 관리</div>
+    <button class="menu-item" onclick="showPage('editorial',this)"><span><i class=ic-image></i></span> 롤링 배너 관리</button>
     <div class="menu-section">운영</div>
     <button class="menu-item" onclick="showPage('orderManage',this)"><span><i class=ic-truck></i></span> 주문/배송 관리 <span class="menu-badge" id="pendingShipBadge"></span></button>
     <button class="menu-item" onclick="showPage('cancelManage',this)"><span><i class=ic-refresh></i></span> 취소/반품 관리 <span class="menu-badge" id="pendingCancelBadge"></span></button>
@@ -404,6 +406,17 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <button class="om-filter-btn" data-status="delivered" onclick="filterOrderManage('delivered',this)">배송완료</button>
       </div>
       <div class="table-wrap" id="orderManageTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 롤링 배너 관리 -->
+    <div class="page" id="page-editorial">
+      <div class="section-header">
+        <div class="section-title">롤링 배너 관리</div>
+      </div>
+      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">메인페이지 하단에 3개가 나란히 롤링되는 배너예요. 사진, 태그, 제목, 설명을 각각 입력하고 저장하면 바로 반영돼요.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="editorialSlotsWrap">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
     </div>
@@ -650,7 +663,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const firebaseConfig = {
@@ -683,6 +696,7 @@ window._collection = collection;
 window._getDocs = getDocs;
 window._doc = doc;
 window._getDoc = getDoc;
+window._setDoc = setDoc;
 window._updateDoc = updateDoc;
 window._deleteDoc = deleteDoc;
 window._query = query;
@@ -793,7 +807,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
@@ -804,6 +818,7 @@ function showPage(name, el) {
   if(name === 'orderManage') loadOrderManage();
   if(name === 'cancelManage') loadCancelManage();
   if(name === 'settlement') loadSettlement();
+  if(name === 'editorial') loadEditorialBanners();
 }
 
 // 날짜 포맷
@@ -1372,6 +1387,93 @@ function initSettlementMonthSelect() {
     opt.value = value;
     opt.textContent = label;
     sel.appendChild(opt);
+  }
+}
+
+// ── 롤링 배너 관리 ──
+const editorialPendingFiles = {};
+
+async function loadEditorialBanners() {
+  const wrap = document.getElementById('editorialSlotsWrap');
+  wrap.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const slots = [];
+    for(const slotId of ['slot1','slot2','slot3']) {
+      const snap = await window._getDoc(window._doc(window._db, 'editorialBanners', slotId));
+      slots.push(snap.exists() ? {id: slotId, ...snap.data()} : {id: slotId, tag:'', title:'', subtitle:'', imageUrl:''});
+    }
+    wrap.innerHTML = slots.map(s => renderEditorialSlot(s)).join('');
+  } catch(e) {
+    wrap.innerHTML = `<div style="grid-column:1/-1;color:#FF4444;padding:20px;">불러오기 실패: ${e.message}</div>`;
+  }
+}
+
+function renderEditorialSlot(s) {
+  const imgHtml = s.imageUrl
+    ? `<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover;">`
+    : `<span style="font-size:12px;color:#9BA5B0;">사진 없음</span>`;
+  return `
+  <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:16px;">
+    <div id="editorialPreview_${s.id}" style="position:relative;aspect-ratio:4/5;background:#F2F4F6;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;cursor:pointer;" onclick="document.getElementById('editorialFile_${s.id}').click()">
+      ${imgHtml}
+      <div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;">사진 변경</div>
+    </div>
+    <input type="file" id="editorialFile_${s.id}" accept="image/*" style="display:none;" onchange="handleEditorialImagePick('${s.id}', this)">
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">태그 (예: JOURNAL.05)</label>
+    <input type="text" id="editorialTag_${s.id}" value="${(s.tag||'').replace(/"/g,'&quot;')}" placeholder="JOURNAL.05" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">제목</label>
+    <input type="text" id="editorialTitle_${s.id}" value="${(s.title||'').replace(/"/g,'&quot;')}" placeholder="제목을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">설명</label>
+    <textarea id="editorialSubtitle_${s.id}" placeholder="설명을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:12px;box-sizing:border-box;min-height:64px;resize:vertical;">${(s.subtitle||'')}</textarea>
+    <button class="btn-sm btn-primary" style="width:100%;" onclick="saveEditorialSlot('${s.id}')" id="editorialSaveBtn_${s.id}">저장</button>
+  </div>`;
+}
+
+function handleEditorialImagePick(slotId, input) {
+  const file = input.files[0];
+  if(!file) return;
+  editorialPendingFiles[slotId] = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('editorialPreview_'+slotId);
+    preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;">사진 변경</div>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveEditorialSlot(slotId) {
+  const btn = document.getElementById('editorialSaveBtn_'+slotId);
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  try {
+    const tag = document.getElementById('editorialTag_'+slotId).value.trim();
+    const title = document.getElementById('editorialTitle_'+slotId).value.trim();
+    const subtitle = document.getElementById('editorialSubtitle_'+slotId).value.trim();
+
+    const existingSnap = await window._getDoc(window._doc(window._db, 'editorialBanners', slotId));
+    let imageUrl = existingSnap.exists() ? (existingSnap.data().imageUrl || '') : '';
+
+    const file = editorialPendingFiles[slotId];
+    if(file) {
+      const rand = Math.random().toString(36).slice(2, 8);
+      const path = `editorial/${slotId}_${Date.now()}_${rand}_${file.name}`;
+      const fileRef = window._ref(window._storage, path);
+      await window._uploadBytes(fileRef, file);
+      imageUrl = await window._getDownloadURL(fileRef);
+    }
+
+    await window._setDoc(window._doc(window._db, 'editorialBanners', slotId), {
+      tag, title, subtitle, imageUrl,
+      updatedAt: window._serverTimestamp()
+    });
+
+    delete editorialPendingFiles[slotId];
+    showToast('저장했어요.', 'success');
+  } catch(e) {
+    showToast('저장 실패: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
   }
 }
 
