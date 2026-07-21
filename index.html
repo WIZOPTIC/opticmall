@@ -113,14 +113,15 @@ header {
 
 /* ── GNB (헤더와 한 줄로 통합) ── */
 /* ── 에디토리얼 배너 (히어로 우측) ── */
-.hero-right { display: flex; gap: 16px; justify-content: flex-start; }
-.editorial-card { cursor: default; flex: 0 0 170px; width: 170px; }
-.editorial-photo { position: relative; aspect-ratio: 3/4; background: var(--g1); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.hero-right { flex: 1 1 60%; max-width: 632px; overflow: hidden; align-self: center; }
+.editorial-track { display: flex; gap: 16px; transition: transform 0.6s ease; }
+.editorial-card { cursor: default; flex: 0 0 200px; width: 200px; }
+.editorial-photo { position: relative; height: 227px; background: var(--g1); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .editorial-photo img { width: 100%; height: 100%; object-fit: cover; }
 .editorial-photo .ph { font-size: 11px; color: var(--g3); }
-.editorial-tag { font-size: 10px; color: var(--gold); font-weight: 700; margin: 10px 0 4px; letter-spacing: 0.02em; }
-.editorial-title { font-size: 12.5px; font-weight: 700; color: var(--navy); margin-bottom: 4px; line-height: 1.4; }
-.editorial-sub { font-size: 11px; color: var(--g4); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.editorial-tag { font-size: 11px; color: var(--gold); font-weight: 700; margin: 10px 0 4px; letter-spacing: 0.02em; height: 13px; }
+.editorial-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; line-height: 1.4; height: 35px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+.editorial-sub { font-size: 11px; color: var(--g4); line-height: 1.5; height: 33px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
 
 .gnb-inner {
   display: flex;
@@ -143,13 +144,13 @@ header {
 }
 
 /* ── HERO (블롭 디자인) ── */
-.hero { background: var(--paper); position: relative; overflow: hidden; padding-bottom: 8px; }
+.hero { background: var(--paper); position: relative; overflow: hidden; }
 .static-blob-1, .static-blob-2 {
   position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none;
 }
 .static-blob-1 { width: 420px; height: 420px; background: radial-gradient(circle, var(--sky) 0%, transparent 70%); opacity: 0.08; }
 .static-blob-2 { width: 380px; height: 380px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); opacity: 0.32; }
-.hero-inner { max-width: 1280px; margin: 0 auto; padding: 56px 24px 64px; position: relative; z-index: 2; }
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 56px 24px 56px; position: relative; z-index: 2; }
 .hero-badge {
   font-family: 'Inter', monospace; font-size: 12px; color: var(--sky); font-weight: 600;
   letter-spacing: 0.06em; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 6px;
@@ -466,8 +467,8 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 <section class="hero">
   <div class="static-blob-1" style="top:20px;left:8%;"></div>
   <div class="static-blob-2" style="top:90px;left:22%;"></div>
-  <div class="hero-inner" style="display:flex;align-items:flex-start;gap:40px;">
-    <div class="hero-left" style="flex:1 1 46%;">
+  <div class="hero-inner" style="display:flex;align-items:center;gap:40px;">
+    <div class="hero-left" style="flex:1 1 40%;">
       <div class="hero-badge">OPTICIAN ONLY · B2B WHOLESALE</div>
       <h1>한 끗 다른 안목,<br><em>가장 정직한 도매몰</em></h1>
       <p>안경사를 위해 엄선된 브랜드만 진열장에 올립니다.</p>
@@ -476,7 +477,9 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <button class="btn-hero-sub" onclick="openLogin()">로그인</button>
       </div>
     </div>
-    <div class="hero-right" style="flex:1 1 54%;" id="editorialGrid"></div>
+    <div class="hero-right" id="editorialViewport">
+      <div class="editorial-track" id="editorialGrid"></div>
+    </div>
   </div>
 </section>
 
@@ -1075,55 +1078,67 @@ async function loadMainProducts() {
 loadMainProducts();
 
 let editorialAllItems = [];
-let editorialRotateIndex = 0;
+let editorialStep = 0;
 let editorialRotateTimer = null;
+const EDITORIAL_CARD_STEP = 216; // 카드 200px + gap 16px
 
 async function loadEditorialSection() {
-  const grid = document.getElementById('editorialGrid');
+  const viewport = document.getElementById('editorialViewport');
+  const track = document.getElementById('editorialGrid');
   try {
     const snap = await _db.collection('editorialBanners').get();
     const list = [];
     snap.forEach(d => list.push({id: d.id, ...d.data()}));
     list.sort((a,b) => (a.order||0) - (b.order||0));
     editorialAllItems = list.filter(s => s.title || s.imageUrl);
-    if (editorialAllItems.length === 0) { grid.style.display = 'none'; return; }
-    renderEditorialWindow();
-    if (editorialAllItems.length > 3) {
-      editorialRotateTimer = setInterval(() => {
-        editorialRotateIndex = (editorialRotateIndex + 1) % editorialAllItems.length;
-        renderEditorialWindow();
-      }, 4000);
+    if (editorialAllItems.length === 0) { viewport.style.display = 'none'; return; }
+
+    const total = editorialAllItems.length;
+    const visibleCount = Math.min(3, total);
+    // 끝에 앞쪽 카드를 복제해서 이어붙여야 자연스럽게 무한 루프처럼 보임
+    const renderList = total > visibleCount
+      ? [...editorialAllItems, ...editorialAllItems.slice(0, visibleCount)]
+      : editorialAllItems;
+
+    track.innerHTML = renderList.map(s => {
+      const clickable = !!s.link;
+      const openAttr = s.link ? (s.link.startsWith('http') ? ` target="_blank" rel="noopener"` : '') : '';
+      const Tag = clickable ? 'a' : 'div';
+      const hrefAttr = clickable ? ` href="${s.link}"${openAttr}` : '';
+      return `
+        <${Tag} class="editorial-card"${hrefAttr} style="text-decoration:none;display:block;flex-shrink:0;${clickable ? 'cursor:pointer;' : ''}">
+          <div class="editorial-photo">
+            ${s.imageUrl ? `<img src="${s.imageUrl}" alt="">` : `<span class="ph">이미지 준비중</span>`}
+          </div>
+          <div class="editorial-tag">${s.tag || ''}</div>
+          <div class="editorial-title">${s.title || ''}</div>
+          <div class="editorial-sub">${s.subtitle || ''}</div>
+        </${Tag}>
+      `;
+    }).join('');
+
+    if (total > visibleCount) {
+      editorialRotateTimer = setInterval(() => slideEditorialTrack(track, total), 3500);
     }
   } catch(e) {
     console.error(e);
-    grid.style.display = 'none';
+    viewport.style.display = 'none';
   }
 }
 
-function renderEditorialWindow() {
-  const grid = document.getElementById('editorialGrid');
-  const total = editorialAllItems.length;
-  const visibleCount = Math.min(3, total);
-  const visible = [];
-  for (let i = 0; i < visibleCount; i++) {
-    visible.push(editorialAllItems[(editorialRotateIndex + i) % total]);
+function slideEditorialTrack(track, total) {
+  editorialStep++;
+  track.style.transition = 'transform 0.6s ease';
+  track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+
+  if (editorialStep >= total) {
+    // 트랜지션이 끝나면, 복제해둔 마지막 카드에서 순간이동(트랜지션 없이)으로 맨 앞으로 되돌림
+    setTimeout(() => {
+      track.style.transition = 'none';
+      editorialStep = 0;
+      track.style.transform = `translateX(0px)`;
+    }, 600);
   }
-  grid.innerHTML = visible.map(s => {
-    const clickable = !!s.link;
-    const openAttr = s.link ? (s.link.startsWith('http') ? ` target="_blank" rel="noopener"` : '') : '';
-    const Tag = clickable ? 'a' : 'div';
-    const hrefAttr = clickable ? ` href="${s.link}"${openAttr}` : '';
-    return `
-      <${Tag} class="editorial-card"${hrefAttr} style="text-decoration:none;display:block;${clickable ? 'cursor:pointer;' : ''}">
-        <div class="editorial-photo">
-          ${s.imageUrl ? `<img src="${s.imageUrl}" alt="">` : `<span class="ph">이미지 준비중</span>`}
-        </div>
-        ${s.tag ? `<div class="editorial-tag">${s.tag}</div>` : ''}
-        ${s.title ? `<div class="editorial-title">${s.title}</div>` : ''}
-        ${s.subtitle ? `<div class="editorial-sub">${s.subtitle}</div>` : ''}
-      </${Tag}>
-    `;
-  }).join('');
 }
 loadEditorialSection();
 
