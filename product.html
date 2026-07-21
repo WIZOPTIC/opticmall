@@ -460,7 +460,8 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <!-- 가격 (회원 - 기본 숨김) -->
     <div class="price-wrap" id="price-visible" style="display:none;">
       <div class="price-label">도매 공급가</div>
-      <div class="price-value"><span class="won">₩</span><span id="priceValue">0</span></div>
+      <div id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-top:4px;"></div>
+      <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span></div>
       <div style="font-size:12px;color:var(--g3);margin-top:6px;">부가세 포함</div>
     </div>
 
@@ -815,10 +816,14 @@ function updatePriceDisplay() {
 
     if(discountRate > 0) {
       const salePrice = Math.round(price * (1 - discountRate/100));
-      document.getElementById('priceValue').innerHTML =
-        `<span style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-right:8px;">₩${price.toLocaleString()}</span>${salePrice.toLocaleString()} <span style="font-size:16px;color:var(--red);font-weight:800;">${discountRate}%</span>`;
+      document.getElementById('priceOriginal').textContent = `₩${price.toLocaleString()}`;
+      document.getElementById('priceOriginal').style.display = 'block';
+      document.getElementById('priceDiscountBadge').innerHTML = `<span style="font-size:16px;color:var(--red);font-weight:800;margin-right:8px;">${discountRate}%</span>`;
+      document.getElementById('priceValue').textContent = salePrice.toLocaleString();
       document.getElementById('spec-price').textContent = '₩' + salePrice.toLocaleString() + ` (${discountRate}% 할인 적용)`;
     } else {
+      document.getElementById('priceOriginal').style.display = 'none';
+      document.getElementById('priceDiscountBadge').innerHTML = '';
       document.getElementById('priceValue').textContent = price.toLocaleString();
       document.getElementById('spec-price').textContent = '₩' + price.toLocaleString();
     }
@@ -1287,7 +1292,7 @@ async function toggleWish() {
   const wishDocId = buildWishDocId(currentProduct.id, currentProduct.colors, colorIdx);
   const wishRef = _db.collection('wishlists').doc(uid).collection('items').doc(wishDocId);
   try {
-    if (btn.innerHTML === '<i class=ic-heart></i>') {
+    if (!btn.classList.contains('active')) {
       await wishRef.set({
         productId: currentProduct.id,
         colorIdx: selectedColor ? colorIdx : null,
