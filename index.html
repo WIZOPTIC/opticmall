@@ -1074,28 +1074,56 @@ async function loadMainProducts() {
 
 loadMainProducts();
 
+let editorialAllItems = [];
+let editorialRotateIndex = 0;
+let editorialRotateTimer = null;
+
 async function loadEditorialSection() {
   const grid = document.getElementById('editorialGrid');
   try {
     const snap = await _db.collection('editorialBanners').get();
-    const bySlot = {};
-    snap.forEach(d => { bySlot[d.id] = d.data(); });
-    const slots = ['slot1','slot2','slot3'].map(id => bySlot[id] || null).filter(s => s && (s.title || s.imageUrl));
-    if (slots.length === 0) { grid.style.display = 'none'; return; }
-    grid.innerHTML = slots.map(s => `
-      <div class="editorial-card">
+    const list = [];
+    snap.forEach(d => list.push({id: d.id, ...d.data()}));
+    list.sort((a,b) => (a.order||0) - (b.order||0));
+    editorialAllItems = list.filter(s => s.title || s.imageUrl);
+    if (editorialAllItems.length === 0) { grid.style.display = 'none'; return; }
+    renderEditorialWindow();
+    if (editorialAllItems.length > 3) {
+      editorialRotateTimer = setInterval(() => {
+        editorialRotateIndex = (editorialRotateIndex + 1) % editorialAllItems.length;
+        renderEditorialWindow();
+      }, 4000);
+    }
+  } catch(e) {
+    console.error(e);
+    grid.style.display = 'none';
+  }
+}
+
+function renderEditorialWindow() {
+  const grid = document.getElementById('editorialGrid');
+  const total = editorialAllItems.length;
+  const visibleCount = Math.min(3, total);
+  const visible = [];
+  for (let i = 0; i < visibleCount; i++) {
+    visible.push(editorialAllItems[(editorialRotateIndex + i) % total]);
+  }
+  grid.innerHTML = visible.map(s => {
+    const clickable = !!s.link;
+    const openAttr = s.link ? (s.link.startsWith('http') ? ` target="_blank" rel="noopener"` : '') : '';
+    const Tag = clickable ? 'a' : 'div';
+    const hrefAttr = clickable ? ` href="${s.link}"${openAttr}` : '';
+    return `
+      <${Tag} class="editorial-card"${hrefAttr} style="text-decoration:none;display:block;${clickable ? 'cursor:pointer;' : ''}">
         <div class="editorial-photo">
           ${s.imageUrl ? `<img src="${s.imageUrl}" alt="">` : `<span class="ph">이미지 준비중</span>`}
         </div>
         ${s.tag ? `<div class="editorial-tag">${s.tag}</div>` : ''}
         ${s.title ? `<div class="editorial-title">${s.title}</div>` : ''}
         ${s.subtitle ? `<div class="editorial-sub">${s.subtitle}</div>` : ''}
-      </div>
-    `).join('');
-  } catch(e) {
-    console.error(e);
-    grid.style.display = 'none';
-  }
+      </${Tag}>
+    `;
+  }).join('');
 }
 loadEditorialSection();
 

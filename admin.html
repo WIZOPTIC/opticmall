@@ -414,8 +414,9 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <div class="page" id="page-editorial">
       <div class="section-header">
         <div class="section-title">롤링 배너 관리</div>
+        <button class="btn-sm btn-primary" onclick="addEditorialBanner()">+ 새 배너 추가</button>
       </div>
-      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">메인페이지 하단에 3개가 나란히 롤링되는 배너예요. 사진, 태그, 제목, 설명을 각각 입력하고 저장하면 바로 반영돼요.</div>
+      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">메인페이지 히어로 옆에 나오는 배너예요. 3개 이하면 그대로, 4개 이상이면 자동으로 롤링돼요. "이동 링크"에 페이지 주소를 넣으면 클릭 시 그 페이지로 이동해요. (예: brands.html, join.html, event.html, https://pf.kakao.com/... 등)</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="editorialSlotsWrap">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
@@ -1392,20 +1393,33 @@ function initSettlementMonthSelect() {
 
 // ── 롤링 배너 관리 ──
 const editorialPendingFiles = {};
+let editorialCache = [];
 
 async function loadEditorialBanners() {
   const wrap = document.getElementById('editorialSlotsWrap');
   wrap.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
   try {
-    const slots = [];
-    for(const slotId of ['slot1','slot2','slot3']) {
-      const snap = await window._getDoc(window._doc(window._db, 'editorialBanners', slotId));
-      slots.push(snap.exists() ? {id: slotId, ...snap.data()} : {id: slotId, tag:'', title:'', subtitle:'', imageUrl:''});
-    }
-    wrap.innerHTML = slots.map(s => renderEditorialSlot(s)).join('');
+    const snap = await window._getDocs(window._collection(window._db, 'editorialBanners'));
+    const list = [];
+    snap.forEach(d => list.push({id: d.id, ...d.data()}));
+    list.sort((a,b) => (a.order||0) - (b.order||0));
+    editorialCache = list;
+    wrap.innerHTML = list.length
+      ? list.map(s => renderEditorialSlot(s)).join('')
+      : `<div style="grid-column:1/-1;text-align:center;color:#9BA5B0;padding:40px;">아직 등록된 배너가 없어요. "+ 새 배너 추가"를 눌러 시작하세요.</div>`;
   } catch(e) {
     wrap.innerHTML = `<div style="grid-column:1/-1;color:#FF4444;padding:20px;">불러오기 실패: ${e.message}</div>`;
   }
+}
+
+function addEditorialBanner() {
+  const newRef = window._doc(window._collection(window._db, 'editorialBanners'));
+  const nextOrder = editorialCache.length ? Math.max(...editorialCache.map(s => s.order||0)) + 1 : 1;
+  const newCard = {id: newRef.id, tag:'', title:'', subtitle:'', imageUrl:'', link:'', order: nextOrder, _isNew: true};
+  editorialCache.push(newCard);
+  const wrap = document.getElementById('editorialSlotsWrap');
+  wrap.innerHTML = editorialCache.map(s => renderEditorialSlot(s)).join('');
+  document.getElementById('editorialTitle_'+newCard.id)?.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 function renderEditorialSlot(s) {
@@ -1413,7 +1427,8 @@ function renderEditorialSlot(s) {
     ? `<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover;">`
     : `<span style="font-size:12px;color:#9BA5B0;">사진 없음</span>`;
   return `
-  <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:16px;">
+  <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:16px;position:relative;">
+    <button onclick="deleteEditorialSlot('${s.id}')" style="position:absolute;top:12px;right:12px;background:none;border:none;color:#9BA5B0;font-size:13px;cursor:pointer;">삭제</button>
     <div id="editorialPreview_${s.id}" style="position:relative;aspect-ratio:4/5;background:#F2F4F6;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;cursor:pointer;" onclick="document.getElementById('editorialFile_${s.id}').click()">
       ${imgHtml}
       <div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;">사진 변경</div>
@@ -1424,7 +1439,11 @@ function renderEditorialSlot(s) {
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">제목</label>
     <input type="text" id="editorialTitle_${s.id}" value="${(s.title||'').replace(/"/g,'&quot;')}" placeholder="제목을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">설명</label>
-    <textarea id="editorialSubtitle_${s.id}" placeholder="설명을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:12px;box-sizing:border-box;min-height:64px;resize:vertical;">${(s.subtitle||'')}</textarea>
+    <textarea id="editorialSubtitle_${s.id}" placeholder="설명을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;min-height:64px;resize:vertical;">${(s.subtitle||'')}</textarea>
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">클릭 시 이동 링크</label>
+    <input type="text" id="editorialLink_${s.id}" value="${(s.link||'').replace(/"/g,'&quot;')}" placeholder="예: brands.html, join.html, https://pf.kakao.com/..." style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">노출 순서 (숫자가 작을수록 먼저)</label>
+    <input type="number" id="editorialOrder_${s.id}" value="${s.order||1}" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:12px;box-sizing:border-box;">
     <button class="btn-sm btn-primary" style="width:100%;" onclick="saveEditorialSlot('${s.id}')" id="editorialSaveBtn_${s.id}">저장</button>
   </div>`;
 }
@@ -1449,6 +1468,8 @@ async function saveEditorialSlot(slotId) {
     const tag = document.getElementById('editorialTag_'+slotId).value.trim();
     const title = document.getElementById('editorialTitle_'+slotId).value.trim();
     const subtitle = document.getElementById('editorialSubtitle_'+slotId).value.trim();
+    const link = document.getElementById('editorialLink_'+slotId).value.trim();
+    const order = parseInt(document.getElementById('editorialOrder_'+slotId).value, 10) || 1;
 
     const existingSnap = await window._getDoc(window._doc(window._db, 'editorialBanners', slotId));
     let imageUrl = existingSnap.exists() ? (existingSnap.data().imageUrl || '') : '';
@@ -1463,17 +1484,29 @@ async function saveEditorialSlot(slotId) {
     }
 
     await window._setDoc(window._doc(window._db, 'editorialBanners', slotId), {
-      tag, title, subtitle, imageUrl,
+      tag, title, subtitle, link, order, imageUrl,
       updatedAt: window._serverTimestamp()
     });
 
     delete editorialPendingFiles[slotId];
     showToast('저장했어요.', 'success');
+    loadEditorialBanners();
   } catch(e) {
     showToast('저장 실패: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
     btn.textContent = '저장';
+  }
+}
+
+async function deleteEditorialSlot(slotId) {
+  if(!confirm('이 배너를 삭제할까요?')) return;
+  try {
+    await window._deleteDoc(window._doc(window._db, 'editorialBanners', slotId));
+    showToast('삭제했어요.', 'success');
+    loadEditorialBanners();
+  } catch(e) {
+    showToast('삭제 실패: ' + e.message, 'error');
   }
 }
 
