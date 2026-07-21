@@ -243,7 +243,8 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 /* 토스트 */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: var(--white); padding: 14px 24px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 1000; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-.toast.success { background: var(--green); }
+.toast.success { background: var(--navy); }
+.toast.remove { background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); }
 
 /* 장바구니 담기 중앙 오버레이 */
 .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 2000; }
@@ -918,7 +919,7 @@ async function loadProduct() {
 function renderProduct(p) {
   document.title = 'OPTICMALL | ' + (p.modelName || '상품');
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
-  document.getElementById('productCategory').textContent = (p.type || '안경테') + (p.brandName ? ' · ' + p.brandName : '');
+  document.getElementById('productCategory').textContent = p.brandName || '';
   document.getElementById('productName').textContent = p.modelName || '-';
   document.getElementById('productCode').textContent = '상품코드: ' + (p.barcode || '-') + (p.size ? '  ·  사이즈: ' + p.size : '');
 
@@ -1307,7 +1308,7 @@ async function toggleWish() {
       await wishRef.delete();
       btn.innerHTML = '<i class=ic-heart></i>';
       btn.classList.remove('active');
-      showToast('관심상품에서 제거되었습니다.');
+      showToast('관심상품에서 제거되었습니다.', 'remove');
     }
   } catch(e) {
     console.error(e);
