@@ -113,7 +113,7 @@ header {
 
 /* ── GNB (헤더와 한 줄로 통합) ── */
 /* ── 에디토리얼 배너 (히어로 우측) ── */
-.hero-right { flex: 1 1 60%; max-width: 632px; align-self: center; }
+.hero-right { flex: 1 1 60%; max-width: 780px; align-self: center; padding: 0 74px; box-sizing: border-box; position: relative; }
 .editorial-track { display: flex; gap: 16px; transition: transform 0.6s ease; }
 .editorial-card { cursor: default; flex: 0 0 200px; width: 200px; }
 .editorial-photo { position: relative; height: 227px; background: var(--g1); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -481,11 +481,11 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <div id="editorialViewport" style="overflow:hidden;">
         <div class="editorial-track" id="editorialGrid"></div>
       </div>
-      <button id="editorialPrevBtn" onclick="editorialManualNav(editorialPrev)" style="display:none;position:absolute;top:161px;left:-8px;transform:translateY(-50%);width:32px;height:32px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
+      <button id="editorialPrevBtn" onclick="editorialManualNav(editorialNext)" style="display:none;position:absolute;top:113px;left:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+        <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <button id="editorialNextBtn" onclick="editorialManualNav(editorialNext)" style="display:none;position:absolute;top:161px;right:-8px;transform:translateY(-50%);width:32px;height:32px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+      <button id="editorialNextBtn" onclick="editorialManualNav(editorialPrev)" style="display:none;position:absolute;top:113px;right:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+        <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
   </div>
