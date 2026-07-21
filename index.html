@@ -113,7 +113,7 @@ header {
 
 /* ── GNB (헤더와 한 줄로 통합) ── */
 /* ── 에디토리얼 배너 (히어로 우측) ── */
-.hero-right { flex: 1 1 60%; max-width: 632px; overflow: hidden; align-self: center; }
+.hero-right { flex: 1 1 60%; max-width: 632px; align-self: center; }
 .editorial-track { display: flex; gap: 16px; transition: transform 0.6s ease; }
 .editorial-card { cursor: default; flex: 0 0 200px; width: 200px; }
 .editorial-photo { position: relative; height: 227px; background: var(--g1); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -477,8 +477,16 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <button class="btn-hero-sub" onclick="openLogin()">로그인</button>
       </div>
     </div>
-    <div class="hero-right" id="editorialViewport">
-      <div class="editorial-track" id="editorialGrid"></div>
+    <div class="hero-right" style="position:relative;" id="editorialWrap">
+      <div id="editorialViewport" style="overflow:hidden;">
+        <div class="editorial-track" id="editorialGrid"></div>
+      </div>
+      <button id="editorialPrevBtn" onclick="editorialManualNav(editorialPrev)" style="display:none;position:absolute;top:161px;left:-8px;transform:translateY(-50%);width:32px;height:32px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button id="editorialNextBtn" onclick="editorialManualNav(editorialNext)" style="display:none;position:absolute;top:161px;right:-8px;transform:translateY(-50%);width:32px;height:32px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
   </div>
 </section>
@@ -1079,11 +1087,13 @@ loadMainProducts();
 
 let editorialAllItems = [];
 let editorialStep = 0;
+let editorialVisibleCount = 3;
+let editorialTotal = 0;
 let editorialRotateTimer = null;
 const EDITORIAL_CARD_STEP = 216; // 카드 200px + gap 16px
 
 async function loadEditorialSection() {
-  const viewport = document.getElementById('editorialViewport');
+  const wrap = document.getElementById('editorialWrap');
   const track = document.getElementById('editorialGrid');
   try {
     const snap = await _db.collection('editorialBanners').get();
@@ -1091,54 +1101,83 @@ async function loadEditorialSection() {
     snap.forEach(d => list.push({id: d.id, ...d.data()}));
     list.sort((a,b) => (a.order||0) - (b.order||0));
     editorialAllItems = list.filter(s => s.title || s.imageUrl);
-    if (editorialAllItems.length === 0) { viewport.style.display = 'none'; return; }
+    if (editorialAllItems.length === 0) { wrap.style.display = 'none'; return; }
 
-    const total = editorialAllItems.length;
-    const visibleCount = Math.min(3, total);
-    // 끝에 앞쪽 카드를 복제해서 이어붙여야 자연스럽게 무한 루프처럼 보임
-    const renderList = total > visibleCount
-      ? [...editorialAllItems, ...editorialAllItems.slice(0, visibleCount)]
+    editorialTotal = editorialAllItems.length;
+    editorialVisibleCount = Math.min(3, editorialTotal);
+    const loop = editorialTotal > editorialVisibleCount;
+
+    // 무한 루프처럼 보이게 앞뒤로 카드를 복제해서 이어붙임
+    const renderList = loop
+      ? [...editorialAllItems.slice(-editorialVisibleCount), ...editorialAllItems, ...editorialAllItems.slice(0, editorialVisibleCount)]
       : editorialAllItems;
 
-    track.innerHTML = renderList.map(s => {
-      const clickable = !!s.link;
-      const openAttr = s.link ? (s.link.startsWith('http') ? ` target="_blank" rel="noopener"` : '') : '';
-      const Tag = clickable ? 'a' : 'div';
-      const hrefAttr = clickable ? ` href="${s.link}"${openAttr}` : '';
-      return `
-        <${Tag} class="editorial-card"${hrefAttr} style="text-decoration:none;display:block;flex-shrink:0;${clickable ? 'cursor:pointer;' : ''}">
-          <div class="editorial-photo">
-            ${s.imageUrl ? `<img src="${s.imageUrl}" alt="">` : `<span class="ph">이미지 준비중</span>`}
-          </div>
-          <div class="editorial-tag">${s.tag || ''}</div>
-          <div class="editorial-title">${s.title || ''}</div>
-          <div class="editorial-sub">${s.subtitle || ''}</div>
-        </${Tag}>
-      `;
-    }).join('');
+    track.innerHTML = renderList.map(s => renderEditorialCard(s)).join('');
 
-    if (total > visibleCount) {
-      editorialRotateTimer = setInterval(() => slideEditorialTrack(track, total), 3500);
+    editorialStep = loop ? editorialVisibleCount : 0;
+    track.style.transition = 'none';
+    track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+
+    if (loop) {
+      document.getElementById('editorialPrevBtn').style.display = 'flex';
+      document.getElementById('editorialNextBtn').style.display = 'flex';
+      editorialRotateTimer = setInterval(() => editorialNext(), 3500);
     }
   } catch(e) {
     console.error(e);
-    viewport.style.display = 'none';
+    wrap.style.display = 'none';
   }
 }
 
-function slideEditorialTrack(track, total) {
+function renderEditorialCard(s) {
+  const clickable = !!s.link;
+  const openAttr = s.link ? (s.link.startsWith('http') ? ` target="_blank" rel="noopener"` : '') : '';
+  const Tag = clickable ? 'a' : 'div';
+  const hrefAttr = clickable ? ` href="${s.link}"${openAttr}` : '';
+  return `
+    <${Tag} class="editorial-card"${hrefAttr} style="text-decoration:none;display:block;flex-shrink:0;${clickable ? 'cursor:pointer;' : ''}">
+      <div class="editorial-photo">
+        ${s.imageUrl ? `<img src="${s.imageUrl}" alt="">` : `<span class="ph">이미지 준비중</span>`}
+      </div>
+      <div class="editorial-tag">${s.tag || ''}</div>
+      <div class="editorial-title">${s.title || ''}</div>
+      <div class="editorial-sub">${s.subtitle || ''}</div>
+    </${Tag}>
+  `;
+}
+
+function editorialNext() {
+  const track = document.getElementById('editorialGrid');
   editorialStep++;
   track.style.transition = 'transform 0.6s ease';
   track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
-
-  if (editorialStep >= total) {
-    // 트랜지션이 끝나면, 복제해둔 마지막 카드에서 순간이동(트랜지션 없이)으로 맨 앞으로 되돌림
+  if (editorialStep >= editorialVisibleCount + editorialTotal) {
     setTimeout(() => {
       track.style.transition = 'none';
-      editorialStep = 0;
-      track.style.transform = `translateX(0px)`;
+      editorialStep = editorialVisibleCount;
+      track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
     }, 600);
   }
+}
+
+function editorialPrev() {
+  const track = document.getElementById('editorialGrid');
+  editorialStep--;
+  track.style.transition = 'transform 0.6s ease';
+  track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+  if (editorialStep < editorialVisibleCount) {
+    setTimeout(() => {
+      track.style.transition = 'none';
+      editorialStep = editorialVisibleCount + editorialTotal - 1;
+      track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+    }, 600);
+  }
+}
+
+function editorialManualNav(fn) {
+  if (editorialRotateTimer) clearInterval(editorialRotateTimer);
+  fn();
+  editorialRotateTimer = setInterval(() => editorialNext(), 3500);
 }
 loadEditorialSection();
 
