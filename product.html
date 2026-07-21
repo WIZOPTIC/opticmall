@@ -459,11 +459,17 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     </div>
 
     <!-- 가격 (회원 - 기본 숨김) -->
-    <div class="price-wrap" id="price-visible" style="display:none;">
-      <div class="price-label">도매 공급가</div>
-      <div id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-top:4px;"></div>
-      <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span></div>
-      <div style="font-size:12px;color:var(--g3);margin-top:6px;">부가세 포함</div>
+    <div class="price-wrap" id="price-visible" style="display:none;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="price-label">도매 공급가</div>
+        <div id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-top:4px;"></div>
+        <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span></div>
+        <div style="font-size:12px;color:var(--g3);margin-top:6px;">부가세 포함</div>
+      </div>
+      <div class="stock-info" id="stock-status" style="margin:0;flex-shrink:0;">
+        <div class="stock-dot"></div>
+        <span style="color:var(--green);font-weight:600;">재고 있음</span>
+      </div>
     </div>
 
     <!-- 색상/타입 정보 -->
@@ -472,12 +478,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <div class="color-list" id="colorList">
         <!-- JS로 동적 생성 -->
       </div>
-    </div>
-
-    <!-- 재고 상태 -->
-    <div class="stock-info" id="stock-status">
-      <div class="stock-dot"></div>
-      <span style="color:var(--green);font-weight:600;">재고 있음</span>
     </div>
 
     <!-- 수량 -->
@@ -807,7 +807,7 @@ function updatePriceDisplay() {
   document.getElementById('price-checking').style.display = 'none'; // 로그인 상태 확정됐으니 확인중 화면은 숨김
   if(memberLevel >= 2) {
     document.getElementById('price-locked').style.display = 'none';
-    document.getElementById('price-visible').style.display = 'block';
+    document.getElementById('price-visible').style.display = 'flex';
 
     // 선택된 색상에 별도 가격이 지정돼 있으면 그 가격을, 없으면 기본가를 사용
     const selectedColor = currentProduct.colors && currentProduct.colors[currentColorIdx];
