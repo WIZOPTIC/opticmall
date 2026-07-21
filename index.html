@@ -112,16 +112,15 @@ header {
 }
 
 /* ── GNB (헤더와 한 줄로 통합) ── */
-/* ── 에디토리얼 배너 ── */
-.editorial-section { background: var(--off); padding: 56px 0; }
-.editorial-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.editorial-card { cursor: default; }
-.editorial-photo { position: relative; aspect-ratio: 4/5; background: var(--g1); border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+/* ── 에디토리얼 배너 (히어로 우측) ── */
+.hero-right { display: flex; gap: 16px; }
+.editorial-card { cursor: default; flex: 1 1 0; min-width: 0; }
+.editorial-photo { position: relative; aspect-ratio: 3/4; background: var(--g1); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .editorial-photo img { width: 100%; height: 100%; object-fit: cover; }
-.editorial-photo .ph { font-size: 12px; color: var(--g3); }
-.editorial-tag { font-size: 11px; color: var(--gold); font-weight: 700; margin: 14px 0 6px; letter-spacing: 0.03em; }
-.editorial-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 6px; line-height: 1.4; }
-.editorial-sub { font-size: 12.5px; color: var(--g4); line-height: 1.6; }
+.editorial-photo .ph { font-size: 11px; color: var(--g3); }
+.editorial-tag { font-size: 10px; color: var(--gold); font-weight: 700; margin: 10px 0 4px; letter-spacing: 0.02em; }
+.editorial-title { font-size: 12.5px; font-weight: 700; color: var(--navy); margin-bottom: 4px; line-height: 1.4; }
+.editorial-sub { font-size: 11px; color: var(--g4); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .gnb-inner {
   display: flex;
@@ -467,8 +466,8 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 <section class="hero">
   <div class="static-blob-1" style="top:20px;left:8%;"></div>
   <div class="static-blob-2" style="top:90px;left:22%;"></div>
-  <div class="hero-inner">
-    <div class="hero-left">
+  <div class="hero-inner" style="display:flex;align-items:flex-start;gap:40px;">
+    <div class="hero-left" style="flex:1 1 46%;">
       <div class="hero-badge">OPTICIAN ONLY · B2B WHOLESALE</div>
       <h1>한 끗 다른 안목,<br><em>가장 정직한 도매몰</em></h1>
       <p>안경사를 위해 엄선된 브랜드만 진열장에 올립니다.</p>
@@ -477,6 +476,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <button class="btn-hero-sub" onclick="openLogin()">로그인</button>
       </div>
     </div>
+    <div class="hero-right" style="flex:1 1 54%;" id="editorialGrid"></div>
   </div>
 </section>
 
@@ -540,12 +540,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 
 
 </div>
-
-<!-- 에디토리얼 배너 -->
-<section class="editorial-section">
-  <div class="editorial-inner" id="editorialGrid">
-  </div>
-</section>
 
 <!-- FOOTER -->
 <footer>
@@ -1087,7 +1081,7 @@ async function loadEditorialSection() {
     const bySlot = {};
     snap.forEach(d => { bySlot[d.id] = d.data(); });
     const slots = ['slot1','slot2','slot3'].map(id => bySlot[id] || null).filter(s => s && (s.title || s.imageUrl));
-    if (slots.length === 0) { grid.closest('.editorial-section').style.display = 'none'; return; }
+    if (slots.length === 0) { grid.style.display = 'none'; return; }
     grid.innerHTML = slots.map(s => `
       <div class="editorial-card">
         <div class="editorial-photo">
@@ -1100,7 +1094,7 @@ async function loadEditorialSection() {
     `).join('');
   } catch(e) {
     console.error(e);
-    grid.closest('.editorial-section').style.display = 'none';
+    grid.style.display = 'none';
   }
 }
 loadEditorialSection();
