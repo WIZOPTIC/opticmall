@@ -460,13 +460,11 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     </div>
 
     <!-- 가격 (회원 - 기본 숨김) -->
-    <div class="price-wrap" id="price-visible" style="display:none;position:relative;">
-      <div style="position:absolute;top:20px;right:20px;text-align:right;">
-        <div class="product-code" id="productCode" style="margin:0;">상품코드: -</div>
-        <div class="stock-info" id="stock-status" style="margin:24px 0 0;justify-content:flex-end;">
-          <div class="stock-dot"></div>
-          <span style="color:var(--green);font-weight:600;">재고 있음</span>
-        </div>
+    <div class="price-wrap" id="price-visible" style="display:none;position:relative;min-height:120px;">
+      <div class="product-code" id="productCode" style="margin:0;position:absolute;top:20px;right:20px;text-align:right;">상품코드: -</div>
+      <div class="stock-info" id="stock-status" style="position:absolute;bottom:20px;right:20px;margin:0;justify-content:flex-end;">
+        <div class="stock-dot"></div>
+        <span style="color:var(--green);font-weight:600;">재고 있음</span>
       </div>
       <div class="price-label">도매 공급가</div>
       <div id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-top:4px;"></div>
