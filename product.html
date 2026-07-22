@@ -824,7 +824,7 @@ function updatePriceDisplay() {
     if(discountRate > 0) {
       const salePrice = Math.round(price * (1 - discountRate/100));
       document.getElementById('priceOriginal').textContent = `₩${price.toLocaleString()}`;
-      document.getElementById('priceOriginal').style.display = 'block';
+      document.getElementById('priceOriginal').style.display = 'inline';
       document.getElementById('priceDiscountBadge').innerHTML = `<span style="font-size:16px;color:var(--red);font-weight:800;margin-right:8px;">${discountRate}%</span>`;
       document.getElementById('priceValue').textContent = salePrice.toLocaleString();
       document.getElementById('spec-price').textContent = '₩' + salePrice.toLocaleString() + ` (${discountRate}% 할인 적용)`;
