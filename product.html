@@ -434,8 +434,10 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
   <!-- 정보 -->
   <div class="product-info">
     <div class="product-category" id="productCategory">-</div>
-    <div class="product-name" id="productName">불러오는 중...</div>
-    <div class="product-code" id="productSize">사이즈: -</div>
+    <div style="display:flex;align-items:baseline;gap:14px;">
+      <div class="product-name" id="productName" style="margin-bottom:0;">불러오는 중...</div>
+      <div class="product-code" id="productSize" style="margin-bottom:0;">사이즈: -</div>
+    </div>
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
     <div class="price-wrap" id="price-checking">
@@ -467,8 +469,10 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <div class="stock-dot"></div>
         <span style="color:var(--green);font-weight:600;">재고 있음</span>
       </div>
-      <div class="price-label">도매 공급가</div>
-      <div id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-top:4px;"></div>
+      <div style="display:flex;align-items:baseline;gap:10px;">
+        <div class="price-label" style="margin-bottom:0;">도매 공급가</div>
+        <div id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;"></div>
+      </div>
       <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span style="font-size:12px;color:var(--g3);font-weight:400;margin-left:8px;">부가세 포함</span></div>
     </div>
 
