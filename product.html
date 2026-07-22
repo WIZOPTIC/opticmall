@@ -82,9 +82,9 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 }
 .main-img-placeholder { font-size: 100px; opacity: 0.08; }
 .img-badge { position: absolute; top: 16px; left: 16px; background: var(--sky); color: var(--white); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 6px; }
-.thumb-list { display: flex; gap: 10px; }
+.thumb-list { display: flex; gap: 10px; justify-content: center; }
 .thumb {
-  width: 80px; height: 80px; border-radius: 8px;
+  width: 80px; height: 80px; border-radius: 8px; flex-shrink: 0;
   background: var(--g1); border: 2px solid var(--g2);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; font-size: 30px;
