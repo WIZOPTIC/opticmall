@@ -434,7 +434,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
   <div class="product-info">
     <div class="product-category" id="productCategory">-</div>
     <div class="product-name" id="productName">불러오는 중...</div>
-    <div class="product-code" id="productCode">상품코드: -</div>
+    <div class="product-code" id="productSize">사이즈: -</div>
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
     <div class="price-wrap" id="price-checking">
@@ -460,15 +460,17 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     </div>
 
     <!-- 가격 (회원 - 기본 숨김) -->
-    <div class="price-wrap" id="price-visible" style="display:none;">
+    <div class="price-wrap" id="price-visible" style="display:none;position:relative;">
+      <div style="position:absolute;top:20px;right:20px;text-align:right;">
+        <div class="product-code" id="productCode" style="margin:0;">상품코드: -</div>
+        <div class="stock-info" id="stock-status" style="margin:8px 0 0;justify-content:flex-end;">
+          <div class="stock-dot"></div>
+          <span style="color:var(--green);font-weight:600;">재고 있음</span>
+        </div>
+      </div>
       <div class="price-label">도매 공급가</div>
       <div id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-top:4px;"></div>
-      <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span></div>
-      <div style="font-size:12px;color:var(--g3);margin-top:6px;">부가세 포함</div>
-      <div class="stock-info" id="stock-status" style="margin:14px 0 0;padding-top:14px;border-top:1px solid var(--g2);">
-        <div class="stock-dot"></div>
-        <span style="color:var(--green);font-weight:600;">재고 있음</span>
-      </div>
+      <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span style="font-size:12px;color:var(--g3);font-weight:400;margin-left:8px;">부가세 포함</span></div>
     </div>
 
     <!-- 색상/타입 정보 -->
@@ -920,7 +922,8 @@ function renderProduct(p) {
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
   document.getElementById('productCategory').textContent = p.brandName || '';
   document.getElementById('productName').textContent = p.modelName || '-';
-  document.getElementById('productCode').textContent = '상품코드: ' + (p.barcode || '-') + (p.size ? '  ·  사이즈: ' + p.size : '');
+  document.getElementById('productSize').textContent = p.size ? ('사이즈: ' + p.size) : '';
+  document.getElementById('productCode').textContent = '상품코드: ' + (p.barcode || '-');
 
   // 스펙 테이블
   document.getElementById('spec-brand').textContent = p.brandName || '-';
@@ -1022,7 +1025,6 @@ function renderColorButtons(p, selectedIdx) {
   if(codeEl) {
     const codeParts = [`상품코드: ${selected.barcode || p.barcode || '-'}`];
     if(selected.colorCode) codeParts.push(`컬러번호: ${selected.colorCode}`);
-    if(p.size) codeParts.push(`사이즈: ${p.size}`);
     codeEl.textContent = codeParts.join('  ·  ');
   }
 
