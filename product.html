@@ -463,11 +463,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     </div>
 
     <!-- 가격 (회원 - 기본 숨김) -->
-    <div class="price-wrap" id="price-visible" style="display:none;position:relative;min-height:120px;">
-      <div class="stock-info" id="stock-status" style="position:absolute;bottom:20px;right:20px;margin:0;justify-content:flex-end;">
-        <div class="stock-dot"></div>
-        <span style="color:var(--green);font-weight:600;">재고 있음</span>
-      </div>
+    <div class="price-wrap" id="price-visible" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;">
         <div>
           <span class="price-label">도매 공급가</span>
@@ -475,7 +471,13 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         </div>
         <div class="product-code" id="productCode" style="margin:0;">상품코드: -</div>
       </div>
-      <div class="price-value" style="margin-top:10px;"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span style="font-size:12px;color:var(--g3);font-weight:400;margin-left:8px;">부가세 포함</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+        <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span style="font-size:12px;color:var(--g3);font-weight:400;margin-left:8px;">부가세 포함</span></div>
+        <div class="stock-info" id="stock-status" style="margin:0;">
+          <div class="stock-dot"></div>
+          <span style="color:var(--green);font-weight:600;">재고 있음</span>
+        </div>
+      </div>
     </div>
 
     <!-- 색상/타입 정보 -->
