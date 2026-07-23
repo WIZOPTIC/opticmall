@@ -537,10 +537,10 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 <!-- 상세 탭 -->
 <div class="tab-section">
   <div class="tab-bar">
-    <div class="tab active" onclick="scrollToTab(this,'spec')">상품 스펙</div>
-    <div class="tab" onclick="scrollToTab(this,'detail')">상품 상세</div>
-    <div class="tab" onclick="scrollToTab(this,'review')">구매 후기</div>
-    <div class="tab" onclick="scrollToTab(this,'qna')">문의</div>
+    <div class="tab active" onclick="switchTab(this,'spec')">상품 스펙</div>
+    <div class="tab" onclick="switchTab(this,'detail')">상품 상세</div>
+    <div class="tab" onclick="switchTab(this,'review')">구매 후기</div>
+    <div class="tab" onclick="switchTab(this,'qna')">문의</div>
   </div>
 
   <!-- 스펙 -->
@@ -557,7 +557,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
   </div>
 
   <!-- 상세 이미지 -->
-  <div id="tab-detail">
+  <div id="tab-detail" style="display:none;">
     <div id="detailImagesWrap">
       <div style="background:var(--g1);border-radius:12px;padding:60px;text-align:center;color:var(--g3);">
         <div style="font-size:48px;margin-bottom:16px;"><i class=ic-camera></i></div>
@@ -567,7 +567,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
   </div>
 
   <!-- 후기 -->
-  <div id="tab-review">
+  <div id="tab-review" style="display:none;">
     <div id="reviewWriteArea" style="margin-bottom:20px;"></div>
     <div id="reviewListArea">
       <div style="text-align:center;padding:60px;color:var(--g3);font-size:14px;">불러오는 중...</div>
@@ -575,7 +575,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
   </div>
 
   <!-- 문의 -->
-  <div id="tab-qna">
+  <div id="tab-qna" style="display:none;">
     <div id="qnaWriteArea" style="margin-bottom:20px;"></div>
     <div id="qnaListArea">
       <div style="text-align:center;padding:60px;color:var(--g3);font-size:14px;">불러오는 중...</div>
@@ -1467,14 +1467,13 @@ async function requestRestock() {
   }
 }
 
-function scrollToTab(tab, name) {
+function switchTab(tab, name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
-  const el = document.getElementById('tab-'+name);
-  if (el) {
-    const y = el.getBoundingClientRect().top + window.pageYOffset - 90;
-    window.scrollTo({top: y, behavior: 'smooth'});
-  }
+  ['spec','detail','review','qna'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t === name ? 'block' : 'none';
+  });
   if(name === 'review' && !reviewsLoaded) { reviewsLoaded = true; loadReviews(); }
   if(name === 'qna' && !inquiriesLoaded) { inquiriesLoaded = true; loadInquiries(); }
 }
@@ -1807,8 +1806,6 @@ function showToast(msg, type='') {
 
 // 초기 로드
 loadProduct();
-reviewsLoaded = true; loadReviews();
-inquiriesLoaded = true; loadInquiries();
 </script>
 </body>
 </html>
