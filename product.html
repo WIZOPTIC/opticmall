@@ -131,7 +131,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 /* 가격 */
 .price-wrap { background: var(--g1); border-radius: 10px; padding: 32px; margin-bottom: 20px; }
 .price-label { font-size: 11px; font-weight: 700; color: var(--g3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
-.price-value { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 800; color: var(--navy); }
+.price-value { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
 .price-value .won { font-size: 20px; font-weight: 600; }
 .price-locked { display: flex; align-items: center; gap: 10px; padding: 16px 0; }
 .price-locked-icon { font-size: 24px; }
@@ -815,7 +815,9 @@ function updatePriceDisplay() {
   document.getElementById('price-checking').style.display = 'none'; // 로그인 상태 확정됐으니 확인중 화면은 숨김
   if(memberLevel >= 2) {
     document.getElementById('price-locked').style.display = 'none';
-    document.getElementById('price-visible').style.display = 'block';
+    if (document.getElementById('price-visible').style.display !== 'block') {
+      document.getElementById('price-visible').style.display = 'block';
+    }
 
     // 선택된 색상에 별도 가격이 지정돼 있으면 그 가격을, 없으면 기본가를 사용
     const selectedColor = currentProduct.colors && currentProduct.colors[currentColorIdx];
