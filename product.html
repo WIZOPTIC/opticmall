@@ -483,22 +483,21 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
-      <div class="option-label">색상 <span id="selected-color"></span></div>
+      <div class="option-label">색상 (여러 개 선택 가능)</div>
       <div class="color-list" id="colorList">
         <!-- JS로 동적 생성 -->
       </div>
     </div>
 
-    <!-- 수량 -->
-    <div class="qty-wrap" id="qty-wrap">
-      <div class="qty-label">수량</div>
-      <div class="qty-control">
-        <button class="qty-btn" onclick="changeQty(-1)">−</button>
-        <input class="qty-input" type="number" value="1" min="1" id="qty" onchange="updateTotal()">
-        <button class="qty-btn" onclick="changeQty(1)">+</button>
+    <!-- 선택한 색상 목록 -->
+    <div id="selectionListWrap" style="margin-bottom:20px;display:none;">
+      <div id="selectionList" style="border:1px solid var(--g2);border-radius:10px;overflow:hidden;"></div>
+      <div id="selectionSummary" style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-top:1px solid var(--black);margin-top:2px;">
+        <span style="font-size:13px;color:var(--g4);"></span>
+        <span style="font-size:15px;font-weight:800;color:var(--navy);"></span>
       </div>
-      <div class="qty-total">합계: <strong id="total-price">₩0</strong></div>
     </div>
+    <div id="selectionEmptyHint" style="font-size:13px;color:var(--g3);margin-bottom:20px;">색상을 선택하면 여기에 담겨요.</div>
 
     <!-- 구매 버튼 -->
     <div class="buy-btns" id="buy-btns">
@@ -839,7 +838,7 @@ function updatePriceDisplay() {
       document.getElementById('priceValue').textContent = price.toLocaleString();
       document.getElementById('spec-price').textContent = '₩' + price.toLocaleString();
     }
-    updateTotal();
+    renderSelectionList();
   } else {
     document.getElementById('price-locked').style.display = 'block';
     document.getElementById('price-visible').style.display = 'none';
@@ -866,6 +865,13 @@ function trackRecentlyViewed(productId) {
   } catch(e) { console.error('최근 본 상품 기록 실패:', e); }
 }
 
+function normalizeProductColors(p) {
+  if((!p.colors || p.colors.length === 0) && p.color) {
+    p.colors = [{ colorName: p.color, stock: p.stock || 0 }];
+  }
+  return p;
+}
+
 async function loadProduct() {
   const pid = getProductIdFromUrl();
   if(!pid) {
@@ -880,7 +886,7 @@ async function loadProduct() {
     const preloadKey = 'preloadProduct_' + pid;
     const preloadRaw = sessionStorage.getItem(preloadKey);
     if(preloadRaw) {
-      const preloadData = JSON.parse(preloadRaw);
+      const preloadData = normalizeProductColors(JSON.parse(preloadRaw));
       currentProduct = preloadData;
       renderProduct(preloadData);
       sessionStorage.removeItem(preloadKey); // 1회성으로만 사용
@@ -896,7 +902,7 @@ async function loadProduct() {
       document.getElementById('breadcrumbName').textContent = '오류';
       return;
     }
-    const p = { id: docSnap.id, ...docSnap.data() };
+    const p = normalizeProductColors({ id: docSnap.id, ...docSnap.data() });
 
     // 진행중 이벤트 할인가 확인
     try {
@@ -985,19 +991,14 @@ function renderProduct(p) {
     ).join('');
   }
 
-  // 색상 선택 버튼 렌더링 (새 colors 배열 구조)
+  // 색상 선택 버튼 렌더링
   const colorList = document.getElementById('colorList');
   const colorSection = document.getElementById('colorSection');
 
   if(p.colors && p.colors.length > 0) {
     colorSection.style.display = 'block';
-    renderColorButtons(p, 0); // 첫 번째 색상 선택
-  } else if(p.color) {
-    // 구버전 호환 (단일 color 필드)
-    colorList.innerHTML = `<button class="color-btn active"><div class="color-dot" style="background:#888;"></div> ${p.color}</button>`;
-    document.getElementById('selected-color').textContent = p.color;
-    const stock = Number(p.stock || 0);
-    updateStockDisplay(stock);
+    selectedItems = [];
+    renderColorButtons(p, 0);
     if(p.detailImageUrls && p.detailImageUrls.length > 0) {
       document.getElementById('detailImagesWrap').innerHTML = p.detailImageUrls.map(url =>
         `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
@@ -1017,6 +1018,8 @@ function renderProduct(p) {
 let currentColorIdx = 0;
 
 // 색상 버튼 렌더링 + 클릭 시 사진 전환
+let selectedItems = [];
+
 function renderColorButtons(p, selectedIdx) {
   currentColorIdx = selectedIdx;
   const colorList = document.getElementById('colorList');
@@ -1025,10 +1028,10 @@ function renderColorButtons(p, selectedIdx) {
     <button class="color-btn ${i === selectedIdx ? 'active' : ''}" onclick="selectColor(${i})">
       <div class="color-dot" style="${getColorDot(c.colorName)}"></div>
       ${c.colorName}${c.colorCode ? ` <span style="opacity:0.6;">(${c.colorCode})</span>` : ''}
+      ${selectedItems.some(it => it.colorIdx === i) ? '<span style="margin-left:6px;color:var(--sky);font-weight:800;">✓</span>' : ''}
     </button>
   `).join('');
   const selected = colors[selectedIdx];
-  document.getElementById('selected-color').textContent = selected.colorName + (selected.colorCode ? ` (${selected.colorCode})` : '');
 
   // 선택한 색상의 바코드/컬러번호로 상품코드 영역도 갱신
   const codeEl = document.getElementById('productCode');
@@ -1048,6 +1051,88 @@ function selectColor(idx) {
   if(!currentProduct || !currentProduct.colors) return;
   renderColorButtons(currentProduct, idx);
   refreshWishBtnState();
+  addOrFocusSelection(idx);
+}
+
+function getColorPrice(colorIdx) {
+  const c = currentProduct.colors[colorIdx];
+  const hasColorPrice = c && c.price != null && c.price !== '';
+  const base = hasColorPrice ? Number(c.price) : Number(currentProduct.price || 0);
+  const discountRate = Number(currentProduct.discountRate) || 0;
+  return discountRate > 0 ? Math.round(base * (1 - discountRate/100)) : base;
+}
+
+function addOrFocusSelection(idx) {
+  const existing = selectedItems.find(it => it.colorIdx === idx);
+  if(!existing) {
+    const stock = Number(currentProduct.colors[idx].stock || 0);
+    if(stock <= 0) { showToast('품절된 색상이에요.', 'error'); return; }
+    selectedItems.push({ colorIdx: idx, qty: 1 });
+    renderColorButtons(currentProduct, idx);
+  }
+  renderSelectionList();
+}
+
+function changeSelectionQty(idx, delta) {
+  const item = selectedItems.find(it => it.colorIdx === idx);
+  if(!item) return;
+  const stock = Number(currentProduct.colors[idx].stock || 0);
+  const newQty = item.qty + delta;
+  if(newQty < 1) return;
+  if(newQty > stock) { showToast(`재고가 ${stock}개까지만 있어요.`, 'error'); return; }
+  item.qty = newQty;
+  renderSelectionList();
+}
+
+function removeSelection(idx) {
+  selectedItems = selectedItems.filter(it => it.colorIdx !== idx);
+  renderSelectionList();
+  renderColorButtons(currentProduct, currentColorIdx);
+}
+
+function renderSelectionList() {
+  const wrap = document.getElementById('selectionListWrap');
+  const emptyHint = document.getElementById('selectionEmptyHint');
+  const listEl = document.getElementById('selectionList');
+  const summaryEl = document.getElementById('selectionSummary');
+
+  if(selectedItems.length === 0) {
+    wrap.style.display = 'none';
+    emptyHint.style.display = 'block';
+    return;
+  }
+  wrap.style.display = 'block';
+  emptyHint.style.display = 'none';
+
+  listEl.innerHTML = selectedItems.map((item, i) => {
+    const c = currentProduct.colors[item.colorIdx];
+    const unitPrice = getColorPrice(item.colorIdx);
+    const lineTotal = unitPrice * item.qty;
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;${i>0?'border-top:1px solid var(--g1);':''}">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);">${currentProduct.modelName || ''} · ${c.colorName}</div>
+          <div style="font-size:12px;color:var(--g3);margin-top:2px;">₩${unitPrice.toLocaleString()} / 1개</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="display:flex;align-items:center;border:1px solid var(--g2);border-radius:6px;">
+            <button onclick="changeSelectionQty(${item.colorIdx},-1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">−</button>
+            <div style="width:30px;text-align:center;font-size:13px;font-weight:700;">${item.qty}</div>
+            <button onclick="changeSelectionQty(${item.colorIdx},1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">+</button>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:var(--navy);min-width:70px;text-align:right;">${lineTotal.toLocaleString()}원</div>
+          <button onclick="removeSelection(${item.colorIdx})" aria-label="삭제" style="border:none;background:none;color:var(--g3);font-size:16px;cursor:pointer;">×</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const totalQty = selectedItems.reduce((s,it)=>s+it.qty,0);
+  const totalPrice = selectedItems.reduce((s,it)=>s+getColorPrice(it.colorIdx)*it.qty,0);
+  summaryEl.innerHTML = `
+    <span style="font-size:13px;color:var(--g4);">총 ${totalQty}개</span>
+    <span style="font-size:15px;font-weight:800;color:var(--navy);">총 금액 ${totalPrice.toLocaleString()}원</span>
+  `;
 }
 
 function applyColorImages(color) {
@@ -1099,16 +1184,11 @@ function applyColorImages(color) {
 function updateStockDisplay(stock) {
   if(stock <= 0) {
     document.getElementById('stock-status').innerHTML = '<div class="stock-dot out"></div><span style="color:var(--red);font-weight:600;">품절</span>';
-    document.getElementById('qty-wrap').style.display = 'none';
-    document.getElementById('buy-btns').style.display = 'none';
     document.getElementById('restock-btn').style.display = 'flex';
   } else {
     document.getElementById('stock-status').innerHTML = `<div class="stock-dot"></div><span style="color:var(--green);font-weight:600;">재고 있음</span> <span style="color:var(--g3);">(잔여 ${stock}개)</span>`;
-    document.getElementById('qty-wrap').style.display = 'flex';
-    document.getElementById('buy-btns').style.display = 'flex';
     document.getElementById('restock-btn').style.display = 'none';
   }
-  updateTotal();
 }
 
 // 색상명으로 대략적인 색상 표시
@@ -1276,24 +1356,6 @@ async function loadRelatedProducts(p) {
 }
 
 // ===================== 기존 UI 동작 =====================
-function changeQty(val) {
-  const input = document.getElementById('qty');
-  const newVal = Math.max(1, parseInt(input.value) + val);
-  input.value = newVal;
-  updateTotal();
-}
-function updateTotal() {
-  if(!currentProduct) return;
-  const qty = parseInt(document.getElementById('qty').value) || 1;
-  const selectedColor = currentProduct.colors && currentProduct.colors[currentColorIdx];
-  const hasColorPrice = selectedColor && selectedColor.price != null && selectedColor.price !== '';
-  const basePrice = hasColorPrice ? Number(selectedColor.price) : Number(currentProduct.price || 0);
-  const discountRate = Number(currentProduct.discountRate) || 0;
-  const price = discountRate > 0 ? Math.round(basePrice * (1 - discountRate/100)) : basePrice;
-  const total = price * qty;
-  document.getElementById('total-price').textContent = '₩' + total.toLocaleString();
-}
-
 async function toggleWish() {
   if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
   if(!currentProduct) return;
@@ -1327,23 +1389,58 @@ async function toggleWish() {
   }
 }
 
+async function addSingleColorToCart(uid, colorIdx, qty) {
+  const colorName = currentProduct.colors[colorIdx].colorName;
+  const safeColorId = colorName ? colorName.replace(/[\/\.\#\$\[\]]/g, '-') : '';
+  const cartItemId = currentProduct.id + (safeColorId ? '_' + safeColorId : '');
+  const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
+  const productRef = _db.collection('products').doc(currentProduct.id);
+
+  await _db.runTransaction(async (tx) => {
+    const productSnap = await tx.get(productRef);
+    if(!productSnap.exists) throw new Error('상품 정보를 찾을 수 없습니다.');
+
+    const pData = productSnap.data();
+    const cartSnap = await tx.get(cartItemRef);
+    const existingQty = cartSnap.exists ? (cartSnap.data().qty || 0) : 0;
+
+    if(pData.colors && pData.colors.length > colorIdx) {
+      const colors = [...pData.colors];
+      const currentStock = Number(colors[colorIdx].stock || 0);
+      if(currentStock < qty) throw new Error(`${colorName}: 재고가 부족합니다. (잔여 ${currentStock}개)`);
+
+      colors[colorIdx] = { ...colors[colorIdx], stock: currentStock - qty };
+      tx.update(productRef, { colors });
+    } else {
+      const currentStock = Number(pData.stock || 0);
+      if(currentStock < qty) throw new Error(`${colorName}: 재고가 부족합니다. (잔여 ${currentStock}개)`);
+      tx.update(productRef, { stock: currentStock - qty });
+    }
+
+    if(cartSnap.exists) {
+      tx.update(cartItemRef, {
+        qty: existingQty + qty,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      tx.set(cartItemRef, {
+        productId: currentProduct.id,
+        selectedColor: colorName,
+        selectedColorIdx: colorIdx,
+        qty,
+        addedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  });
+
+  // 로컬 재고 즉시 반영
+  currentProduct.colors[colorIdx].stock = Number(currentProduct.colors[colorIdx].stock || 0) - qty;
+}
+
 async function addCart() {
   if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
   if(!currentProduct) return;
-  const qty = parseInt(document.getElementById('qty').value) || 1;
-
-  // 선택된 색상 확인
-  let selectedColorName = '';
-  let selectedColorIdx = 0;
-  if(currentProduct.colors && currentProduct.colors.length > 0) {
-    const activeBtn = document.querySelector('#colorList .color-btn.active');
-    if(activeBtn) {
-      selectedColorIdx = [...document.querySelectorAll('#colorList .color-btn')].indexOf(activeBtn);
-      selectedColorName = currentProduct.colors[selectedColorIdx]?.colorName || '';
-    }
-  } else {
-    selectedColorName = currentProduct.color || '';
-  }
+  if(selectedItems.length === 0) { showToast('색상을 먼저 선택해주세요.', 'error'); return; }
 
   const overlay = document.getElementById('cartOverlay');
   const overlayIcon = document.getElementById('cartOverlayIcon');
@@ -1355,86 +1452,44 @@ async function addCart() {
   overlaySub.textContent = '';
   overlay.classList.add('show');
 
-  try {
-    const uid = _auth.currentUser.uid;
-    // 색상명에 '/' 같은 특수문자가 들어있으면 Firestore 문서 경로가 깨지므로, ID로 쓸 때만 안전하게 치환 (실제 색상명 표시에는 영향 없음)
-    const safeColorId = selectedColorName ? selectedColorName.replace(/[\/\.\#\$\[\]]/g, '-') : '';
-    const cartItemId = currentProduct.id + (safeColorId ? '_' + safeColorId : '');
-    const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
-    const productRef = _db.collection('products').doc(currentProduct.id);
-
-    // 트랜잭션으로 재고 차감 + 장바구니 추가 동시 처리
-    await _db.runTransaction(async (tx) => {
-      const productSnap = await tx.get(productRef);
-      if(!productSnap.exists) throw new Error('상품 정보를 찾을 수 없습니다.');
-
-      const pData = productSnap.data();
-      const cartSnap = await tx.get(cartItemRef);
-      const existingQty = cartSnap.exists ? (cartSnap.data().qty || 0) : 0;
-
-      // 새 구조(colors 배열) vs 구버전(stock 필드)
-      if(pData.colors && pData.colors.length > selectedColorIdx) {
-        const colors = [...pData.colors];
-        const currentStock = Number(colors[selectedColorIdx].stock || 0);
-        if(currentStock < qty) throw new Error(`재고가 부족합니다. (잔여 ${currentStock}개)`);
-
-        colors[selectedColorIdx] = { ...colors[selectedColorIdx], stock: currentStock - qty };
-        tx.update(productRef, { colors });
-      } else {
-        // 구버전
-        const currentStock = Number(pData.stock || 0);
-        if(currentStock < qty) throw new Error(`재고가 부족합니다. (잔여 ${currentStock}개)`);
-        tx.update(productRef, { stock: currentStock - qty });
-      }
-
-      // 장바구니 업데이트
-      if(cartSnap.exists) {
-        tx.update(cartItemRef, {
-          qty: existingQty + qty,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } else {
-        tx.set(cartItemRef, {
-          productId: currentProduct.id,
-          selectedColor: selectedColorName,
-          selectedColorIdx,
-          qty,
-          addedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-    });
-
-    // 로컬 currentProduct 재고도 업데이트 (화면 즉시 반영)
-    if(currentProduct.colors && currentProduct.colors.length > selectedColorIdx) {
-      currentProduct.colors[selectedColorIdx].stock =
-        Number(currentProduct.colors[selectedColorIdx].stock || 0) - qty;
-      updateStockDisplay(currentProduct.colors[selectedColorIdx].stock);
-    } else {
-      currentProduct.stock = Number(currentProduct.stock || 0) - qty;
-      updateStockDisplay(currentProduct.stock);
+  const uid = _auth.currentUser.uid;
+  const errors = [];
+  for(const item of selectedItems) {
+    try {
+      await addSingleColorToCart(uid, item.colorIdx, item.qty);
+    } catch(e) {
+      console.error(e);
+      errors.push(e.message);
     }
+  }
 
-    const newCount = await updateCartCount();
+  updateStockDisplay(Number(currentProduct.colors[currentColorIdx].stock || 0));
+  renderColorButtons(currentProduct, currentColorIdx);
+  selectedItems = [];
+  renderSelectionList();
+
+  const newCount = await updateCartCount();
+
+  if(errors.length === 0) {
     overlayIcon.innerHTML = '<i class=ic-check-circle></i>';
     overlayText.textContent = '장바구니에 담겼습니다';
     overlaySub.textContent = newCount ? `현재 장바구니 ${newCount}개` : '';
     setTimeout(() => { overlay.classList.remove('show'); }, 1200);
-
-  } catch(e) {
-    console.error(e);
+  } else {
     overlayIcon.innerHTML = '<i class=ic-alert></i>️';
-    overlayText.textContent = e.message.includes('재고') ? e.message : '담기에 실패했습니다';
-    overlaySub.textContent = e.message.includes('재고') ? '' : '잠시 후 다시 시도해주세요';
-    setTimeout(() => { overlay.classList.remove('show'); }, 2000);
+    overlayText.textContent = '일부 항목만 담겼습니다';
+    overlaySub.textContent = errors.join(' / ');
+    setTimeout(() => { overlay.classList.remove('show'); }, 2500);
   }
 }
 function buyNow() {
   if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
   if(!currentProduct) return;
-  const qty = parseInt(document.getElementById('qty').value) || 1;
+  if(selectedItems.length === 0) { showToast('색상을 먼저 선택해주세요.', 'error'); return; }
+  const itemsParam = selectedItems.map(it => `${currentProduct.id}:${it.qty}:${it.colorIdx}`).join(',');
   showToast('주문 페이지로 이동합니다...', 'success');
   setTimeout(() => {
-    location.href = `order.html?pid=${currentProduct.id}&qty=${qty}&colorIdx=${currentColorIdx}`;
+    location.href = `order.html?items=${encodeURIComponent(itemsParam)}`;
   }, 500);
 }
 
