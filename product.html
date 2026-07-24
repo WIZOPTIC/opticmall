@@ -485,10 +485,15 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
       <div class="option-label">색상</div>
-      <div class="color-list" id="colorList">
-        <!-- JS로 동적 생성 -->
+      <div class="color-dropdown-wrap" id="colorDropdownWrap" style="position:relative;">
+        <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
+          <span>선택</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="color-dropdown-panel" id="colorDropdownPanel" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--g2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:260px;overflow-y:auto;z-index:20;">
+          <!-- JS로 동적 생성 -->
+        </div>
       </div>
-      <button id="addColorBtn" onclick="addPreviewedColor()" style="margin-top:10px;padding:10px 20px;border:1.5px solid var(--navy);border-radius:8px;background:#fff;color:var(--navy);font-size:13px;font-weight:700;cursor:pointer;">+ 이 색상 담기</button>
     </div>
 
     <!-- 선택한 색상 목록 -->
@@ -994,7 +999,6 @@ function renderProduct(p) {
   }
 
   // 색상 선택 버튼 렌더링
-  const colorList = document.getElementById('colorList');
   const colorSection = document.getElementById('colorSection');
 
   if(p.colors && p.colors.length > 0) {
@@ -1024,17 +1028,19 @@ let selectedItems = [];
 
 function renderColorButtons(p, previewIdx) {
   currentColorIdx = previewIdx;
-  const colorList = document.getElementById('colorList');
   const colors = p.colors;
-  colorList.innerHTML = colors.map((c, i) => {
+  const panel = document.getElementById('colorDropdownPanel');
+  panel.innerHTML = colors.map((c, i) => {
+    const stock = Number(c.stock || 0);
+    const outOfStock = stock <= 0;
     const inCart = selectedItems.some(it => it.colorIdx === i);
-    const cls = inCart ? 'active' : (i === previewIdx ? 'previewing' : '');
     return `
-    <button class="color-btn ${cls}" onclick="previewColor(${i})">
-      <div class="color-dot" style="${getColorDot(c.colorName)}"></div>
-      ${c.colorName}${c.colorCode ? ` <span style="opacity:0.6;">(${c.colorCode})</span>` : ''}
-    </button>
-  `;
+      <div onclick="${outOfStock ? '' : `pickColor(${i})`}" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:${outOfStock ? 'not-allowed' : 'pointer'};font-size:13px;opacity:${outOfStock ? '0.4' : '1'};" onmouseover="if(!${outOfStock}) this.style.background='var(--g1)'" onmouseout="this.style.background='transparent'">
+        <div class="color-dot" style="${getColorDot(c.colorName)}"></div>
+        <span style="flex:1;color:var(--black);">${c.colorName}${c.colorCode ? ` (${c.colorCode})` : ''}</span>
+        ${outOfStock ? '<span style="font-size:11px;color:var(--red);font-weight:600;">품절</span>' : (inCart ? '<span style="font-size:11px;color:var(--sky);font-weight:700;">담김</span>' : '')}
+      </div>
+    `;
   }).join('');
   const selected = colors[previewIdx];
 
@@ -1050,27 +1056,29 @@ function renderColorButtons(p, previewIdx) {
   applyColorImages(selected);
   updateStockDisplay(Number(selected.stock || 0));
   updatePriceDisplay(); // 색상마다 가격이 다를 수 있으므로 선택할 때마다 가격도 갱신
-
-  const addBtn = document.getElementById('addColorBtn');
-  if(addBtn) {
-    const alreadyIn = selectedItems.some(it => it.colorIdx === previewIdx);
-    addBtn.textContent = alreadyIn ? '✓ 담긴 색상이에요' : '+ 이 색상 담기';
-    addBtn.disabled = alreadyIn;
-    addBtn.style.opacity = alreadyIn ? '0.5' : '1';
-    addBtn.style.cursor = alreadyIn ? 'default' : 'pointer';
-  }
 }
 
-function previewColor(idx) {
+function toggleColorDropdown() {
+  document.getElementById('colorDropdownPanel').style.display =
+    document.getElementById('colorDropdownPanel').style.display === 'block' ? 'none' : 'block';
+}
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('colorDropdownWrap');
+  if(wrap && !wrap.contains(e.target)) {
+    const panel = document.getElementById('colorDropdownPanel');
+    if(panel) panel.style.display = 'none';
+  }
+});
+
+function pickColor(idx) {
   if(!currentProduct || !currentProduct.colors) return;
+  document.getElementById('colorDropdownPanel').style.display = 'none';
   renderColorButtons(currentProduct, idx);
   refreshWishBtnState();
-}
 
-function addPreviewedColor() {
-  if(!currentProduct || !currentProduct.colors) return;
-  const idx = currentColorIdx;
-  if(selectedItems.some(it => it.colorIdx === idx)) return;
+  const already = selectedItems.some(it => it.colorIdx === idx);
+  if(already) { showToast('이미 담긴 색상이에요.', 'error'); return; }
   const stock = Number(currentProduct.colors[idx].stock || 0);
   if(stock <= 0) { showToast('품절된 색상이에요.', 'error'); return; }
   selectedItems.push({ colorIdx: idx, qty: 1 });
