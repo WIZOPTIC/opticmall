@@ -26,6 +26,23 @@ table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;}
 td,th{border:1px solid var(--g2);padding:8px 10px;text-align:left;color:var(--g4);vertical-align:top;}
 th{background:var(--g1);color:var(--navy);white-space:nowrap;}
 .back-link{display:inline-block;margin-top:32px;font-size:13px;color:var(--sky);text-decoration:none;}
+
+/* ── FOOTER (공통) ── */
+footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var(--sky); margin-top: 60px; }
+.footer-inner { max-width: 1280px; margin: 0 auto; }
+.footer-top { display: flex; justify-content: space-between; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; flex-wrap: wrap; }
+.footer-logo { font-family: 'Inter', sans-serif; font-size:16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px; }
+.footer-logo span { color: var(--sky); }
+.footer-brand p { font-size:11px; color: rgba(255,255,255,0.3); font-weight: 300; line-height: 1.8; margin-bottom: 14px; }
+.kakao-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; background: #FAE300; color: #1A1A1A; border: none; border-radius: 6px; font-size:12px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none; }
+.kakao-btn:hover { background: #E8D100; }
+.footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
+.footer-col h5 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 12px; }
+.footer-col a { display: block; font-size:11px; color: rgba(255,255,255,0.4); text-decoration: none; margin-bottom: 9px; font-weight: 300; transition: color 0.15s; }
+.footer-col a:hover { color: var(--sky); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.footer-biz { font-size:10px; color: rgba(255,255,255,0.2); font-weight: 300; line-height: 1.9; }
+.footer-copy { font-size:10px; color: rgba(255,255,255,0.15); font-family: 'Inter', sans-serif; }
 </style>
 </head>
 <body>
@@ -118,5 +135,39 @@ th{background:var(--g1);color:var(--navy);white-space:nowrap;}
     <a class="back-link" href="join.html">← 회원가입으로 돌아가기</a>
   </div>
 </div>
+<!-- FOOTER (공통) -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">OPTIC<span>MALL</span></div>
+        <p>안경테·선글라스 도매 전문 B2B 플랫폼<br>안경사를 위한 25년의 신뢰</p>
+        <a href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener" class="kakao-btn">💬 카카오 채널 상담</a>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>쇼핑</h5>
+          <a href="list.html">신상품</a><a href="brands.html">브랜드별</a><a href="list.html">스타일별</a><a href="list.html">선글라스</a><a href="timesale.html">타임세일</a>
+        </div>
+        <div class="footer-col">
+          <h5>고객지원</h5>
+          <a href="board.html?tab=notice">공지사항</a><a href="board.html?tab=faq">배송안내</a><a href="board.html?tab=faq">반품/교환</a><a href="board.html?tab=inquiry">1:1 문의</a>
+        </div>
+        <div class="footer-col">
+          <h5>회사</h5>
+          <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-biz">
+        위즈옵틱 · 대표: 손진영 · 사업자등록번호: 137-19-96848<br>
+        인천광역시 · E-mail: info@opticmall.co.kr
+      </div>
+      <div class="footer-copy">© 2026 OPTICMALL. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
