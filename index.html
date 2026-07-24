@@ -96,6 +96,13 @@ header {
   white-space: nowrap;
 }
 .h-join:hover { color: var(--sky-dk); }
+.topbar { background: var(--navy); padding: 8px 24px; }
+.topbar-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12px; }
+.tb-link { background: none; border: none; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; padding: 0; }
+.tb-link:hover { opacity: 0.8; }
+.tb-sep { opacity: 0.4; margin: 0 8px; color: #fff; }
+.tb-welcome { color: #fff; font-weight: 600; }
+.tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 .icon-btn {
   width: 36px; height: 36px; border: none; background: none;
   cursor: pointer; border-radius: 6px;
@@ -269,29 +276,29 @@ header {
 .btn-member:hover { background: var(--sky-dk); transform: translateY(-2px); }
 
 /* ── FOOTER ── */
-footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var(--sky); }
+footer { background: var(--navy); padding: 44px 24px 32px; }
 .footer-inner { max-width: 1280px; margin: 0 auto; }
 .footer-top {
   display: flex; justify-content: space-between; gap: 48px;
-  padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px;
+  padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 24px;
 }
-.footer-logo { font-family: 'Inter', sans-serif; font-size:16px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
-.footer-logo span { color: var(--sky); }
-.footer-brand p { font-size:11px; color: rgba(255,255,255,0.3); font-weight: 300; line-height: 1.8; margin-bottom: 14px; }
+.footer-logo { font-family: 'Inter', sans-serif; font-size:16px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.footer-logo span { color: #fff; }
+.footer-brand p { font-size:11px; color: #fff; font-weight: 300; line-height: 1.8; margin-bottom: 14px; }
 .kakao-btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 9px 18px; background: #FAE300; color: #1A1A1A;
   border: none; border-radius: 6px; font-size:12px; font-weight: 700;
-  font-family: inherit; cursor: pointer;
+  font-family: inherit; cursor: pointer; text-decoration: none;
 }
 .kakao-btn:hover { background: #E8D100; }
 .footer-cols { display: flex; gap: 48px; }
-.footer-col h5 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 12px; }
-.footer-col a { display: block; font-size:11px; color: rgba(255,255,255,0.4); text-decoration: none; margin-bottom: 9px; font-weight: 300; transition: color 0.15s; }
-.footer-col a:hover { color: var(--sky); }
-.footer-bottom { display: flex; justify-content: space-between; align-items: center; }
-.footer-biz { font-size:10px; color: rgba(255,255,255,0.2); font-weight: 300; line-height: 1.9; }
-.footer-copy { font-size:10px; color: rgba(255,255,255,0.15); font-family: 'Inter', sans-serif; }
+.footer-col h5 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: #fff; text-transform: uppercase; margin-bottom: 12px; }
+.footer-col a { display: block; font-size:11px; color: #fff; text-decoration: none; margin-bottom: 9px; font-weight: 300; transition: opacity 0.15s; }
+.footer-col a:hover { opacity: 0.7; }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.footer-biz { font-size:10px; color: #fff; font-weight: 300; line-height: 1.9; }
+.footer-copy { font-size:10px; color: #fff; font-family: 'Inter', sans-serif; }
 
 /* ── 하단 네비 ── */
 .g-svg { width: 100px; height: 42px; }
@@ -398,6 +405,18 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 </div>
 
 
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div id="topbarGuest">
+      <button class="tb-link" onclick="openLogin()">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
+    </div>
+    <div id="topbarUser" style="display:none;align-items:center;">
+      <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+</div>
+
 <!-- HEADER -->
 <div style="position:sticky;top:0;z-index:200;" id="stickyHeaderWrap">
 <header style="position:relative;background:var(--white);border-bottom:1px solid #EDE3CF;">
@@ -416,9 +435,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     </nav>
     <div class="header-right">
-      <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button>
-      <span class="h-sep" id="loginSep" style="display:none;">|</span>
-      <button class="h-join" onclick="location.href='join.html'" style="display:none;">회원가입</button>
       <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
         <svg id="searchIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <svg id="closeIcon" style="display:none;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -435,7 +451,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         </div>
       </div>
       <button class="icon-btn" onclick="location.href='cart.html'">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13a1 1 0 01-1 1H6a1 1 0 01-1-1L6 7z"/><path d="M9 10V6a3 3 0 016 0v4"/></svg>
         <span class="cart-count" id="cartCountBadge" style="display:none;">0</span>
       </button>
     </div>
@@ -578,8 +594,9 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     </div>
     <div class="footer-bottom">
       <div class="footer-biz">
-        위즈옵틱 · 대표: (성함) · 사업자등록번호: 000-00-00000<br>
-        인천광역시 · Tel: 000-0000-0000 · E-mail: info@opticmall.co.kr
+        위즈옵틱 · 대표: 손진영 · 사업자등록번호: 137-19-96848<br>
+        통신판매업신고번호: 2025-인천서구-0228<br>
+        인천광역시 검단구 원당대로 840번길 5 장원프라자 5F · E-mail: info@opticmall.co.kr
       </div>
       <div class="footer-copy">© 2026 OPTICMALL. All rights reserved.</div>
     </div>
@@ -767,28 +784,20 @@ async function sendResetEmail() {
 
 // 헤더 로그인 상태 변경
 function updateHeaderLoggedIn(name, level, status, role) {
-  // 로그인/회원가입 버튼 숨기기
-  const loginBtn = document.getElementById('loginBtn');
-  const loginSep = document.getElementById('loginSep');
-  const joinBtn = document.querySelector('.h-join');
-  if(loginBtn) loginBtn.style.display = 'none';
-  if(loginSep) loginSep.style.display = 'none';
-  if(joinBtn) joinBtn.style.display = 'none';
   const userMenuWrap = document.getElementById('userMenuWrap');
   if(userMenuWrap) userMenuWrap.style.display = '';
 
-
-  // 헤더에 환영 메시지 추가
-  const headerRight = document.querySelector('.header-right');
-  if(headerRight && !document.getElementById('welcomeMsg')) {
+  // topbar: 로그인/회원가입 -> 환영메시지/로그아웃
+  const topbarGuest = document.getElementById('topbarGuest');
+  const topbarUser = document.getElementById('topbarUser');
+  const topbarWelcome = document.getElementById('topbarWelcome');
+  if(topbarGuest) topbarGuest.style.display = 'none';
+  if(topbarUser) topbarUser.style.display = 'flex';
+  if(topbarWelcome) {
     const levelBadge = level >= 2
-      ? '<span style="font-size:10px;background:#FBF3E5;color:#9C7A2E;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;letter-spacing:0.02em;">B2B</span>'
-      : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
-    const welcomeEl = document.createElement('div');
-    welcomeEl.id = 'welcomeMsg';
-    welcomeEl.style.cssText = 'font-size:12px;font-weight:600;color:var(--navy);display:flex;align-items:center;white-space:nowrap;';
-    welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
-    headerRight.insertBefore(welcomeEl, headerRight.firstChild);
+      ? '<span class="tb-badge">B2B</span>'
+      : '<span class="tb-badge" style="background:#FEF9E7;color:#F39C12;">승인대기</span>';
+    topbarWelcome.innerHTML = name + '님 환영합니다!' + levelBadge;
   }
 
   // 관리자 모드 링크 (브랜드사/마스터/서브마스터 전용)
@@ -817,16 +826,10 @@ function updateHeaderLoggedIn(name, level, status, role) {
 }
 
 function updateHeaderLoggedOut() {
-  const loginBtn = document.getElementById('loginBtn');
-  const loginSep = document.getElementById('loginSep');
-  const joinBtn = document.querySelector('.h-join');
-  if(loginBtn) loginBtn.style.display = '';
-  if(loginSep) loginSep.style.display = '';
-  if(joinBtn) joinBtn.style.display = '';
-
-  // 환영 메시지 제거
-  const welcomeMsg = document.getElementById('welcomeMsg');
-  if(welcomeMsg) welcomeMsg.remove();
+  const topbarGuest = document.getElementById('topbarGuest');
+  const topbarUser = document.getElementById('topbarUser');
+  if(topbarGuest) topbarGuest.style.display = '';
+  if(topbarUser) topbarUser.style.display = 'none';
 
   // 드롭다운 원래대로
   const dropdown = document.getElementById('userDropdown');

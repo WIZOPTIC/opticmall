@@ -93,21 +93,21 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 .ic-camera{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l2-3h6l2 3h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l2-3h6l2 3h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E");}
 
 /* ── FOOTER (공통) ── */
-footer { background: #0E1825; padding: 44px 24px 32px; border-top: 3px solid var(--sky); margin-top: 60px; }
+footer { background: var(--navy); padding: 44px 24px 32px; margin-top: 60px; }
 .footer-inner { max-width: 1280px; margin: 0 auto; }
-.footer-top { display: flex; justify-content: space-between; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; flex-wrap: wrap; }
+.footer-top { display: flex; justify-content: space-between; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 24px; flex-wrap: wrap; }
 .footer-logo { font-family: 'Inter', sans-serif; font-size:16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px; }
-.footer-logo span { color: var(--sky); }
-.footer-brand p { font-size:11px; color: rgba(255,255,255,0.3); font-weight: 300; line-height: 1.8; margin-bottom: 14px; }
+.footer-logo span { color: #FFFFFF; }
+.footer-brand p { font-size:11px; color: #FFFFFF; font-weight: 300; line-height: 1.8; margin-bottom: 14px; }
 .kakao-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; background: #FAE300; color: #1A1A1A; border: none; border-radius: 6px; font-size:12px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none; }
 .kakao-btn:hover { background: #E8D100; }
 .footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
-.footer-col h5 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 12px; }
-.footer-col a { display: block; font-size:11px; color: rgba(255,255,255,0.4); text-decoration: none; margin-bottom: 9px; font-weight: 300; transition: color 0.15s; }
-.footer-col a:hover { color: var(--sky); }
+.footer-col h5 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: #FFFFFF; text-transform: uppercase; margin-bottom: 12px; }
+.footer-col a { display: block; font-size:11px; color: #FFFFFF; text-decoration: none; margin-bottom: 9px; font-weight: 300; transition: opacity 0.15s; }
+.footer-col a:hover { opacity: 0.7; }
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-.footer-biz { font-size:10px; color: rgba(255,255,255,0.2); font-weight: 300; line-height: 1.9; }
-.footer-copy { font-size:10px; color: rgba(255,255,255,0.15); font-family: 'Inter', sans-serif; }
+.footer-biz { font-size:10px; color: #FFFFFF; font-weight: 300; line-height: 1.9; }
+.footer-copy { font-size:10px; color: #FFFFFF; font-family: 'Inter', sans-serif; }
 </style>
 </head>
 <body>
@@ -340,7 +340,8 @@ _auth.onAuthStateChanged(() => {
     <div class="footer-bottom">
       <div class="footer-biz">
         위즈옵틱 · 대표: 손진영 · 사업자등록번호: 137-19-96848<br>
-        인천광역시 · E-mail: info@opticmall.co.kr
+        통신판매업신고번호: 2025-인천서구-0228<br>
+        인천광역시 검단구 원당대로 840번길 5 장원프라자 5F · E-mail: info@opticmall.co.kr
       </div>
       <div class="footer-copy">© 2026 OPTICMALL. All rights reserved.</div>
     </div>
