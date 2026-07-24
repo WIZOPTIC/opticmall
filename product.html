@@ -485,6 +485,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
       <div class="option-label">색상</div>
+      <div id="colorDotsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
       <div class="color-dropdown-wrap" id="colorDropdownWrap" style="position:relative;">
         <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
           <span>선택</span>
@@ -1029,6 +1030,23 @@ let selectedItems = [];
 function renderColorButtons(p, previewIdx) {
   currentColorIdx = previewIdx;
   const colors = p.colors;
+
+  // 한눈에 보는 색상 도트 미리보기 (클릭하면 사진만 바뀜, 장바구니에 담기지 않음)
+  const dotsWrap = document.getElementById('colorDotsPreview');
+  dotsWrap.innerHTML = colors.map((c, i) => {
+    const stock = Number(c.stock || 0);
+    const outOfStock = stock <= 0;
+    const isPreviewing = i === previewIdx;
+    return `
+      <button type="button" onclick="previewColorOnly(${i})" title="${c.colorName}${outOfStock ? ' (품절)' : ''}"
+        style="width:28px;height:28px;border-radius:50%;padding:0;cursor:pointer;
+        border:2px solid ${isPreviewing ? 'var(--navy)' : 'var(--g2)'};
+        opacity:${outOfStock ? '0.35' : '1'};background:none;">
+        <span style="display:block;width:100%;height:100%;border-radius:50%;${getColorDot(c.colorName)}"></span>
+      </button>
+    `;
+  }).join('');
+
   const panel = document.getElementById('colorDropdownPanel');
   panel.innerHTML = colors.map((c, i) => {
     const stock = Number(c.stock || 0);
@@ -1056,6 +1074,12 @@ function renderColorButtons(p, previewIdx) {
   applyColorImages(selected);
   updateStockDisplay(Number(selected.stock || 0));
   updatePriceDisplay(); // 색상마다 가격이 다를 수 있으므로 선택할 때마다 가격도 갱신
+}
+
+function previewColorOnly(idx) {
+  if(!currentProduct || !currentProduct.colors) return;
+  renderColorButtons(currentProduct, idx);
+  refreshWishBtnState();
 }
 
 function toggleColorDropdown() {
