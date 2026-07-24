@@ -17,9 +17,6 @@ html { overflow-y: scroll; }
 body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color: var(--black); padding-bottom: 100px; }
 /* 헤더 */
 .header{background:var(--white);border-bottom:1px solid var(--g2);}
-.header-search { flex: 1; max-width: 480px; display: flex; border: 1.5px solid var(--g2); border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
-.header-search:focus-within { border-color: var(--sky); }
-.header-search input { flex: 1; padding: 10px 16px; border: none; outline: none; font-size: 14px; font-family: inherit; }
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
 .header-inner { max-width: 1280px; margin: 0 auto; padding: 100px 24px 28px; display: flex; align-items: center; gap: 44px; }
@@ -33,7 +30,6 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   transition: color 0.15s; white-space: nowrap;
 }
 .h-btn:hover { color: var(--navy); }
-.h-sep { color: var(--g2); font-size:12px; }
 .h-join {
   padding: 7px 12px; border: none;
   color: var(--sky); background: none;
@@ -143,29 +139,9 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .option-section { margin-bottom: 20px; }
 .option-label { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; display: flex; justify-content: space-between; }
 .option-label span { font-weight: 400; color: var(--g3); }
-.color-list { display: flex; gap: 8px; flex-wrap: wrap; }
-.color-btn {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 14px; border: 1.5px solid var(--g2);
-  border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 500;
-  color: var(--g4); background: var(--white); font-family: inherit;
-  transition: all 0.15s;
-}
-.color-btn:hover { border-color: var(--sky); color: var(--sky); }
-.color-btn.previewing { border-color: var(--g4); }
-.color-btn.active { border-color: var(--navy); color: var(--navy); font-weight: 700; }
 .color-dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.12); flex-shrink: 0; }
 
 /* 수량 */
-.qty-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.qty-label { font-size: 13px; font-weight: 700; color: var(--navy); width: 60px; }
-.qty-control { display: flex; align-items: center; border: 1.5px solid var(--g2); border-radius: 8px; overflow: hidden; }
-.qty-btn { width: 40px; height: 40px; border: none; background: var(--g1); font-size: 18px; cursor: pointer; transition: background 0.15s; }
-.qty-btn:hover { background: var(--g2); }
-.qty-input { width: 50px; height: 40px; border: none; text-align: center; font-size: 15px; font-weight: 700; font-family: inherit; outline: none; -moz-appearance: textfield; }
-.qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.qty-total { font-size: 13px; color: var(--g3); }
-.qty-total strong { color: var(--navy); font-family: 'Inter', sans-serif; font-size: 16px; }
 
 /* 재고 상태 */
 .stock-info { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-bottom: 20px; }
@@ -242,7 +218,6 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .related-price { font-size: 13px; color: var(--g3); display: flex; align-items: center; gap: 4px; }
 
 /* 하단 고정 바 (모바일) */
-.bottom-bar { display: none; }
 
 /* 토스트 */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: var(--white); padding: 14px 24px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 1000; white-space: nowrap; }
