@@ -152,6 +152,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   transition: all 0.15s;
 }
 .color-btn:hover { border-color: var(--sky); color: var(--sky); }
+.color-btn.previewing { border-color: var(--g4); }
 .color-btn.active { border-color: var(--navy); color: var(--navy); font-weight: 700; }
 .color-dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.12); flex-shrink: 0; }
 
@@ -487,6 +488,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       <div class="color-list" id="colorList">
         <!-- JS로 동적 생성 -->
       </div>
+      <button id="addColorBtn" onclick="addPreviewedColor()" style="margin-top:10px;padding:10px 20px;border:1.5px solid var(--navy);border-radius:8px;background:#fff;color:var(--navy);font-size:13px;font-weight:700;cursor:pointer;">+ 이 색상 담기</button>
     </div>
 
     <!-- 선택한 색상 목록 -->
@@ -1024,12 +1026,16 @@ function renderColorButtons(p, previewIdx) {
   currentColorIdx = previewIdx;
   const colorList = document.getElementById('colorList');
   const colors = p.colors;
-  colorList.innerHTML = colors.map((c, i) => `
-    <button class="color-btn ${selectedItems.some(it => it.colorIdx === i) ? 'active' : ''}" onclick="selectColor(${i})">
+  colorList.innerHTML = colors.map((c, i) => {
+    const inCart = selectedItems.some(it => it.colorIdx === i);
+    const cls = inCart ? 'active' : (i === previewIdx ? 'previewing' : '');
+    return `
+    <button class="color-btn ${cls}" onclick="previewColor(${i})">
       <div class="color-dot" style="${getColorDot(c.colorName)}"></div>
       ${c.colorName}${c.colorCode ? ` <span style="opacity:0.6;">(${c.colorCode})</span>` : ''}
     </button>
-  `).join('');
+  `;
+  }).join('');
   const selected = colors[previewIdx];
 
   // 선택한 색상의 바코드/컬러번호로 상품코드 영역도 갱신
@@ -1044,20 +1050,31 @@ function renderColorButtons(p, previewIdx) {
   applyColorImages(selected);
   updateStockDisplay(Number(selected.stock || 0));
   updatePriceDisplay(); // 색상마다 가격이 다를 수 있으므로 선택할 때마다 가격도 갱신
+
+  const addBtn = document.getElementById('addColorBtn');
+  if(addBtn) {
+    const alreadyIn = selectedItems.some(it => it.colorIdx === previewIdx);
+    addBtn.textContent = alreadyIn ? '✓ 담긴 색상이에요' : '+ 이 색상 담기';
+    addBtn.disabled = alreadyIn;
+    addBtn.style.opacity = alreadyIn ? '0.5' : '1';
+    addBtn.style.cursor = alreadyIn ? 'default' : 'pointer';
+  }
 }
 
-function selectColor(idx) {
+function previewColor(idx) {
   if(!currentProduct || !currentProduct.colors) return;
-  const existing = selectedItems.find(it => it.colorIdx === idx);
-  if(existing) {
-    selectedItems = selectedItems.filter(it => it.colorIdx !== idx);
-  } else {
-    const stock = Number(currentProduct.colors[idx].stock || 0);
-    if(stock <= 0) { showToast('품절된 색상이에요.', 'error'); return; }
-    selectedItems.push({ colorIdx: idx, qty: 1 });
-  }
   renderColorButtons(currentProduct, idx);
   refreshWishBtnState();
+}
+
+function addPreviewedColor() {
+  if(!currentProduct || !currentProduct.colors) return;
+  const idx = currentColorIdx;
+  if(selectedItems.some(it => it.colorIdx === idx)) return;
+  const stock = Number(currentProduct.colors[idx].stock || 0);
+  if(stock <= 0) { showToast('품절된 색상이에요.', 'error'); return; }
+  selectedItems.push({ colorIdx: idx, qty: 1 });
+  renderColorButtons(currentProduct, idx);
   renderSelectionList();
 }
 
