@@ -483,7 +483,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
-      <div class="option-label">색상 (여러 개 선택 가능)</div>
+      <div class="option-label">색상</div>
       <div class="color-list" id="colorList">
         <!-- JS로 동적 생성 -->
       </div>
@@ -1020,18 +1020,17 @@ let currentColorIdx = 0;
 // 색상 버튼 렌더링 + 클릭 시 사진 전환
 let selectedItems = [];
 
-function renderColorButtons(p, selectedIdx) {
-  currentColorIdx = selectedIdx;
+function renderColorButtons(p, previewIdx) {
+  currentColorIdx = previewIdx;
   const colorList = document.getElementById('colorList');
   const colors = p.colors;
   colorList.innerHTML = colors.map((c, i) => `
-    <button class="color-btn ${i === selectedIdx ? 'active' : ''}" onclick="selectColor(${i})">
+    <button class="color-btn ${selectedItems.some(it => it.colorIdx === i) ? 'active' : ''}" onclick="selectColor(${i})">
       <div class="color-dot" style="${getColorDot(c.colorName)}"></div>
       ${c.colorName}${c.colorCode ? ` <span style="opacity:0.6;">(${c.colorCode})</span>` : ''}
-      ${selectedItems.some(it => it.colorIdx === i) ? '<span style="margin-left:6px;color:var(--sky);font-weight:800;">✓</span>' : ''}
     </button>
   `).join('');
-  const selected = colors[selectedIdx];
+  const selected = colors[previewIdx];
 
   // 선택한 색상의 바코드/컬러번호로 상품코드 영역도 갱신
   const codeEl = document.getElementById('productCode');
@@ -1049,9 +1048,17 @@ function renderColorButtons(p, selectedIdx) {
 
 function selectColor(idx) {
   if(!currentProduct || !currentProduct.colors) return;
+  const existing = selectedItems.find(it => it.colorIdx === idx);
+  if(existing) {
+    selectedItems = selectedItems.filter(it => it.colorIdx !== idx);
+  } else {
+    const stock = Number(currentProduct.colors[idx].stock || 0);
+    if(stock <= 0) { showToast('품절된 색상이에요.', 'error'); return; }
+    selectedItems.push({ colorIdx: idx, qty: 1 });
+  }
   renderColorButtons(currentProduct, idx);
   refreshWishBtnState();
-  addOrFocusSelection(idx);
+  renderSelectionList();
 }
 
 function getColorPrice(colorIdx) {
@@ -1060,17 +1067,6 @@ function getColorPrice(colorIdx) {
   const base = hasColorPrice ? Number(c.price) : Number(currentProduct.price || 0);
   const discountRate = Number(currentProduct.discountRate) || 0;
   return discountRate > 0 ? Math.round(base * (1 - discountRate/100)) : base;
-}
-
-function addOrFocusSelection(idx) {
-  const existing = selectedItems.find(it => it.colorIdx === idx);
-  if(!existing) {
-    const stock = Number(currentProduct.colors[idx].stock || 0);
-    if(stock <= 0) { showToast('품절된 색상이에요.', 'error'); return; }
-    selectedItems.push({ colorIdx: idx, qty: 1 });
-    renderColorButtons(currentProduct, idx);
-  }
-  renderSelectionList();
 }
 
 function changeSelectionQty(idx, delta) {
