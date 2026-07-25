@@ -19,7 +19,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .header{background:var(--white);border-bottom:1px solid var(--g2);}
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
-.header-inner { max-width: 1280px; margin: 0 auto; padding: 100px 24px 28px; display: flex; align-items: center; gap: 44px; }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 50px 24px 28px; display: flex; align-items: center; gap: 44px; }
 .logo { font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; color: var(--navy); text-decoration: none; letter-spacing: 0.03em; }
 .logo span { color: #C5A059; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
@@ -302,6 +302,14 @@ footer { background: var(--navy); padding: 44px 24px 32px; margin-top: 60px; }
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .footer-biz { font-size:10px; color: #FFFFFF; font-weight: 300; line-height: 1.9; }
 .footer-copy { font-size:10px; color: #FFFFFF; font-family: 'Inter', sans-serif; }
+
+.topbar { background: var(--navy); padding: 8px 24px; }
+.topbar-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12px; }
+.tb-link { background: none; border: none; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; padding: 0; }
+.tb-link:hover { opacity: 0.8; }
+.tb-sep { opacity: 0.4; margin: 0 8px; color: #fff; }
+.tb-welcome { color: #fff; font-weight: 600; }
+.tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 </style>
 </head>
 <body>
@@ -353,6 +361,18 @@ footer { background: var(--navy); padding: 44px 24px 32px; margin-top: 60px; }
 </div>
 
 <!-- 헤더 -->
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div id="topbarGuest">
+      <button class="tb-link" onclick="openLogin()">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
+    </div>
+    <div id="topbarUser" style="display:none;align-items:center;">
+      <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+</div>
+
 <div style="position:sticky;top:0;z-index:200;"><header class="header">
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
@@ -368,10 +388,7 @@ footer { background: var(--navy); padding: 44px 24px 32px; margin-top: 60px; }
     <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
     </nav>
     <div class="header-right">
-      <button class="h-btn" id="loginBtn" onclick="openLogin()" style="display:none;">로그인</button>
-      <span style="color:var(--g2);display:none;" id="loginSep">|</span>
-      <button class="h-join" id="joinBtn" onclick="location.href='join.html'" style="display:none;">회원가입</button>
-            <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
+      <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
         <svg id="searchIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <svg id="closeIcon" style="display:none;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -666,22 +683,13 @@ async function doLogin() {
 async function doLogout() { await _auth.signOut(); }
 
 function updateHeaderLoggedIn(name, level, role) {
-  document.getElementById('loginBtn').style.display = 'none';
-  document.getElementById('loginSep').style.display = 'none';
-  document.getElementById('joinBtn').style.display = 'none';
-
-  // 헤더에 환영 메시지 추가 (메인페이지와 동일하게)
-  const headerRight = document.querySelector('.header-right');
-  if(headerRight && !document.getElementById('welcomeMsg')) {
-    const levelBadge = level >= 2
-      ? '<span style="font-size:10px;background:#FBF3E5;color:#9C7A2E;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;letter-spacing:0.02em;">B2B</span>'
-      : '<span style="font-size:10px;background:#FEF9E7;color:#F39C12;padding:2px 8px;border-radius:100px;margin-left:6px;font-weight:700;">승인대기</span>';
-    const welcomeEl = document.createElement('div');
-    welcomeEl.id = 'welcomeMsg';
-    welcomeEl.style.cssText = 'font-size:12px;font-weight:600;color:var(--navy);display:flex;align-items:center;white-space:nowrap;';
-    welcomeEl.innerHTML = name + '님 환영합니다!' + levelBadge;
-    headerRight.insertBefore(welcomeEl, headerRight.firstChild);
-  }
+  document.getElementById('topbarGuest').style.display = 'none';
+  document.getElementById('topbarUser').style.display = 'flex';
+  const levelBadge = level >= 2
+    ? '<span class="tb-badge">B2B</span>'
+    : '<span class="tb-badge" style="background:#FEF9E7;color:#F39C12;">승인대기</span>';
+  const topbarWelcome = document.getElementById('topbarWelcome');
+  if(topbarWelcome) topbarWelcome.innerHTML = name + '님 환영합니다!' + levelBadge;
 
   let adminLinkHtml = '';
   if(role === 'brand') {
@@ -704,13 +712,8 @@ function updateHeaderLoggedIn(name, level, role) {
     <a href="#" onclick="doLogout()" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
 }
 function updateHeaderLoggedOut() {
-  document.getElementById('loginBtn').style.display = '';
-  document.getElementById('loginSep').style.display = '';
-  document.getElementById('joinBtn').style.display = '';
-
-  // 환영 메시지 제거
-  const welcomeMsg = document.getElementById('welcomeMsg');
-  if(welcomeMsg) welcomeMsg.remove();
+  document.getElementById('topbarGuest').style.display = '';
+  document.getElementById('topbarUser').style.display = 'none';
 
   const dropdown = document.getElementById('userDropdown');
   if(dropdown) {
