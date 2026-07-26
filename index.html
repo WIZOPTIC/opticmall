@@ -207,13 +207,16 @@ header {
 
 /* ── 상품 섹션 ── */
 .product-section { padding: 8px 0 40px; }
-.section-head {
-  display: flex; align-items: center; justify-content: center;
-  margin: 48px 0 28px; padding: 0; position: relative;
+.section-box {
+  display: flex; align-items: center; justify-content: space-between;
+  border: 1px solid var(--g2); border-radius: 10px;
+  padding: 20px 24px; margin: 48px 0 28px;
 }
-.section-head h2 { font-size:24px; font-weight: 700; color: var(--black); text-align: center; letter-spacing: -0.01em; }
-.section-head a { font-size:12px; color: var(--g3); text-decoration: none; position: absolute; right: 0; }
-.section-head a:hover { color: var(--sky); }
+.section-box .sb-left { display: flex; align-items: center; gap: 18px; }
+.section-box h2 { font-size: 20px; font-weight: 800; color: var(--black); letter-spacing: -0.01em; margin: 0; }
+.section-box .sb-sub { font-size: 11px; color: var(--g3); margin-top: 2px; }
+.section-box .sb-more { font-size: 12px; color: var(--g3); text-decoration: none; white-space: nowrap; }
+.section-box .sb-more:hover { color: var(--sky); }
 .product-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
 .product-card {
   background: var(--white); border-radius: 8px; overflow: hidden;
@@ -513,23 +516,24 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 
   <!-- 타임세일 -->
   <div class="product-section" id="timesale">
-    <div style="text-align:center;margin:16px 0 28px;position:relative;">
-      <h2 style="color:var(--black);font-size:24px;font-weight:700;letter-spacing:-0.01em;margin-bottom:6px;">타임세일</h2>
-      <div style="font-size:11px;color:var(--g3);font-weight:400;margin-bottom:8px;">종료까지</div>
-      <div style="display:flex;gap:4px;align-items:center;justify-content:center;">
-        <div style="background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:6px;width:38px;padding:4px 0;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;box-sizing:border-box;text-align:center;" id="timer-h">00</div>
-        <span style="font-weight:900;color:var(--navy);font-size:16px;">:</span>
-        <div style="background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:6px;width:38px;padding:4px 0;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;box-sizing:border-box;text-align:center;" id="timer-m">00</div>
-        <span style="font-weight:900;color:var(--navy);font-size:16px;">:</span>
-        <div style="background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:6px;width:38px;padding:4px 0;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;box-sizing:border-box;text-align:center;" id="timer-s">00</div>
+    <div class="section-box">
+      <div class="sb-left">
+        <div>
+          <h2>타임세일</h2>
+          <div class="sb-sub">종료까지</div>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <div style="background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:6px;width:38px;padding:4px 0;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;box-sizing:border-box;text-align:center;" id="timer-h">00</div>
+          <span style="font-weight:900;color:var(--navy);font-size:16px;">:</span>
+          <div style="background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:6px;width:38px;padding:4px 0;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;box-sizing:border-box;text-align:center;" id="timer-m">00</div>
+          <span style="font-weight:900;color:var(--navy);font-size:16px;">:</span>
+          <div style="background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:6px;width:38px;padding:4px 0;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;box-sizing:border-box;text-align:center;" id="timer-s">00</div>
+        </div>
       </div>
-      <a href="list.html" style="color:var(--g3);font-size:11px;text-decoration:none;position:absolute;right:0;top:0;">전체보기 ›</a>
+      <a href="list.html" class="sb-more">전체보기 ›</a>
     </div>
     <div class="product-grid" id="timesaleGrid">
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
-    </div>
-    <div style="text-align:center;margin-top:24px;">
-      <a href="list.html" style="display:inline-block;padding:12px 48px;border:1.5px solid var(--navy);border-radius:6px;font-size:12px;font-weight:600;color:var(--navy);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='var(--navy)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--navy)'">할인상품 더보기 ›</a>
     </div>
   </div>
 
@@ -539,29 +543,23 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 
   <!-- 신상품 -->
   <div class="product-section">
-    <div class="section-head">
+    <div class="section-box">
       <h2>신상품</h2>
-      <a href="list.html">전체보기 ›</a>
+      <a href="list.html" class="sb-more">전체보기 ›</a>
     </div>
     <div class="product-grid" id="newArrivalGrid">
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
-    </div>
-    <div style="text-align:center;margin-top:24px;">
-      <a href="list.html" style="display:inline-block;padding:12px 48px;border:1.5px solid var(--navy);border-radius:6px;font-size:12px;font-weight:600;color:var(--navy);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='var(--navy)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--navy)'">신상품 더보기 ›</a>
     </div>
   </div>
 
   <!-- 베스트 상품 -->
   <div class="product-section">
-    <div class="section-head">
+    <div class="section-box">
       <h2>베스트 상품</h2>
-      <a href="list.html">전체보기 ›</a>
+      <a href="list.html" class="sb-more">전체보기 ›</a>
     </div>
     <div class="product-grid" id="bestGrid">
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
-    </div>
-    <div style="text-align:center;margin-top:24px;">
-      <a href="list.html" style="display:inline-block;padding:12px 48px;border:1.5px solid var(--navy);border-radius:6px;font-size:12px;font-weight:600;color:var(--navy);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='var(--navy)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--navy)'">베스트 더보기 ›</a>
     </div>
   </div>
 
