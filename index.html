@@ -1080,13 +1080,12 @@ function renderEmptyMainSection(gridId, message) {
 
 function renderTimesaleEmptyState() {
   document.getElementById('timesaleGrid').innerHTML = `
-    <div style="grid-column:1/-1;">
+    <div style="grid-column:1/-1;background:#FAF8F4;border-radius:8px;padding:24px 0;">
       <svg width="100%" viewBox="0 0 680 300" style="max-width:520px;display:block;margin:0 auto;">
         <style>
           .clock-hand-sec { transform-origin: 340px 110px; animation: tsClockTick 6s linear infinite; }
           @keyframes tsClockTick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         </style>
-        <rect x="0" y="0" width="680" height="300" fill="#FAF8F4"/>
         <g transform="translate(340,110)">
           <circle cx="0" cy="0" r="52" fill="#002366"/>
           <circle cx="0" cy="0" r="43" fill="#FAF8F4"/>
@@ -1162,7 +1161,7 @@ async function loadTimesaleData() {
       timesaleProducts.map(p => renderMainProductCard(p, 'SALE', 'hot')).join('');
   } catch(e) {
     console.error('타임세일 로드 실패:', e);
-    renderEmptyMainSection('timesaleGrid', '타임세일 정보를 불러오지 못했습니다.');
+    renderEmptyMainSection('timesaleGrid', `타임세일 정보를 불러오지 못했습니다.<br><span style="font-size:11px;color:#C3CBD3;">(오류 내용: ${(e && e.message) ? e.message : e})</span>`);
   }
 }
 

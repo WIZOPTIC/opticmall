@@ -480,13 +480,12 @@ function renderProductCard(p) {
 function renderTimesaleEmptyIllustration() {
   const grid = document.getElementById('timesaleGrid');
   grid.innerHTML = `
-    <div style="grid-column:1/-1;">
+    <div style="grid-column:1/-1;background:#FAF8F4;border-radius:8px;padding:24px 0;">
       <svg width="100%" viewBox="0 0 680 300" style="max-width:520px;display:block;margin:0 auto;">
         <style>
           .clock-hand-sec { transform-origin: 340px 110px; animation: tsClockTick 6s linear infinite; }
           @keyframes tsClockTick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         </style>
-        <rect x="0" y="0" width="680" height="300" fill="#FAF8F4"/>
         <g transform="translate(340,110)">
           <circle cx="0" cy="0" r="52" fill="#002366"/>
           <circle cx="0" cy="0" r="43" fill="#FAF8F4"/>
@@ -548,7 +547,7 @@ async function loadTimesaleProducts() {
     renderTimesaleGrid(applyTsSearch(allTimesaleProducts, currentTsKeyword));
   } catch(e) {
     console.error(e);
-    grid.innerHTML = `<div class="empty-box" style="color:var(--red);">상품을 불러오지 못했습니다.</div>`;
+    grid.innerHTML = `<div class="empty-box" style="color:var(--red);">상품을 불러오지 못했습니다.<br><span style="font-size:11px;color:#C3CBD3;">(오류 내용: ${(e && e.message) ? e.message : e})</span></div>`;
   }
 }
 
