@@ -67,7 +67,7 @@ header {
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .header-main {
-  max-width: 1280px; margin: 0 auto;
+  max-width: 1440px; margin: 0 auto;
   padding: 50px 24px 28px;
   display: flex; align-items: center; gap: 44px;
 }
@@ -96,8 +96,8 @@ header {
   white-space: nowrap;
 }
 .h-join:hover { color: var(--sky-dk); }
-.topbar { background: var(--navy); padding: 8px 24px; }
-.topbar-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12px; }
+.topbar { background: var(--navy); padding: 11px 24px; }
+.topbar-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12px; }
 .tb-link { background: none; border: none; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; padding: 0; }
 .tb-link:hover { opacity: 0.8; }
 .tb-sep { opacity: 0.4; margin: 0 8px; color: #fff; }
@@ -120,10 +120,10 @@ header {
 
 /* ── GNB (헤더와 한 줄로 통합) ── */
 /* ── 에디토리얼 배너 (히어로 우측) ── */
-.hero-right { flex: 1 1 60%; max-width: 780px; align-self: center; padding: 0 74px; box-sizing: border-box; position: relative; }
+.hero-right { flex: 0 0 972px; max-width: 972px; align-self: center; padding: 0 80px; box-sizing: border-box; position: relative; }
 .editorial-track { display: flex; gap: 16px; transition: transform 0.6s ease; }
-.editorial-card { cursor: default; flex: 0 0 200px; width: 200px; }
-.editorial-photo { position: relative; height: 227px; background: var(--g1); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.editorial-card { cursor: default; flex: 0 0 260px; width: 260px; }
+.editorial-photo { position: relative; height: 300px; background: var(--g1); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .editorial-photo img { width: 100%; height: 100%; object-fit: cover; }
 .editorial-photo .ph { font-size: 11px; color: var(--g3); }
 .editorial-tag { font-size: 11px; color: var(--gold); font-weight: 700; margin: 10px 0 4px; letter-spacing: 0.02em; height: 13px; }
@@ -157,7 +157,7 @@ header {
 }
 .static-blob-1 { width: 420px; height: 420px; background: radial-gradient(circle, var(--sky) 0%, transparent 70%); opacity: 0.08; }
 .static-blob-2 { width: 380px; height: 380px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); opacity: 0.32; }
-.hero-inner { max-width: 1280px; margin: 0 auto; padding: 56px 24px 56px; position: relative; z-index: 2; }
+.hero-inner { max-width: 1440px; margin: 0 auto; padding: 16px 24px 16px; position: relative; z-index: 2; }
 .hero-badge {
   font-family: 'Inter', monospace; font-size: 12px; color: var(--sky); font-weight: 600;
   letter-spacing: 0.06em; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 6px;
@@ -184,7 +184,7 @@ header {
 .btn-hero-sub:hover { background: var(--navy); color: #fff; }
 
 /* ── MAIN ── */
-.main-wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.main-wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
 .filter-bar { padding: 20px 0 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .filter-tabs { display: flex; gap: 8px; }
 .filter-tab {
@@ -278,7 +278,7 @@ header {
 
 /* ── FOOTER ── */
 footer { background: var(--sky-dk); padding: 44px 24px 32px; }
-.footer-inner { max-width: 1280px; margin: 0 auto; }
+.footer-inner { max-width: 1440px; margin: 0 auto; }
 .footer-top {
   display: flex; justify-content: space-between; gap: 48px;
   padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 24px;
@@ -488,7 +488,7 @@ i.ic-wish{background-color:#001C4F;width:22px;height:22px;}
   <div class="static-blob-1" style="top:20px;left:8%;"></div>
   <div class="static-blob-2" style="top:90px;left:22%;"></div>
   <div class="hero-inner" style="display:flex;align-items:center;gap:40px;">
-    <div class="hero-left" style="flex:1 1 40%;">
+    <div class="hero-left" style="flex:1 1 auto;">
       <div class="hero-badge">OPTICIAN ONLY · B2B WHOLESALE</div>
       <h1>한 끗 다른 안목,<br><em>가장 정직한 도매몰</em></h1>
       <p>안경사를 위해 엄선된 브랜드만 진열장에 올립니다.</p>
@@ -501,10 +501,10 @@ i.ic-wish{background-color:#001C4F;width:22px;height:22px;}
       <div id="editorialViewport" style="overflow:hidden;">
         <div class="editorial-track" id="editorialGrid"></div>
       </div>
-      <button id="editorialPrevBtn" onclick="editorialManualNav(editorialNext)" style="display:none;position:absolute;top:113px;left:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+      <button id="editorialPrevBtn" onclick="editorialManualNav(editorialNext)" style="display:none;position:absolute;top:150px;left:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
         <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <button id="editorialNextBtn" onclick="editorialManualNav(editorialPrev)" style="display:none;position:absolute;top:113px;right:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+      <button id="editorialNextBtn" onclick="editorialManualNav(editorialPrev)" style="display:none;position:absolute;top:150px;right:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
         <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
@@ -1096,7 +1096,7 @@ let editorialStep = 0;
 let editorialVisibleCount = 3;
 let editorialTotal = 0;
 let editorialRotateTimer = null;
-const EDITORIAL_CARD_STEP = 216; // 카드 200px + gap 16px
+const EDITORIAL_CARD_STEP = 276; // 카드 260px + gap 16px
 
 async function loadEditorialSection() {
   const wrap = document.getElementById('editorialWrap');
