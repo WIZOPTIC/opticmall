@@ -1078,6 +1078,31 @@ function renderEmptyMainSection(gridId, message) {
     `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">${message}</div>`;
 }
 
+function renderTimesaleEmptyState() {
+  document.getElementById('timesaleGrid').innerHTML = `
+    <div style="grid-column:1/-1;">
+      <svg width="100%" viewBox="0 0 680 300" style="max-width:520px;display:block;margin:0 auto;">
+        <style>
+          .clock-hand-sec { transform-origin: 340px 110px; animation: tsClockTick 6s linear infinite; }
+          @keyframes tsClockTick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        </style>
+        <rect x="0" y="0" width="680" height="300" fill="#FAF8F4"/>
+        <g transform="translate(340,110)">
+          <circle cx="0" cy="0" r="52" fill="#002366"/>
+          <circle cx="0" cy="0" r="43" fill="#FAF8F4"/>
+          <line x1="0" y1="0" x2="0" y2="-22" stroke="#002366" stroke-width="4" stroke-linecap="round"/>
+          <line x1="0" y1="0" x2="15" y2="8" stroke="#002366" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="0" cy="0" r="3.5" fill="#C5A059"/>
+          <rect x="-13" y="-64" width="26" height="10" rx="4" fill="#002366"/>
+          <circle cx="-36" cy="-36" r="4" fill="#C5A059"/>
+        </g>
+        <line class="clock-hand-sec" x1="340" y1="110" x2="340" y2="78" stroke="#C5A059" stroke-width="2" stroke-linecap="round"/>
+        <text x="340" y="220" text-anchor="middle" font-size="19" font-weight="500" fill="#111318">다음 타임세일을 준비하는 중입니다</text>
+        <text x="340" y="246" text-anchor="middle" font-size="14" fill="#9BA5B0">엄선된 상품으로 곧 만나요</text>
+      </svg>
+    </div>`;
+}
+
 function renderAllMainSections() {
   if(mainAllProducts.length === 0) {
     renderEmptyMainSection('newArrivalGrid', '아직 등록된 상품이 없습니다.');
@@ -1106,7 +1131,7 @@ async function loadTimesaleData() {
 
     if(!endDate || endDate <= now) {
       timesaleEndAt = null;
-      renderEmptyMainSection('timesaleGrid', '현재는 타임세일 상품이 없습니다.');
+      renderTimesaleEmptyState();
       return;
     }
     timesaleEndAt = endDate;
@@ -1116,7 +1141,7 @@ async function loadTimesaleData() {
     itemsSnap.forEach(d => items.push({ id: d.id, ...d.data() }));
 
     if(items.length === 0) {
-      renderEmptyMainSection('timesaleGrid', '현재는 타임세일 상품이 없습니다.');
+      renderTimesaleEmptyState();
       return;
     }
 
@@ -1129,7 +1154,7 @@ async function loadTimesaleData() {
     });
 
     if(timesaleProducts.length === 0) {
-      renderEmptyMainSection('timesaleGrid', '현재는 타임세일 상품이 없습니다.');
+      renderTimesaleEmptyState();
       return;
     }
 
