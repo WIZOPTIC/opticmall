@@ -653,19 +653,32 @@ function closeLogin() {
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin(); });
 
-// 타임세일 카운트다운
+// 타임세일 카운트다운 (실제 관리자 설정 종료시각 기준)
+let timesaleEndAt = null;
 function updateTimer() {
+  const th = document.getElementById('timer-h');
+  const tm = document.getElementById('timer-m');
+  const ts = document.getElementById('timer-s');
+  if(!timesaleEndAt) {
+    if(th) th.textContent = '00';
+    if(tm) tm.textContent = '00';
+    if(ts) ts.textContent = '00';
+    return;
+  }
   const now = new Date();
-  const end = new Date();
-  end.setHours(24, 0, 0, 0);
-  const diff = Math.floor((end - now) / 1000);
+  const diff = Math.floor((timesaleEndAt - now) / 1000);
+  if(diff <= 0) {
+    if(th) th.textContent = '00';
+    if(tm) tm.textContent = '00';
+    if(ts) ts.textContent = '00';
+    timesaleEndAt = null;
+    loadTimesaleData(); // 종료 시각 도달 시 자동으로 "타임세일 상품이 없습니다" 갱신
+    return;
+  }
   const h = Math.floor(diff / 3600);
   const m = Math.floor((diff % 3600) / 60);
   const s = diff % 60;
   const pad = n => String(n).padStart(2, '0');
-  const th = document.getElementById('timer-h');
-  const tm = document.getElementById('timer-m');
-  const ts = document.getElementById('timer-s');
   if(th) th.textContent = pad(h);
   if(tm) tm.textContent = pad(m);
   if(ts) ts.textContent = pad(s);
@@ -1067,7 +1080,6 @@ function renderEmptyMainSection(gridId, message) {
 
 function renderAllMainSections() {
   if(mainAllProducts.length === 0) {
-    renderEmptyMainSection('timesaleGrid', '아직 등록된 상품이 없습니다.');
     renderEmptyMainSection('newArrivalGrid', '아직 등록된 상품이 없습니다.');
     renderEmptyMainSection('bestGrid', '아직 등록된 상품이 없습니다.');
     return;
@@ -1082,11 +1094,51 @@ function renderAllMainSections() {
   const best = [...mainAllProducts].sort((a,b) => (b.price||0)-(a.price||0)).slice(0, 10);
   document.getElementById('bestGrid').innerHTML =
     best.map(p => renderMainProductCard(p, 'BEST', 'best')).join('');
+}
 
-  // 타임세일: 가격 낮은순 10개 (실제 할인 시스템 도입 전 임시 노출)
-  const timesale = [...mainAllProducts].sort((a,b) => (a.price||0)-(b.price||0)).slice(0, 10);
-  document.getElementById('timesaleGrid').innerHTML =
-    timesale.map(p => renderMainProductCard(p, 'SALE', 'hot')).join('');
+// 타임세일: 실제 관리자 승인 데이터 연동
+async function loadTimesaleData() {
+  try {
+    const settingsSnap = await _db.collection('settings').doc('timesale').get();
+    const endAtRaw = settingsSnap.exists ? settingsSnap.data().endAt : null;
+    const endDate = endAtRaw && endAtRaw.toDate ? endAtRaw.toDate() : null;
+    const now = new Date();
+
+    if(!endDate || endDate <= now) {
+      timesaleEndAt = null;
+      renderEmptyMainSection('timesaleGrid', '현재는 타임세일 상품이 없습니다.');
+      return;
+    }
+    timesaleEndAt = endDate;
+
+    const itemsSnap = await _db.collection('timesaleItems').where('status', '==', 'approved').get();
+    const items = [];
+    itemsSnap.forEach(d => items.push({ id: d.id, ...d.data() }));
+
+    if(items.length === 0) {
+      renderEmptyMainSection('timesaleGrid', '현재는 타임세일 상품이 없습니다.');
+      return;
+    }
+
+    const productDocs = await Promise.all(items.map(i => _db.collection('products').doc(i.productId).get()));
+    const timesaleProducts = [];
+    productDocs.forEach((docSnap, idx) => {
+      if(docSnap.exists) {
+        timesaleProducts.push({ id: docSnap.id, ...docSnap.data(), discountRate: Number(items[idx].discountRate) || 0, salePrice: null });
+      }
+    });
+
+    if(timesaleProducts.length === 0) {
+      renderEmptyMainSection('timesaleGrid', '현재는 타임세일 상품이 없습니다.');
+      return;
+    }
+
+    document.getElementById('timesaleGrid').innerHTML =
+      timesaleProducts.map(p => renderMainProductCard(p, 'SALE', 'hot')).join('');
+  } catch(e) {
+    console.error('타임세일 로드 실패:', e);
+    renderEmptyMainSection('timesaleGrid', '타임세일 정보를 불러오지 못했습니다.');
+  }
 }
 
 async function loadMainProducts() {
@@ -1110,6 +1162,7 @@ async function loadMainProducts() {
 }
 
 loadMainProducts();
+loadTimesaleData();
 
 let editorialAllItems = [];
 let editorialStep = 0;
