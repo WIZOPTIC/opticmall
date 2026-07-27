@@ -222,7 +222,8 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 </style>
 </head>
 <body>
-<!-- TOPBAR -->
+<!-- TOPBAR + HEADER (함께 고정) -->
+<div style="position:sticky;top:0;z-index:200;">
 <div class="topbar">
   <div class="topbar-inner">
     <div id="topbarGuest">
@@ -233,8 +234,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     </div>
   </div>
 </div>
-
-<div style="position:sticky;top:0;z-index:200;">
 <header class="header">
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
