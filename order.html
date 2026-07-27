@@ -10,7 +10,7 @@
 :root{--sky:#002366;--sky-lt:#EEF1F5;--sky-dk:#001A4D;--navy:#002366;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--g1);color:var(--black);padding-bottom:40px;}
 .header{background:var(--white);border-bottom:1px solid var(--g2);position:sticky;top:0;z-index:100;}
-.header-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;}
+.header-inner{max-width:1440px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;}
 .logo { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); text-decoration: none; }
 .logo span { color: #C5A059; }
 .page-title{font-size:16px;font-weight:700;color:var(--navy);margin-left:24px;}
@@ -141,7 +141,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
 
 /* ── FOOTER (공통) ── */
 footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
-.footer-inner { max-width: 1280px; margin: 0 auto; }
+.footer-inner { max-width: 1440px; margin: 0 auto; }
 .footer-top { display: flex; justify-content: space-between; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 24px; flex-wrap: wrap; }
 .footer-logo { font-family: 'Inter', sans-serif; font-size:16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px; }
 .footer-logo span { color: #FFFFFF; }
@@ -165,9 +165,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   →
 </div>
 <header class="header">
-<div style="max-width:1280px;margin:0 auto;padding:6px 24px;text-align:right;"><!-- 메인페이지 쿠폰 안내줄과 높이를 맞추기 위한 투명 줄 (스크롤해도 헤더와 함께 고정되어 항상 정확히 일치) -->
-  <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;border:1px solid transparent;visibility:hidden;"><i class=ic-gift></i> 가입시 15% 할인쿠폰 즉시 지급!</span>
-</div>
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
     <div class="page-title">주문/결제</div>
