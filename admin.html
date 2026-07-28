@@ -2710,6 +2710,7 @@ async function loadOrderManage() {
             orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
             createdAt: o.createdAt, brandName: s.brandName||'-', brandOwnerUid: s.brandOwnerUid||null,
             items: myItems, amount, status: s.status,
+            pointsUsed: Number(o.pointsUsed || 0), paidAmount: o.paidAmount,
             trackingCompany: s.trackingCompany, trackingNumber: s.trackingNumber, legacy: false
           });
         });
@@ -2719,6 +2720,7 @@ async function loadOrderManage() {
           orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
           createdAt: o.createdAt, brandName: '-', brandOwnerUid: null,
           items, amount: o.totalAmount, status: o.status,
+          pointsUsed: Number(o.pointsUsed || 0), paidAmount: o.paidAmount,
           trackingCompany: o.trackingCompany, trackingNumber: o.trackingNumber, legacy: true
         });
       }
@@ -2797,7 +2799,11 @@ function renderOrderManageTable() {
               <td>${r.userName}</td>
               <td style="font-size:12px;font-weight:600;">${r.brandName}</td>
               <td style="font-size:12px;">${itemSummary}</td>
-              <td>₩${Number(r.amount||0).toLocaleString()}</td>
+              <td>
+                ₩${Number(r.amount||0).toLocaleString()}
+                ${r.pointsUsed > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px;">적립금 -₩${r.pointsUsed.toLocaleString()} 사용</div>` : ''}
+                ${r.paidAmount != null ? `<div style="font-size:10px;color:var(--g3);margin-top:2px;">실결제 ₩${Number(r.paidAmount).toLocaleString()}</div>` : ''}
+              </td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>
               <td><div class="action-btns">${actionBtn}</div></td>
