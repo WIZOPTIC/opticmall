@@ -156,12 +156,18 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   font-size: 14px; font-weight: 600; color: var(--g4);
   font-family: inherit; cursor: pointer; margin-bottom: 12px;
   transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  position: sticky; bottom: 16px; z-index: 15; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 .restock-btn:hover { background: var(--sky-lt); border-color: var(--sky); color: var(--sky); }
 .restock-btn.requested { background: var(--sky-lt); border-color: var(--sky); color: var(--sky); }
 
 /* 구매 버튼 */
-.buy-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+.buy-btns {
+  display: flex; gap: 10px; margin-bottom: 20px;
+  position: sticky; bottom: 16px; z-index: 15;
+  background: #fff; padding: 12px; margin-left: -12px; margin-right: -12px;
+  border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
 .btn-cart {
   flex: 1; padding: 15px; background: var(--white);
   border: 2px solid var(--navy); color: var(--navy);
