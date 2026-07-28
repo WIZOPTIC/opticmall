@@ -573,7 +573,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
           <button class="btn-sm btn-primary" onclick="loadSettlement()"><i class=ic-refresh></i> 새로고침</button>
         </div>
       </div>
-      <div class="dash-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="dash-grid" style="grid-template-columns:repeat(5,1fr);">
         <div class="dash-card">
           <div class="label">이번 달 총 매출</div>
           <div class="value" id="settleTotalSales">-<span>원</span></div>
@@ -585,6 +585,14 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <div class="dash-card">
           <div class="label">정산 대기 주문</div>
           <div class="value" id="settleOrderCount" style="color:var(--orange);">-<span>건</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="label">이번 달 적립금 사용액 <span style="font-size:10px;color:var(--g3);">(고객 할인분)</span></div>
+          <div class="value" id="settlePointsUsed" style="color:var(--red);">-<span>원</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="label">전체 회원 적립금 잔액 <span style="font-size:10px;color:var(--g3);">(미사용 총액)</span></div>
+          <div class="value" id="settlePointsOutstanding" style="color:var(--navy);">-<span>원</span></div>
         </div>
       </div>
       <div class="table-wrap" id="settlementTable">
@@ -1572,6 +1580,19 @@ async function deleteEditorialSlot(slotId) {
   }
 }
 
+async function loadPointsOutstandingTotal() {
+  const el = document.getElementById('settlePointsOutstanding');
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'users'));
+    let total = 0;
+    snap.forEach(doc => { total += Number(doc.data().pointsBalance || 0); });
+    el.innerHTML = '₩' + total.toLocaleString() + '<span></span>';
+  } catch(e) {
+    console.error('적립금 잔액 총합 조회 실패:', e);
+    el.innerHTML = '-<span>원</span>';
+  }
+}
+
 async function loadSettlement() {
   if(!guardSettlementAccess()) return;
   initSettlementMonthSelect();
@@ -1598,8 +1619,10 @@ async function loadSettlement() {
     // 브랜드별 매출 집계
     const brandMap = {}; // brandId -> {brandName, orderCount, totalSales}
     let totalSales = 0;
+    let totalPointsUsed = 0;
     orders.forEach(o => {
       totalSales += Number(o.totalAmount || 0);
+      totalPointsUsed += Number(o.pointsUsed || 0);
       const items = Array.isArray(o.items) && o.items.length > 0 ? o.items :
         (o.productName ? [{ brandId: o.brandId, brandName: o.brandName, subtotal: (o.unitPrice||0)*(o.qty||1) }] : []);
       items.forEach(it => {
@@ -1615,6 +1638,10 @@ async function loadSettlement() {
     document.getElementById('settleTotalSales').innerHTML = '₩' + totalSales.toLocaleString() + '<span></span>';
     document.getElementById('settleBrandCount').innerHTML = brandList.length + '<span>개사</span>';
     document.getElementById('settleOrderCount').innerHTML = orders.length + '<span>건</span>';
+    document.getElementById('settlePointsUsed').innerHTML = '-₩' + totalPointsUsed.toLocaleString() + '<span></span>';
+
+    // 전체 회원 적립금 잔액 총합 (월 구간과 무관한 현재 스냅샷)
+    loadPointsOutstandingTotal();
 
     if(brandList.length === 0) {
       tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">해당 월에 정산할 매출이 없습니다.</div>';
