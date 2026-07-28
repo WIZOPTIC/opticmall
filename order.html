@@ -553,6 +553,7 @@ async function loadOrderProduct() {
             item.product.effectivePrice = Math.round(basePrice * (1 - finalRate / 100));
           }
         } else {
+          item.product.originalPrice = basePrice;
           item.product.effectivePrice = basePrice;
         }
       });
@@ -564,6 +565,7 @@ async function loadOrderProduct() {
         const selectedColorData = Array.isArray(p.colors) ? p.colors[item.selectedColorIdx] : null;
         const hasColorPrice = selectedColorData && selectedColorData.price != null && selectedColorData.price !== '';
         const basePrice = hasColorPrice ? Number(selectedColorData.price) : Number(p.price || 0);
+        item.product.originalPrice = basePrice;
 
         if(!hasColorPrice && productRate > 0 && p.salePrice) {
           item.product.effectivePrice = Number(p.salePrice);
@@ -586,7 +588,7 @@ async function loadOrderProduct() {
 
 function renderOrderItems() {
   totalAmount = orderItems.reduce((sum, item) => sum + Number(item.product.effectivePrice||item.product.price||0) * item.qty, 0);
-  const totalOriginalAmount = orderItems.reduce((sum, item) => sum + Number(item.product.price||item.product.effectivePrice||0) * item.qty, 0);
+  const totalOriginalAmount = orderItems.reduce((sum, item) => sum + Number(item.product.originalPrice != null ? item.product.originalPrice : (item.product.price||item.product.effectivePrice||0)) * item.qty, 0);
   const totalDiscount = totalOriginalAmount - totalAmount;
 
   document.getElementById('itemCount').textContent = orderItems.length;
@@ -604,7 +606,7 @@ function renderOrderItems() {
     const colorLabelWithCode = colorLabel + (colorCode ? ` (${colorCode})` : '');
     const barcode = colorData?.barcode || p.barcode || '';
     const discountTag = p.discountRate ? `<span style="font-size:11px;color:var(--red);font-weight:700;margin-left:4px;">${p.discountRate}% 할인적용</span>` : '';
-    const basePrice = Number(p.price || 0);
+    const basePrice = Number(p.originalPrice != null ? p.originalPrice : (p.price || 0));
     const isDiscounted = unitPrice < basePrice;
     const originalSubtotal = basePrice * item.qty;
     const priceHtml = isDiscounted
@@ -798,7 +800,7 @@ async function startPayment() {
           barcode: colorData?.barcode || p.barcode || '',
           qty: item.qty,
           unitPrice: Number(p.effectivePrice || p.price || 0),
-          originalUnitPrice: Number(p.price || 0),
+          originalUnitPrice: Number(p.originalPrice != null ? p.originalPrice : (p.price || 0)),
           discountRate: p.discountRate || 0,
           subtotal: Number(p.effectivePrice || p.price || 0) * item.qty
         };
