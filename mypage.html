@@ -349,6 +349,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="menu-item active" onclick="showSection('orders',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>주문 내역</div>
       <div class="menu-item" onclick="showSection('wish',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 000-7.6z"/></svg>관심상품</div>
       <div class="menu-item" onclick="showSection('recent',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>최근 본 상품</div>
+      <div class="menu-item" onclick="showSection('points',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>적립금</div>
       <div class="menu-item" onclick="showSection('restock',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>재입고 알림</div>
       <div class="menu-item" onclick="showSection('profile',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>회원 정보 수정</div>
       <div class="menu-item" onclick="showSection('biz',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18"/><line x1="9" y1="7" x2="9" y2="7.01"/><line x1="15" y1="7" x2="15" y2="7.01"/><line x1="9" y1="11" x2="9" y2="11.01"/><line x1="15" y1="11" x2="15" y2="11.01"/><line x1="9" y1="15" x2="9" y2="15.01"/><line x1="15" y1="15" x2="15" y2="15.01"/><line x1="10" y1="21" x2="14" y2="21"/></svg>사업자 정보</div>
@@ -407,6 +408,17 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     </div>
 
     <!-- 재입고 알림 -->
+    <div id="section-points" style="display:none;">
+      <div class="section-title">적립금</div>
+      <div style="background:var(--navy);border-radius:12px;padding:24px;margin-bottom:20px;color:#fff;">
+        <div style="font-size:12px;opacity:0.7;margin-bottom:6px;">보유 적립금</div>
+        <div id="pointsBalanceDisplay" style="font-size:28px;font-weight:800;">₩0</div>
+        <div style="font-size:11px;opacity:0.6;margin-top:8px;">구매 확정(배송완료) 시 구매금액의 1%가 자동 적립돼요. 주문/결제 시 1원 단위로 사용할 수 있어요.</div>
+      </div>
+      <div class="section-title" style="font-size:14px;">적립/사용 내역</div>
+      <div id="pointsLedgerList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
+    </div>
+
     <div id="section-restock" style="display:none;">
       <div class="section-title">재입고 알림 신청 목록</div>
       <div id="restockList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
@@ -546,7 +558,7 @@ _auth.onAuthStateChanged(async (user) => {
 
     // URL 파라미터로 탭 자동 이동 (?tab=wish, ?tab=restock)
     const urlTab = new URLSearchParams(location.search).get('tab');
-    if(urlTab === 'wish' || urlTab === 'restock' || urlTab === 'recent') {
+    if(urlTab === 'wish' || urlTab === 'restock' || urlTab === 'recent' || urlTab === 'points') {
       const tabEl = document.querySelector(`[onclick*="showSection('${urlTab}"]`);
       if(tabEl) tabEl.click();
     }
@@ -567,7 +579,7 @@ let currentMypageSection = 'orders';
 
 function showSection(name, el) {
   currentMypageSection = name;
-  ['orders','wish','recent','restock','profile','biz','address'].forEach(s => {
+  ['orders','wish','recent','restock','profile','biz','address','points'].forEach(s => {
     const sec = document.getElementById('section-'+s);
     if(sec) sec.style.display = s===name ? 'block' : 'none';
   });
@@ -578,6 +590,7 @@ function showSection(name, el) {
   if(name === 'recent') loadRecentlyViewed();
   if(name === 'restock') loadRestockAlerts();
   if(name === 'address') loadAddresses();
+  if(name === 'points') loadPointsSection();
 }
 
 // 다른 탭에서 장바구니/찜 등을 변경하고 이 탭으로 돌아왔을 때 자동으로 최신 데이터를 다시 불러옴
@@ -588,6 +601,39 @@ document.addEventListener('visibilitychange', () => {
   else if(currentMypageSection === 'recent') loadRecentlyViewed();
   else if(currentMypageSection === 'restock') loadRestockAlerts();
 });
+
+async function loadPointsSection() {
+  const balance = Number(currentUserData?.pointsBalance) || 0;
+  document.getElementById('pointsBalanceDisplay').textContent = '₩' + balance.toLocaleString();
+
+  const listEl = document.getElementById('pointsLedgerList');
+  listEl.innerHTML = '<div class="loading-box"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await _db.collection('users').doc(currentUser.uid)
+      .collection('pointsLedger').orderBy('createdAt', 'desc').limit(50).get();
+    if(snap.empty) {
+      listEl.innerHTML = '<div class="empty-box">아직 적립/사용 내역이 없어요.</div>';
+      return;
+    }
+    listEl.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const isEarn = d.type === 'earn';
+      const sign = isEarn ? '+' : '';
+      const color = isEarn ? 'var(--sky)' : 'var(--red)';
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--g1);">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--black);">${d.note || (isEarn ? '적립' : '사용')}</div>
+            <div style="font-size:11px;color:var(--g3);margin-top:2px;">${formatDate(d.createdAt)}</div>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:${color};">${sign}${Number(d.amount||0).toLocaleString()}원</div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = '<div class="empty-box" style="color:var(--red);">내역을 불러오지 못했습니다.</div>';
+  }
+}
 
 function formatDate(ts) {
   if(!ts) return '-';

@@ -283,6 +283,16 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
       <div class="sum-row" id="sumDiscountRow" style="display:none;"><span class="lbl">할인 금액</span><span class="val" id="sumDiscount" style="color:var(--red);">-₩0</span></div>
       <div class="sum-row"><span class="lbl">배송비</span><span class="val" id="shippingFeeDisplay" style="color:var(--green);">무료</span></div>
+      <div class="sum-row" id="pointsUseRow" style="display:none;align-items:center;">
+        <span class="lbl">적립금 <span id="pointsBalanceLabel" style="color:var(--g3);font-weight:400;">(보유 0원)</span></span>
+        <span style="display:flex;align-items:center;gap:6px;">
+          <input type="number" id="pointsUseInput" min="0" step="1" value="0" placeholder="0"
+            style="width:90px;padding:6px 8px;border:1px solid var(--g2);border-radius:6px;text-align:right;font-size:13px;font-family:inherit;"
+            oninput="onPointsInputChange()">
+          <button type="button" onclick="useAllPoints()" style="padding:6px 10px;border:1px solid var(--g2);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:var(--g4);">전액사용</button>
+        </span>
+      </div>
+      <div class="sum-row" id="pointsAppliedRow" style="display:none;"><span class="lbl">적립금 사용</span><span class="val" id="pointsAppliedVal" style="color:var(--red);">-₩0</span></div>
       <hr class="sum-divider">
       <div class="sum-total">
         <span>최종 결제</span>
@@ -339,6 +349,7 @@ _auth.onAuthStateChanged(async (user) => {
       return;
     }
     fillOrdererInfo();
+    initPointsUI();
     await loadAddressesForOrder();
     await loadOrderProduct();
   } catch(e) {
@@ -626,6 +637,7 @@ const BASE_SHIPPING_FEE = 3500;
 const JEJU_EXTRA_FEE = 3000; // 제주/도서산간 추가비
 
 let currentShippingFee = 0;
+let pointsToUse = 0;
 
 function isJejuAddress(addr) {
   if(!addr) return false;
@@ -657,8 +669,48 @@ function updateShippingAndTotal() {
     feeDisplay.style.color = 'var(--black)';
   }
 
-  const finalTotal = totalAmount + currentShippingFee;
+  const maxUsable = Math.min(Number(currentUserData?.pointsBalance) || 0, totalAmount + currentShippingFee);
+  if(pointsToUse > maxUsable) pointsToUse = maxUsable;
+  const finalTotal = totalAmount + currentShippingFee - pointsToUse;
   document.getElementById('sumTotal').textContent = '₩' + finalTotal.toLocaleString();
+
+  const appliedRow = document.getElementById('pointsAppliedRow');
+  if(pointsToUse > 0) {
+    appliedRow.style.display = '';
+    document.getElementById('pointsAppliedVal').textContent = '-₩' + pointsToUse.toLocaleString();
+  } else {
+    appliedRow.style.display = 'none';
+  }
+}
+
+// ===================== 적립금 사용 =====================
+function initPointsUI() {
+  const balance = Number(currentUserData?.pointsBalance) || 0;
+  const row = document.getElementById('pointsUseRow');
+  if(balance <= 0) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  document.getElementById('pointsBalanceLabel').textContent = `(보유 ${balance.toLocaleString()}원)`;
+  document.getElementById('pointsUseInput').max = balance;
+}
+
+function onPointsInputChange() {
+  const input = document.getElementById('pointsUseInput');
+  const balance = Number(currentUserData?.pointsBalance) || 0;
+  const maxUsable = Math.min(balance, totalAmount + currentShippingFee);
+  let val = Math.floor(Number(input.value)) || 0;
+  if(val < 0) val = 0;
+  if(val > maxUsable) val = maxUsable;
+  input.value = val;
+  pointsToUse = val;
+  updateShippingAndTotal();
+}
+
+function useAllPoints() {
+  const balance = Number(currentUserData?.pointsBalance) || 0;
+  const maxUsable = Math.min(balance, totalAmount + currentShippingFee);
+  document.getElementById('pointsUseInput').value = maxUsable;
+  pointsToUse = maxUsable;
+  updateShippingAndTotal();
 }
 
 
@@ -682,7 +734,7 @@ async function startPayment() {
   const orderName = orderItems.length > 1
     ? `${firstName} 외 ${orderItems.length - 1}건`
     : firstName;
-  const finalPayAmount = totalAmount + currentShippingFee;
+  const finalPayAmount = totalAmount + currentShippingFee - pointsToUse;
 
   // 브랜드사별로 배송을 따로 처리할 수 있도록, 상품을 브랜드별로 묶어 shipments 생성
   const shipmentsMap = {};
@@ -745,6 +797,8 @@ async function startPayment() {
       itemCount: totalItemCount,
       productAmount: totalAmount,
       shippingFee: currentShippingFee,
+      pointsUsed: pointsToUse,
+      pointsAwarded: false,
       totalAmount: finalPayAmount,
       receiver: {
         name: selectedAddr.recipientName || '',

@@ -2670,6 +2670,23 @@ function computeOverallOrderStatus(shipments) {
 let orderManageCache = []; // 평탄화된 행: 주문+브랜드 배송묶음 단위 (구주문은 브랜드 없이 1행)
 let orderManageCurrentFilter = 'all';
 
+async function sweepPendingPointsAward(orderDocs) {
+  const targets = orderDocs.filter(o => o.status === 'delivered' && !o.pointsAwarded && o.userId);
+  for(const o of targets) {
+    try {
+      const orderRef = window._doc(window._db, 'orders', o.id);
+      await window._runTransaction(window._db, async (tx) => {
+        const snap = await tx.get(orderRef);
+        if(!snap.exists()) return;
+        const data = snap.data();
+        await awardPointsIfDelivered(tx, orderRef, data, data.status);
+      });
+    } catch(e) {
+      console.error('적립금 자동 보정 실패:', o.id, e);
+    }
+  }
+}
+
 async function loadOrderManage() {
   const tableEl = document.getElementById('orderManageTable');
   tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
@@ -2678,9 +2695,11 @@ async function loadOrderManage() {
       window._collection(window._db, 'orders'),
       window._where('status', 'in', ORDER_MANAGE_STATUSES)
     ));
+    const allOrderDocs = [];
     const rows = [];
     snap.forEach(d => {
       const o = { id: d.id, ...d.data() };
+      allOrderDocs.push(o);
       const items = Array.isArray(o.items) ? o.items : [];
       if(Array.isArray(o.shipments) && o.shipments.length > 0) {
         // 브랜드별 배송묶음이 있는 주문(신규) → 계정(brandOwnerUid) 단위로 행 분리 (한 계정이 브랜드 여러 개를 운영해도 배송은 하나로 묶임)
@@ -2711,6 +2730,7 @@ async function loadOrderManage() {
     });
     orderManageCache = rows;
     renderOrderManageTable();
+    sweepPendingPointsAward(allOrderDocs); // 배송완료됐지만 아직 적립금 미지급인 건 백그라운드에서 자동 보정
   } catch(e) {
     console.error(e);
     tableEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ${e.message}</div>`;
@@ -2788,11 +2808,44 @@ function renderOrderManageTable() {
 }
 
 // orderDocId + brandOwnerUid(구주문은 null)를 받아 해당 배송묶음(또는 구주문 전체)의 상태를 갱신
+const POINTS_EARN_RATE = 0.01; // 구매금액의 1% 적립
+
+// 주문이 '배송완료'로 처음 전환되는 순간에만 1회 적립 (이미 지급됐으면 건너뜀)
+async function awardPointsIfDelivered(tx, orderRef, data, newOverallStatus) {
+  if(newOverallStatus !== 'delivered') return;
+  if(data.pointsAwarded) return;
+  if(!data.userId) return;
+  const earnAmount = Math.floor(Number(data.productAmount || 0) * POINTS_EARN_RATE);
+  if(earnAmount <= 0) { tx.update(orderRef, { pointsAwarded: true, pointsAmount: 0 }); return; }
+
+  const userRef = window._doc(window._db, 'users', data.userId);
+  const userSnap = await tx.get(userRef);
+  const currentBalance = Number(userSnap.exists() ? userSnap.data().pointsBalance : 0) || 0;
+  tx.update(userRef, { pointsBalance: currentBalance + earnAmount });
+
+  const ledgerRef = window._doc(window._collection(userRef, 'pointsLedger'));
+  tx.set(ledgerRef, {
+    type: 'earn',
+    amount: earnAmount,
+    orderId: orderRef.id,
+    note: '구매 적립금 (구매금액의 1%, 배송완료)',
+    createdAt: window._serverTimestamp()
+  });
+
+  tx.update(orderRef, { pointsAwarded: true, pointsAmount: earnAmount });
+}
+
 async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
   const orderRef = window._doc(window._db, 'orders', orderDocId);
   if(brandOwnerUid === null) {
-    // 구주문: 예전 방식 그대로 주문 전체 상태 갱신
-    await window._updateDoc(orderRef, patch);
+    // 구주문: 예전 방식 그대로 주문 전체 상태 갱신 (트랜잭션으로 감싸서 적립금 지급도 함께 처리)
+    await window._runTransaction(window._db, async (tx) => {
+      const snap = await tx.get(orderRef);
+      if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
+      const data = snap.data();
+      tx.update(orderRef, patch);
+      await awardPointsIfDelivered(tx, orderRef, data, patch.status);
+    });
     return;
   }
   await window._runTransaction(window._db, async (tx) => {
@@ -2805,11 +2858,13 @@ async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
     shipments[idx] = { ...shipments[idx], ...patch };
 
     const updatePayload = { shipments };
+    let overall = null;
     if(!CANCEL_FAMILY_STATUSES.includes(data.status)) {
-      const overall = computeOverallOrderStatus(shipments);
+      overall = computeOverallOrderStatus(shipments);
       if(overall) updatePayload.status = overall;
     }
     tx.update(orderRef, updatePayload);
+    await awardPointsIfDelivered(tx, orderRef, data, overall);
   });
 }
 

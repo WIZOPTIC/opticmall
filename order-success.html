@@ -191,6 +191,29 @@ function calcPurchaseLevel(totalAmount) {
   return result;
 }
 
+async function deductUsedPoints(userId, orderId, pointsUsed) {
+  if(!pointsUsed || pointsUsed <= 0) return;
+  const userRef = _db.collection('users').doc(userId);
+  try {
+    await _db.runTransaction(async (tx) => {
+      const userSnap = await tx.get(userRef);
+      const currentBalance = Number(userSnap.exists ? userSnap.data().pointsBalance : 0) || 0;
+      const newBalance = Math.max(0, currentBalance - pointsUsed);
+      tx.update(userRef, { pointsBalance: newBalance });
+      const ledgerRef = userRef.collection('pointsLedger').doc();
+      tx.set(ledgerRef, {
+        type: 'use',
+        amount: -pointsUsed,
+        orderId,
+        note: '주문 결제 시 적립금 사용',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+  } catch(e) {
+    console.error('적립금 차감 실패:', e);
+  }
+}
+
 async function updateUserPurchaseLevel(userId, orderAmount) {
   const userRef = _db.collection('users').doc(userId);
   try {
@@ -264,6 +287,9 @@ async function handleSuccess() {
 
     // 누적 구매금액 갱신 및 구매등급 재계산
     await updateUserPurchaseLevel(order.userId, Number(amount));
+
+    // 이번 결제에서 사용한 적립금이 있으면 회원 잔액에서 차감
+    await deductUsedPoints(order.userId, orderId, Number(order.pointsUsed) || 0);
 
     document.getElementById('rOrderId').textContent = orderId;
     document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
