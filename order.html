@@ -298,6 +298,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
         <span>최종 결제</span>
         <span class="price" id="sumTotal">₩0</span>
       </div>
+      <div class="sum-row" id="sumEarnPointsRow" style="display:none;padding-top:4px;"><span class="lbl" style="color:var(--g3);">적립 예정 적립금</span><span class="val" id="sumEarnPoints" style="color:var(--navy);font-weight:700;">+₩0</span></div>
       <div class="agree-box">
         <div class="agree-item"><input type="checkbox" id="agree1"> 구매조건 확인 및 결제 동의 (필수)</div>
         <div class="agree-item"><input type="checkbox" id="agree2"> 개인정보 제3자 제공 동의 (필수)</div>
@@ -673,6 +674,16 @@ function updateShippingAndTotal() {
   if(pointsToUse > maxUsable) pointsToUse = maxUsable;
   const finalTotal = totalAmount + currentShippingFee - pointsToUse;
   document.getElementById('sumTotal').textContent = '₩' + finalTotal.toLocaleString();
+
+  // 적립 예정 금액: 실제 구매금액(상품금액, 배송비 제외) 기준 1% — 배송완료 후 지급
+  const earnRow = document.getElementById('sumEarnPointsRow');
+  const expectedEarn = Math.floor(totalAmount * 0.01);
+  if(expectedEarn > 0) {
+    earnRow.style.display = 'flex';
+    document.getElementById('sumEarnPoints').textContent = '+₩' + expectedEarn.toLocaleString();
+  } else {
+    earnRow.style.display = 'none';
+  }
 
   const appliedRow = document.getElementById('pointsAppliedRow');
   if(pointsToUse > 0) {

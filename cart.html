@@ -162,12 +162,14 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="summary-title">주문 요약</div>
       <div class="summary-row"><span class="label">선택 상품</span><span class="value" id="sumCount">0개</span></div>
       <div class="summary-row"><span class="label">상품 금액</span><span class="value" id="sumProducts">₩0</span></div>
+      <div class="summary-row" id="sumDiscountRow" style="display:none;"><span class="label">할인 금액</span><span class="value" id="sumDiscount" style="color:var(--red);">-₩0</span></div>
       <div class="summary-row"><span class="label">배송비</span><span class="value" id="shippingFeeDisplay" style="color:var(--green);">무료</span></div>
       <hr class="summary-divider">
       <div class="summary-total">
         <span>최종 결제금액</span>
         <span class="total-price" id="sumTotal">₩0</span>
       </div>
+      <div class="summary-row" id="sumPointsRow" style="display:none;padding-top:10px;"><span class="label" style="color:var(--g3);">적립 예정 적립금</span><span class="value" id="sumPoints" style="color:var(--navy);font-weight:700;">+₩0</span></div>
     </div>
     <button class="btn-order" id="orderBtn" onclick="goToOrder()">주문하기 →</button>
     <button class="btn-continue" onclick="location.href='list.html'">쇼핑 계속하기</button>
@@ -488,21 +490,40 @@ function isJejuAddress(addr) {
   return remoteKeywords.some(kw => addr.includes(kw));
 }
 
+function getItemOriginalPrice(item) {
+  const p = item.product;
+  const colorIdx = Number(item.selectedColorIdx) || 0;
+  const colorData = Array.isArray(p.colors) ? p.colors[colorIdx] : null;
+  const hasColorPrice = colorData && colorData.price != null && colorData.price !== '';
+  return hasColorPrice ? Number(colorData.price) : Number(p.price || 0);
+}
+
 function updateSummary() {
   const selectedItems = cartItems.filter(i => i.selected && getItemStock(i) > 0);
   const count = selectedItems.length;
   const total = selectedItems.reduce((sum, i) => sum + getItemPrice(i) * i.qty, 0);
+  const totalOriginal = selectedItems.reduce((sum, i) => sum + getItemOriginalPrice(i) * i.qty, 0);
+  const totalDiscount = totalOriginal - total;
 
   document.getElementById('chkAllLabel').textContent = `전체선택 (${cartItems.length}개)`;
   document.getElementById('sumCount').textContent = count + '개';
 
   const feeDisplay = document.getElementById('shippingFeeDisplay');
+  const discountRow = document.getElementById('sumDiscountRow');
+  const pointsRow = document.getElementById('sumPointsRow');
+
+  if(totalDiscount > 0) {
+    discountRow.style.display = '';
+    document.getElementById('sumDiscount').textContent = '-₩' + totalDiscount.toLocaleString();
+  } else {
+    discountRow.style.display = 'none';
+  }
 
   if(memberLevel >= 2) {
     let shippingFee = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : BASE_SHIPPING_FEE;
     const isRemote = isJejuAddress(defaultAddrForShipping);
     if(isRemote && total > 0) shippingFee += JEJU_EXTRA_FEE;
-    document.getElementById('sumProducts').textContent = '₩' + total.toLocaleString();
+    document.getElementById('sumProducts').textContent = '₩' + totalOriginal.toLocaleString();
     if(shippingFee === 0) {
       feeDisplay.textContent = '무료';
       feeDisplay.style.color = 'var(--green)';
@@ -513,11 +534,20 @@ function updateSummary() {
       feeDisplay.style.color = 'var(--black)';
     }
     document.getElementById('sumTotal').textContent = '₩' + (total + shippingFee).toLocaleString();
+
+    const expectedPoints = Math.floor(total * 0.01);
+    if(expectedPoints > 0) {
+      pointsRow.style.display = 'flex';
+      document.getElementById('sumPoints').textContent = '+₩' + expectedPoints.toLocaleString();
+    } else {
+      pointsRow.style.display = 'none';
+    }
   } else {
     document.getElementById('sumProducts').textContent = '로그인 필요';
     feeDisplay.textContent = '-';
     feeDisplay.style.color = 'var(--g3)';
     document.getElementById('sumTotal').textContent = '-';
+    pointsRow.style.display = 'none';
   }
 
   const orderBtn = document.getElementById('orderBtn');
