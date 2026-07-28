@@ -570,6 +570,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <tr><td>사이즈</td><td id="spec-size">-</td></tr>
       <tr><td>프레임 종류</td><td id="spec-type">-</td></tr>
       <tr><td>색상</td><td id="spec-color">-</td></tr>
+      <tr><td>원산지</td><td id="spec-origin">-</td></tr>
       <tr><td>도매가</td><td id="spec-price">로그인 후 확인 가능</td></tr>
       <tr><td>재고</td><td id="spec-stock">-</td></tr>
     </table>
@@ -952,7 +953,11 @@ function renderProduct(p) {
   document.getElementById('spec-barcode').textContent = p.barcode || '-';
   document.getElementById('spec-size').textContent = p.size || '-';
   document.getElementById('spec-type').textContent = p.type || '-';
-  document.getElementById('spec-color').textContent = p.color || '-';
+  document.getElementById('spec-color').textContent =
+    (Array.isArray(p.colors) && p.colors.length)
+      ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
+      : (p.color || '-');
+  document.getElementById('spec-origin').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
   const firstColorStock = (p.colors && p.colors.length > 0) ? p.colors[0].stock : p.stock;
   document.getElementById('spec-stock').textContent = (firstColorStock !== undefined ? firstColorStock + '개' : '-');
 

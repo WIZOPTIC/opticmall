@@ -279,6 +279,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <div class="menu-section">프로모션</div>
     <button class="menu-item" onclick="showPage('promoApproval',this)"><span><i class=ic-party></i></span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge"></span></button>
     <button class="menu-item" onclick="showPage('allPromos',this)"><span><i class=ic-tag></i>️</span> 전체 이벤트 목록</button>
+    <button class="menu-item" onclick="showPage('timesaleManage',this)"><span><i class=ic-fire></i></span> 타임세일 관리 <span class="menu-badge" id="pendingTimesaleBadge"></span></button>
     <div class="menu-section">메인 화면 관리</div>
     <button class="menu-item" onclick="showPage('editorial',this)"><span><i class=ic-image></i></span> 롤링 배너 관리</button>
     <div class="menu-section">운영</div>
@@ -518,6 +519,51 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       </div>
     </div>
 
+    <!-- 타임세일 관리 -->
+    <div class="page" id="page-timesaleManage">
+      <div class="section-header">
+        <div class="section-title"><i class=ic-fire></i> 타임세일 관리</div>
+        <button class="btn-sm btn-primary" onclick="loadTimesaleManage()"><i class=ic-refresh></i> 새로고침</button>
+      </div>
+      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">본 상품 중 지금 바로 기습 세일할 상품을 지정하는 기능이에요. 종료 시각을 설정하면 그 시각에 전체 타임세일 상품이 일제히 종료돼요. 상품마다 할인율을 다르게 지정할 수 있어요.</div>
+
+      <!-- 종료시각 설정 카드 -->
+      <div style="background:#fff;border:1px solid var(--g2);border-radius:12px;padding:20px 24px;margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;">종료 시각 설정</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <input type="datetime-local" id="timesaleEndAtInput" style="padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+          <button class="btn-sm btn-primary" onclick="saveTimesaleEndAt()"><i class=ic-save></i> 저장 (전체 타임세일 시작/종료)</button>
+          <span id="timesaleStatusBadge" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px;"></span>
+        </div>
+        <div style="font-size:12px;color:var(--g3);margin-top:10px;">저장 시점부터 지정한 시각까지 아래 승인된 상품들이 고객 화면(메인/타임세일 페이지)에 노출됩니다. 시각이 지나면 자동으로 "타임세일 상품이 없습니다"로 전환돼요.</div>
+      </div>
+
+      <!-- 브랜드 신청 승인 대기 -->
+      <div class="section-header" style="margin-top:8px;">
+        <div class="section-title" style="font-size:15px;">브랜드 신청 승인 대기</div>
+      </div>
+      <div class="table-wrap" id="timesalePendingTable" style="margin-bottom:28px;">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+
+      <!-- 관리자 직접 추가 -->
+      <div class="section-header" style="margin-top:8px;">
+        <div class="section-title" style="font-size:15px;">상품 직접 추가</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="timesaleProductSearchInput" placeholder="모델명, 바코드, 브랜드로 검색" oninput="searchTimesaleAddCandidates()" style="flex:1;min-width:220px;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+      </div>
+      <div id="timesaleAddCandidates" style="margin-bottom:28px;"></div>
+
+      <!-- 현재 등록된 타임세일 상품 -->
+      <div class="section-header" style="margin-top:8px;">
+        <div class="section-title" style="font-size:15px;">현재 타임세일 상품 (승인됨)</div>
+      </div>
+      <div class="table-wrap" id="timesaleApprovedTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
     <!-- 정산 관리 (마스터 전용) -->
     <div class="page" id="page-settlement">
       <div class="section-header">
@@ -631,6 +677,13 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
             <input type="checkbox" id="aEditPhotochromic" style="width:16px;height:16px;cursor:pointer;">
             변색렌즈 적용 상품
           </label>
+        </div>
+        <div class="edit-form-group">
+          <label>원산지</label>
+          <select id="aEditOrigin">
+            <option value="china">중국 (China)</option>
+            <option value="korea">한국 (Korea)</option>
+          </select>
         </div>
       </div>
       <div class="edit-form-row">
@@ -808,7 +861,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
@@ -816,6 +869,7 @@ function showPage(name, el) {
   if(name === 'allProducts') loadAllProducts();
   if(name === 'promoApproval') loadPromoApproval();
   if(name === 'allPromos') loadAllPromos();
+  if(name === 'timesaleManage') loadTimesaleManage();
   if(name === 'orderManage') loadOrderManage();
   if(name === 'cancelManage') loadCancelManage();
   if(name === 'settlement') loadSettlement();
@@ -867,6 +921,14 @@ async function loadDashboard() {
       promoSnap.forEach(d => { if(d.data().status === 'pending') pendingPromoCount++; });
       document.getElementById('pendingPromoBadge').textContent = pendingPromoCount || '';
     } catch(e) { console.error('이벤트 카운트 로드 실패', e); }
+
+    // 타임세일 승인대기 카운트
+    try {
+      const tsSnap = await window._getDocs(window._collection(window._db, 'timesaleItems'));
+      let pendingTimesaleCount = 0;
+      tsSnap.forEach(d => { if(d.data().status === 'pending') pendingTimesaleCount++; });
+      document.getElementById('pendingTimesaleBadge').textContent = pendingTimesaleCount || '';
+    } catch(e) { console.error('타임세일 카운트 로드 실패', e); }
 
     // 취소/반품 신청 건수
     try {
@@ -1872,6 +1934,251 @@ async function deletePromo(promoId) {
   }
 }
 
+// ===================== 타임세일 관리 =====================
+let timesaleProductCache = null; // {id: product} 상품 조회 캐시
+
+function toDateTimeLocalValue(date) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+async function loadTimesaleManage() {
+  await Promise.all([
+    loadTimesaleEndAtStatus(),
+    loadTimesalePending(),
+    loadTimesaleApproved()
+  ]);
+}
+
+async function loadTimesaleEndAtStatus() {
+  const badge = document.getElementById('timesaleStatusBadge');
+  const input = document.getElementById('timesaleEndAtInput');
+  try {
+    const snap = await window._getDoc(window._doc(window._db, 'settings', 'timesale'));
+    const endAt = snap.exists() ? snap.data().endAt : null;
+    if(endAt && endAt.toDate) {
+      const endDate = endAt.toDate();
+      input.value = toDateTimeLocalValue(endDate);
+      const now = new Date();
+      if(endDate > now) {
+        badge.textContent = '진행중 (' + endDate.toLocaleString('ko-KR') + ' 종료)';
+        badge.style.background = '#E8F8EE'; badge.style.color = 'var(--green)';
+      } else {
+        badge.textContent = '종료됨';
+        badge.style.background = '#F2F4F6'; badge.style.color = 'var(--g4)';
+      }
+    } else {
+      badge.textContent = '설정 안 됨';
+      badge.style.background = '#F2F4F6'; badge.style.color = 'var(--g4)';
+    }
+  } catch(e) {
+    badge.textContent = '로드 실패';
+  }
+}
+
+async function saveTimesaleEndAt() {
+  const input = document.getElementById('timesaleEndAtInput');
+  if(!input.value) { showToast('종료 시각을 선택해주세요.', 'error'); return; }
+  const endDate = new Date(input.value);
+  if(isNaN(endDate.getTime())) { showToast('올바른 시각을 선택해주세요.', 'error'); return; }
+  if(!confirm(`타임세일 종료 시각을 ${endDate.toLocaleString('ko-KR')}(으)로 설정하시겠습니까?\n승인된 상품들이 지금부터 이 시각까지 고객 화면에 노출됩니다.`)) return;
+  try {
+    await window._setDoc(window._doc(window._db, 'settings', 'timesale'), { endAt: endDate, updatedAt: window._serverTimestamp() });
+    showToast('<i class=ic-check-circle></i> 타임세일 종료 시각이 저장되었습니다.', 'success');
+    loadTimesaleEndAtStatus();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function fetchTimesaleItems() {
+  const snap = await window._getDocs(window._collection(window._db, 'timesaleItems'));
+  const items = [];
+  snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+  return items;
+}
+
+async function ensureTimesaleProductCache(items) {
+  if(!timesaleProductCache) timesaleProductCache = {};
+  const missingIds = [...new Set(items.map(i => i.productId))].filter(id => !timesaleProductCache[id]);
+  const docs = await Promise.all(missingIds.map(id => window._getDoc(window._doc(window._db, 'products', id))));
+  docs.forEach(d => { if(d.exists()) timesaleProductCache[d.id] = { id: d.id, ...d.data() }; });
+}
+
+async function loadTimesalePending() {
+  const tableEl = document.getElementById('timesalePendingTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const items = (await fetchTimesaleItems()).filter(i => i.status === 'pending');
+    const badgeEl = document.getElementById('pendingTimesaleBadge');
+    if(badgeEl) badgeEl.textContent = items.length > 0 ? items.length : '';
+    if(items.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--g3);font-size:13px;">승인 대기중인 브랜드 신청이 없습니다.</div>';
+      return;
+    }
+    await ensureTimesaleProductCache(items);
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr><th>상품</th><th>브랜드</th><th>정가</th><th>할인율</th><th>할인가</th><th>신청일</th><th>처리</th></tr></thead>
+        <tbody>${items.map(i => renderTimesaleItemRow(i, true)).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+async function loadTimesaleApproved() {
+  const tableEl = document.getElementById('timesaleApprovedTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const items = (await fetchTimesaleItems()).filter(i => i.status === 'approved');
+    if(items.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--g3);font-size:13px;">등록된 타임세일 상품이 없습니다.</div>';
+      return;
+    }
+    await ensureTimesaleProductCache(items);
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr><th>상품</th><th>브랜드</th><th>정가</th><th>할인율</th><th>할인가</th><th>등록방식</th><th>관리</th></tr></thead>
+        <tbody>${items.map(i => renderTimesaleItemRow(i, false)).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+function renderTimesaleItemRow(item, isPendingView) {
+  const p = timesaleProductCache[item.productId] || {};
+  const price = Number(p.price) || 0;
+  const rate = Number(item.discountRate) || 0;
+  const salePrice = Math.round(price * (1 - rate/100));
+  if(isPendingView) {
+    return `
+      <tr>
+        <td><strong>${p.modelName||'(삭제된 상품)'}</strong></td>
+        <td>${item.brandName || p.brandName || '-'}</td>
+        <td>₩${price.toLocaleString()}</td>
+        <td>${rate}%</td>
+        <td>₩${salePrice.toLocaleString()}</td>
+        <td style="font-size:12px;">${formatDate(item.requestedAt)}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-approve" onclick="approveTimesaleItem('${item.id}')"><i class=ic-check-circle></i> 승인</button>
+            <button class="btn-reject" onclick="rejectTimesaleItem('${item.id}')"><i class=ic-x-circle></i> 반려</button>
+          </div>
+        </td>
+      </tr>`;
+  }
+  return `
+    <tr>
+      <td><strong>${p.modelName||'(삭제된 상품)'}</strong></td>
+      <td>${item.brandName || p.brandName || '-'}</td>
+      <td>₩${price.toLocaleString()}</td>
+      <td>${rate}%</td>
+      <td>₩${salePrice.toLocaleString()}</td>
+      <td>${item.submittedBy === 'admin' ? '관리자 직접등록' : '브랜드 신청'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-del-tbl" onclick="removeTimesaleItem('${item.id}')">삭제</button>
+        </div>
+      </td>
+    </tr>`;
+}
+
+async function approveTimesaleItem(itemId) {
+  if(!confirm('이 상품을 타임세일에 승인하시겠습니까?')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'timesaleItems', itemId), { status: 'approved', approvedAt: window._serverTimestamp() });
+    showToast('<i class=ic-check-circle></i> 승인되었습니다.', 'success');
+    loadTimesaleManage();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function rejectTimesaleItem(itemId) {
+  if(!confirm('이 신청을 반려하시겠습니까?')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'timesaleItems', itemId), { status: 'rejected', rejectedAt: window._serverTimestamp() });
+    showToast('반려되었습니다.', 'success');
+    loadTimesaleManage();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+async function removeTimesaleItem(itemId) {
+  if(!confirm('이 상품을 타임세일에서 제외하시겠습니까?')) return;
+  try {
+    await window._deleteDoc(window._doc(window._db, 'timesaleItems', itemId));
+    showToast('제외되었습니다.', 'success');
+    loadTimesaleManage();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
+let timesaleSearchDebounce = null;
+async function searchTimesaleAddCandidates() {
+  clearTimeout(timesaleSearchDebounce);
+  timesaleSearchDebounce = setTimeout(async () => {
+    const keyword = document.getElementById('timesaleProductSearchInput').value.trim().toLowerCase();
+    const wrap = document.getElementById('timesaleAddCandidates');
+    if(!keyword) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML = '<div class="loading"><div class="spinner"></div>검색 중...</div>';
+    try {
+      if(!window._allAdminProducts) {
+        window._allAdminProducts = await fetchAllProducts();
+      }
+      const existingItems = await fetchTimesaleItems();
+      const existingProductIds = new Set(existingItems.filter(i => i.status !== 'rejected').map(i => i.productId));
+      const matched = window._allAdminProducts.filter(p =>
+        (p.modelName||'').toLowerCase().includes(keyword) ||
+        (p.barcode||'').toLowerCase().includes(keyword) ||
+        (p.brandName||'').toLowerCase().includes(keyword)
+      ).slice(0, 15);
+      if(matched.length === 0) {
+        wrap.innerHTML = '<div style="font-size:13px;color:var(--g3);padding:12px 0;">검색 결과가 없습니다.</div>';
+        return;
+      }
+      wrap.innerHTML = matched.map(p => {
+        const already = existingProductIds.has(p.id);
+        return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--g2);border-radius:8px;margin-bottom:8px;">
+          <div style="flex:1;font-size:13px;"><strong>${p.modelName||'-'}</strong> <span style="color:var(--g3);">· ${p.brandName||'-'} · ₩${(Number(p.price)||0).toLocaleString()}</span></div>
+          ${already
+            ? `<span style="font-size:12px;color:var(--g3);">이미 등록됨</span>`
+            : `<input type="number" placeholder="할인율%" min="1" max="99" id="rate-${p.id}" style="width:80px;padding:6px 8px;border:1.5px solid var(--g2);border-radius:6px;font-size:12px;font-family:inherit;outline:none;">
+               <button class="btn-sm btn-primary" onclick="addProductToTimesale('${p.id}')">+ 추가</button>`
+          }
+        </div>`;
+      }).join('');
+    } catch(e) {
+      wrap.innerHTML = '<div style="color:var(--red);font-size:13px;">검색 실패: ' + e.message + '</div>';
+    }
+  }, 250);
+}
+
+async function addProductToTimesale(productId) {
+  const rateInput = document.getElementById('rate-' + productId);
+  const rate = Number(rateInput?.value);
+  if(!rate || rate < 1 || rate > 99) { showToast('할인율을 1~99 사이로 입력해주세요.', 'error'); return; }
+  try {
+    const product = window._allAdminProducts.find(p => p.id === productId);
+    const newRef = window._doc(window._collection(window._db, 'timesaleItems'));
+    await window._setDoc(newRef, {
+      productId, discountRate: rate, status: 'approved', submittedBy: 'admin',
+      brandName: product?.brandName || '', requestedAt: window._serverTimestamp(), approvedAt: window._serverTimestamp()
+    });
+    showToast('<i class=ic-check-circle></i> 타임세일 상품으로 추가되었습니다.', 'success');
+    document.getElementById('timesaleProductSearchInput').value = '';
+    document.getElementById('timesaleAddCandidates').innerHTML = '';
+    loadTimesaleApproved();
+  } catch(e) {
+    showToast('오류: ' + e.message, 'error');
+  }
+}
+
 // 상품 상세 모달
 let currentProductId = null;
 
@@ -2049,6 +2356,7 @@ function startAdminEditRow(pid) {
   document.getElementById('aEditCategory').value = product.category || '';
   document.getElementById('aEditType').value = product.type || '';
   document.getElementById('aEditPhotochromic').checked = !!product.photochromic;
+  document.getElementById('aEditOrigin').value = product.origin || 'china';
   document.getElementById('aEditPrice').value = product.price || 0;
   document.getElementById('aEditDiscountRate').value = product.discountRate || 0;
   updateAdminSalePricePreview();
@@ -2318,6 +2626,7 @@ async function saveAdminProductEdit() {
       category: document.getElementById('aEditCategory').value,
       type: document.getElementById('aEditType').value,
       photochromic: document.getElementById('aEditPhotochromic').checked,
+      origin: document.getElementById('aEditOrigin').value,
       price,
       discountRate,
       salePrice,

@@ -360,6 +360,8 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <div class="menu-section">프로모션</div>
     <button class="menu-item" onclick="showPage('promoCreate',this)"><span><i class=ic-party></i></span> 이벤트/할인 등록</button>
     <button class="menu-item" onclick="showPage('myPromos',this)"><span><i class=ic-tag></i>️</span> 내 이벤트 목록</button>
+    <button class="menu-item" onclick="showPage('timesaleApply',this)"><span><i class=ic-fire></i></span> 타임세일 신청</button>
+    <button class="menu-item" onclick="showPage('myTimesale',this)"><span><i class=ic-refresh></i></span> 내 타임세일 신청내역</button>
     <div class="menu-section">운영</div>
     <button class="menu-item" onclick="showPage('shipManage',this)"><span><i class=ic-truck></i></span> 주문/배송 관리 <span class="menu-badge" id="brandPendingShipBadge"></span></button>
     <button class="menu-item" onclick="showPage('cancelManage',this)"><span><i class=ic-refresh></i></span> 취소/반품 관리 <span class="menu-badge" id="brandPendingCancelBadge"></span></button>
@@ -540,6 +542,40 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <button class="btn-sm btn-primary" onclick="loadMyPromos()"><i class=ic-refresh></i> 새로고침</button>
       </div>
       <div class="table-wrap" id="myPromosTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 타임세일 신청 -->
+    <div class="page" id="page-timesaleApply">
+      <div class="section-header">
+        <div class="section-title"><i class=ic-fire></i> 타임세일 신청</div>
+        <div style="font-size:12px;color:var(--g3);">본 상품 중 지금 바로 기습 세일할 상품을 신청해요. 관리자 승인 후, 관리자가 정한 종료 시각까지 메인/타임세일 페이지에 노출됩니다.</div>
+      </div>
+      <div class="reg-card">
+        <div class="form-group-promo">
+          <label>세일할 상품 선택 <span style="color:var(--red);">*</span></label>
+          <select id="timesaleProductSelect" style="width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+            <option value="">상품 목록을 불러오는 중...</option>
+          </select>
+        </div>
+        <div class="form-group-promo">
+          <label>할인율 (%) <span style="color:var(--red);">*</span></label>
+          <input type="number" id="timesaleDiscountRate" placeholder="예) 30" min="1" max="99">
+        </div>
+        <div class="reg-footer" style="justify-content:flex-end;">
+          <button class="btn-bulk-save" onclick="submitTimesaleApply()">타임세일 신청</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 내 타임세일 신청내역 -->
+    <div class="page" id="page-myTimesale">
+      <div class="section-header">
+        <div class="section-title">내 타임세일 신청내역</div>
+        <button class="btn-sm btn-primary" onclick="loadMyTimesale()"><i class=ic-refresh></i> 새로고침</button>
+      </div>
+      <div class="table-wrap" id="myTimesaleTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
     </div>
@@ -864,12 +900,14 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', register:'상품 등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록', brandManage:'내 브랜드 관리', shipManage:'주문/배송 관리', cancelManage:'취소/반품 관리'};
+  const titles = {dashboard:'대시보드', register:'상품 등록', products:'내 상품 목록', promoCreate:'이벤트/할인 등록', myPromos:'내 이벤트 목록', timesaleApply:'타임세일 신청', myTimesale:'내 타임세일 신청내역', brandManage:'내 브랜드 관리', shipManage:'주문/배송 관리', cancelManage:'취소/반품 관리'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'register') loadMyBrandsForRegister();
   if(name === 'products') loadProducts();
   if(name === 'promoCreate') loadPromoProductCheckList();
   if(name === 'myPromos') loadMyPromos();
+  if(name === 'timesaleApply') loadTimesaleProductSelect();
+  if(name === 'myTimesale') loadMyTimesale();
   if(name === 'brandManage') loadMyBrands();
   if(name === 'shipManage') loadShipManage();
   if(name === 'cancelManage') loadBrandCancelManage();
@@ -1876,7 +1914,7 @@ function addProductCard() {
   const cardId = ++cardIdCounter;
   productCards.push({
     cardId, modelName:'', size:'', category:'', type:'',
-    price:'', discountRate:'', colors:[]
+    price:'', discountRate:'', origin:'china', colors:[]
   });
   const card = productCards[productCards.length - 1];
   addColorToCard(card, false); // 기본 색상 1개 자동 추가
@@ -2041,6 +2079,13 @@ function renderProductCards() {
             <input type="checkbox" ${card.photochromic?'checked':''} onchange="updateCardField(${card.cardId},'photochromic',this.checked)" style="width:16px;height:16px;cursor:pointer;">
             변색렌즈
           </label>
+        </div>
+        <div class="reg-field">
+          <label>원산지</label>
+          <select onchange="updateCardField(${card.cardId},'origin',this.value)">
+            <option value="china" ${(!card.origin || card.origin==='china')?'selected':''}>중국 (China)</option>
+            <option value="korea" ${card.origin==='korea'?'selected':''}>한국 (Korea)</option>
+          </select>
         </div>
         <div class="reg-field">
           <label>기본 정가 <span style="color:var(--red);">*</span></label>
@@ -2224,6 +2269,7 @@ async function submitBulkRegister() {
         size: card.size || '',
         category: card.category || '',
         type: card.type || '',
+        origin: card.origin || 'china',
         photochromic: !!card.photochromic,
         price,
         discountRate,
@@ -2336,6 +2382,114 @@ async function submitPromo() {
   } catch(e) {
     console.error(e);
     showToast('등록 중 오류가 발생했습니다: ' + e.message, 'error');
+  }
+}
+
+// ===================== 타임세일 =====================
+async function loadTimesaleProductSelect() {
+  const sel = document.getElementById('timesaleProductSelect');
+  sel.innerHTML = `<option value="">상품 목록을 불러오는 중...</option>`;
+  try {
+    const uid = window._getCurrentBrandUid();
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'products'),
+      window._where('brandOwnerUid', '==', uid)
+    ));
+    const products = [];
+    snap.forEach(d => { const data = d.data(); if(data.status === 'approved') products.push({id: d.id, ...data}); });
+
+    if(products.length === 0) {
+      sel.innerHTML = `<option value="">승인된 상품이 없습니다</option>`;
+      return;
+    }
+    sel.innerHTML = `<option value="">상품을 선택해주세요</option>` +
+      products.map(p => `<option value="${p.id}">${p.modelName||'-'} · ₩${Number(p.price||0).toLocaleString()}</option>`).join('');
+  } catch(e) {
+    console.error(e);
+    sel.innerHTML = `<option value="">상품 목록을 불러오지 못했습니다</option>`;
+  }
+}
+
+async function submitTimesaleApply() {
+  const productId = document.getElementById('timesaleProductSelect').value;
+  const rate = Number(document.getElementById('timesaleDiscountRate').value);
+  if(!productId) { showToast('세일할 상품을 선택해주세요.', 'error'); return; }
+  if(!rate || rate < 1 || rate > 99) { showToast('할인율을 1~99 사이로 입력해주세요.', 'error'); return; }
+
+  const uid = window._getCurrentBrandUid();
+  const brandData = window._getCurrentBrandData();
+  const productLabel = document.getElementById('timesaleProductSelect').selectedOptions[0]?.textContent || '';
+
+  if(!confirm(`"${productLabel}" 상품을 할인율 ${rate}%로 타임세일 신청하시겠습니까?\n관리자 승인 후, 관리자가 정한 종료 시각까지 노출됩니다.`)) return;
+
+  try {
+    await window._addDoc(window._collection(window._db, 'timesaleItems'), {
+      productId,
+      brandOwnerUid: uid,
+      brandName: brandData?.brandName || brandData?.name || '',
+      discountRate: rate,
+      status: 'pending',
+      submittedBy: uid,
+      requestedAt: window._serverTimestamp()
+    });
+    showToast('<i class=ic-check-circle></i> 타임세일이 신청되었습니다. 관리자 승인 후 노출됩니다.', 'success');
+    document.getElementById('timesaleProductSelect').value = '';
+    document.getElementById('timesaleDiscountRate').value = '';
+  } catch(e) {
+    console.error(e);
+    showToast('신청 중 오류가 발생했습니다: ' + e.message, 'error');
+  }
+}
+
+async function loadMyTimesale() {
+  const tableEl = document.getElementById('myTimesaleTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const uid = window._getCurrentBrandUid();
+    const snap = await window._getDocs(window._query(
+      window._collection(window._db, 'timesaleItems'),
+      window._where('submittedBy', '==', uid)
+    ));
+    const items = [];
+    snap.forEach(d => items.push({id: d.id, ...d.data()}));
+    items.sort((a,b) => {
+      const da = a.requestedAt?.toDate?.() || new Date(0);
+      const dbb = b.requestedAt?.toDate?.() || new Date(0);
+      return dbb - da;
+    });
+
+    if(items.length === 0) {
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">신청 내역이 없습니다.</div>';
+      return;
+    }
+
+    const productDocs = await Promise.all(items.map(i => window._getDoc(window._doc(window._db, 'products', i.productId))));
+    const productMap = {};
+    productDocs.forEach(d => { if(d.exists()) productMap[d.id] = { id: d.id, ...d.data() }; });
+
+    const statusLabel = {pending:'승인대기', approved:'진행중', rejected:'반려'};
+    const statusClass = {pending:'pending', approved:'approved', rejected:'rejected'};
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr><th>상품</th><th>정가</th><th>할인율</th><th>할인가</th><th>신청일</th><th>상태</th></tr></thead>
+        <tbody>${items.map(i => {
+          const p = productMap[i.productId] || {};
+          const price = Number(p.price) || 0;
+          const rate = Number(i.discountRate) || 0;
+          const salePrice = Math.round(price * (1 - rate/100));
+          return `<tr>
+            <td><strong>${p.modelName||'(삭제된 상품)'}</strong></td>
+            <td>₩${price.toLocaleString()}</td>
+            <td>${rate}%</td>
+            <td>₩${salePrice.toLocaleString()}</td>
+            <td style="font-size:12px;">${formatDate(i.requestedAt)}</td>
+            <td><span class="badge ${statusClass[i.status]||'pending'}">${statusLabel[i.status]||'대기'}</span></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
   }
 }
 
