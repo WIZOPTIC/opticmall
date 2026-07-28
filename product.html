@@ -496,10 +496,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
-      <div class="option-label" style="display:flex;align-items:center;gap:8px;">
-        색상
-        <span id="selectedCountBadge" style="display:none;font-size:12px;font-weight:700;color:#fff;background:var(--navy);padding:2px 9px;border-radius:100px;">0개 선택됨</span>
-      </div>
+      <div class="option-label">색상</div>
       <div id="colorDotsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
       <div class="color-dropdown-wrap" id="colorDropdownWrap" style="position:relative;">
         <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
@@ -1148,18 +1145,14 @@ function renderSelectionList() {
   const emptyHint = document.getElementById('selectionEmptyHint');
   const listEl = document.getElementById('selectionList');
   const summaryEl = document.getElementById('selectionSummary');
-  const countBadge = document.getElementById('selectedCountBadge');
 
   if(selectedItems.length === 0) {
     wrap.style.display = 'none';
     emptyHint.style.display = 'block';
-    countBadge.style.display = 'none';
     return;
   }
   wrap.style.display = 'block';
   emptyHint.style.display = 'none';
-  countBadge.style.display = 'inline-block';
-  countBadge.textContent = `${selectedItems.length}개 선택됨`;
 
   listEl.innerHTML = selectedItems.map((item, i) => {
     const c = currentProduct.colors[item.colorIdx];

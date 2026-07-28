@@ -169,7 +169,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
         <span>최종 결제금액</span>
         <span class="total-price" id="sumTotal">₩0</span>
       </div>
-      <div class="summary-row" id="sumPointsRow" style="display:none;padding-top:10px;"><span class="label" style="color:var(--g3);">적립 예정 적립금</span><span class="value" id="sumPoints" style="color:var(--navy);font-weight:700;">+₩0</span></div>
     </div>
     <button class="btn-order" id="orderBtn" onclick="goToOrder()">주문하기 →</button>
     <button class="btn-continue" onclick="location.href='list.html'">쇼핑 계속하기</button>
@@ -514,7 +513,6 @@ function updateSummary() {
 
   const feeDisplay = document.getElementById('shippingFeeDisplay');
   const discountRow = document.getElementById('sumDiscountRow');
-  const pointsRow = document.getElementById('sumPointsRow');
 
   if(totalDiscount > 0) {
     discountRow.style.display = '';
@@ -538,20 +536,11 @@ function updateSummary() {
       feeDisplay.style.color = 'var(--black)';
     }
     document.getElementById('sumTotal').textContent = '₩' + (total + shippingFee).toLocaleString();
-
-    const expectedPoints = Math.floor(total * 0.01);
-    if(expectedPoints > 0) {
-      pointsRow.style.display = 'flex';
-      document.getElementById('sumPoints').textContent = '+₩' + expectedPoints.toLocaleString();
-    } else {
-      pointsRow.style.display = 'none';
-    }
   } else {
     document.getElementById('sumProducts').textContent = '로그인 필요';
     feeDisplay.textContent = '-';
     feeDisplay.style.color = 'var(--g3)';
     document.getElementById('sumTotal').textContent = '-';
-    pointsRow.style.display = 'none';
   }
 
   const orderBtn = document.getElementById('orderBtn');
