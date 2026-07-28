@@ -281,6 +281,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     <div class="summary-card">
       <div class="summary-title">결제 금액</div>
       <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
+      <div class="sum-row" id="sumDiscountRow" style="display:none;"><span class="lbl">할인 금액</span><span class="val" id="sumDiscount" style="color:var(--red);">-₩0</span></div>
       <div class="sum-row"><span class="lbl">배송비</span><span class="val" id="shippingFeeDisplay" style="color:var(--green);">무료</span></div>
       <hr class="sum-divider">
       <div class="sum-total">
@@ -573,6 +574,8 @@ async function loadOrderProduct() {
 
 function renderOrderItems() {
   totalAmount = orderItems.reduce((sum, item) => sum + Number(item.product.effectivePrice||item.product.price||0) * item.qty, 0);
+  const totalOriginalAmount = orderItems.reduce((sum, item) => sum + Number(item.product.price||item.product.effectivePrice||0) * item.qty, 0);
+  const totalDiscount = totalOriginalAmount - totalAmount;
 
   document.getElementById('itemCount').textContent = orderItems.length;
   document.getElementById('orderItemsList').innerHTML = orderItems.map(item => {
@@ -589,6 +592,12 @@ function renderOrderItems() {
     const colorLabelWithCode = colorLabel + (colorCode ? ` (${colorCode})` : '');
     const barcode = colorData?.barcode || p.barcode || '';
     const discountTag = p.discountRate ? `<span style="font-size:11px;color:var(--red);font-weight:700;margin-left:4px;">${p.discountRate}% 할인적용</span>` : '';
+    const basePrice = Number(p.price || 0);
+    const isDiscounted = unitPrice < basePrice;
+    const originalSubtotal = basePrice * item.qty;
+    const priceHtml = isDiscounted
+      ? `<div class="order-item-price"><span style="font-size:12px;color:var(--g3);text-decoration:line-through;margin-right:4px;">₩${originalSubtotal.toLocaleString()}</span>₩${subtotal.toLocaleString()}</div>`
+      : `<div class="order-item-price">₩${subtotal.toLocaleString()}</div>`;
     return `
       <div class="order-item">
         <div class="order-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
@@ -596,11 +605,18 @@ function renderOrderItems() {
           <div class="order-item-name">${p.modelName||'-'}${colorLabelWithCode ? ' · '+colorLabelWithCode : ''}${discountTag}</div>
           <div class="order-item-opt">${barcode} · ${item.qty}개</div>
         </div>
-        <div class="order-item-price">₩${subtotal.toLocaleString()}</div>
+        ${priceHtml}
       </div>`;
   }).join('');
 
-  document.getElementById('sumProducts').textContent = '₩' + totalAmount.toLocaleString();
+  document.getElementById('sumProducts').textContent = '₩' + totalOriginalAmount.toLocaleString();
+  const discountRow = document.getElementById('sumDiscountRow');
+  if(totalDiscount > 0) {
+    discountRow.style.display = '';
+    document.getElementById('sumDiscount').textContent = '-₩' + totalDiscount.toLocaleString();
+  } else {
+    discountRow.style.display = 'none';
+  }
   updateShippingAndTotal();
 }
 
