@@ -118,14 +118,14 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .lightbox-counter { color: rgba(255,255,255,0.6); font-size: 13px; font-family:'Inter',sans-serif; }
 
 /* 상품 정보 */
-.product-info { flex: 1; }
+.product-info { flex: 1; padding-bottom: 90px; }
 .product-category { font-size: 16px; font-weight: 700; color: var(--sky); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
 .product-name { font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1.3; margin-bottom: 6px; letter-spacing: -0.01em; }
 .product-code { font-size: 13px; color: var(--g3); font-family: 'Inter', sans-serif; margin-bottom: 20px; }
 #productSize { font-size: 15px; }
 
 /* 가격 */
-.price-wrap { background: var(--g1); border-radius: 10px; padding: 32px; margin-bottom: 20px; }
+.price-wrap { background: var(--g1); border-radius: 10px; padding: 20px 28px; margin-bottom: 16px; }
 .price-label { font-size: 11px; font-weight: 700; color: var(--g3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
 .price-value { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
 .price-value .won { font-size: 20px; font-weight: 600; }
@@ -454,7 +454,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   <!-- 정보 -->
   <div class="product-info">
     <div class="product-category" id="productCategory">-</div>
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
       <div class="product-name" id="productName" style="margin-bottom:0;">불러오는 중...</div>
       <div class="product-code" id="productSize" style="margin-bottom:0;">사이즈: -</div>
     </div>
@@ -491,7 +491,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
         </div>
         <div class="product-code" id="productCode" style="margin:0;">상품코드: -</div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
         <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span style="font-size:12px;color:var(--g3);font-weight:400;margin-left:8px;">부가세 포함</span></div>
         <div class="stock-info" id="stock-status" style="margin:0;">
           <div class="stock-dot"></div>
@@ -502,7 +502,10 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
-      <div class="option-label">색상</div>
+      <div class="option-label" style="display:flex;align-items:center;gap:8px;">
+        색상
+        <span id="selectedCountBadge" style="display:none;font-size:12px;font-weight:700;color:#fff;background:var(--navy);padding:2px 9px;border-radius:100px;">0개 선택됨</span>
+      </div>
       <div id="colorDotsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
       <div class="color-dropdown-wrap" id="colorDropdownWrap" style="position:relative;">
         <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
@@ -517,7 +520,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
     <!-- 선택한 색상 목록 -->
     <div id="selectionListWrap" style="margin-bottom:20px;display:none;">
-      <div id="selectionList" style="border:1px solid var(--g2);border-radius:10px;overflow:hidden;"></div>
+      <div id="selectionList" style="border:1px solid var(--g2);border-radius:10px;max-height:216px;overflow-y:auto;"></div>
       <div id="selectionSummary" style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-top:1px solid var(--black);margin-top:2px;">
         <span style="font-size:13px;color:var(--g4);"></span>
         <span style="font-size:15px;font-weight:800;color:var(--navy);"></span>
@@ -1150,14 +1153,18 @@ function renderSelectionList() {
   const emptyHint = document.getElementById('selectionEmptyHint');
   const listEl = document.getElementById('selectionList');
   const summaryEl = document.getElementById('selectionSummary');
+  const countBadge = document.getElementById('selectedCountBadge');
 
   if(selectedItems.length === 0) {
     wrap.style.display = 'none';
     emptyHint.style.display = 'block';
+    countBadge.style.display = 'none';
     return;
   }
   wrap.style.display = 'block';
   emptyHint.style.display = 'none';
+  countBadge.style.display = 'inline-block';
+  countBadge.textContent = `${selectedItems.length}개 선택됨`;
 
   listEl.innerHTML = selectedItems.map((item, i) => {
     const c = currentProduct.colors[item.colorIdx];
