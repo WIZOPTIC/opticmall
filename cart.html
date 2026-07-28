@@ -297,8 +297,12 @@ function renderCart() {
     const colorThumbUrl = (Array.isArray(p.colors) && p.colors[colorIdxForImg]?.mainImageUrl) || p.mainImageUrl;
     const hasImg = !!colorThumbUrl;
     const imgHtml = hasImg ? `<img src="${colorThumbUrl}">` : `<i class=ic-glasses></i>`;
+    const unitPrice = getItemPrice(item);
+    const originalUnitPrice = getItemOriginalPrice(item);
+    const isDiscounted = unitPrice < originalUnitPrice;
+    const discountRate = Number(p.discountRate) || 0;
     const priceHtml = memberLevel >= 2
-      ? `<div class="item-price" id="price-${item.cartItemId}">₩${(getItemPrice(item)*item.qty).toLocaleString()}</div>`
+      ? `<div class="item-price" id="price-${item.cartItemId}">${isDiscounted ? `<div style="font-size:12px;color:var(--g3);text-decoration:line-through;font-weight:400;">₩${(originalUnitPrice*item.qty).toLocaleString()}</div>` : ''}<div>${isDiscounted ? `<span style="font-size:12px;color:var(--red);font-weight:700;margin-right:3px;">${discountRate}%</span>` : ''}₩${(unitPrice*item.qty).toLocaleString()}</div></div>`
       : `<div class="item-locked"><i class=ic-lock></i> 로그인 필요</div>`;
 
     return `
