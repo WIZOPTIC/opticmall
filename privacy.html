@@ -43,9 +43,29 @@ footer { background: #001A4D; padding: 44px 24px 32px; margin-top: 60px; }
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .footer-biz { font-size:10px; color: #FFFFFF; font-weight: 300; line-height: 1.9; }
 .footer-copy { font-size:10px; color: #FFFFFF; font-family: 'Inter', sans-serif; }
+
+/* ── TOPBAR ── */
+.topbar { background: #002366; padding: 11px 24px; }
+.topbar-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12px; }
+.tb-link { background: none; border: none; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; padding: 0; }
+.tb-link:hover { opacity: 0.8; }
+.tb-sep { opacity: 0.4; margin: 0 8px; color: #fff; }
+.tb-welcome { color: #fff; font-weight: 600; }
+.tb-badge { font-size: 10px; background: #C5A059; color: #002366; padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 </style>
 </head>
 <body>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div id="topbarGuest">
+      <button class="tb-link" onclick="location.href='index.html?openLogin=1'">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
+    </div>
+    <div id="topbarUser" style="display:none;align-items:center;">
+      <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="topbarLogout()">로그아웃</button>
+    </div>
+  </div>
+</div>
 <header class="header">
   <div class="header-inner">
     <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
@@ -169,6 +189,41 @@ footer { background: #001A4D; padding: 44px 24px 32px; margin-top: 60px; }
     </div>
   </div>
 </footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
+function topbarLogout() { _auth.signOut(); location.reload(); }
+_auth.onAuthStateChanged(async (user) => {
+  if(!user) return;
+  try {
+    const userDoc = await _db.collection('users').doc(user.uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const guest = document.getElementById('topbarGuest');
+    const userEl = document.getElementById('topbarUser');
+    const welcome = document.getElementById('topbarWelcome');
+    if(guest) guest.style.display = 'none';
+    if(userEl) userEl.style.display = 'flex';
+    if(welcome) {
+      const level = userData.member_level || 0;
+      const badge = level >= 2 ? '<span class="tb-badge">B2B</span>' : '<span class="tb-badge" style="background:#FEF9E7;color:#F39C12;">승인대기</span>';
+      welcome.innerHTML = (userData.name || user.email.split('@')[0]) + '님 환영합니다!' + badge;
+    }
+  } catch(e) { console.error(e); }
+});
+</script>
 
 </body>
 </html>
