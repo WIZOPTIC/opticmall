@@ -361,6 +361,88 @@ i.ic-wish{background-color:#001C4F;width:22px;height:22px;}
 .ic-camera{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l2-3h6l2 3h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l2-3h6l2 3h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E");}
 
 .ic-glasses{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6' cy='14' r='3.2'/%3E%3Ccircle cx='18' cy='14' r='3.2'/%3E%3Cpath d='M9.2 14h5.6'/%3E%3Cpath d='M2 14l1.5-6.5A2 2 0 015.4 6h.4'/%3E%3Cpath d='M22 14l-1.5-6.5A2 2 0 0018.6 6h-.4'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6' cy='14' r='3.2'/%3E%3Ccircle cx='18' cy='14' r='3.2'/%3E%3Cpath d='M9.2 14h5.6'/%3E%3Cpath d='M2 14l1.5-6.5A2 2 0 015.4 6h.4'/%3E%3Cpath d='M22 14l-1.5-6.5A2 2 0 0018.6 6h-.4'/%3E%3C/svg%3E");}
+/* ══════════════════════ 모바일 요소 (기본 숨김, 768px 이하에서만 표시) ══════════════════════ */
+.hamburger-btn { display: none; background: none; border: none; padding: 6px; margin-right: 8px; cursor: pointer; color: var(--navy); }
+.mobile-menu-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 998; opacity: 0; transition: opacity 0.25s; }
+.mobile-menu-backdrop.open { display: block; opacity: 1; }
+.mobile-menu-drawer {
+  display: none; position: fixed; top: 0; left: 0; bottom: 0; width: 78%; max-width: 320px;
+  background: #fff; z-index: 999; transform: translateX(-100%); transition: transform 0.25s ease;
+  overflow-y: auto; box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+.mobile-menu-drawer.open { transform: translateX(0); }
+.mobile-menu-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--g2); }
+.mobile-menu-list { display: flex; flex-direction: column; padding: 8px 0; }
+.mobile-menu-list button { text-align: left; background: none; border: none; padding: 15px 20px; font-size: 15px; font-weight: 600; color: var(--black); font-family: inherit; cursor: pointer; border-bottom: 1px solid var(--g1); }
+.mobile-tabbar { display: none; }
+
+@media (max-width: 768px) {
+  .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+  .gnb-inner { display: none; }
+  .mobile-menu-drawer, .mobile-menu-backdrop { display: block; }
+  .mobile-menu-drawer:not(.open) { display: none; }
+  .mobile-menu-backdrop:not(.open) { display: none; }
+
+  /* 헤더 */
+  .header-main { padding: 12px 16px; gap: 10px; }
+  .logo { font-size: 20px; }
+  .header-right { gap: 0; }
+  .icon-btn { width: 32px; height: 32px; }
+
+  /* topbar */
+  .topbar { padding: 8px 16px; }
+  .topbar-inner { font-size: 11px; }
+
+  /* 히어로: 좌우 배치 -> 세로 스택 */
+  .hero-inner { flex-direction: column !important; gap: 20px !important; padding: 16px 16px !important; }
+  .hero-left { width: 100%; }
+  .hero-left h1 { font-size: 24px !important; }
+  .hero-subline { font-size: 15px !important; }
+  .hero-features { grid-template-columns: repeat(2, 1fr) !important; max-width: 100% !important; }
+  .hero-right { flex: 1 1 auto !important; max-width: 100% !important; width: 100%; padding: 0 !important; }
+  .editorial-card { flex: 0 0 78vw !important; width: 78vw !important; scroll-snap-align: start; }
+  .editorial-photo { height: 62vw !important; }
+  #editorialGrid { scroll-snap-type: x mandatory; overflow-x: auto; -webkit-overflow-scrolling: touch; transform: none !important; }
+  #editorialPrevBtn, #editorialNextBtn { display: none !important; }
+
+  /* 특징 바(25년 신뢰 등) 가로 스크롤 */
+  .feature-bar { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .feature-bar::-webkit-scrollbar { display: none; }
+  .feature-bar-item { flex: 0 0 auto; min-width: 130px; }
+
+  /* 섹션 박스 제목 */
+  .section-box { padding: 14px 0 14px 4px !important; margin: 32px 0 16px !important; }
+  .section-box h2 { font-size: 19px !important; }
+
+  /* 상품 그리드 -> 가로 스크롤 카드 (모바일) */
+  .product-grid {
+    display: flex !important; overflow-x: auto; gap: 12px !important;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .product-grid::-webkit-scrollbar { display: none; }
+  .product-grid > * { flex: 0 0 44vw; max-width: 44vw; scroll-snap-align: start; }
+
+  /* main-wrap 좌우 여백 축소 */
+  .main-wrap { padding: 0 16px; }
+
+  /* footer 세로 스택 */
+  .footer-top { flex-direction: column; gap: 28px; }
+  .footer-cols { gap: 28px; flex-wrap: wrap; }
+  footer { padding: 32px 16px 90px; }
+
+  /* 하단 고정 탭바 노출 + 본문 여백 확보 */
+  .mobile-tabbar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+    background: #fff; border-top: 1px solid var(--g2); box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+  }
+  .mobile-tabbar button {
+    flex: 1; background: none; border: none; padding: 8px 0 10px; display: flex; flex-direction: column;
+    align-items: center; gap: 3px; color: var(--g3); font-size: 10px; font-family: inherit; cursor: pointer;
+  }
+  .mobile-tabbar button.active { color: var(--navy); font-weight: 700; }
+  body { padding-bottom: 58px; }
+}
 </style>
 </head>
 <body>
@@ -431,6 +513,9 @@ i.ic-wish{background-color:#001C4F;width:22px;height:22px;}
 <header style="position:relative;background:var(--white);border-bottom:1px solid #EDE3CF;">
   <!-- 헤더 2행: 메인 -->
   <div class="header-main">
+    <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <a href="#" class="logo">OPTIC<span>MALL</span></a>
     <nav class="gnb-inner">
       <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
@@ -466,6 +551,28 @@ i.ic-wish{background-color:#001C4F;width:22px;height:22px;}
         <span class="cart-count" id="cartCountBadge" style="display:none;">0</span>
       </button>
     </div>
+  </div>
+
+  <!-- 모바일 메뉴 드로어 -->
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+    <div class="mobile-menu-header">
+      <span class="logo" style="font-size:20px;">OPTIC<span>MALL</span></span>
+      <button onclick="toggleMobileMenu()" aria-label="메뉴 닫기" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--g4);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="mobile-menu-list">
+      <button onclick="location.href='list.html'">전체상품</button>
+      <button onclick="location.href='brands.html'">브랜드별</button>
+      <button onclick="location.href='list.html?cat=하금테'">하금테</button>
+      <button onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+      <button onclick="location.href='list.html?cat=메탈'">메탈</button>
+      <button onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+      <button onclick="location.href='vkool.html'">V.KOOL</button>
+      <button onclick="location.href='timesale.html'">타임세일</button>
+      <button onclick="location.href='event.html'">이벤트</button>
+    </nav>
   </div>
   <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--g1);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
     <div style="max-width:600px;margin:0 auto;padding:32px 24px;">
@@ -594,6 +701,30 @@ i.ic-wish{background-color:#001C4F;width:22px;height:22px;}
 </div>
 
 <!-- FOOTER -->
+<!-- 모바일 하단 고정 탭바 -->
+<nav class="mobile-tabbar">
+  <button class="active" onclick="location.href='index.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+    <span>홈</span>
+  </button>
+  <button onclick="location.href='list.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <span>카테고리</span>
+  </button>
+  <button onclick="location.href='mypage.html?tab=wish'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    <span>찜</span>
+  </button>
+  <button onclick="location.href='cart.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13a1 1 0 01-1 1H6a1 1 0 01-1-1L6 7z"/><path d="M9 10V6a3 3 0 016 0v4"/></svg>
+    <span>장바구니</span>
+  </button>
+  <button onclick="location.href='mypage.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>마이</span>
+  </button>
+</nav>
+
 <footer>
   <div class="footer-inner">
     <div class="footer-top">
@@ -926,6 +1057,12 @@ async function updateMainCartCount(uid) {
 function doMainSearch() {
   const keyword = document.getElementById('mainSearchInput').value.trim();
   location.href = 'list.html' + (keyword ? `?q=${encodeURIComponent(keyword)}` : '');
+}
+
+function toggleMobileMenu() {
+  document.getElementById('mobileMenuDrawer').classList.toggle('open');
+  document.getElementById('mobileMenuBackdrop').classList.toggle('open');
+  document.body.style.overflow = document.getElementById('mobileMenuDrawer').classList.contains('open') ? 'hidden' : '';
 }
 
 function toggleSearchOverlay() {
