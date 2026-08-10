@@ -402,6 +402,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
   .hero-right { flex: 1 1 auto !important; max-width: 100% !important; width: 100%; padding: 0 !important; }
   .editorial-card { flex: 0 0 78vw !important; width: 78vw !important; scroll-snap-align: start; }
   .editorial-photo { height: 62vw !important; }
+  #editorialViewport { min-height: calc(62vw + 100px) !important; }
   #editorialGrid { scroll-snap-type: x mandatory; overflow-x: auto; -webkit-overflow-scrolling: touch; transform: none !important; }
   #editorialPrevBtn, #editorialNextBtn { display: none !important; }
 
@@ -615,7 +616,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       </div>
     </div>
     <div class="hero-right" style="position:relative;" id="editorialWrap">
-      <div id="editorialViewport" style="overflow:hidden;">
+      <div id="editorialViewport" style="overflow:hidden;min-height:400px;">
         <div class="editorial-track" id="editorialGrid"></div>
       </div>
       <button id="editorialPrevBtn" onclick="editorialManualNav(editorialNext)" style="display:none;position:absolute;top:150px;left:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
