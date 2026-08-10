@@ -8,7 +8,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{overflow-y:scroll;}
-:root{--sky:#002366;--sky-lt:#EEF1F5;--sky-dk:#001A4D;--navy:#002366;--gold:#C5A059;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
+:root{--sky:#0B1F3A;--sky-lt:#EEF1F5;--sky-dk:#071429;--navy:#0B1F3A;--gold:#C5A059;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--black);}
 
 /* 헤더 */
@@ -273,15 +273,15 @@ function updateHeaderLoggedIn(name, level, role) {
   if(topbarWelcome) topbarWelcome.innerHTML = name + '님 환영합니다!' + levelBadge;
   let adminLinkHtml = '';
   if(role === 'brand') {
-    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#002366;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
   } else if(role === 'master' || role === 'submaster') {
-    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#002366;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
   }
   const dropdown = document.getElementById('userDropdown');
   if(dropdown) {
     dropdown.innerHTML = `
       <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
-        <div style="font-size:13px;font-weight:700;color:#002366;">${name}님</div>
+        <div style="font-size:13px;font-weight:700;color:#0B1F3A;">${name}님</div>
         <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
       </div>
       ${adminLinkHtml}
