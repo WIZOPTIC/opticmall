@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OPTICMALL | 손진영</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:ital,opsz,wght@1,9..144,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --navy:#0B1F3A;
+    --navy-deep:#081627;
+    --gold:#C5A059;
+    --gold-soft:#E4CFA0;
+    --cream:#F7F3EA;
+    --line:rgba(197,160,89,0.30);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:'Pretendard', -apple-system, sans-serif; background:var(--navy-deep); }
+  .page{
+    max-width:420px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--navy);
+    color:var(--cream);
+    padding:32px 22px 40px;
+  }
+
+  .wordmark{
+    font-family:'Pretendard', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:0.3px;
+    line-height:normal;
+    text-align:right;
+    background:linear-gradient(100deg,
+      #7A5C30 0%, #C79A4E 22%, #F6E3B4 42%,
+      #C79A4E 62%, #8A6A38 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .name{
+    font-family:'Pretendard', sans-serif;
+    font-weight:700;
+    font-size:30px;
+    letter-spacing:0;
+    margin-top:26px;
+  }
+  .title{
+    margin-top:6px;
+    font-size:14px;
+    color:#A9B2C2;
+  }
+
+  /* ---------- Photo + contact row ---------- */
+  .top-row{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+    align-items:flex-start;
+  }
+  .photo-box{
+    width:118px; height:160px; flex-shrink:0;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:linear-gradient(150deg,#1a3a68,#0B1F3A);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .photo-box svg{ width:44%; height:44%; stroke:var(--gold-soft); }
+
+  .info-box{
+    flex:1;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 4px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .info-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    text-decoration:none;
+    color:var(--cream);
+    padding:7px 4px;
+    text-align:center;
+  }
+  .info-item svg{ width:16px; height:16px; stroke:var(--gold-soft); flex-shrink:0; }
+  .info-item .txt{ line-height:1.25; }
+  .info-item .val{ font-size:11px; font-weight:600; display:block; }
+  .info-item .lbl{ font-size:9.5px; color:#8C97AB; display:block; }
+
+  /* ---------- Section label ---------- */
+  .section-label{
+    margin-top:24px;
+    margin-bottom:10px;
+    font-size:12px;
+    color:#8C97AB;
+    letter-spacing:0.4px;
+  }
+
+  /* ---------- Product cards ---------- */
+  .product-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .product-card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .product-photo{
+    aspect-ratio:4/3;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .product-photo svg{ width:40%; height:40%; stroke:var(--navy); }
+  .product-caption{
+    padding:8px 10px;
+    font-size:11.5px;
+    color:#C9D1DD;
+  }
+
+  /* ---------- Quote box ---------- */
+  .quote-box{
+    margin-top:22px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 16px;
+    text-align:center;
+  }
+  .quote-box p{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:14px;
+    line-height:1.65;
+    color:#D8DEE8;
+  }
+
+  /* ---------- CTA buttons ---------- */
+  .cta{ display:flex; gap:10px; margin-top:22px; }
+  .cta a{
+    flex:1;
+    text-align:center;
+    padding:14px 6px;
+    border-radius:9px;
+    border:1px solid var(--gold);
+    color:var(--gold-soft);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:600;
+  }
+  .cta a.solid{ background:var(--gold); color:var(--navy-deep); }
+
+  .save-link{
+    display:block; text-align:center; margin-top:16px;
+    font-size:11.5px; color:#8894A6; text-decoration:underline; text-underline-offset:3px;
+  }
+
+  footer{ margin-top:28px; text-align:center; font-size:10px; color:#5E6980; line-height:1.8; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="wordmark">OPTICMALL</div>
+
+  <div class="name">손진영</div>
+  <div class="title">대표 · 위즈옵틱</div>
+
+  <div class="top-row">
+    <div class="photo-box">
+      <img src="profile-photo.jpg" alt="손진영 대표" style="width:100%;height:100%;object-fit:cover;">
+    </div>
+    <div class="info-box">
+      <a class="info-item" href="tel:01088159980">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span class="txt"><span class="val">010-8815-9980</span><br><span class="lbl">전화</span></span>
+      </a>
+      <a class="info-item" href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.48 3 2 6.58 2 11c0 2.86 1.9 5.37 4.76 6.79-.16.6-.99 3.6-1.03 3.83 0 0-.02.17.09.24.11.07.24.02.24.02.32-.04 3.7-2.43 4.3-2.86.53.08 1.08.12 1.64.12 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/></svg>
+        <span class="txt"><span class="val">카카오톡</span><br><span class="lbl">상담하기</span></span>
+      </a>
+      <a class="info-item" href="mailto:lemon3943@naver.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+        <span class="txt"><span class="val">lemon3943@</span><br><span class="lbl">이메일</span></span>
+      </a>
+      <a class="info-item" href="https://opticmall.co.kr" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="txt"><span class="val">opticmall.co.kr</span><br><span class="lbl">웹사이트</span></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-label">취급 제품</div>
+  <div class="product-grid">
+    <div class="product-card">
+      <div class="product-photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 8h6l1.5 3h5L16 8h6"/><circle cx="7" cy="13" r="3.5"/><circle cx="17" cy="13" r="3.5"/></svg>
+      </div>
+      <div class="product-caption">선글라스 · 트렌드 스타일</div>
+    </div>
+    <div class="product-card">
+      <div class="product-photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="12" r="3.2"/><circle cx="18" cy="12" r="3.2"/><path d="M9.2 12h5.6M2.5 12l1-2.5M21.5 12l-1-2.5"/></svg>
+      </div>
+      <div class="product-caption">클래식 안경테</div>
+    </div>
+  </div>
+
+  <div class="quote-box">
+    <p>"정확한 이해와 신뢰를 바탕으로,<br>안경사님과 함께 합니다."</p>
+  </div>
+
+  <div class="cta">
+    <a href="https://opticmall.co.kr" target="_blank" rel="noopener">제품 전체 보기</a>
+    <a class="solid" href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener">바로 상담하기</a>
+  </div>
+
+  <a class="save-link" href="opticmall-son-jinyoung.vcf">연락처 저장하기</a>
+
+  <footer>
+    위즈옵틱 · 인천 검단구 원당대로 840번길5 510호<br>
+    &copy; 2026 WizOptic
+  </footer>
+
+</div>
+</body>
+</html>
