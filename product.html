@@ -4,25 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OPTICMALL | 드렌테 K9191</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 :root {
   --sky:#0B1F3A; --sky-lt:#EEF1F5; --sky-dk:#071429;
-  --navy:#0B1F3A;--gold:#C5A059; --white: #FFFFFF;
+  --navy:#0B1F3A;--gold:#C9A227; --gold-soft:#E4CD84; --white: #FFFFFF;
   --g1: #F2F4F6; --g2: #E0E4E8; --g3: #9BA5B0; --g4: #5A6472;
   --black: #111318; --red: #FF4444; --green: #2ECC71; --orange: #F39C12;
+  --font-serif: 'Fraunces', serif;
+  --font-body: 'Pretendard Variable', 'Pretendard', 'Noto Sans KR', sans-serif;
 }
-body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color: var(--black); padding-bottom: 100px; }
+body { font-family: var(--font-body); background: var(--white); color: var(--black); padding-bottom: 100px; }
 /* 헤더 */
-.header{background:var(--white);border-bottom:1px solid var(--g2);}
+.header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
-.header-inner { max-width: 1440px; margin: 0 auto; padding: 50px 24px 28px; display: flex; align-items: center; gap: 44px; }
-.logo { font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; color: var(--navy); text-decoration: none; letter-spacing: 0.03em; }
-.logo span { color: #C5A059; }
-.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.header-inner { max-width: 1440px; margin: 0 auto; padding: 39px 24px; display: flex; align-items: center; gap: 44px; position: relative; }
+.logo { font-family: var(--font-serif); font-style: italic; font-size: 27px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 2px; }
 .h-btn {
   padding: 7px 12px; border: none; background: none;
   font-size:12px; font-weight: 500; color: var(--g4);
@@ -44,12 +47,13 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
   display: flex; align-items: center; justify-content: center;
   color: var(--g4); transition: all 0.15s; position: relative;
 }
+.icon-btn:hover { background: var(--g1); color: var(--navy); }
 .cart-count { position: absolute; top: 2px; right: 2px; background: var(--sky); color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; min-width: 15px; text-align: center; }
 
 /* GNB */
-.gnb-inner { display: flex; }
+.gnb-inner { display: flex; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .gnb-item {
-  padding: 8px 16px; font-size:14px; font-weight: 500;
+  padding: 8px 18px; font-size:16px; font-weight: 500;
   color: var(--black); cursor: pointer; border: none; background: none;
   font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap;
 }
@@ -58,6 +62,48 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 .gnb-item:hover::after {
   content: ''; position: absolute; left: 50%; transform: translateX(-50%); bottom: -2px;
   width: 20px; height: 2px; background: var(--gold);
+}
+/* 모바일 요소 */
+.hamburger-btn { display: none; background: none; border: none; padding: 6px; margin-right: 8px; cursor: pointer; color: var(--navy); }
+.mobile-menu-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 998; opacity: 0; transition: opacity 0.25s; }
+.mobile-menu-backdrop.open { display: block; opacity: 1; }
+.mobile-menu-drawer {
+  display: none; position: fixed; top: 0; left: 0; bottom: 0; width: 78%; max-width: 320px;
+  background: #fff; z-index: 999; transform: translateX(-100%); transition: transform 0.25s ease;
+  overflow-y: auto; box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+.mobile-menu-drawer.open { transform: translateX(0); }
+.mobile-menu-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--g2); }
+.mobile-menu-list { display: flex; flex-direction: column; padding: 8px 0; }
+.mobile-menu-list button { text-align: left; background: none; border: none; padding: 15px 20px; font-size: 15px; font-weight: 600; color: var(--black); font-family: inherit; cursor: pointer; border-bottom: 1px solid var(--g1); }
+.mobile-tabbar { display: none; }
+@media (max-width: 768px) {
+  .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+  .gnb-inner { display: none; }
+  .mobile-menu-drawer, .mobile-menu-backdrop { display: block; }
+  .mobile-menu-drawer:not(.open) { display: none; }
+  .mobile-menu-backdrop:not(.open) { display: none; }
+  .header-inner { padding: 12px 16px; gap: 10px; }
+  .logo { font-size: 20px; }
+  .icon-btn { width: 32px; height: 32px; }
+  .topbar { padding: 8px 16px; }
+  .topbar-inner { font-size: 11px; }
+  .product-wrap { flex-direction: column; }
+  .product-images { flex: none; width: 100%; }
+  .related-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-top { flex-direction: column; gap: 28px; }
+  .footer-cols { gap: 28px; flex-wrap: wrap; }
+  footer { padding: 32px 16px 90px; }
+  .mobile-tabbar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+    background: #fff; border-top: 1px solid var(--g2); box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+  }
+  .mobile-tabbar button {
+    flex: 1; background: none; border: none; padding: 8px 0 10px; display: flex; flex-direction: column;
+    align-items: center; gap: 3px; color: var(--g3); font-size: 10px; font-family: inherit; cursor: pointer;
+  }
+  .mobile-tabbar button.active { color: var(--navy); font-weight: 700; }
+  body { padding-bottom: 158px; }
 }
 
 /* 브레드크럼 */
@@ -119,7 +165,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--white); color:
 
 /* 상품 정보 */
 .product-info { flex: 1; }
-.product-category { font-size: 16px; font-weight: 700; color: var(--sky); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.product-category { font-family: var(--font-serif); font-style: italic; font-size: 15px; font-weight: 500; color: var(--gold); margin-bottom: 8px; }
 .product-name { font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1.3; margin-bottom: 6px; letter-spacing: -0.01em; }
 .product-code { font-size: 13px; color: var(--g3); font-family: 'Inter', sans-serif; margin-bottom: 20px; }
 #productSize { font-size: 15px; }
@@ -290,8 +336,8 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
 footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .footer-inner { max-width: 1440px; margin: 0 auto; }
 .footer-top { display: flex; justify-content: space-between; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 24px; flex-wrap: wrap; }
-.footer-logo { font-family: 'Inter', sans-serif; font-size:16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px; }
-.footer-logo span { color: #FFFFFF; }
+.footer-logo { font-family: var(--font-serif); font-style: italic; font-size:19px; font-weight: 500; color: #fff; margin-bottom: 8px; }
+.footer-logo span { color: var(--gold-soft); font-style: normal; }
 .footer-brand p { font-size:11px; color: #FFFFFF; font-weight: 300; line-height: 1.8; margin-bottom: 14px; }
 .kakao-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; background: #FAE300; color: #1A1A1A; border: none; border-radius: 6px; font-size:12px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none; }
 .kakao-btn:hover { background: #E8D100; }
@@ -303,12 +349,12 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .footer-biz { font-size:10px; color: #FFFFFF; font-weight: 300; line-height: 1.9; }
 .footer-copy { font-size:10px; color: #FFFFFF; font-family: 'Inter', sans-serif; }
 
-.topbar { background: var(--navy); padding: 11px 24px; }
-.topbar-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12px; }
-.tb-link { background: none; border: none; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; padding: 0; }
+.topbar { background: var(--navy); padding: 9px 24px; }
+.topbar-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12.5px; }
+.tb-link { background: none; border: none; color: var(--gold-soft); font-size: 12.5px; font-family: inherit; cursor: pointer; padding: 0; }
 .tb-link:hover { opacity: 0.8; }
-.tb-sep { opacity: 0.4; margin: 0 8px; color: #fff; }
-.tb-welcome { color: #fff; font-weight: 600; }
+.tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
+.tb-welcome { color: var(--gold-soft); font-weight: 600; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 </style>
 </head>
@@ -375,7 +421,10 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 </div>
 <header class="header">
   <div class="header-inner">
-    <a href="index.html" class="logo">OPTIC<span>MALL</span></a>
+    <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="index.html" class="logo">Opticmall</a>
     <nav class="gnb-inner">
     <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
     <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
@@ -411,6 +460,28 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
         <span class="cart-count" id="cartCountBadge" style="display:none;">0</span>
       </button>
     </div>
+  </div>
+
+  <!-- 모바일 메뉴 드로어 -->
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+    <div class="mobile-menu-header">
+      <span class="logo" style="font-size:20px;">Opticmall</span>
+      <button onclick="toggleMobileMenu()" aria-label="메뉴 닫기" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--g4);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="mobile-menu-list">
+      <button onclick="location.href='list.html'">전체상품</button>
+      <button onclick="location.href='brands.html'">브랜드별</button>
+      <button onclick="location.href='list.html?cat=하금테'">하금테</button>
+      <button onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+      <button onclick="location.href='list.html?cat=메탈'">메탈</button>
+      <button onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+      <button onclick="location.href='vkool.html'">V.KOOL</button>
+      <button onclick="location.href='timesale.html'">타임세일</button>
+      <button onclick="location.href='event.html'">이벤트</button>
+    </nav>
   </div>
   <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
     <div style="max-width:600px;margin:0 auto;padding:20px 24px;">
@@ -643,6 +714,12 @@ const _db = firebase.firestore();
 
 let memberLevel = 0;
 let authChecked = false; // Firebase 로그인 상태 확인이 끝났는지 여부 (깜빡임 방지용)
+
+function toggleMobileMenu() {
+  document.getElementById('mobileMenuDrawer').classList.toggle('open');
+  document.getElementById('mobileMenuBackdrop').classList.toggle('open');
+  document.body.style.overflow = document.getElementById('mobileMenuDrawer').classList.contains('open') ? 'hidden' : '';
+}
 let currentProduct = null;
 let currentPrice = 0;
 let currentImgIndex = 0;
@@ -1912,12 +1989,35 @@ function showToast(msg, type='') {
 // 초기 로드
 loadProduct();
 </script>
+<nav class="mobile-tabbar">
+  <button onclick="location.href='index.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+    <span>홈</span>
+  </button>
+  <button onclick="location.href='list.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <span>카테고리</span>
+  </button>
+  <button onclick="location.href='mypage.html?tab=wish'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    <span>찜</span>
+  </button>
+  <button onclick="location.href='cart.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13a1 1 0 01-1 1H6a1 1 0 01-1-1L6 7z"/><path d="M9 10V6a3 3 0 016 0v4"/></svg>
+    <span>장바구니</span>
+  </button>
+  <button onclick="location.href='mypage.html'">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>마이</span>
+  </button>
+</nav>
+
 <!-- FOOTER (공통) -->
 <footer>
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="footer-logo">OPTIC<span>MALL</span></div>
+        <div class="footer-logo">Opticmall</div>
         <p>안경테·선글라스 도매 전문 B2B 플랫폼<br>안경사를 위한 25년의 신뢰</p>
         <a href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener" class="kakao-btn">💬 카카오 채널 상담</a>
       </div>
