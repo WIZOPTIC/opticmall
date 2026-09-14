@@ -77,11 +77,11 @@ header {
 }
 .header-main {
   max-width: 1440px; margin: 0 auto;
-  padding: 39px 24px;
+  padding: 50px 24px 28px;
   display: flex; align-items: center; gap: 44px;
   position: relative;
 }
-.logo { font-family: var(--font-serif); font-style: italic; font-size: 27px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
+.logo { font-family: var(--font-serif); font-style: italic; font-size: 22px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
 .search-tag {
   padding: 7px 16px; background: var(--white); border: 1px solid var(--g2);
   border-radius: 100px; font-size:12px; color: var(--g4); font-family: inherit;
@@ -130,13 +130,21 @@ header {
 /* ── GNB (헤더와 한 줄로 통합) ── */
 /* ── 에디토리얼 배너 (히어로 우측) ── */
 .hero-right { flex: 0 0 972px; max-width: 972px; align-self: center; padding: 0 80px; box-sizing: border-box; position: relative; }
+.editorial-track { display: flex; gap: 16px; transition: transform 0.6s ease; }
+.editorial-card { cursor: default; flex: 0 0 260px; width: 260px; }
+.editorial-photo { position: relative; height: 300px; background: linear-gradient(155deg,#EFEBE2,#E4DECF); border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 16px 40px rgba(11,31,58,0.12); }
+.editorial-photo img { width: 100%; height: 100%; object-fit: cover; }
+.editorial-photo .ph { font-size: 11px; color: var(--g3); }
+.editorial-tag { font-family: var(--font-serif); font-style: italic; font-size: 12px; color: var(--gold); font-weight: 500; margin: 12px 0 4px; letter-spacing: 0.02em; height: 15px; }
+.editorial-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; line-height: 1.4; height: 35px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+.editorial-sub { font-size: 11px; color: var(--g4); line-height: 1.5; height: 33px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
 
 .gnb-inner {
   display: flex;
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
 }
 .gnb-item {
-  padding: 8px 18px; font-size:16px; font-weight: 500;
+  padding: 8px 16px; font-size:14px; font-weight: 500;
   color: var(--black); cursor: pointer; border: none; background: none;
   font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap;
 }
@@ -232,19 +240,6 @@ header {
   color: var(--stone); white-space: nowrap;
 }
 .event-rank-section { max-width: 1440px; margin: 36px auto 8px; padding: 0 24px; }
-
-/* ── 상단 컨텐츠 인덱스 바 (01 신상품 · 02 브랜드관 · 03 이벤트) ── */
-.contents-strip {
-  display: flex; align-items: center; gap: 26px;
-  padding: 18px 0 6px;
-}
-.contents-strip .c-item { display: flex; align-items: baseline; gap: 8px; }
-.contents-strip .c-item .cn {
-  font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--gold);
-}
-.contents-strip .c-item .ct { font-size: 13px; font-weight: 600; color: var(--navy); letter-spacing: 0.01em; }
-.contents-strip .c-rule { width: 1px; height: 13px; background: var(--stone); opacity: 0.35; }
-@media (max-width: 640px) { .contents-strip { display: none; } }
 .ers-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
 .ers-head h2 { font-family: var(--font-body); font-style: normal; font-weight: 800; font-size: 21px; color: var(--navy); margin: 0; }
 .ers-head .more { font-size: 12.5px; color: var(--stone); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; white-space: nowrap; }
@@ -296,32 +291,29 @@ header {
 .hero-photo-slot .caption .brand { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 2px; }
 .hero-photo-slot .caption .name { font-size: 12px; color: var(--stone); margin: 0; }
 @media (max-width: 900px) { .hero-photo-slot { display: none; } }
-.hero-stat-callout {
-  position: absolute; left: -20px; bottom: -20px; z-index: 3;
-  background: var(--white); border-radius: 4px; padding: 16px 22px;
-  box-shadow: 0 16px 40px rgba(11,31,58,0.18);
-}
-.hero-stat-callout .hs-num {
-  font-family: var(--font-serif); font-style: italic; font-weight: 500;
-  font-size: 30px; color: var(--gold); line-height: 1; margin-bottom: 4px;
-}
-.hero-stat-callout .hs-label { font-size: 12px; color: var(--stone); white-space: nowrap; }
-@media (max-width: 900px) { .hero-stat-callout { display: none; } }
 
 /* ── 신상품/베스트상품/이벤트상품 통합카드 ── */
 .category-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 48px 0 60px; }
 .category-card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 16px 40px rgba(11,31,58,0.10); }
-.card-photo { position: relative; aspect-ratio: 9 / 10; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--paper); }
-.card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-photo { position: relative; height: 190px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.card-photo img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.category-card.a .card-photo { background: #EAF0F4; }
+.category-card.b .card-photo { background: #F8F1DD; }
+.category-card.c .card-photo { background: #FBEAE6; }
 .card-header {
   position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 16px 22px 14px; background: var(--paper); color: var(--navy);
 }
+.category-card.a .card-header { background: #EAF0F4; } /* 신상품: 은은한 스카이블루 */
+.category-card.b .card-header { background: #F8F1DD; } /* 베스트상품: 은은한 골드크림 */
+.category-card.c .card-header { background: #FBEAE6; } /* 이벤트상품: 은은한 코럴 */
 .card-header .ch-left { display: flex; align-items: baseline; gap: 10px; }
 .card-header .badge {
   position: static; display: inline-block; background: var(--navy); color: #fff;
   font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.02em;
 }
+.category-card.b .card-header .badge { background: #B8860B; }
+.category-card.c .card-header .badge { background: #C0553F; }
 .card-header .title { position: static; font-size: 19px; font-weight: 800; margin: 0; color: var(--navy); }
 .card-header .glasses-svg { display: none; }
 .card-timer { position: static; text-align: right; }
@@ -334,19 +326,6 @@ header {
 }
 .card-timer .ct-colon { font-weight: 900; font-size: 12px; }
 .card-products { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 12px; padding: 20px; }
-.card-products.list-mode { display: flex; flex-direction: column; gap: 0; padding: 6px 20px 4px; }
-.product-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
-.card-products.list-mode .product-row:last-child { border-bottom: none; }
-.product-row:hover .p-row-name-main { color: var(--gold); }
-.p-row-img { position: relative; width: 110px; height: 110px; flex: 0 0 110px; border-radius: 10px; overflow: hidden; background: linear-gradient(155deg,#EFEBE2,#E4DECF); }
-.p-row-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.p-row-info { flex: 1; min-width: 0; }
-.p-row-code { font-size: 11.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
-.p-row-name-main { font-size: 12px; color: var(--stone); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.15s; }
-.p-row-price { font-size: 13.5px; font-weight: 700; color: var(--ink); font-family: var(--font-body); }
-.p-row-price .won { font-size: 11px; font-weight: 500; }
-.p-row-wish { flex: 0 0 auto; width: 26px; height: 26px; border: none; background: transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--g3); padding:0; }
-.p-row-wish:hover { color: var(--red); }
 @media (max-width: 860px) { .category-cards { grid-template-columns: 1fr; } }
 
 /* ── MAIN ── */
@@ -555,6 +534,11 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
   .hero-tagline { font-size: 16px !important; }
   .hero-features { grid-template-columns: repeat(2, 1fr) !important; max-width: 100% !important; }
   .hero-right { flex: 1 1 auto !important; max-width: 100% !important; width: 100%; padding: 0 !important; }
+  .editorial-card { flex: 0 0 78vw !important; width: 78vw !important; scroll-snap-align: start; }
+  .editorial-photo { height: 62vw !important; }
+  #editorialViewport { min-height: calc(62vw + 100px) !important; }
+  #editorialGrid { scroll-snap-type: x mandatory; overflow-x: auto; -webkit-overflow-scrolling: touch; transform: none !important; }
+  #editorialPrevBtn, #editorialNextBtn { display: none !important; }
 
   /* 특징 바(25년 신뢰 등) 가로 스크롤 */
   .feature-bar { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -800,6 +784,19 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
     </div>
   </section>
+
+  <!-- 기존 에디토리얼 캐러셀: 기능/데이터 로딩은 그대로 두되 화면엔 노출 안 함 -->
+  <div class="hero-right" style="position:relative;display:none;" id="editorialWrap">
+    <div id="editorialViewport" style="overflow:hidden;min-height:400px;">
+      <div class="editorial-track" id="editorialGrid"></div>
+    </div>
+    <button id="editorialPrevBtn" onclick="editorialManualNav(editorialNext)" style="display:none;position:absolute;top:150px;left:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+      <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button id="editorialNextBtn" onclick="editorialManualNav(editorialPrev)" style="display:none;position:absolute;top:150px;right:0;transform:translateY(-50%);width:70px;height:70px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;z-index:5;">
+      <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
 </section>
 
 <!-- MAIN: 신상품 / 베스트상품 / 이벤트상품(+타임세일 흡수) 통합카드 -->
@@ -811,7 +808,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <div class="card-header">
         <div class="ch-left"><span class="badge">NEW</span><p class="title">신상품</p></div>
       </div>
-      <div class="card-products list-mode" id="newArrivalGrid">
+      <div class="card-products" id="newArrivalGrid">
         <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
       </div>
       <div style="text-align:center;padding:0 20px 22px;">
@@ -824,7 +821,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <div class="card-header">
         <div class="ch-left"><span class="badge">BEST</span><p class="title">베스트상품</p></div>
       </div>
-      <div class="card-products list-mode" id="bestGrid">
+      <div class="card-products" id="bestGrid">
         <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
       </div>
       <div style="text-align:center;padding:0 20px 22px;">
@@ -845,7 +842,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
           </div>
         </div>
       </div>
-      <div class="card-products list-mode" id="timesaleGrid">
+      <div class="card-products" id="timesaleGrid">
         <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
       </div>
       <div style="text-align:center;padding:0 20px 22px;">
@@ -885,7 +882,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="footer-logo">Opticmall</div>
+        <div class="footer-logo">OPTIC<span>MALL</span></div>
         <p>안경테·선글라스 도매 전문 B2B 플랫폼<br>안경사를 위한 25년의 신뢰</p>
         <a href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener" class="kakao-btn">💬 카카오 채널 상담</a>
       </div>
@@ -1366,38 +1363,6 @@ function renderMainProductCard(p, badgeText, badgeClass) {
     </div>`;
 }
 
-function renderMainProductRow(p) {
-  const imgHtml = p.mainImageUrl
-    ? `<img src="${p.mainImageUrl}" alt="${p.modelName||''}">`
-    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:0.15;"><i class=ic-glasses></i></div>`;
-  const discountRate = Number(p.discountRate) || 0;
-  const basePrice = Number(p.price || 0);
-  const salePrice = p.salePrice ? Number(p.salePrice) : (discountRate > 0 ? Math.round(basePrice * (1 - discountRate/100)) : 0);
-  const priceHtml = mainMemberLevel >= 2
-    ? (discountRate > 0 && basePrice > 0
-        ? `<div class="p-row-price">
-            <span style="font-size:10px;color:#9BA5B0;text-decoration:line-through;margin-right:4px;">₩${basePrice.toLocaleString()}</span>
-            <span class="won">₩</span>${salePrice.toLocaleString()}
-            <span style="font-size:10px;color:var(--navy);font-weight:700;margin-left:2px;">${discountRate}%</span>
-           </div>`
-        : `<div class="p-row-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
-    : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
-  const codeLabel = p.brandName ? `[${p.brandName}]` : '';
-  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
-  const isWished = mainWishlistIds.has(mainWishId);
-  const wishColorArg = (p.colors&&p.colors[0]) ? `'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'` : 'null';
-  return `
-    <div class="product-row" onclick="goToProductFromMain('${p.id}')">
-      <div class="p-row-img">${imgHtml}</div>
-      <div class="p-row-info">
-        <div class="p-row-code">${codeLabel}</div>
-        <div class="p-row-name-main">${p.modelName||'-'}${p.size ? ' · ' + p.size : ''}</div>
-        ${priceHtml}
-      </div>
-      <button class="p-row-wish${isWished ? ' active' : ''}" onclick="event.stopPropagation();toggleMainWish(event,'${p.id}','${mainWishId}',${wishColorArg})">${isWished ? '<i class=ic-wish-filled></i>' : '<i class=ic-wish></i>'}</button>
-    </div>`;
-}
-
 function renderEventRankCard(p, rank) {
   const imgHtml = p.mainImageUrl
     ? `<img src="${p.mainImageUrl}" alt="${p.modelName||''}" style="width:100%;height:100%;object-fit:cover;">`
@@ -1483,15 +1448,15 @@ function renderAllMainSections() {
     return;
   }
 
-  // 신상품: 최신 등록순 3개만 간결하게 리스트로 표시 (나머지는 '신상품 더보기'로 유도)
-  const newArrivals = [...mainAllProducts].slice(0, 3);
+  // 신상품: 최신 등록순 10개
+  const newArrivals = [...mainAllProducts].slice(0, 10);
   document.getElementById('newArrivalGrid').innerHTML =
-    newArrivals.map(p => renderMainProductRow(p)).join('');
+    newArrivals.map((p,i) => renderMainProductCard(p, i < 3 ? 'NEW' : '', 'new')).join('');
 
-  // 베스트: 최신순과 다른 섞임을 위해 가격 내림차순 (판매데이터 없어 임시 기준), 3개만 간결하게
-  const best = [...mainAllProducts].sort((a,b) => (b.price||0)-(a.price||0)).slice(0, 3);
+  // 베스트: 최신순과 다른 섞임을 위해 가격 내림차순 (판매데이터 없어 임시 기준)
+  const best = [...mainAllProducts].sort((a,b) => (b.price||0)-(a.price||0)).slice(0, 10);
   document.getElementById('bestGrid').innerHTML =
-    best.map(p => renderMainProductRow(p)).join('');
+    best.map(p => renderMainProductCard(p, 'BEST', 'best')).join('');
 }
 
 // 타임세일: 실제 관리자 승인 데이터 연동
@@ -1532,7 +1497,7 @@ async function loadTimesaleData() {
     }
 
     document.getElementById('timesaleGrid').innerHTML =
-      timesaleProducts.slice(0,3).map(p => renderMainProductRow(p)).join('');
+      timesaleProducts.map(p => renderMainProductCard(p, 'SALE', 'hot')).join('');
     document.getElementById('eventRankGrid').innerHTML =
       timesaleProducts.slice(0,5).map((p,i) => renderEventRankCard(p, i+1)).join('');
   } catch(e) {
@@ -1564,6 +1529,102 @@ async function loadMainProducts() {
 
 loadMainProducts();
 loadTimesaleData();
+
+let editorialAllItems = [];
+let editorialStep = 0;
+let editorialVisibleCount = 3;
+let editorialTotal = 0;
+let editorialRotateTimer = null;
+const EDITORIAL_CARD_STEP = 276; // 카드 260px + gap 16px
+
+async function loadEditorialSection() {
+  const wrap = document.getElementById('editorialWrap');
+  const track = document.getElementById('editorialGrid');
+  try {
+    const snap = await _db.collection('editorialBanners').get();
+    const list = [];
+    snap.forEach(d => list.push({id: d.id, ...d.data()}));
+    list.sort((a,b) => (a.order||0) - (b.order||0));
+    editorialAllItems = list.filter(s => s.title || s.imageUrl);
+    if (editorialAllItems.length === 0) { wrap.style.display = 'none'; return; }
+
+    editorialTotal = editorialAllItems.length;
+    editorialVisibleCount = Math.min(3, editorialTotal);
+    const loop = editorialTotal > editorialVisibleCount;
+
+    // 무한 루프처럼 보이게 앞뒤로 카드를 복제해서 이어붙임
+    const renderList = loop
+      ? [...editorialAllItems.slice(-editorialVisibleCount), ...editorialAllItems, ...editorialAllItems.slice(0, editorialVisibleCount)]
+      : editorialAllItems;
+
+    track.innerHTML = renderList.map(s => renderEditorialCard(s)).join('');
+
+    editorialStep = loop ? editorialVisibleCount : 0;
+    track.style.transition = 'none';
+    track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+
+    if (loop) {
+      document.getElementById('editorialPrevBtn').style.display = 'flex';
+      document.getElementById('editorialNextBtn').style.display = 'flex';
+      editorialRotateTimer = setInterval(() => editorialNext(), 3500);
+    }
+  } catch(e) {
+    console.error(e);
+    wrap.style.display = 'none';
+  }
+}
+
+function renderEditorialCard(s) {
+  const clickable = !!s.link;
+  const openAttr = s.link ? (s.link.startsWith('http') ? ` target="_blank" rel="noopener"` : '') : '';
+  const Tag = clickable ? 'a' : 'div';
+  const hrefAttr = clickable ? ` href="${s.link}"${openAttr}` : '';
+  return `
+    <${Tag} class="editorial-card"${hrefAttr} style="text-decoration:none;display:block;flex-shrink:0;${clickable ? 'cursor:pointer;' : ''}">
+      <div class="editorial-photo">
+        ${s.imageUrl ? `<img src="${s.imageUrl}" alt="">` : `<span class="ph">이미지 준비중</span>`}
+      </div>
+      <div class="editorial-tag">${s.tag || ''}</div>
+      <div class="editorial-title">${s.title || ''}</div>
+      <div class="editorial-sub">${s.subtitle || ''}</div>
+    </${Tag}>
+  `;
+}
+
+function editorialNext() {
+  const track = document.getElementById('editorialGrid');
+  editorialStep++;
+  track.style.transition = 'transform 0.6s ease';
+  track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+  if (editorialStep >= editorialVisibleCount + editorialTotal) {
+    setTimeout(() => {
+      track.style.transition = 'none';
+      editorialStep = editorialVisibleCount;
+      track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+    }, 600);
+  }
+}
+
+function editorialPrev() {
+  const track = document.getElementById('editorialGrid');
+  editorialStep--;
+  track.style.transition = 'transform 0.6s ease';
+  track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+  if (editorialStep < editorialVisibleCount) {
+    setTimeout(() => {
+      track.style.transition = 'none';
+      editorialStep = editorialVisibleCount + editorialTotal - 1;
+      track.style.transform = `translateX(-${editorialStep * EDITORIAL_CARD_STEP}px)`;
+    }, 600);
+  }
+}
+
+function editorialManualNav(fn) {
+  if (editorialRotateTimer) clearInterval(editorialRotateTimer);
+  fn();
+  editorialRotateTimer = setInterval(() => editorialNext(), 3500);
+}
+loadEditorialSection();
 
 </script>
 </body>
