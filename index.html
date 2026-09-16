@@ -697,23 +697,34 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
 
 <!-- 회원가입 유도 팝업 (비회원 전용) -->
 <div id="signupPromoOverlay" style="display:none;position:fixed;inset:0;z-index:900;">
-  <div style="position:absolute;inset:0;background:rgba(11,31,58,0.5);" onclick="closeSignupPromo()"></div>
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:380px;max-width:90vw;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-    <div style="height:6px;background:#C9A227;"></div>
-    <div style="padding:26px 26px 20px;text-align:center;">
-      <div style="display:inline-block;background:#0B1F3A;color:#C9A227;font-size:10.5px;font-weight:500;padding:6px 16px;border-radius:100px;margin-bottom:16px;letter-spacing:0.05em;">WELCOME</div>
-      <p style="font-size:11px;color:#B8862F;letter-spacing:0.05em;margin:0 0 8px;font-weight:500;">아직 회원이 아니신가요</p>
-      <p style="font-size:19px;font-weight:500;color:#0B1F3A;margin:0 0 10px;line-height:1.45;">안경원 사업자등록증만 있으면<br>5분 안에 가입됩니다.</p>
-      <div style="width:28px;height:1.5px;background:#C9A227;margin:0 auto 12px;"></div>
-      <p style="font-size:12.5px;color:#5A6472;margin:0;line-height:1.6;">가입 승인 후 전 품목 도매가와<br>수량별 단가가 열립니다.</p>
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);" onclick="closeSignupPromo()"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:400px;max-width:90vw;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div style="background:#0B1F3A;padding:28px 28px 32px;text-align:center;">
+      <p style="font-size:12.5px;color:#5A9FE0;font-weight:700;margin:0 0 12px;letter-spacing:0.02em;">신규 회원 혜택</p>
+      <p style="font-size:20px;font-weight:700;color:#fff;margin:0 0 4px;line-height:1.35;">가입하면 즉시</p>
+      <p style="font-size:24px;font-weight:800;color:#C9A227;margin:0;line-height:1.35;">최대 25,000원 혜택</p>
     </div>
-    <div style="padding:4px 26px 22px;">
-      <a href="join.html" style="display:block;background:#0B1F3A;color:#fff;font-size:14px;font-weight:500;padding:13px;border-radius:8px;text-align:center;margin-bottom:8px;text-decoration:none;">회원가입 하러 가기</a>
-      <div onclick="closeSignupPromo()" style="color:#9BA5B0;font-size:12.5px;padding:8px;text-align:center;cursor:pointer;">나중에 할게요</div>
+    <div style="padding:20px 26px 4px;">
+      <div style="background:#FBF6E8;border:1.3px solid #C9A227;border-radius:10px;padding:14px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="display:inline-block;background:#C9A227;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:100px;margin-bottom:5px;letter-spacing:0.03em;">가장 빠른 혜택</div>
+          <div style="font-size:14px;font-weight:700;color:#0B1F3A;">안경원 사업자등록증만 있으면</div>
+        </div>
+        <span style="font-size:16px;font-weight:800;color:#0B1F3A;white-space:nowrap;margin-left:10px;">5분 가입</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 4px;border-bottom:1px solid #F0EFE9;">
+        <span style="font-size:13.5px;color:#5A6472;">카카오채널 추가</span>
+        <span style="font-size:14.5px;font-weight:700;color:#0B1F3A;">10,000원 쿠폰</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 4px;">
+        <span style="font-size:13.5px;color:#5A6472;">첫 구매 할인</span>
+        <span style="font-size:14.5px;font-weight:700;color:#0B1F3A;">15% 쿠폰</span>
+      </div>
+      <p style="font-size:11.5px;color:#9BA5B0;text-align:center;margin:12px 0 0;">신규 회원 전용 · 중복 적용 가능</p>
     </div>
-    <div style="border-top:0.5px solid #EFEDE6;padding:12px 26px;display:flex;align-items:center;gap:6px;justify-content:center;cursor:pointer;" onclick="snoozeSignupPromo()">
-      <div id="signupPromoCheckbox" style="width:14px;height:14px;border:1.2px solid #C3CBD3;border-radius:3px;"></div>
-      <span style="font-size:12px;color:#5A6472;">일주일간 다시 보지 않기</span>
+    <div style="padding:16px 26px 24px;">
+      <a href="join.html" style="display:block;background:#0B1F3A;color:#fff;font-size:15px;font-weight:700;padding:15px;border-radius:8px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기</a>
+      <div onclick="snoozeSignupPromo()" style="text-align:center;font-size:12.5px;color:#9BA5B0;cursor:pointer;">오늘 하루 보지 않기</div>
     </div>
   </div>
 </div>
@@ -1049,17 +1060,11 @@ function maybeShowSignupPromo() {
 function closeSignupPromo() {
   document.getElementById('signupPromoOverlay').style.display = 'none';
 }
-let signupPromoSnoozeChecked = false;
 function snoozeSignupPromo() {
-  signupPromoSnoozeChecked = !signupPromoSnoozeChecked;
-  document.getElementById('signupPromoCheckbox').style.background = signupPromoSnoozeChecked ? '#C9A227' : '';
-  document.getElementById('signupPromoCheckbox').style.borderColor = signupPromoSnoozeChecked ? '#C9A227' : '#C3CBD3';
-  if (signupPromoSnoozeChecked) {
-    try {
-      localStorage.setItem(SIGNUP_PROMO_SNOOZE_KEY, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
-    } catch(e) {}
-    closeSignupPromo();
-  }
+  try {
+    localStorage.setItem(SIGNUP_PROMO_SNOOZE_KEY, String(Date.now() + 24 * 60 * 60 * 1000));
+  } catch(e) {}
+  closeSignupPromo();
 }
 
 // 타임세일 카운트다운 (실제 관리자 설정 종료시각 기준)
