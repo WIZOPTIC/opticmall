@@ -98,8 +98,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 
 /* 히어로 */
 .brands-hero{max-width:1440px;margin:0 auto;padding:48px 24px 20px;text-align:center;}
-.brands-hero .eyebrow{font-family:var(--font-serif);font-style:italic;color:var(--gold);font-size:14px;margin-bottom:8px;}
-.brands-hero h1{font-family:var(--font-serif);font-size:32px;font-weight:500;color:var(--navy);margin-bottom:8px;}
+.brands-hero h1{font-family:inherit;font-style:normal;font-size:28px;font-weight:800;color:var(--navy);margin-bottom:8px;}
 .brands-hero p{font-size:14px;color:var(--g3);}
 
 /* 검색 */
@@ -282,15 +281,8 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 </div>
 
 <div class="brands-hero">
-  <div class="eyebrow">Partner Brands</div>
   <h1>브랜드관</h1>
   <p>옵틱몰에 입점한 브랜드를 모아봤어요</p>
-</div>
-
-<div class="brand-search-wrap">
-  <div class="brand-search">
-    <input type="text" id="brandSearchInput" placeholder="브랜드명으로 찾기" oninput="filterBrands()">
-  </div>
 </div>
 
 <div class="brands-wrap">
