@@ -695,9 +695,30 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
 </div>
 
 
-<!-- TOPBAR + HEADER (함께 고정) -->
-<div style="position:sticky;top:0;z-index:200;" id="stickyHeaderWrap">
-<div class="topbar">
+<!-- 회원가입 유도 팝업 (비회원 전용) -->
+<div id="signupPromoOverlay" style="display:none;position:fixed;inset:0;z-index:900;">
+  <div style="position:absolute;inset:0;background:rgba(11,31,58,0.5);" onclick="closeSignupPromo()"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:380px;max-width:90vw;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div style="height:6px;background:#C9A227;"></div>
+    <div style="padding:26px 26px 20px;text-align:center;">
+      <div style="display:inline-block;background:#0B1F3A;color:#C9A227;font-size:10.5px;font-weight:500;padding:6px 16px;border-radius:100px;margin-bottom:16px;letter-spacing:0.05em;">WELCOME</div>
+      <p style="font-size:11px;color:#B8862F;letter-spacing:0.05em;margin:0 0 8px;font-weight:500;">아직 회원이 아니신가요</p>
+      <p style="font-size:19px;font-weight:500;color:#0B1F3A;margin:0 0 10px;line-height:1.45;">안경원 사업자등록증만 있으면<br>5분 안에 가입됩니다.</p>
+      <div style="width:28px;height:1.5px;background:#C9A227;margin:0 auto 12px;"></div>
+      <p style="font-size:12.5px;color:#5A6472;margin:0;line-height:1.6;">가입 승인 후 전 품목 도매가와<br>수량별 단가가 열립니다.</p>
+    </div>
+    <div style="padding:4px 26px 22px;">
+      <a href="join.html" style="display:block;background:#0B1F3A;color:#fff;font-size:14px;font-weight:500;padding:13px;border-radius:8px;text-align:center;margin-bottom:8px;text-decoration:none;">회원가입 하러 가기</a>
+      <div onclick="closeSignupPromo()" style="color:#9BA5B0;font-size:12.5px;padding:8px;text-align:center;cursor:pointer;">나중에 할게요</div>
+    </div>
+    <div style="border-top:0.5px solid #EFEDE6;padding:12px 26px;display:flex;align-items:center;gap:6px;justify-content:center;cursor:pointer;" onclick="snoozeSignupPromo()">
+      <div id="signupPromoCheckbox" style="width:14px;height:14px;border:1.2px solid #C3CBD3;border-radius:3px;"></div>
+      <span style="font-size:12px;color:#5A6472;">일주일간 다시 보지 않기</span>
+    </div>
+  </div>
+</div>
+
+
   <div class="topbar-inner">
     <div id="topbarGuest">
       <button class="tb-link" onclick="openLogin()">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
@@ -1010,6 +1031,34 @@ function closeLogin() {
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin(); });
 
+// 회원가입 유도 팝업 (비회원, 스누즈 미체크 시 진입 1.2초 후 노출)
+const SIGNUP_PROMO_SNOOZE_KEY = 'opticmall_signupPromoSnoozeUntil';
+function maybeShowSignupPromo() {
+  try {
+    const snoozeUntil = Number(localStorage.getItem(SIGNUP_PROMO_SNOOZE_KEY) || 0);
+    if (Date.now() < snoozeUntil) return;
+  } catch(e) {}
+  setTimeout(() => {
+    const el = document.getElementById('signupPromoOverlay');
+    if (el && !mainMemberLevel) el.style.display = 'block';
+  }, 1200);
+}
+function closeSignupPromo() {
+  document.getElementById('signupPromoOverlay').style.display = 'none';
+}
+let signupPromoSnoozeChecked = false;
+function snoozeSignupPromo() {
+  signupPromoSnoozeChecked = !signupPromoSnoozeChecked;
+  document.getElementById('signupPromoCheckbox').style.background = signupPromoSnoozeChecked ? '#C9A227' : '';
+  document.getElementById('signupPromoCheckbox').style.borderColor = signupPromoSnoozeChecked ? '#C9A227' : '#C3CBD3';
+  if (signupPromoSnoozeChecked) {
+    try {
+      localStorage.setItem(SIGNUP_PROMO_SNOOZE_KEY, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+    } catch(e) {}
+    closeSignupPromo();
+  }
+}
+
 // 타임세일 카운트다운 (실제 관리자 설정 종료시각 기준)
 let timesaleEndAt = null;
 function updateTimer() {
@@ -1263,6 +1312,7 @@ _auth.onAuthStateChanged(async (user) => {
     mainMemberLevel = 0;
     mainWishlistIds = new Set();
     updateHeaderLoggedOut();
+    maybeShowSignupPromo();
     if(new URLSearchParams(location.search).get('openLogin') === '1' && !window._autoLoginOpened) {
       window._autoLoginOpened = true;
       openLogin();
