@@ -359,11 +359,11 @@ header {
   padding: 6px 14px; border-radius: 100px; letter-spacing: 0.02em;
 }
 .cat-badge-row .title { font-size: 24px; font-weight: 800; color: var(--navy); margin: 0; }
-.cat-badge-row .card-timer { display: flex; align-items: center; gap: 10px; }
-.cat-badge-row .card-timer .ct-label { display: inline-block; font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 0; }
-.cat-badge-row .card-timer .ct-row { display: flex; align-items: center; gap: 5px; }
-.cat-badge-row .card-timer .ct-box { font-size: 22px; padding: 6px 10px; min-width: 40px; border-radius: 6px; }
-.cat-badge-row .card-timer .ct-colon { font-size: 20px; }
+.cat-badge-row .card-timer { display: flex; align-items: center; }
+.ts-pill { display: inline-flex; align-items: center; gap: 6px; background: #1C1B29; padding: 7px 16px; border-radius: 100px; }
+.ts-pill .ts-clock { color: var(--red); flex-shrink: 0; }
+.ts-pill .ts-time { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14px; color: var(--red); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.ts-pill .ts-suffix { font-size: 13px; font-weight: 600; color: #EDEDED; }
 
 .hero-split { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: stretch; margin-bottom: 36px; }
 .hero-split .left-photo {
@@ -722,16 +722,15 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
         <span style="font-size:16px;font-weight:800;color:#0B1F3A;white-space:nowrap;margin-left:10px;">5분 가입</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 4px;border-bottom:1px solid #F0EFE9;">
-        <span style="display:inline-flex;align-items:center;gap:3px;font-size:13.5px;font-weight:800;color:#0B1F3A;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#000;color:#FEE500;font-size:9px;font-weight:800;">Ch</span>
-          <span style="font-size:12px;font-weight:800;color:#000;">+</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;color:#0B1F3A;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;padding:2px 5px;border-radius:5px;background:#000;color:#FEE500;font-size:9px;font-weight:800;line-height:1;">Ch+</span>
           카카오채널 추가
         </span>
-        <span style="font-size:14.5px;font-weight:800;color:#C9A227;">10,000원 쿠폰</span>
+        <span style="font-size:14.5px;font-weight:800;color:#0B1F3A;">10,000원 쿠폰</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 4px;">
         <span style="font-size:13.5px;font-weight:800;color:#0B1F3A;">첫 구매 할인</span>
-        <span style="font-size:14.5px;font-weight:800;color:#C9A227;">10% 쿠폰</span>
+        <span style="font-size:14.5px;font-weight:800;color:#0B1F3A;">10% 쿠폰</span>
       </div>
     </div>
     <div style="padding:16px 26px 24px;">
@@ -898,11 +897,10 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <div class="cat-badge-row">
         <p class="title">타임세일</p>
         <div class="card-timer">
-          <span class="ct-label">타임세일 종료까지</span>
-          <div class="ct-row">
-            <div class="ct-box" id="timer-h">00</div><span class="ct-colon">:</span>
-            <div class="ct-box" id="timer-m">00</div><span class="ct-colon">:</span>
-            <div class="ct-box" id="timer-s">00</div>
+          <div class="ts-pill">
+            <svg class="ts-clock" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="ts-time"><span id="timer-h">00</span>:<span id="timer-m">00</span>:<span id="timer-s">00</span></span>
+            <span class="ts-suffix">후 마감</span>
           </div>
         </div>
       </div>
