@@ -343,8 +343,10 @@ header {
 .p-row-info { flex: 1; min-width: 0; }
 .p-row-code { font-size: 11.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
 .p-row-name-main { font-size: 12px; color: var(--stone); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.15s; }
-.p-row-price { font-size: 13.5px; font-weight: 700; color: var(--ink); font-family: var(--font-body); }
-.p-row-price .won { font-size: 11px; font-weight: 500; }
+.p-row-price { font-size: 15px; font-weight: 800; color: var(--ink); font-family: var(--font-body); }
+.p-row-price .won { font-size: 12.5px; font-weight: 600; }
+.p-row-price .discount-pct { color: var(--red); font-weight: 800; margin-right: 6px; }
+.p-row-price .orig-price { font-size: 11px; color: #9BA5B0; text-decoration: line-through; font-weight: 500; margin-left: 6px; }
 .p-row-wish { flex: 0 0 auto; width: 26px; height: 26px; border: none; background: transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--g3); padding:0; }
 .p-row-wish:hover { color: var(--red); }
 @media (max-width: 860px) { .category-cards { grid-template-columns: 1fr; } }
@@ -466,8 +468,10 @@ header {
 .p-colors { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
 .p-color-chip { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex-shrink: 0; }
 .p-color-more { font-size: 10px; color: var(--g3); align-self: center; }
-.product-price { font-size:13.5px; font-weight: 700; color: var(--ink); font-family: var(--font-body); }
-.product-price .won { font-size:11px; font-weight: 500; }
+.product-price { font-size:16px; font-weight: 800; color: var(--ink); font-family: var(--font-body); }
+.product-price .won { font-size:13px; font-weight: 600; }
+.product-price .discount-pct { color: var(--red); font-weight: 800; margin-right: 6px; }
+.product-price .orig-price { font-size: 11.5px; color: #9BA5B0; text-decoration: line-through; font-weight: 500; margin-left: 6px; }
 .price-locked { display: flex; align-items: center; gap: 5px; font-size:11px; color: var(--g3); }
 .price-locked svg { width: 14px; height: 14px; }
 
@@ -916,7 +920,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
         <div class="product-grid" id="eventFullGrid">
           <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
         </div>
-        <div class="more-box-wrap"><a href="event.html" class="more-box">이벤트상품 더보기<span class="arrow">›</span></a></div>
+        <div class="more-box-wrap"><a href="timesale.html" class="more-box">타임세일 상품 더보기<span class="arrow">›</span></a></div>
       </div>
     </section>
 
@@ -1467,9 +1471,9 @@ function renderMainProductCard(p, badgeText, badgeClass) {
   const priceHtml = mainMemberLevel >= 2
     ? (discountRate > 0 && basePrice > 0
         ? `<div class="product-price">
-            <span style="font-size:10px;color:#9BA5B0;text-decoration:line-through;margin-right:4px;">₩${basePrice.toLocaleString()}</span>
+            <span class="discount-pct">${discountRate}%</span>
             <span class="won">₩</span>${salePrice.toLocaleString()}
-            <span style="font-size:10px;color:var(--navy);font-weight:700;margin-left:2px;">${discountRate}%</span>
+            <span class="orig-price">₩${basePrice.toLocaleString()}</span>
            </div>`
         : `<div class="product-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
@@ -1512,9 +1516,9 @@ function renderMainProductRow(p) {
   const priceHtml = mainMemberLevel >= 2
     ? (discountRate > 0 && basePrice > 0
         ? `<div class="p-row-price">
-            <span style="font-size:10px;color:#9BA5B0;text-decoration:line-through;margin-right:4px;">₩${basePrice.toLocaleString()}</span>
+            <span class="discount-pct">${discountRate}%</span>
             <span class="won">₩</span>${salePrice.toLocaleString()}
-            <span style="font-size:10px;color:var(--navy);font-weight:700;margin-left:2px;">${discountRate}%</span>
+            <span class="orig-price">₩${basePrice.toLocaleString()}</span>
            </div>`
         : `<div class="p-row-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
@@ -1544,8 +1548,9 @@ function renderEventRankCard(p, rank) {
   const priceHtml = mainMemberLevel >= 2
     ? (discountRate > 0 && basePrice > 0
         ? `<div class="product-price">
-            <span style="font-size:10px;color:#9BA5B0;text-decoration:line-through;margin-right:4px;">₩${basePrice.toLocaleString()}</span>
+            <span class="discount-pct">${discountRate}%</span>
             <span class="won">₩</span>${salePrice.toLocaleString()}
+            <span class="orig-price">₩${basePrice.toLocaleString()}</span>
            </div>`
         : `<div class="product-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
