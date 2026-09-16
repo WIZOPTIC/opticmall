@@ -141,7 +141,7 @@ header {
 /* 상품 목록 */
 .list-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
 .list-eyebrow { font-family: var(--font-serif); font-style: italic; color: var(--gold); font-size: 13px; margin-bottom: 6px; }
-.list-title { font-family: var(--font-serif); font-size: 30px; font-weight: 500; color: var(--navy); line-height: 1.1; }
+.list-title { font-family: inherit; font-style: normal; font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1.2; }
 .list-count { font-size: 13px; color: var(--g3); margin-top: 6px; }
 .list-count strong { color: var(--navy); }
 .list-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -385,7 +385,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 <div class="page-wrap">
   <div class="list-header">
     <div>
-      <div class="list-eyebrow">Full Collection</div>
       <div class="list-title" id="listTitle">전체상품</div>
       <div class="list-count">총 <strong>0</strong>개 상품</div>
     </div>
@@ -393,7 +392,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <button class="stock-toggle" id="stockToggleBtn" onclick="toggleStockOnly()"><span class="dot"></span>재고있음만</button>
       <select class="sort-select">
         <option>신상품순</option>
-        <option>판매량순</option>
+        <option>색상별순</option>
         <option>낮은가격순</option>
         <option>높은가격순</option>
       </select>
@@ -846,6 +845,7 @@ function applyFilters() {
   const sortV = document.querySelector('.sort-select').value;
   if(sortV === '낮은가격순') result.sort((a,b) => (a.price||0) - (b.price||0));
   else if(sortV === '높은가격순') result.sort((a,b) => (b.price||0) - (a.price||0));
+  else if(sortV === '색상별순') result.sort((a,b) => (Array.isArray(b.colors)?b.colors.length:0) - (Array.isArray(a.colors)?a.colors.length:0));
 
   renderProducts(result);
   updateCount(result.length);
