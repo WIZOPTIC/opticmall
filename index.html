@@ -708,32 +708,41 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);" onclick="closeSignupPromo()"></div>
   <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:400px;max-width:90vw;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
     <div onclick="closeSignupPromo()" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;line-height:1;z-index:1;">✕</div>
-    <div style="background:#0B1F3A;padding:28px 28px 32px;text-align:center;">
-      <p style="font-size:12.5px;color:#5A9FE0;font-weight:700;margin:0 0 12px;letter-spacing:0.02em;">신규 회원 혜택</p>
-      <p style="font-size:20px;font-weight:700;color:#fff;margin:0 0 4px;line-height:1.35;">가입하면 즉시</p>
-      <p style="font-size:24px;font-weight:800;color:#C9A227;margin:0;line-height:1.35;">최대 25,000원 혜택</p>
+
+    <div style="background:#0B1F3A;padding:26px 24px 24px;text-align:center;">
+      <div style="display:inline-block;background:#C9A227;color:#0B1F3A;font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">✦ OPTICIAN ONLY · B2B 전용</div>
+      <p style="font-size:18px;font-weight:800;color:#fff;margin:0 0 4px;">안경원 사업자 등록증으로 가입하고</p>
+      <p style="font-size:22px;font-weight:800;color:#C9A227;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
     </div>
-    <div style="padding:20px 26px 4px;">
-      <div style="background:#FBF6E8;border:1.3px solid #C9A227;border-radius:10px;padding:14px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="display:inline-block;background:#C9A227;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:100px;margin-bottom:5px;letter-spacing:0.03em;">가장 빠른 혜택</div>
-          <div style="font-size:14px;font-weight:700;color:#0B1F3A;">안경원 사업자등록증만 있으면</div>
+
+    <div style="padding:20px 24px 4px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
+        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
+          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">첫 구매 할인</p>
+          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">10%</p>
         </div>
-        <span style="font-size:16px;font-weight:800;color:#0B1F3A;white-space:nowrap;margin-left:10px;">5분 가입</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 4px;border-bottom:1px solid #F0EFE9;">
-        <span style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;color:#0B1F3A;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;padding:2px 5px;border-radius:5px;background:#000;color:#FEE500;font-size:9px;font-weight:800;line-height:1;">Ch+</span>
-          카카오채널 추가
-        </span>
-        <span style="font-size:14.5px;font-weight:800;color:#0B1F3A;">10,000원 쿠폰</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 4px;">
-        <span style="font-size:13.5px;font-weight:800;color:#0B1F3A;">첫 구매 할인</span>
-        <span style="font-size:14.5px;font-weight:800;color:#0B1F3A;">10% 쿠폰</span>
+        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
+          <p style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;white-space:nowrap;">
+            카카오채널 추가
+            <svg width="15" height="15" viewBox="0 0 40 40" style="flex-shrink:0;">
+              <rect x="2" y="6" width="30" height="30" rx="8" fill="#FEE500"/>
+              <path d="M9 13 h16 a5 5 0 0 1 5 5 v6 a5 5 0 0 1 -5 5 h-10 l-6 5 v-5 h0 a5 5 0 0 1 -5 -5 v-6 a5 5 0 0 1 5 -5 z" fill="#1A1A1A"/>
+              <text x="17" y="26" font-family="Arial, sans-serif" font-size="11" font-weight="900" fill="#FEE500" text-anchor="middle">Ch</text>
+            </svg>
+          </p>
+          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">10,000원</p>
+        </div>
+        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
+          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">회원가입 쿠폰</p>
+          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">25,000원</p>
+        </div>
+        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
+          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">멤버십 등급별</p>
+          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">추가 혜택</p>
+        </div>
       </div>
     </div>
-    <div style="padding:16px 26px 24px;">
+    <div style="padding:16px 24px 24px;">
       <a href="join.html" style="display:block;background:#0B1F3A;color:#fff;font-size:15px;font-weight:700;padding:15px;border-radius:8px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기</a>
       <div onclick="snoozeSignupPromo()" style="text-align:center;font-size:12.5px;color:#9BA5B0;cursor:pointer;">오늘 하루 보지 않기</div>
     </div>
