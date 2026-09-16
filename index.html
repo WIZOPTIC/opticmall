@@ -254,7 +254,6 @@ header {
   width: 26px; height: 26px; border-radius: 6px; background: var(--navy); color: #fff;
   display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800;
 }
-.ers-card:nth-child(1) .ers-rank { background: var(--gold); color: var(--navy); }
 @media (max-width: 1100px) { .ers-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 640px) { .ers-grid { grid-template-columns: repeat(2, 1fr); } }
 
@@ -358,7 +357,11 @@ header {
   padding: 6px 14px; border-radius: 100px; letter-spacing: 0.02em;
 }
 .cat-badge-row .title { font-size: 24px; font-weight: 800; color: var(--navy); margin: 0; }
-.cat-badge-row .card-timer { margin-left: auto; }
+.cat-badge-row .card-timer { display: flex; align-items: center; gap: 10px; }
+.cat-badge-row .card-timer .ct-label { display: inline-block; font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 0; }
+.cat-badge-row .card-timer .ct-row { display: flex; align-items: center; gap: 5px; }
+.cat-badge-row .card-timer .ct-box { font-size: 22px; padding: 6px 10px; min-width: 40px; border-radius: 6px; }
+.cat-badge-row .card-timer .ct-colon { font-size: 20px; }
 
 .hero-split { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: stretch; margin-bottom: 36px; }
 .hero-split .left-photo {
@@ -664,12 +667,13 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <button id="loginSubmitBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#0B1F3A;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.05em;transition:background 0.15s;margin-bottom:10px;" onmouseover="this.style.background='#16305A'" onmouseout="this.style.background='#0B1F3A'">로그인</button>
       <a href="join.html" style="display:block;width:100%;box-sizing:border-box;padding:14px;background:#fff;color:#0B1F3A;border:1.5px solid #0B1F3A;border-radius:4px;font-size:13px;font-weight:700;font-family:inherit;text-align:center;text-decoration:none;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;" onmouseover="this.style.background='#f5f8fb'" onmouseout="this.style.background='#fff'">회원가입</a>
       <div id="loginError" style="display:none;font-size:11px;color:#FF4444;margin:12px 0 0;text-align:center;"></div>
-      <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:16px;">
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px;">
+        <span onclick="window.open('http://pf.kakao.com/_RWTxnX/chat','_blank')" style="font-size:11px;color:#999;cursor:pointer;text-decoration:underline;">아이디 찾기</span>
+        <span style="font-size:11px;color:#ddd;">|</span>
         <span onclick="openForgotPw()" style="font-size:11px;color:#999;cursor:pointer;text-decoration:underline;">비밀번호 찾기</span>
       </div>
       <div style="border-top:1px solid #f0f0f0;margin:20px 0 14px;"></div>
       <p style="font-size:11px;color:#bbb;line-height:1.9;">
-        안경사 면허 인증 회원만 로그인이 가능합니다.<br>
         아직 회원이 아니시라면 회원가입 후 이용해 주세요.
       </p>
     </div>
@@ -888,7 +892,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
 
     <section class="cat-section">
       <div class="cat-badge-row">
-        <p class="title">이벤트상품</p>
+        <p class="title">타임세일</p>
         <div class="card-timer">
           <span class="ct-label">타임세일 종료까지</span>
           <div class="ct-row">
