@@ -93,8 +93,8 @@ body{font-family:var(--font-body);background:var(--g1);color:var(--black);}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* 토스트 */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#fff;padding:14px 24px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:all 0.3s;z-index:2000;white-space:nowrap;}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);background:var(--navy);color:#fff;padding:18px 28px;border-radius:10px;font-size:14px;font-weight:700;opacity:0;transition:all 0.25s;z-index:2000;white-space:nowrap;box-shadow:0 12px 40px rgba(0,0,0,0.3);pointer-events:none;}
+.toast.show{transform:translate(-50%,-50%) scale(1);opacity:1;}
 .toast.success{background:var(--green);}
 .toast.error{background:var(--red);}
 
@@ -209,7 +209,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 <div class="steps-wrap">
   <div class="steps">
     <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">기본정보</div></div>
-    <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">안경사 인증</div></div>
+    <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">안경원 인증</div></div>
     <div class="step" id="step3"><div class="step-circle">3</div><div class="step-label">약관동의</div></div>
     <div class="step" id="step4"><div class="step-circle">4</div><div class="step-label">가입완료</div></div>
   </div>
@@ -263,7 +263,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
   <!-- 주소 -->
   <div class="card">
-    <div class="card-title">주소</div>
+    <div class="card-title">배송받으실 주소</div>
     <div class="card-sub">배송 및 영업 담당 배정에 사용됩니다.</div>
     <div class="form-group">
       <label class="form-label">우편번호 <span class="req">*</span></label>
@@ -284,18 +284,18 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
   <!-- 인증 카드: 안경원 -->
   <div class="card" id="card-optician">
-    <div class="card-title">안경사 인증</div>
-    <div class="card-sub">도매가 확인 및 주문을 위해 안경사 인증이 필요합니다.</div>
+    <div class="card-title">안경원 인증</div>
+    <div class="card-sub">도매가 확인 및 주문을 위해 안경원 인증이 필요합니다.</div>
 
     <div class="info-box">
-      <p><strong><i class=ic-clipboard></i> 안경사 인증 안내</strong><br>
+      <p><strong><i class=ic-clipboard></i> 안경원 인증 안내</strong><br>
       사업자등록증을 업로드하시면 관리자 확인 후<br>
       1영업일 이내 도매가 및 주문 기능이 활성화됩니다.</p>
     </div>
 
     <div class="form-group">
-      <label class="form-label">안경원명 <span class="req">*</span></label>
-      <input class="form-input" type="text" placeholder="밝은안경원" id="storeName">
+      <label class="form-label">안경원 상호 <span class="req">*</span></label>
+      <input class="form-input" type="text" placeholder="" id="storeName">
     </div>
 
     <div class="form-row">
@@ -308,14 +308,9 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
         <div class="form-hint" id="biz-hint"></div>
       </div>
       <div class="form-group">
-        <label class="form-label">안경사 면허번호 <span class="req">*</span></label>
-        <input class="form-input" type="text" placeholder="면허번호 입력" id="licenseNo">
+        <label class="form-label">안경원 전화번호 <span class="req">*</span></label>
+        <input class="form-input" type="tel" placeholder="032-000-0000" id="storePhone">
       </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">안경원 전화번호</label>
-      <input class="form-input" type="tel" placeholder="032-000-0000" id="storePhone">
     </div>
 
     <!-- 사업자등록증 업로드 -->
@@ -356,7 +351,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   </div>
 
   <button class="btn-submit" id="submitBtn" onclick="submitForm()">회원가입 신청하기</button>
-  <div class="login-link">이미 회원이신가요? <a href="#" onclick="location.href='index.html'">로그인</a></div>
+  <div class="login-link">이미 회원이신가요? <a href="#" onclick="location.href='index.html?openLogin=1'">로그인</a></div>
 
 </div>
 
@@ -570,7 +565,7 @@ async function submitForm() {
   const addr2 = document.getElementById('addr2').value;
   const storeName = document.getElementById('storeName').value.trim();
   const bizNo = document.getElementById('bizNo').value.trim();
-  const licenseNo = document.getElementById('licenseNo').value.trim();
+  const storePhone = document.getElementById('storePhone').value.trim();
 
   // 유효성 검사
   if (!name) { showToast('이름을 입력해주세요.', 'error'); return; }
@@ -580,9 +575,9 @@ async function submitForm() {
   if (pw !== pw2) { showToast('비밀번호가 일치하지 않습니다.', 'error'); return; }
   if (!phone) { showToast('휴대폰 번호를 입력해주세요.', 'error'); return; }
   if (!addr1) { showToast('주소를 검색해주세요.', 'error'); return; }
-  if (!storeName) { showToast('안경원명을 입력해주세요.', 'error'); return; }
+  if (!storeName) { showToast('안경원 상호를 입력해주세요.', 'error'); return; }
   if (!bizNo) { showToast('사업자등록번호를 입력해주세요.', 'error'); return; }
-  if (!licenseNo) { showToast('면허번호를 입력해주세요.', 'error'); return; }
+  if (!storePhone) { showToast('안경원 전화번호를 입력해주세요.', 'error'); return; }
   if (!bizFileObj) { showToast('사업자등록증을 업로드해주세요.', 'error'); return; }
   if (!document.getElementById('chk1').classList.contains('checked') ||
       !document.getElementById('chk2').classList.contains('checked') ||
@@ -610,8 +605,7 @@ async function submitForm() {
       uid, name, email, phone,
       birth: document.getElementById('birth').value,
       address: { zipcode, addr1, addr2 },
-      storeName, bizNo, licenseNo,
-      storePhone: document.getElementById('storePhone').value.trim(),
+      storeName, bizNo, storePhone,
       bizDocUrl: fileUrl,
       role: 'optician',
       member_level: 1,  // 1 = 승인 대기
