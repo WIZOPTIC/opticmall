@@ -120,7 +120,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .event-product-img{aspect-ratio:1/1;background:var(--g1);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;}
 .event-product-img img{width:100%;height:100%;object-fit:cover;}
 .event-product-name{font-size:12.5px;font-weight:600;color:var(--navy);margin-top:8px;}
-.event-product-price{font-size:13px;font-weight:800;color:var(--navy);margin-top:2px;}
+.event-product-price{font-size:14px;font-weight:800;color:var(--navy);margin-top:2px;}
 .event-product-price .orig{font-size:11px;color:var(--g3);text-decoration:line-through;font-weight:500;margin-right:5px;}
 .event-more-count{font-size:12px;color:var(--g3);text-align:center;padding-top:14px;}
 
@@ -239,10 +239,10 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div style="position:relative;margin-left:8px;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
         <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
-          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
-          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
-          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
-          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">마이페이지</a>
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">관심상품</a>
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
         </div>
       </div>
       <button class="icon-btn" onclick="location.href='mypage.html?tab=wish'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></button>
@@ -344,23 +344,23 @@ function updateHeaderLoggedIn(name, level, role) {
   if(topbarWelcome) topbarWelcome.innerHTML = name + '님 환영합니다!' + levelBadge;
   let adminLinkHtml = '';
   if(role === 'brand') {
-    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
   } else if(role === 'master' || role === 'submaster') {
-    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:13px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;"><i class=ic-settings></i>️ 관리자 모드</a>`;
   }
   const dropdown = document.getElementById('userDropdown');
   if(dropdown) {
     dropdown.innerHTML = `
       <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
-        <div style="font-size:13px;font-weight:700;color:#0B1F3A;">${name}님</div>
+        <div style="font-size:14px;font-weight:700;color:#0B1F3A;">${name}님</div>
         <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
       </div>
       ${adminLinkHtml}
-      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">마이페이지</a>
-      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
-      <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">관심상품</a>
-      <a href="mypage.html?tab=recent" style="display:block;padding:13px 20px;font-size:13px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
-      <a href="#" onclick="_auth.signOut();location.reload();" style="display:block;padding:13px 20px;font-size:13px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">마이페이지</a>
+      <a href="mypage.html" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+      <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">관심상품</a>
+      <a href="mypage.html?tab=recent" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
+      <a href="#" onclick="_auth.signOut();location.reload();" style="display:block;padding:13px 20px;font-size:14px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
   }
 }
 
@@ -466,7 +466,7 @@ function renderEvents(keyword) {
   const kw = (keyword || '').trim().toLowerCase();
 
   if(allPromos.length === 0) {
-    area.innerHTML = `<div class="empty-box"><div class="big"><i class=ic-party></i></div>지금 진행중인 이벤트가 없어요.<br><span style="font-size:13px;">조금만 기다려주세요, 곧 새로운 이벤트가 올라올 예정이에요!</span></div>`;
+    area.innerHTML = `<div class="empty-box"><div class="big"><i class=ic-party></i></div>지금 진행중인 이벤트가 없어요.<br><span style="font-size:14px;">조금만 기다려주세요, 곧 새로운 이벤트가 올라올 예정이에요!</span></div>`;
     return;
   }
 
@@ -513,7 +513,7 @@ function renderEvents(keyword) {
         }).join('')}
       </div>
       ${moreCount > 0 ? `<div class="event-more-count">외 ${moreCount}개 상품 더보기 →</div>` : ''}
-    ` : `<div style="text-align:center;color:var(--g3);font-size:13px;padding:20px 0;">적용 상품 정보를 불러올 수 없어요.</div>`;
+    ` : `<div style="text-align:center;color:var(--g3);font-size:14px;padding:20px 0;">적용 상품 정보를 불러올 수 없어요.</div>`;
 
     return `
       <div class="event-block">
