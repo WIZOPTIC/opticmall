@@ -24,7 +24,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
   color: var(--g4); transition: all 0.15s; position: relative;
 }
 .icon-btn:hover { background: var(--g1); color: var(--navy); }
-.cart-count{position:absolute;top:2px;right:2px;background:var(--sky);color:#fff;font-size:9px;font-weight:700;border-radius:100px;padding:1px 4px;min-width:15px;text-align:center;display:flex;align-items:center;justify-content:center;}
+.cart-count{position:absolute;top:2px;right:2px;background:#FF7A1A;color:#fff;font-size:9px;font-weight:700;border-radius:100px;padding:1px 4px;min-width:15px;text-align:center;display:flex;align-items:center;justify-content:center;}
 
 /* GNB */
 .gnb-inner{display:flex;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
@@ -484,6 +484,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="menu-item" onclick="showSection('wish',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 000-7.6z"/></svg>관심상품</div>
       <div class="menu-item" onclick="showSection('recent',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>최근 본 상품</div>
       <div class="menu-item" onclick="showSection('points',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>적립금</div>
+      <div class="menu-item" onclick="showSection('coupons',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M2 7h20v5H2zM12 7v14"/></svg>쿠폰함</div>
       <div class="menu-item" onclick="showSection('restock',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>재입고 알림</div>
       <div class="menu-item" onclick="showSection('profile',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>회원 정보 수정</div>
       <div class="menu-item" onclick="showSection('biz',this)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18"/><line x1="9" y1="7" x2="9" y2="7.01"/><line x1="15" y1="7" x2="15" y2="7.01"/><line x1="9" y1="11" x2="9" y2="11.01"/><line x1="15" y1="11" x2="15" y2="11.01"/><line x1="9" y1="15" x2="9" y2="15.01"/><line x1="15" y1="15" x2="15" y2="15.01"/><line x1="10" y1="21" x2="14" y2="21"/></svg>사업자 정보</div>
@@ -551,6 +552,17 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       </div>
       <div class="section-title" style="font-size:14px;">적립/사용 내역</div>
       <div id="pointsLedgerList"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
+    </div>
+
+    <div id="section-coupons" style="display:none;">
+      <div class="section-title">쿠폰함</div>
+      <div style="font-size:12px;color:var(--g3);margin-bottom:20px;">쿠폰 사용에 대해 궁금하신 사항이 있으면 각 쿠폰의 <span style="text-decoration:underline;">쿠폰 세부 정보</span>를 확인해주세요.</div>
+
+      <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:10px;">사용 가능</div>
+      <div id="couponAvailableList" style="margin-bottom:28px;"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
+
+      <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:10px;">사용 완료 · 만료</div>
+      <div id="couponUsedList"></div>
     </div>
 
     <div id="section-restock" style="display:none;">
@@ -789,7 +801,7 @@ let currentMypageSection = 'orders';
 
 function showSection(name, el) {
   currentMypageSection = name;
-  ['orders','wish','recent','restock','profile','biz','address','points'].forEach(s => {
+  ['orders','wish','recent','restock','profile','biz','address','points','coupons'].forEach(s => {
     const sec = document.getElementById('section-'+s);
     if(sec) sec.style.display = s===name ? 'block' : 'none';
   });
@@ -801,6 +813,7 @@ function showSection(name, el) {
   if(name === 'restock') loadRestockAlerts();
   if(name === 'address') loadAddresses();
   if(name === 'points') loadPointsSection();
+  if(name === 'coupons') loadCouponsSection();
 }
 
 // 다른 탭에서 장바구니/찜 등을 변경하고 이 탭으로 돌아왔을 때 자동으로 최신 데이터를 다시 불러옴
@@ -844,6 +857,90 @@ async function loadPointsSection() {
     listEl.innerHTML = '<div class="empty-box" style="color:var(--red);">내역을 불러오지 못했습니다.</div>';
   }
 }
+
+async function loadCouponsSection() {
+  const availEl = document.getElementById('couponAvailableList');
+  const usedEl = document.getElementById('couponUsedList');
+  availEl.innerHTML = '<div class="loading-box"><div class="spinner"></div>불러오는 중...</div>';
+  usedEl.innerHTML = '';
+  try {
+    const snap = await _db.collection('users').doc(currentUser.uid)
+      .collection('coupons').orderBy('issuedAt', 'desc').get();
+    if(snap.empty) {
+      availEl.innerHTML = '<div class="empty-box">보유 중인 쿠폰이 없어요.</div>';
+      return;
+    }
+    const now = new Date();
+    const available = [];
+    const usedOrExpired = [];
+    snap.forEach(doc => {
+      const c = { id: doc.id, ...doc.data() };
+      const expiresAt = c.expiresAt?.toDate ? c.expiresAt.toDate() : (c.expiresAt ? new Date(c.expiresAt) : null);
+      c._expiresAtDate = expiresAt;
+      const isExpired = expiresAt && expiresAt < now;
+      if(c.used || isExpired) usedOrExpired.push({...c, _expired: isExpired && !c.used});
+      else available.push(c);
+    });
+
+    window._couponCache = {};
+    [...available, ...usedOrExpired].forEach(c => window._couponCache[c.id] = c);
+
+    availEl.innerHTML = available.length === 0
+      ? '<div class="empty-box">사용 가능한 쿠폰이 없어요.</div>'
+      : available.map(c => renderCouponCard(c, false)).join('');
+
+    usedEl.innerHTML = usedOrExpired.length === 0
+      ? '<div class="empty-box">사용 완료·만료된 쿠폰이 없어요.</div>'
+      : usedOrExpired.map(c => renderCouponCard(c, true)).join('');
+  } catch(e) {
+    console.error(e);
+    availEl.innerHTML = '<div class="empty-box" style="color:var(--red);">쿠폰 목록을 불러오지 못했습니다.</div>';
+  }
+}
+
+function couponValueLabel(c) {
+  if(c.type === 'fixed') return `₩${Number(c.value||0).toLocaleString()} 할인`;
+  if(c.maxDiscountAmount != null) return `최대 ₩${Number(c.maxDiscountAmount).toLocaleString()} 할인 (${c.value}%)`;
+  return `${c.value}% 할인`;
+}
+function formatDateShort(d) {
+  if(!d) return '';
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+}
+
+function renderCouponCard(c, isPast) {
+  const statusLabel = c.used ? '사용완료' : (c._expired ? '기간만료' : '');
+  return `
+    <div style="border:1px solid var(--g2);border-radius:10px;padding:20px;margin-bottom:12px;${isPast ? 'opacity:0.55;' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--navy);">${couponValueLabel(c)}</div>
+          <div style="font-size:12px;color:var(--g3);margin-top:8px;">
+            ${c._expiresAtDate ? formatDateShort(c._expiresAtDate) + '에 만료. ' : ''}구매금액 ₩${Number(c.minOrderAmount||0).toLocaleString()} 이상(배송비 별도).
+            <span onclick="showCouponDetail('${c.id}')" style="text-decoration:underline;cursor:pointer;color:var(--black);">쿠폰 세부 정보</span>
+          </div>
+        </div>
+        ${statusLabel ? `<span style="font-size:11px;font-weight:700;color:var(--g3);background:var(--g1);padding:3px 10px;border-radius:100px;white-space:nowrap;margin-left:12px;">${statusLabel}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function showCouponDetail(couponId) {
+  const c = window._couponCache?.[couponId];
+  if(!c) return;
+  const rules = [];
+  rules.push(`구매금액 ₩${Number(c.minOrderAmount||0).toLocaleString()} 이상 시 ${couponValueLabel(c)}`);
+  rules.push('전 상품에 사용 가능 (배송비 제외 상품 금액 기준)');
+  if(c._expiresAtDate) rules.push(`사용기한: ${formatDateShort(c._expiresAtDate)}까지`);
+  rules.push('1회 사용 가능하며, 주문 1건당 쿠폰 1장만 적용할 수 있어요');
+  if(c.firstPurchaseOnly) rules.push('신규가입 혜택으로 지급된 쿠폰이에요');
+  document.getElementById('couponDetailBody').innerHTML = rules.map(r => `<div style="padding:10px 0;border-bottom:1px solid var(--g1);font-size:13px;color:var(--g4);line-height:1.6;">· ${r}</div>`).join('');
+  document.getElementById('couponDetailOverlay').style.display = 'block';
+}
+function closeCouponDetail() {
+  document.getElementById('couponDetailOverlay').style.display = 'none';
+}
+
 
 function formatDate(ts) {
   if(!ts) return '-';
@@ -2219,6 +2316,18 @@ async function removeRestockAlert(productId) {
       <button class="track-modal-close" onclick="closeTrackModal()">✕</button>
     </div>
     <div class="track-modal-body" id="trackModalBody"></div>
+  </div>
+</div>
+
+<!-- 쿠폰 세부 정보 팝업 -->
+<div id="couponDetailOverlay" style="display:none;position:fixed;inset:0;z-index:900;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeCouponDetail()"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:420px;max-width:90vw;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div style="padding:22px 24px 8px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:16px;font-weight:800;color:var(--navy);">쿠폰 세부 정보</span>
+      <span onclick="closeCouponDetail()" style="cursor:pointer;color:var(--g3);font-size:14px;">✕</span>
+    </div>
+    <div id="couponDetailBody" style="padding:8px 24px 22px;"></div>
   </div>
 </div>
 
