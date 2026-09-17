@@ -360,10 +360,10 @@ header {
 }
 .cat-badge-row .title { font-size: 24px; font-weight: 800; color: var(--navy); margin: 0; }
 .cat-badge-row .card-timer { display: flex; align-items: center; }
-.ts-pill { display: inline-flex; align-items: center; gap: 6px; background: #1C1B29; padding: 7px 16px; border-radius: 100px; }
+.ts-pill { display: inline-flex; align-items: center; gap: 8px; background: none; padding: 0; border-radius: 0; }
 .ts-pill .ts-clock { color: var(--red); flex-shrink: 0; }
-.ts-pill .ts-time { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14px; color: var(--red); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
-.ts-pill .ts-suffix { font-size: 14px; font-weight: 600; color: #EDEDED; }
+.ts-pill .ts-time { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 18px; color: var(--red); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.ts-pill .ts-suffix { font-size: 13px; font-weight: 500; color: var(--g3); }
 
 .hero-split { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: stretch; margin-bottom: 36px; }
 .hero-split .left-photo {
@@ -907,7 +907,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
         <p class="title">타임세일</p>
         <div class="card-timer">
           <div class="ts-pill">
-            <svg class="ts-clock" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <svg class="ts-clock" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
             <span class="ts-time"><span id="timer-h">00</span>:<span id="timer-m">00</span>:<span id="timer-s">00</span></span>
             <span class="ts-suffix">후 마감</span>
           </div>
