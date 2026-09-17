@@ -483,7 +483,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const firebaseConfig = {
@@ -510,6 +510,9 @@ window._doc = doc;
 window._setDoc = setDoc;
 window._addDoc = addDoc;
 window._collection = collection;
+window._getDocs = getDocs;
+window._query = query;
+window._where = where;
 window._serverTimestamp = serverTimestamp;
 window._ref = ref;
 window._uploadBytes = uploadBytes;
@@ -781,6 +784,16 @@ async function submitForm() {
     const userCred = await window._createUser(window._auth, email, pw);
     const uid = userCred.user.uid;
 
+    // 사업자등록번호 정규화 (하이픈 제거) 후, 동일 사업자번호로 이미 가입된 계정이 있는지 확인
+    // → 한 사업자당 신규가입 쿠폰은 최초 1회만 지급 (직원 여러 명이 같은 사업자등록증으로 중복가입해도 쿠폰 중복 방지)
+    const bizNoNormalized = bizNo.replace(/-/g, '');
+    let isDuplicateBiz = false;
+    try {
+      const dupQuery = window._query(window._collection(window._db, 'users'), window._where('bizNoNormalized', '==', bizNoNormalized));
+      const dupSnap = await window._getDocs(dupQuery);
+      isDuplicateBiz = !dupSnap.empty;
+    } catch(e) { console.error('사업자번호 중복 확인 실패:', e); }
+
     // 2. 사업자등록증 Storage 업로드
     const fileRef = window._ref(window._storage, `business_docs/${uid}/${bizFileObj.name}`);
     await window._uploadBytes(fileRef, bizFileObj);
@@ -792,7 +805,7 @@ async function submitForm() {
       uid, name, email, phone,
       birth: document.getElementById('birth').value,
       address: { zipcode, addr1, addr2 },
-      storeName, bizNo, storePhone,
+      storeName, bizNo, bizNoNormalized, storePhone,
       bizDocUrl: fileUrl,
       role: 'optician',
       member_level: 1,  // 1 = 승인 대기
@@ -812,6 +825,42 @@ async function submitForm() {
         isDefault: true,
         createdAt: window._serverTimestamp()
       });
+    }
+
+    // 신규가입 쿠폰 자동 지급 (사업자번호당 최초 1회만 — 중복 사업자면 지급하지 않음)
+    if (!isDuplicateBiz) {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000); // 발급일로부터 3개월(90일)
+      try {
+        await window._addDoc(window._collection(window._db, 'users', uid, 'coupons'), {
+          name: '회원가입 쿠폰',
+          type: 'fixed',
+          value: 25000,
+          minOrderAmount: 300000,
+          maxDiscountAmount: null,
+          used: false,
+          usedAt: null,
+          usedOrderId: null,
+          firstPurchaseOnly: false,
+          source: 'signup_bonus',
+          issuedAt: window._serverTimestamp(),
+          expiresAt: expiresAt
+        });
+        await window._addDoc(window._collection(window._db, 'users', uid, 'coupons'), {
+          name: '첫 구매 10% 할인 쿠폰',
+          type: 'percent',
+          value: 10,
+          minOrderAmount: 200000,
+          maxDiscountAmount: 20000,
+          used: false,
+          usedAt: null,
+          usedOrderId: null,
+          firstPurchaseOnly: true,
+          source: 'signup_bonus',
+          issuedAt: window._serverTimestamp(),
+          expiresAt: expiresAt
+        });
+      } catch(e) { console.error('쿠폰 자동 지급 실패:', e); }
     }
 
     // 4. 완료!

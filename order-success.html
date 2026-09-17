@@ -423,6 +423,26 @@ async function deductUsedPoints(userId, orderId, pointsUsed) {
   }
 }
 
+async function consumeCoupon(userId, orderId, couponId) {
+  if(!couponId) return;
+  const couponRef = _db.collection('users').doc(userId).collection('coupons').doc(couponId);
+  try {
+    await _db.runTransaction(async (tx) => {
+      const couponSnap = await tx.get(couponRef);
+      if(!couponSnap.exists) return; // 쿠폰이 이미 삭제된 경우 등 — 조용히 무시
+      const couponData = couponSnap.data();
+      if(couponData.used) return; // 이미 다른 주문(예: 중복 탭)에서 사용 처리됨 — 재처리 방지
+      tx.update(couponRef, {
+        used: true,
+        usedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        usedOrderId: orderId
+      });
+    });
+  } catch(e) {
+    console.error('쿠폰 사용 처리 실패:', e);
+  }
+}
+
 async function updateUserPurchaseLevel(userId, orderAmount) {
   const userRef = _db.collection('users').doc(userId);
   try {
@@ -499,6 +519,12 @@ async function handleSuccess() {
 
     // 이번 결제에서 사용한 적립금이 있으면 회원 잔액에서 차감
     await deductUsedPoints(order.userId, orderId, Number(order.pointsUsed) || 0);
+
+    // 이번 결제에서 사용한 쿠폰이 있으면 사용 처리 (트랜잭션으로 중복사용 방지)
+    if(order.couponId && !order.couponConsumed) {
+      await consumeCoupon(order.userId, orderId, order.couponId);
+      await orderRef.update({ couponConsumed: true });
+    }
 
     document.getElementById('rOrderId').textContent = orderId;
     document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
