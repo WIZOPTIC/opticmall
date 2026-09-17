@@ -72,19 +72,21 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .cart-header{background:var(--white);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:12px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .cart-header label{font-size:14px;font-weight:600;color:var(--navy);}
 .cart-item{background:var(--white);border-radius:10px;padding:20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.item-img{width:80px;height:80px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;overflow:hidden;}
+.item-img{width:96px;height:74px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;overflow:hidden;}
 .item-img.no-img{opacity:0.15;}
-.item-img img{width:100%;height:100%;object-fit:cover;}
+.item-img img{width:100%;height:100%;object-fit:contain;}
 .item-info{flex:1;}
-.item-cat{font-family:var(--font-serif);font-style:italic;font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px;}
 .item-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
 .item-option{font-size:12px;color:var(--g3);}
-.item-qty{display:flex;align-items:center;border:1.5px solid var(--g2);border-radius:6px;overflow:hidden;}
+.item-qty{display:flex;align-items:center;border:1.5px solid var(--g2);border-radius:6px;overflow:hidden;flex-shrink:0;}
 .qty-btn{width:32px;height:32px;border:none;background:var(--g1);font-size:16px;cursor:pointer;}
 .qty-btn:hover{background:var(--g2);}
 .qty-val{width:40px;height:32px;border:none;text-align:center;font-size:14px;font-weight:700;font-family:inherit;outline:none;-moz-appearance:textfield;}
 .qty-val::-webkit-outer-spin-button,.qty-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-.item-price{font-family:'Inter',sans-serif;font-size:17px;font-weight:800;color:var(--navy);text-align:right;min-width:80px;}
+.item-price{font-family:'Inter',sans-serif;text-align:right;width:120px;flex-shrink:0;}
+.item-price-orig{font-size:12px;color:var(--g3);text-decoration:line-through;font-weight:400;height:16px;line-height:16px;}
+.item-price-final{font-size:17px;font-weight:800;color:var(--navy);line-height:1.3;}
+.item-price-pct{font-size:12px;color:var(--red);font-weight:700;margin-right:3px;}
 .item-locked{font-size:12px;color:var(--g3);min-width:80px;text-align:right;}
 .item-del{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--g3);font-size:18px;margin-left:4px;}
 .item-del:hover{color:var(--red);}
@@ -108,7 +110,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .btn-order{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:4px;}
 .btn-order:hover{background:var(--sky-dk);transform:translateY(-1px);}
 .btn-order:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
-.btn-continue{width:100%;padding:12px;background:var(--white);color:var(--navy);border:2px solid var(--navy);border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:8px;}
+.btn-continue{width:100%;padding:16px;background:var(--white);color:var(--navy);border:2px solid var(--navy);border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;transition:all 0.2s;}
 .btn-continue:hover{background:var(--navy);color:var(--white);}
 
 /* 하단 네비 */
@@ -503,7 +505,7 @@ function renderCart() {
     const isDiscounted = unitPrice < originalUnitPrice;
     const discountRate = Number(p.discountRate) || 0;
     const priceHtml = memberLevel >= 2
-      ? `<div class="item-price" id="price-${item.cartItemId}">${isDiscounted ? `<div style="font-size:12px;color:var(--g3);text-decoration:line-through;font-weight:400;">₩${(originalUnitPrice*item.qty).toLocaleString()}</div>` : ''}<div>${isDiscounted ? `<span style="font-size:12px;color:var(--red);font-weight:700;margin-right:3px;">${discountRate}%</span>` : ''}₩${(unitPrice*item.qty).toLocaleString()}</div></div>`
+      ? `<div class="item-price" id="price-${item.cartItemId}"><div class="item-price-orig">${isDiscounted ? `₩${(originalUnitPrice*item.qty).toLocaleString()}` : '&nbsp;'}</div><div class="item-price-final">${isDiscounted ? `<span class="item-price-pct">${discountRate}%</span>` : ''}₩${(unitPrice*item.qty).toLocaleString()}</div></div>`
       : `<div class="item-locked"><i class=ic-lock></i> 로그인 필요</div>`;
 
     return `
@@ -511,7 +513,6 @@ function renderCart() {
         <input type="checkbox" class="item-check" data-id="${item.cartItemId}" ${item.selected ? 'checked' : ''} ${isSoldOut ? 'disabled' : ''} onchange="onItemCheckChange()" style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
         <div class="item-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
         <div class="item-info">
-          <div class="item-cat">${p.type || p.brandName || '안경테'}</div>
           <div class="item-name">${p.modelName||'-'}${isSoldOut ? `<span class="soldout-badge">품절</span>` : ''}</div>
           ${item.selectedColor ? `<div style="font-size:12px;color:var(--g3);margin-bottom:4px;">색상: ${item.selectedColor}${p.colors?.[colorIdxForImg]?.colorCode ? ` (${p.colors[colorIdxForImg].colorCode})` : ''}</div>` : ''}
           <div class="item-option">코드: ${p.colors?.[colorIdxForImg]?.barcode || p.barcode || '-'}</div>
