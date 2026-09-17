@@ -26,7 +26,19 @@ body{font-family:var(--font-body);background:var(--g1);color:var(--black);}
 .step-label{font-size:11px;color:var(--g3);}
 .step.active .step-label{color:var(--sky);font-weight:700;}
 .main{max-width:640px;margin:32px auto;padding:0 16px 60px;}
-.card{background:var(--white);border-radius:12px;padding:28px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.section{margin-bottom:40px;}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.section-title{font-size:16px;font-weight:800;color:var(--navy);}
+.section-required{font-size:11px;color:var(--g3);white-space:nowrap;}
+.section-required .dot{color:var(--red);}
+.section-sub{font-size:12px;color:var(--g3);margin-bottom:16px;line-height:1.6;}
+.field-list{border-top:1px solid var(--g2);}
+.field-row{display:flex;align-items:flex-start;padding:16px 4px;border-bottom:1px solid var(--g2);}
+.field-label{width:150px;flex-shrink:0;font-size:13px;color:var(--black);padding-top:11px;}
+.field-label .dot{color:var(--red);margin-right:3px;}
+.field-body{flex:1;min-width:0;}
+.field-body .form-input{max-width:360px;}
+.field-body .input-btn-row{max-width:420px;}
 .card-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px;}
 .card-sub{font-size:12px;color:var(--g3);margin-bottom:20px;line-height:1.6;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -205,87 +217,64 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   <a href="index.html" class="logo">Opticmall</a>
 </header>
 
-<!-- 진행 단계 -->
-<div class="steps-wrap">
-  <div class="steps">
-    <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">기본정보</div></div>
-    <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">안경원 인증</div></div>
-    <div class="step" id="step3"><div class="step-circle">3</div><div class="step-label">약관동의</div></div>
-    <div class="step" id="step4"><div class="step-circle">4</div><div class="step-label">가입완료</div></div>
-  </div>
-</div>
-
 <div class="main">
 
   <!-- 기본 회원정보 -->
-  <div class="card">
-    <div class="card-title">기본 회원정보</div>
-    <div class="card-sub">로그인 및 주문에 사용되는 기본 정보를 입력해주세요.</div>
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">기본 회원정보</div>
+      <div class="section-required"><span class="dot">•</span> 필수입력사항</div>
+    </div>
+    <div class="section-sub">로그인 및 주문에 사용되는 기본 정보를 입력해주세요.</div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">이름 <span class="req">*</span></label>
-        <input class="form-input" type="text" placeholder="홍길동" id="name">
+    <div class="field-list">
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>이름</div>
+        <div class="field-body"><input class="form-input" type="text" placeholder="홍길동" id="name"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">생년월일</label>
-        <input class="form-input" type="text" placeholder="19800101" id="birth">
+      <div class="field-row">
+        <div class="field-label">생년월일</div>
+        <div class="field-body"><input class="form-input" type="text" placeholder="19800101" id="birth"></div>
       </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">이메일 (아이디) <span class="req">*</span></label>
-      <div class="input-btn-row">
-        <input class="form-input" type="email" placeholder="example@email.com" id="email">
-        <button class="btn-check" id="emailCheckBtn" onclick="checkEmail()">중복확인</button>
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>이메일 (아이디)</div>
+        <div class="field-body">
+          <div class="input-btn-row">
+            <input class="form-input" type="email" placeholder="example@email.com" id="email">
+            <button class="btn-check" id="emailCheckBtn" onclick="checkEmail()">중복확인</button>
+          </div>
+          <div class="form-hint" id="email-hint"></div>
+        </div>
       </div>
-      <div class="form-hint" id="email-hint"></div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">비밀번호 <span class="req">*</span></label>
-      <input class="form-input" type="password" placeholder="8자 이상, 영문+숫자+특수문자" id="pw" oninput="checkPw()">
-      <div class="pw-strength"><div class="pw-bar" id="pw-bar1"></div><div class="pw-bar" id="pw-bar2"></div><div class="pw-bar" id="pw-bar3"></div></div>
-      <div class="form-hint" id="pw-hint"></div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">비밀번호 확인 <span class="req">*</span></label>
-      <input class="form-input" type="password" placeholder="비밀번호 재입력" id="pw2" oninput="checkPw2()">
-      <div class="form-hint" id="pw2-hint"></div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">휴대폰 번호 <span class="req">*</span></label>
-      <input class="form-input" type="tel" placeholder="010-0000-0000" id="phone">
-    </div>
-  </div>
-
-  <!-- 주소 -->
-  <div class="card">
-    <div class="card-title">배송받으실 주소</div>
-    <div class="card-sub">배송 및 영업 담당 배정에 사용됩니다.</div>
-    <div class="form-group">
-      <label class="form-label">우편번호 <span class="req">*</span></label>
-      <div class="input-btn-row">
-        <input class="form-input" type="text" placeholder="우편번호" id="zipcode" readonly style="max-width:160px;">
-        <button class="btn-check" onclick="searchAddr()">주소 검색</button>
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>비밀번호</div>
+        <div class="field-body">
+          <input class="form-input" type="password" placeholder="8자 이상, 영문+숫자+특수문자" id="pw" oninput="checkPw()">
+          <div class="pw-strength"><div class="pw-bar" id="pw-bar1"></div><div class="pw-bar" id="pw-bar2"></div><div class="pw-bar" id="pw-bar3"></div></div>
+          <div class="form-hint" id="pw-hint"></div>
+        </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">기본 주소 <span class="req">*</span></label>
-      <input class="form-input" type="text" placeholder="주소 검색 후 자동입력" id="addr1" readonly>
-    </div>
-    <div class="form-group">
-      <label class="form-label">상세 주소</label>
-      <input class="form-input" type="text" placeholder="상세 주소 입력" id="addr2">
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>비밀번호 확인</div>
+        <div class="field-body">
+          <input class="form-input" type="password" placeholder="비밀번호 재입력" id="pw2" oninput="checkPw2()">
+          <div class="form-hint" id="pw2-hint"></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>휴대폰 번호</div>
+        <div class="field-body"><input class="form-input" type="tel" placeholder="010-0000-0000" id="phone"></div>
+      </div>
     </div>
   </div>
 
   <!-- 인증 카드: 안경원 -->
-  <div class="card" id="card-optician">
-    <div class="card-title">안경원 인증</div>
-    <div class="card-sub">도매가 확인 및 주문을 위해 안경원 인증이 필요합니다.</div>
+  <div class="section" id="card-optician">
+    <div class="section-head">
+      <div class="section-title">안경원 인증</div>
+      <div class="section-required"><span class="dot">•</span> 필수입력사항</div>
+    </div>
+    <div class="section-sub">도매가 확인 및 주문을 위해 안경원 인증이 필요합니다.</div>
 
     <div class="info-box">
       <p><strong><i class=ic-clipboard></i> 안경원 인증 안내</strong><br>
@@ -293,42 +282,62 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       1영업일 이내 도매가 및 주문 기능이 활성화됩니다.</p>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">안경원 상호 <span class="req">*</span></label>
-      <input class="form-input" type="text" placeholder="" id="storeName">
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">사업자등록번호 <span class="req">*</span></label>
-        <div class="input-btn-row" style="flex-wrap:nowrap;">
-          <input class="form-input" type="text" placeholder="000-00-00000" id="bizNo" style="min-width:0;">
-          <button class="btn-check" id="bizCheckBtn" onclick="checkBizNo()" style="flex-shrink:0;">조회</button>
+    <div class="field-list">
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>사업자등록번호</div>
+        <div class="field-body">
+          <div class="input-btn-row" style="flex-wrap:nowrap;">
+            <input class="form-input" type="text" placeholder="000-00-00000" id="bizNo" style="min-width:0;">
+            <button class="btn-check" id="bizCheckBtn" onclick="checkBizNo()" style="flex-shrink:0;">조회</button>
+          </div>
+          <div class="form-hint" id="biz-hint"></div>
         </div>
-        <div class="form-hint" id="biz-hint"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">안경원 전화번호 <span class="req">*</span></label>
-        <input class="form-input" type="tel" placeholder="032-000-0000" id="storePhone">
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>안경원 상호</div>
+        <div class="field-body"><input class="form-input" type="text" placeholder="" id="storeName"></div>
       </div>
-    </div>
-
-    <!-- 사업자등록증 업로드 -->
-    <div class="form-group">
-      <label class="form-label">사업자등록증 <span class="req">*</span></label>
-      <div class="upload-box" id="biz-box" onclick="document.getElementById('biz-file').click()">
-        <div class="upload-icon"><i class=ic-file></i></div>
-        <div class="upload-text">클릭하여 <strong>사업자등록증</strong> 업로드</div>
-        <div class="upload-text" style="font-size:11px;margin-top:4px;">JPG, PNG, PDF · 최대 10MB</div>
-        <div class="upload-filename" id="biz-filename"></div>
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>안경원 전화번호</div>
+        <div class="field-body"><input class="form-input" type="tel" placeholder="032-000-0000" id="storePhone"></div>
       </div>
-      <input class="upload-input" type="file" id="biz-file" accept="image/*,.pdf" onchange="handleFile()">
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>우편번호</div>
+        <div class="field-body">
+          <div class="input-btn-row" style="flex-wrap:nowrap;">
+            <input class="form-input" type="text" placeholder="우편번호" id="zipcode" readonly style="min-width:0;">
+            <button class="btn-check" onclick="searchAddr()" style="flex-shrink:0;">주소 검색</button>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>기본 주소</div>
+        <div class="field-body"><input class="form-input" type="text" placeholder="주소 검색 후 자동입력" id="addr1" readonly></div>
+      </div>
+      <div class="field-row">
+        <div class="field-label">상세 주소</div>
+        <div class="field-body"><input class="form-input" type="text" placeholder="상세 주소 입력" id="addr2"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>사업자등록증</div>
+        <div class="field-body">
+          <div class="upload-box" id="biz-box" onclick="document.getElementById('biz-file').click()" style="max-width:420px;">
+            <div class="upload-icon"><i class=ic-file></i></div>
+            <div class="upload-text">클릭하여 <strong>사업자등록증</strong> 업로드</div>
+            <div class="upload-text" style="font-size:11px;margin-top:4px;">JPG, PNG, PDF · 최대 10MB</div>
+            <div class="upload-filename" id="biz-filename"></div>
+          </div>
+          <input class="upload-input" type="file" id="biz-file" accept="image/*,.pdf" onchange="handleFile()">
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- 약관 -->
-  <div class="card">
-    <div class="card-title">약관 동의</div>
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">약관 동의</div>
+    </div>
     <div class="terms-all" onclick="toggleAll()">
       <div class="check-box" id="chk-all"></div>
       <span style="font-size:14px;font-weight:700;color:var(--navy);">전체 동의하기</span>
