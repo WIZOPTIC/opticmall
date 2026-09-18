@@ -1070,7 +1070,7 @@ async function loadApprovedProducts() {
     if(brandId) {
       currentBrandFilter = brandId;
       const brandProduct = allProducts.find(p => p.brandId === brandId);
-      document.getElementById('listTitle').textContent = brandProduct ? `${brandProduct.brandName} 상품` : '브랜드 상품';
+      document.getElementById('listTitle').textContent = brandProduct ? brandProduct.brandName : '브랜드 상품';
     }
 
     // URL의 cat 파라미터 처리 (다른 페이지 GNB/카테고리 링크로 넘어온 경우)
