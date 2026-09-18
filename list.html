@@ -155,6 +155,16 @@ header {
 .stock-toggle.active { border-color: var(--gold); color: var(--navy); font-weight: 600; }
 .stock-toggle.active .dot { background: var(--gold); }
 .sort-select { padding: 8px 12px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 14px; font-family: inherit; outline: none; cursor: pointer; background: var(--white); }
+.filter-dropdown { position: relative; }
+.filter-btn { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 14px; font-family: inherit; cursor: pointer; background: var(--white); color: var(--black); }
+.filter-btn:hover { border-color: var(--navy); }
+.filter-btn.active { border-color: var(--navy); background: var(--g1); }
+.filter-count { background: var(--navy); color: #fff; font-size: 10px; font-weight: 700; border-radius: 100px; padding: 1px 6px; }
+.filter-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: #fff; border: 1px solid var(--g2); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 10px 0; min-width: 150px; z-index: 50; }
+.filter-panel.open { display: block; }
+.filter-check { display: flex; align-items: center; gap: 8px; padding: 8px 16px; font-size: 13.5px; color: var(--black); cursor: pointer; white-space: nowrap; }
+.filter-check:hover { background: var(--g1); }
+.filter-check input { width: 14px; height: 14px; accent-color: var(--navy); cursor: pointer; }
 .view-btns { display: flex; gap: 4px; }
 .view-btn { width: 32px; height: 32px; border: 1.5px solid var(--g2); background: var(--white); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
 .view-btn.active { border-color: var(--sky); color: var(--sky); background: var(--sky-lt); }
@@ -408,9 +418,27 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     </div>
     <div class="list-controls">
       <button class="stock-toggle" id="stockToggleBtn" onclick="toggleStockOnly()"><span class="dot"></span>재고있음만</button>
+      <div class="filter-dropdown">
+        <button class="filter-btn" id="colorFilterBtn" onclick="toggleFilterPanel('color')">색상 <span class="filter-count" id="colorFilterCount" style="display:none;"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="filter-panel" id="colorFilterPanel">
+          <label class="filter-check"><input type="checkbox" value="블랙" onchange="onFilterCheckChange('color')"> 블랙</label>
+          <label class="filter-check"><input type="checkbox" value="브라운" onchange="onFilterCheckChange('color')"> 브라운</label>
+          <label class="filter-check"><input type="checkbox" value="골드" onchange="onFilterCheckChange('color')"> 골드</label>
+          <label class="filter-check"><input type="checkbox" value="실버" onchange="onFilterCheckChange('color')"> 실버</label>
+          <label class="filter-check"><input type="checkbox" value="기타" onchange="onFilterCheckChange('color')"> 기타</label>
+        </div>
+      </div>
+      <div class="filter-dropdown">
+        <button class="filter-btn" id="sizeFilterBtn" onclick="toggleFilterPanel('size')">사이즈 <span class="filter-count" id="sizeFilterCount" style="display:none;"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="filter-panel" id="sizeFilterPanel">
+          <label class="filter-check"><input type="checkbox" value="45이하" onchange="onFilterCheckChange('size')"> 45mm 이하</label>
+          <label class="filter-check"><input type="checkbox" value="46-49" onchange="onFilterCheckChange('size')"> 46~49mm</label>
+          <label class="filter-check"><input type="checkbox" value="50-53" onchange="onFilterCheckChange('size')"> 50~53mm</label>
+          <label class="filter-check"><input type="checkbox" value="54이상" onchange="onFilterCheckChange('size')"> 54mm 이상</label>
+        </div>
+      </div>
       <select class="sort-select">
         <option>신상품순</option>
-        <option>색상별순</option>
         <option>낮은가격순</option>
         <option>높은가격순</option>
       </select>
@@ -860,6 +888,57 @@ function toggleSearchOverlay() {
   }
 }
 
+function getColorBucket(colorName) {
+  const name = (colorName || '').toLowerCase();
+  if(name.includes('블랙') || name.includes('black')) return '블랙';
+  if(name.includes('브라운') || name.includes('brown') || name.includes('하바나') || name.includes('havana')) return '브라운';
+  if(name.includes('골드') || name.includes('gold')) return '골드';
+  if(name.includes('실버') || name.includes('silver')) return '실버';
+  return '기타';
+}
+function getSizeBucket(sizeStr) {
+  const m = (sizeStr || '').match(/^(\d+)/);
+  if(!m) return null;
+  const w = Number(m[1]);
+  if(w <= 45) return '45이하';
+  if(w <= 49) return '46-49';
+  if(w <= 53) return '50-53';
+  return '54이상';
+}
+
+let selectedColorFilters = new Set();
+let selectedSizeFilters = new Set();
+
+function toggleFilterPanel(kind) {
+  const panel = document.getElementById(kind === 'color' ? 'colorFilterPanel' : 'sizeFilterPanel');
+  const otherPanel = document.getElementById(kind === 'color' ? 'sizeFilterPanel' : 'colorFilterPanel');
+  otherPanel.classList.remove('open');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.filter-dropdown')) {
+    document.getElementById('colorFilterPanel')?.classList.remove('open');
+    document.getElementById('sizeFilterPanel')?.classList.remove('open');
+  }
+});
+function onFilterCheckChange(kind) {
+  const panelId = kind === 'color' ? 'colorFilterPanel' : 'sizeFilterPanel';
+  const set = kind === 'color' ? selectedColorFilters : selectedSizeFilters;
+  set.clear();
+  document.querySelectorAll(`#${panelId} input:checked`).forEach(cb => set.add(cb.value));
+  const btn = document.getElementById(kind === 'color' ? 'colorFilterBtn' : 'sizeFilterBtn');
+  const countEl = document.getElementById(kind === 'color' ? 'colorFilterCount' : 'sizeFilterCount');
+  if(set.size > 0) {
+    btn.classList.add('active');
+    countEl.style.display = 'inline-block';
+    countEl.textContent = set.size;
+  } else {
+    btn.classList.remove('active');
+    countEl.style.display = 'none';
+  }
+  applyFilters();
+}
+
 function doSearch() {
   applyFilters();
 }
@@ -904,11 +983,25 @@ function applyFilters() {
     });
   }
 
+  // 색상 필터
+  if(selectedColorFilters.size > 0) {
+    result = result.filter(p => {
+      const colorNames = Array.isArray(p.colors) && p.colors.length > 0
+        ? p.colors.map(c => c.colorName)
+        : (p.color ? [p.color] : []);
+      return colorNames.some(cn => selectedColorFilters.has(getColorBucket(cn)));
+    });
+  }
+
+  // 사이즈 필터
+  if(selectedSizeFilters.size > 0) {
+    result = result.filter(p => selectedSizeFilters.has(getSizeBucket(p.size)));
+  }
+
   // 정렬
   const sortV = document.querySelector('.sort-select').value;
   if(sortV === '낮은가격순') result.sort((a,b) => (a.price||0) - (b.price||0));
   else if(sortV === '높은가격순') result.sort((a,b) => (b.price||0) - (a.price||0));
-  else if(sortV === '색상별순') result.sort((a,b) => (Array.isArray(b.colors)?b.colors.length:0) - (Array.isArray(a.colors)?a.colors.length:0));
 
   renderProducts(result);
   updateCount(result.length);
