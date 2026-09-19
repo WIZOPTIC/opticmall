@@ -241,8 +241,9 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
 /* 상품 상세 탭 */
 .tab-section { max-width: 1440px; margin: 48px auto 0; padding: 0 24px; }
-.tab-bar { display: flex; border-bottom: 2px solid var(--g2); margin-bottom: 32px; }
-.tab { padding: 14px 24px; font-size: 14px; font-weight: 500; color: var(--g3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+.tab-bar-wrap { position: sticky; top: var(--sticky-header-h, 110px); z-index: 150; background: var(--white); margin-bottom: 32px; }
+.tab-bar { display: flex; border-bottom: 2px solid var(--g2); }
+.tab { padding: 14px 36px; font-size: 14px; font-weight: 500; color: var(--g3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
 .tab:hover { color: var(--navy); border-bottom-color: var(--navy); }
 .tab.active { color: var(--sky); border-bottom-color: var(--sky); font-weight: 700; }
 
@@ -251,6 +252,11 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .spec-table tr { border-bottom: 1px solid var(--g1); }
 .spec-table td { padding: 14px 20px; font-size: 14px; }
 .spec-table td:first-child { width: 160px; font-weight: 600; color: var(--g4); background: var(--g1); }
+
+/* 상품 상세 사진 */
+.detail-photos-section { max-width: 1440px; margin: 48px auto 0; padding: 0 24px; }
+.detail-photos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.detail-photos-grid img { width: 100%; display: block; border-radius: 12px; }
 
 /* 관련 상품 */
 .related-section { max-width: 1440px; margin: 48px auto; padding: 0 24px; }
@@ -409,7 +415,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
 <!-- 헤더 -->
 <!-- TOPBAR + HEADER (함께 고정) -->
-<div style="position:sticky;top:0;z-index:200;">
+<div id="stickyHeaderWrap" style="position:sticky;top:0;z-index:200;">
 <div class="topbar">
   <div class="topbar-inner">
     <div id="topbarGuest">
@@ -495,6 +501,15 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 </header>
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 </div>
+<script>
+  function setStickyHeaderHeight() {
+    const wrap = document.getElementById('stickyHeaderWrap');
+    if(wrap) document.documentElement.style.setProperty('--sticky-header-h', wrap.offsetHeight + 'px');
+  }
+  setStickyHeaderHeight();
+  window.addEventListener('resize', setStickyHeaderHeight);
+  window.addEventListener('load', setStickyHeaderHeight);
+</script>
 
 <!-- 브레드크럼 -->
 <div class="breadcrumb" id="breadcrumb">
@@ -621,11 +636,14 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
 <!-- 상세 탭 -->
 <div class="tab-section">
-  <div class="tab-bar">
-    <div class="tab active" onclick="switchTab(this,'spec')">상품 스펙</div>
-    <div class="tab" onclick="switchTab(this,'detail')">상품 상세</div>
-    <div class="tab" onclick="switchTab(this,'review')">구매 후기</div>
-    <div class="tab" onclick="switchTab(this,'qna')">문의</div>
+  <div class="tab-bar-wrap" id="tabBarWrap">
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab(this,'spec')">상품정보</div>
+      <div class="tab" onclick="switchTab(this,'detail')">상품 상세</div>
+      <div class="tab" onclick="switchTab(this,'review')">구매 후기</div>
+      <div class="tab" onclick="switchTab(this,'qna')">Q&amp;A</div>
+      <div class="tab" onclick="switchTab(this,'shipping')">배송안내</div>
+    </div>
   </div>
 
   <!-- 스펙 -->
@@ -637,8 +655,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <tr><td>프레임 종류</td><td id="spec-type">-</td></tr>
       <tr><td>색상</td><td id="spec-color">-</td></tr>
       <tr><td>원산지</td><td id="spec-origin">-</td></tr>
-      <tr><td>도매가</td><td id="spec-price">로그인 후 확인 가능</td></tr>
-      <tr><td>재고</td><td id="spec-stock">-</td></tr>
     </table>
   </div>
 
@@ -667,6 +683,34 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div style="text-align:center;padding:60px;color:var(--g3);font-size:14px;">불러오는 중...</div>
     </div>
   </div>
+
+  <!-- 배송안내 -->
+  <div id="tab-shipping" style="display:none;">
+    <div class="delivery-info" style="border-top:none;padding-top:0;">
+      <div class="delivery-row">
+        <div class="delivery-label">배송</div>
+        <div class="delivery-value"><span class="highlight">10만원 이상 무료배송</span> (미만 시 3,500원) · 오후 2시 이전 주문 당일 출고</div>
+      </div>
+      <div class="delivery-row">
+        <div class="delivery-label">도착예정</div>
+        <div class="delivery-value">주문 후 <span class="highlight">1~2일 이내</span> 도착</div>
+      </div>
+      <div class="delivery-row">
+        <div class="delivery-label">반품/교환</div>
+        <div class="delivery-value">수령 후 7일 이내 · 불량품 무상교환</div>
+      </div>
+      <div class="delivery-row">
+        <div class="delivery-label">최소 주문</div>
+        <div class="delivery-value">1개부터 주문 가능</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 상품 상세 사진 (선택된 색상 기준) -->
+<div class="detail-photos-section" id="detailPhotosSection" style="display:none;">
+  <div class="section-title">상품 상세 사진</div>
+  <div class="detail-photos-grid" id="detailPhotosGrid"></div>
 </div>
 
 <!-- 관련 상품 -->
@@ -837,6 +881,7 @@ _auth.onAuthStateChanged(async (user) => {
   updatePriceDisplay(); // 로그인 상태 바뀌면 가격 표시 갱신
   if(reviewsLoaded) { refreshPurchaseStatus().then(renderReviewWriteArea); }
   if(inquiriesLoaded) renderQnaWriteArea();
+  if(typeof setStickyHeaderHeight === 'function') setStickyHeaderHeight();
 });
 
 function toggleSearchOverlay() {
@@ -910,18 +955,15 @@ function updatePriceDisplay() {
       document.getElementById('priceOriginal').style.display = 'inline';
       document.getElementById('priceDiscountBadge').innerHTML = `<span style="font-size:16px;color:var(--red);font-weight:800;margin-right:8px;">${discountRate}%</span>`;
       document.getElementById('priceValue').textContent = salePrice.toLocaleString();
-      document.getElementById('spec-price').textContent = '₩' + salePrice.toLocaleString() + ` (${discountRate}% 할인 적용)`;
     } else {
       document.getElementById('priceOriginal').style.display = 'none';
       document.getElementById('priceDiscountBadge').innerHTML = '';
       document.getElementById('priceValue').textContent = price.toLocaleString();
-      document.getElementById('spec-price').textContent = '₩' + price.toLocaleString();
     }
     renderSelectionList();
   } else {
     document.getElementById('price-locked').style.display = 'block';
     document.getElementById('price-visible').style.display = 'none';
-    document.getElementById('spec-price').textContent = '로그인 후 확인 가능';
   }
 }
 
@@ -1030,8 +1072,6 @@ function renderProduct(p) {
       ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
       : (p.color || '-');
   document.getElementById('spec-origin').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
-  const firstColorStock = (p.colors && p.colors.length > 0) ? p.colors[0].stock : p.stock;
-  document.getElementById('spec-stock').textContent = (firstColorStock !== undefined ? firstColorStock + '개' : '-');
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
   const firstColor = (p.colors && p.colors.length > 0) ? p.colors[0] : null;
@@ -1073,6 +1113,7 @@ function renderProduct(p) {
       `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
     ).join('');
   }
+  renderDetailPhotosSection(initDetailUrls);
 
   // 색상 선택 버튼 렌더링
   const colorSection = document.getElementById('colorSection');
@@ -1081,11 +1122,6 @@ function renderProduct(p) {
     colorSection.style.display = 'block';
     selectedItems = [];
     renderColorButtons(p, 0);
-    if(p.detailImageUrls && p.detailImageUrls.length > 0) {
-      document.getElementById('detailImagesWrap').innerHTML = p.detailImageUrls.map(url =>
-        `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
-      ).join('');
-    }
   } else {
     colorSection.style.display = 'none';
     const stock = Number(p.stock || 0);
@@ -1309,6 +1345,21 @@ function applyColorImages(color) {
       `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
     ).join('');
   }
+  renderDetailPhotosSection(detailUrls);
+}
+
+// 상품 상세 사진 섹션 (선택된 색상의 상세 이미지, 2열로 표시)
+function renderDetailPhotosSection(urls) {
+  const section = document.getElementById('detailPhotosSection');
+  const grid = document.getElementById('detailPhotosGrid');
+  if(!section || !grid) return;
+  if(!urls || urls.length === 0) {
+    section.style.display = 'none';
+    grid.innerHTML = '';
+    return;
+  }
+  section.style.display = 'block';
+  grid.innerHTML = urls.map(url => `<img src="${url}" loading="lazy">`).join('');
 }
 
 function updateStockDisplay(stock) {
@@ -1656,7 +1707,7 @@ async function requestRestock() {
 function switchTab(tab, name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
-  ['spec','detail','review','qna'].forEach(t => {
+  ['spec','detail','review','qna','shipping'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t === name ? 'block' : 'none';
   });
