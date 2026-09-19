@@ -1035,8 +1035,8 @@ function renderProduct(p) {
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
   const firstColor = (p.colors && p.colors.length > 0) ? p.colors[0] : null;
-  const initMainUrl = firstColor ? firstColor.mainImageUrl : p.mainImageUrl;
-  const initDetailUrls = firstColor ? (firstColor.detailImageUrls || []) : (p.detailImageUrls || []);
+  const initMainUrl = (firstColor && firstColor.mainImageUrl) ? firstColor.mainImageUrl : p.mainImageUrl;
+  const initDetailUrls = (firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || []);
   const allImages = [initMainUrl, ...initDetailUrls].filter(Boolean);
   window._productImages = allImages;
   currentImgIndex = 0;
@@ -1232,7 +1232,6 @@ function renderSelectionList() {
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;${i>0?'border-top:1px solid var(--g1);':''}">
         <div>
           <div style="font-size:14px;font-weight:700;color:var(--navy);">${currentProduct.modelName || ''} · ${c.colorName}</div>
-          <div style="font-size:12px;color:var(--g3);margin-top:2px;">₩${unitPrice.toLocaleString()} / 1개</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;">
           <div style="display:flex;align-items:center;border:1px solid var(--g2);border-radius:6px;">
@@ -1251,32 +1250,40 @@ function renderSelectionList() {
   const totalPrice = selectedItems.reduce((s,it)=>s+getColorPrice(it.colorIdx)*it.qty,0);
   summaryEl.innerHTML = `
     <span style="font-size:14px;color:var(--g4);">총 ${totalQty}개</span>
-    <span style="font-size:15px;font-weight:800;color:var(--navy);">총 금액 ${totalPrice.toLocaleString()}원</span>
+    <span style="font-size:15px;font-weight:800;color:var(--navy);">Total ${totalPrice.toLocaleString()}원</span>
   `;
 }
 
 function applyColorImages(color) {
-  const allUrls = [color.mainImageUrl, ...(color.detailImageUrls||[])].filter(Boolean);
+  // 색상 자체에 이미지가 없으면 상품 대표 이미지로 대체
+  const mainUrl = color.mainImageUrl || (currentProduct && currentProduct.mainImageUrl) || '';
+  const detailUrls = (color.detailImageUrls && color.detailImageUrls.length > 0)
+    ? color.detailImageUrls
+    : ((currentProduct && currentProduct.detailImageUrls) || []);
+  const allUrls = [mainUrl, ...detailUrls].filter(Boolean);
   window._productImages = allUrls;
   currentImgIndex = 0;
 
   // 메인 이미지 교체
   const mainImgTag = document.getElementById('mainImgTag');
   const placeholder = document.getElementById('mainImgPlaceholder');
-  if(color.mainImageUrl) {
+  if(mainUrl) {
     if(placeholder) placeholder.style.display = 'none';
     if(mainImgTag) {
-      mainImgTag.src = color.mainImageUrl;
+      mainImgTag.src = mainUrl;
     } else {
       const mainBox = document.getElementById('mainImgBox');
       if(mainBox) {
         const img = document.createElement('img');
         img.id = 'mainImgTag';
         img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;cursor:zoom-in;';
-        img.src = color.mainImageUrl;
+        img.src = mainUrl;
         mainBox.appendChild(img);
       }
     }
+  } else if(placeholder) {
+    placeholder.style.display = 'flex';
+    if(mainImgTag) mainImgTag.remove();
   }
 
   // 썸네일 교체
@@ -1295,7 +1302,7 @@ function applyColorImages(color) {
   // 상세 이미지 교체
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap) {
-    detailWrap.innerHTML = (color.detailImageUrls||[]).map(url =>
+    detailWrap.innerHTML = detailUrls.map(url =>
       `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
     ).join('');
   }
