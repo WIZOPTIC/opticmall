@@ -169,7 +169,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .product-category { font-family: var(--font-body); font-style: normal; font-size: 26px; font-weight: 800; color: var(--navy); margin-bottom: 8px; letter-spacing: -0.01em; }
 .product-name { font-size: 16px; font-weight: 700; color: var(--navy); line-height: 1.3; margin-bottom: 6px; letter-spacing: -0.01em; }
 .product-code { font-size: 14px; color: var(--g3); font-family: 'Inter', sans-serif; margin-bottom: 20px; }
-#productSize { font-size: 15px; }
+#productSize { font-size: 15px; color: var(--navy); }
 
 /* 가격 */
 .price-wrap { background: var(--g1); border-radius: 10px; padding: 20px 28px; margin-bottom: 16px; }
@@ -520,14 +520,11 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   <!-- 정보 -->
   <div class="product-info">
     <div class="product-category" id="productCategory">-</div>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:6px;">
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-        <div class="product-name" id="productName" style="margin-bottom:0;">불러오는 중...</div>
-        <div class="product-code" id="productSize" style="margin-bottom:0;">사이즈: -</div>
-      </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">
+      <div class="product-code" id="productSize" style="margin-bottom:0;">사이즈: -</div>
       <div class="product-code" id="productCode" style="margin-bottom:0;">상품코드: -</div>
     </div>
-    <div style="margin-bottom:20px;"></div>
+    <div class="product-name" id="productName" style="margin-bottom:20px;">불러오는 중...</div>
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
     <div class="price-wrap" id="price-checking">
@@ -555,7 +552,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     <!-- 가격 (회원 - 기본 숨김) -->
     <div class="price-wrap" id="price-visible" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span id="priceOriginal" style="display:none;font-size:16px;color:var(--g3);text-decoration:line-through;font-weight:400;margin-left:8px;"></span><span style="font-size:12px;color:var(--g3);font-weight:400;margin-left:8px;">부가세 포함</span></div>
+        <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span id="priceOriginal" style="display:none;font-size:16px;color:var(--g3);text-decoration:line-through;font-weight:400;margin-left:8px;"></span></div>
         <div class="stock-info" id="stock-status" style="margin:0;">
           <div class="stock-dot"></div>
           <span style="color:var(--green);font-weight:600;">재고 있음</span>
