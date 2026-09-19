@@ -637,6 +637,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
 <!-- 상세 탭 -->
 <div class="tab-section">
+  <div id="tabAnchor"></div>
   <div class="tab-bar-wrap" id="tabBarWrap">
     <div class="tab-bar">
       <div class="tab active" onclick="switchTab(this,'spec')">상품정보</div>
@@ -1723,10 +1724,13 @@ function switchTab(tab, name) {
   // 관련상품 등 아래쪽까지 스크롤된 상태에서 탭을 클릭하면
   // 실제 탭 내용은 화면 위쪽(탭바 바로 아래)에 있어 눈에 안 보이므로,
   // 탭바가 고정되는 위치까지 자동으로 스크롤을 올려준다.
-  const wrap = document.getElementById('tabBarWrap');
-  if(wrap) {
+  // tabBarWrap 자체는 position:sticky라 이미 고정된 상태에서는
+  // getBoundingClientRect().top 값이 항상 동일하게 나와 스크롤 위치 계산이 틀어진다.
+  // 고정되지 않는 앵커 요소(tabAnchor)를 기준으로 실제 스크롤 위치를 계산한다.
+  const anchor = document.getElementById('tabAnchor');
+  if(anchor) {
     const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sticky-header-h')) || 110;
-    const rect = wrap.getBoundingClientRect();
+    const rect = anchor.getBoundingClientRect();
     const targetY = window.scrollY + rect.top - headerH;
     if(window.scrollY > targetY + 1) {
       window.scrollTo({ top: targetY, behavior: 'smooth' });
