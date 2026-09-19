@@ -54,15 +54,16 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .cart-count { position: absolute; top: 2px; right: 2px; background: #FF7A1A; color: #fff; font-size: 9px; font-weight: 700; border-radius: 100px; padding: 1px 4px; min-width:15px; text-align:center; }
 .gnb-inner { display: flex; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .gnb-item {
-  padding: 8px 18px; font-size:16px; font-weight: 500;
+  min-width: 92px; padding: 8px 12px; font-size:16px; font-weight: 500;
   color: var(--black); cursor: pointer; border: none; background: none;
   font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap;
+  text-align: center; user-select: none; -webkit-user-select: none;
 }
 .gnb-item:hover { color: var(--sky); }
 .gnb-item.active { color: var(--navy); font-weight: 700; }
-.gnb-item:hover::after {
+.gnb-item.active::after {
   content: ''; position: absolute; left: 50%; transform: translateX(-50%); bottom: -2px;
-  width: 20px; height: 2px; background: #FF7A1A;
+  width: 28px; height: 2px; background: var(--navy);
 }
 /* 모바일 요소 */
 .hamburger-btn { display: none; background: none; border: none; padding: 6px; margin-right: 8px; cursor: pointer; color: var(--navy); }
@@ -127,9 +128,20 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   font-size: 12.5px; color: var(--g4); cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
 }
 .stock-toggle .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--g3); flex-shrink: 0; transition: background 0.15s; }
-.stock-toggle.active { border-color: var(--gold); color: var(--navy); font-weight: 600; }
-.stock-toggle.active .dot { background: var(--gold); }
-.sort-select { padding: 8px 12px; border: 1.5px solid var(--g2); border-radius: 6px; font-size: 14px; font-family: inherit; outline: none; cursor: pointer; background: var(--white); }
+.stock-toggle.active { border-color: #FF7A1A; color: var(--navy); font-weight: 600; }
+.stock-toggle.active .dot { background: #FF7A1A; }
+.sort-select { padding: 8px 15px; border: 1.5px solid var(--g2); border-radius: 100px; font-size: 12.5px; font-family: inherit; outline: none; cursor: pointer; background: var(--white); color: var(--g4); }
+.filter-dropdown { position: relative; }
+.filter-btn { display: flex; align-items: center; gap: 6px; padding: 8px 15px; border: 1.5px solid var(--g2); border-radius: 100px; font-size: 12.5px; font-family: inherit; cursor: pointer; background: var(--white); color: var(--g4); white-space: nowrap; transition: all 0.15s; }
+.filter-btn:hover { border-color: var(--navy); }
+.filter-btn.active { border-color: #FF7A1A; color: var(--navy); font-weight: 600; background: var(--white); }
+.filter-count { display: inline-flex; align-items: center; justify-content: center; background: #FF7A1A; color: #fff; font-size: 10px; font-weight: 700; border-radius: 100px; width: 16px; height: 16px; visibility: hidden; }
+.filter-count.show { visibility: visible; }
+.filter-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: #fff; border: 1px solid var(--g2); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 10px 0; min-width: 150px; z-index: 50; }
+.filter-panel.open { display: block; }
+.filter-check { display: flex; align-items: center; gap: 8px; padding: 8px 16px; font-size: 13.5px; color: var(--black); cursor: pointer; white-space: nowrap; }
+.filter-check:hover { background: var(--g1); }
+.filter-check input { width: 14px; height: 14px; accent-color: #FF7A1A; cursor: pointer; }
 
 /* 상품 그리드 */
 .product-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
@@ -146,14 +158,16 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .color-dots { display: flex; gap: 4px; padding: 10px 10px 0; }
 .color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.1); }
 .product-info { padding: 10px 12px 14px; }
-.p-cat { font-family: var(--font-serif); font-style: italic; font-size: 12px; font-weight: 500; color: var(--gold); margin-bottom: 4px; }
+.p-cat { font-size: 12px; font-weight: 500; color: var(--navy); margin-bottom: 4px; }
 .p-name { font-size: 14px; font-weight: 600; color: var(--black); margin-bottom: 3px; line-height: 1.3; }
 .p-size { font-size: 11px; color: var(--g3); margin-bottom: 6px; }
 .p-colors { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
 .p-color-chip { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex-shrink: 0; title: attr(title); }
 .p-color-more { font-size: 10px; color: var(--g3); align-self: center; }
-.p-price { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: var(--navy); }
-.p-price .won { font-size: 12px; font-weight: 500; }
+.p-price { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 800; color: var(--navy); }
+.p-price .won { font-size: 13px; font-weight: 600; }
+.p-price .discount-pct { color: var(--red); font-weight: 800; margin-right: 5px; }
+.p-price .orig-price { font-size: 11.5px; color: var(--g3); text-decoration: line-through; font-weight: 500; margin-left: 5px; }
 .p-locked { font-size: 12px; color: var(--g3); display: flex; align-items: center; gap: 4px; }
 
 /* 페이지네이션 */
@@ -404,9 +418,27 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     </div>
     <div class="list-controls">
       <button class="stock-toggle" id="stockToggleBtn" onclick="toggleStockOnly()"><span class="dot"></span>재고있음만</button>
+      <div class="filter-dropdown">
+        <button class="filter-btn" id="colorFilterBtn" onclick="toggleFilterPanel('color')">색상 <span class="filter-count" id="colorFilterCount"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="filter-panel" id="colorFilterPanel">
+          <label class="filter-check"><input type="checkbox" value="블랙" onchange="onFilterCheckChange('color')"> 블랙</label>
+          <label class="filter-check"><input type="checkbox" value="브라운" onchange="onFilterCheckChange('color')"> 브라운</label>
+          <label class="filter-check"><input type="checkbox" value="골드" onchange="onFilterCheckChange('color')"> 골드</label>
+          <label class="filter-check"><input type="checkbox" value="실버" onchange="onFilterCheckChange('color')"> 실버</label>
+          <label class="filter-check"><input type="checkbox" value="기타" onchange="onFilterCheckChange('color')"> 기타</label>
+        </div>
+      </div>
+      <div class="filter-dropdown">
+        <button class="filter-btn" id="sizeFilterBtn" onclick="toggleFilterPanel('size')">사이즈 <span class="filter-count" id="sizeFilterCount"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="filter-panel" id="sizeFilterPanel">
+          <label class="filter-check"><input type="checkbox" value="45이하" onchange="onFilterCheckChange('size')"> 45mm 이하</label>
+          <label class="filter-check"><input type="checkbox" value="46-49" onchange="onFilterCheckChange('size')"> 46~49mm</label>
+          <label class="filter-check"><input type="checkbox" value="50-53" onchange="onFilterCheckChange('size')"> 50~53mm</label>
+          <label class="filter-check"><input type="checkbox" value="54이상" onchange="onFilterCheckChange('size')"> 54mm 이상</label>
+        </div>
+      </div>
       <select class="sort-select">
         <option>신상품순</option>
-        <option>판매량순</option>
         <option>낮은가격순</option>
         <option>높은가격순</option>
       </select>
@@ -628,7 +660,6 @@ const VKOOL_BRAND_NAME = 'V.KOOL';
 
 function renderEmptyState(message) {
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#9BA5B0;">
-    <div style="font-size:40px;margin-bottom:12px;"><i class=ic-glasses></i></div>
     <div style="font-size:14px;font-weight:600;">${message || '아직 등록된 상품이 없습니다.'}</div>
   </div>`;
 }
@@ -641,7 +672,7 @@ function renderProducts(products) {
   }
 
   grid.innerHTML = products.map(p => {
-    const badgeHtml = p.discountRate ? `<span class="p-badge hot">${p.discountRate}% SALE</span>` : (p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '');
+    const badgeHtml = p.badge ? `<span class="p-badge ${p.badge}">${p.badge.toUpperCase()}</span>` : '';
     const totalStock = p.colors && p.colors.length > 0
       ? p.colors.reduce((sum, c) => sum + Number(c.stock || 0), 0)
       : Number(p.stock || 0);
@@ -653,9 +684,9 @@ function renderProducts(products) {
       const salePrice = p.salePrice ? Number(p.salePrice) : (discountRate > 0 ? Math.round(price * (1 - discountRate/100)) : 0);
       if(discountRate > 0 && price > 0) {
         priceHtml = `<div class="p-price">
-          <span style="font-size:11px;color:var(--g3);text-decoration:line-through;margin-right:4px;">₩${price.toLocaleString()}</span>
+          <span class="discount-pct">${discountRate}%</span>
           <span class="won">₩</span>${salePrice.toLocaleString()}
-          <span style="font-size:11px;color:var(--red);font-weight:700;margin-left:2px;">${discountRate}%</span>
+          <span class="orig-price">₩${price.toLocaleString()}</span>
         </div>`;
       } else {
         priceHtml = `<div class="p-price"><span class="won">₩</span>${price.toLocaleString()}</div>`;
@@ -899,6 +930,21 @@ function applyFilters() {
     });
   }
 
+  // 색상 필터
+  if(selectedColorFilters.size > 0) {
+    result = result.filter(p => {
+      const colorNames = Array.isArray(p.colors) && p.colors.length > 0
+        ? p.colors.map(c => c.colorName)
+        : (p.color ? [p.color] : []);
+      return colorNames.some(cn => selectedColorFilters.has(getColorBucket(cn)));
+    });
+  }
+
+  // 사이즈 필터
+  if(selectedSizeFilters.size > 0) {
+    result = result.filter(p => selectedSizeFilters.has(getSizeBucket(p.size)));
+  }
+
   // 정렬
   const sortV = document.querySelector('.sort-select').value;
   if(sortV === '낮은가격순') result.sort((a,b) => (a.price||0) - (b.price||0));
@@ -906,6 +952,57 @@ function applyFilters() {
 
   renderProducts(result);
   updateCount(result.length);
+}
+
+function getColorBucket(colorName) {
+  const name = (colorName || '').toLowerCase();
+  if(name.includes('블랙') || name.includes('black')) return '블랙';
+  if(name.includes('브라운') || name.includes('brown') || name.includes('하바나') || name.includes('havana')) return '브라운';
+  if(name.includes('골드') || name.includes('gold')) return '골드';
+  if(name.includes('실버') || name.includes('silver')) return '실버';
+  return '기타';
+}
+function getSizeBucket(sizeStr) {
+  const m = (sizeStr || '').match(/^(\d+)/);
+  if(!m) return null;
+  const w = Number(m[1]);
+  if(w <= 45) return '45이하';
+  if(w <= 49) return '46-49';
+  if(w <= 53) return '50-53';
+  return '54이상';
+}
+
+let selectedColorFilters = new Set();
+let selectedSizeFilters = new Set();
+
+function toggleFilterPanel(kind) {
+  const panel = document.getElementById(kind === 'color' ? 'colorFilterPanel' : 'sizeFilterPanel');
+  const otherPanel = document.getElementById(kind === 'color' ? 'sizeFilterPanel' : 'colorFilterPanel');
+  otherPanel.classList.remove('open');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.filter-dropdown')) {
+    document.getElementById('colorFilterPanel')?.classList.remove('open');
+    document.getElementById('sizeFilterPanel')?.classList.remove('open');
+  }
+});
+function onFilterCheckChange(kind) {
+  const panelId = kind === 'color' ? 'colorFilterPanel' : 'sizeFilterPanel';
+  const set = kind === 'color' ? selectedColorFilters : selectedSizeFilters;
+  set.clear();
+  document.querySelectorAll(`#${panelId} input:checked`).forEach(cb => set.add(cb.value));
+  const btn = document.getElementById(kind === 'color' ? 'colorFilterBtn' : 'sizeFilterBtn');
+  const countEl = document.getElementById(kind === 'color' ? 'colorFilterCount' : 'sizeFilterCount');
+  if(set.size > 0) {
+    btn.classList.add('active');
+    countEl.classList.add('show');
+    countEl.textContent = set.size;
+  } else {
+    btn.classList.remove('active');
+    countEl.classList.remove('show');
+  }
+  applyFilters();
 }
 
 async function loadActivePromotions() {
