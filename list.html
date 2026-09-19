@@ -842,6 +842,29 @@ function updateCount(n) {
 const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
 let stockOnly = false;
 
+// 상품 데이터를 기다리지 않고, 페이지 로드 즉시 URL의 cat/q 파라미터를 보고
+// 네비게이션바 활성화 표시와 타이틀을 먼저 맞춰준다.
+// (상품 로딩이 끝난 뒤에야 활성화 표시가 바뀌면 '전체상품'이 잠깐 켜졌다가
+//  실제 카테고리로 바뀌는 깜빡임이 생기기 때문)
+(function applyGnbActiveFromUrlEarly() {
+  const urlParams = new URLSearchParams(location.search);
+  const catParam = urlParams.get('cat');
+  const qParam = urlParams.get('q');
+  if(catParam && CATEGORIES.includes(catParam)) {
+    currentGnbCategory = catParam;
+    document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
+    const matchingGnbBtn = [...document.querySelectorAll('.gnb-item')].find(b => b.textContent.trim() === catParam);
+    if(matchingGnbBtn) matchingGnbBtn.classList.add('active');
+    const titleEl = document.getElementById('listTitle');
+    if(titleEl) titleEl.textContent = catParam;
+  } else if(qParam) {
+    const searchInputEl = document.getElementById('searchInput');
+    if(searchInputEl) searchInputEl.value = qParam;
+    const titleEl = document.getElementById('listTitle');
+    if(titleEl) titleEl.textContent = `'${qParam}' 검색결과`;
+  }
+})();
+
 function toggleMobileMenu() {
   document.getElementById('mobileMenuDrawer').classList.toggle('open');
   document.getElementById('mobileMenuBackdrop').classList.toggle('open');
