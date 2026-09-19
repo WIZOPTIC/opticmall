@@ -1718,6 +1718,19 @@ function switchTab(tab, name) {
   });
   if(name === 'review' && !reviewsLoaded) { reviewsLoaded = true; loadReviews(); }
   if(name === 'qna' && !inquiriesLoaded) { inquiriesLoaded = true; loadInquiries(); }
+
+  // 관련상품 등 아래쪽까지 스크롤된 상태에서 탭을 클릭하면
+  // 실제 탭 내용은 화면 위쪽(탭바 바로 아래)에 있어 눈에 안 보이므로,
+  // 탭바가 고정되는 위치까지 자동으로 스크롤을 올려준다.
+  const wrap = document.getElementById('tabBarWrap');
+  if(wrap) {
+    const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sticky-header-h')) || 110;
+    const rect = wrap.getBoundingClientRect();
+    const targetY = window.scrollY + rect.top - headerH;
+    if(window.scrollY > targetY + 1) {
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    }
+  }
 }
 
 function escapeHtml(str) {
