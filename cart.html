@@ -292,7 +292,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="summary-title">결제 정보</div>
       <div class="summary-row"><span class="label">선택 상품</span><span class="value" id="sumCount">0개</span></div>
       <div class="summary-row"><span class="label">상품 금액</span><span class="value" id="sumProducts">₩0</span></div>
-      <div class="summary-row" id="sumDiscountRow" style="display:none;"><span class="label">할인 금액</span><span class="value" id="sumDiscount" style="color:var(--red);">-₩0</span></div>
       <div class="summary-row" id="couponRow">
         <span class="label">쿠폰</span>
         <span class="value" id="couponValue" style="cursor:pointer;color:var(--sky);text-decoration:underline;font-weight:600;" onclick="openCouponPicker()">쿠폰 선택</span>
@@ -802,21 +801,11 @@ function updateSummary() {
   const selectedItems = cartItems.filter(i => i.selected && getItemStock(i) > 0);
   const count = selectedItems.reduce((sum, i) => sum + i.qty, 0);
   const total = selectedItems.reduce((sum, i) => sum + getItemPrice(i) * i.qty, 0);
-  const totalOriginal = selectedItems.reduce((sum, i) => sum + getItemOriginalPrice(i) * i.qty, 0);
-  const totalDiscount = totalOriginal - total;
 
   document.getElementById('chkAllLabel').textContent = `전체선택 (${cartItems.length}개)`;
   document.getElementById('sumCount').textContent = count + '개';
 
   const feeDisplay = document.getElementById('shippingFeeDisplay');
-  const discountRow = document.getElementById('sumDiscountRow');
-
-  if(totalDiscount > 0) {
-    discountRow.style.display = '';
-    document.getElementById('sumDiscount').textContent = '-₩' + totalDiscount.toLocaleString();
-  } else {
-    discountRow.style.display = 'none';
-  }
 
   // 쿠폰: 상품 구성이 바뀌어 최소주문금액 조건을 더 이상 못 채우면 자동 해제
   let couponDiscount = 0;
@@ -839,7 +828,7 @@ function updateSummary() {
     let shippingFee = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : BASE_SHIPPING_FEE;
     const isRemote = isJejuAddress(defaultAddrForShipping);
     if(isRemote && total > 0) shippingFee += JEJU_EXTRA_FEE;
-    document.getElementById('sumProducts').textContent = '₩' + totalOriginal.toLocaleString();
+    document.getElementById('sumProducts').textContent = '₩' + total.toLocaleString();
     if(shippingFee === 0) {
       feeDisplay.textContent = '무료';
       feeDisplay.style.color = 'var(--green)';
