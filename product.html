@@ -1521,8 +1521,9 @@ async function toggleWish() {
 
 async function addSingleColorToCart(uid, colorIdx, qty) {
   const colorName = currentProduct.colors[colorIdx].colorName;
-  const safeColorId = colorName ? colorName.replace(/[\/\.\#\$\[\]]/g, '-') : '';
-  const cartItemId = currentProduct.id + (safeColorId ? '_' + safeColorId : '');
+  // 색상별로 항상 고유한 장바구니 항목이 되도록 색상 인덱스를 기준으로 ID 생성
+  // (색상명이 비어있거나 같은 이름이 여러 개 있어도 수량이 서로 합쳐지지 않음 - 위시리스트와 동일한 방식)
+  const cartItemId = `${currentProduct.id}_c${colorIdx}`;
   const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
   const productRef = _db.collection('products').doc(currentProduct.id);
 
