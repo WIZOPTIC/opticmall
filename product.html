@@ -166,7 +166,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
 /* 상품 정보 */
 .product-info { flex: 1; }
-.product-category { font-family: var(--font-serif); font-style: italic; font-size: 15px; font-weight: 500; color: var(--gold); margin-bottom: 8px; }
+.product-category { font-family: var(--font-serif); font-style: italic; font-size: 32px; font-weight: 500; color: var(--navy); margin-bottom: 8px; }
 .product-name { font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1.3; margin-bottom: 6px; letter-spacing: -0.01em; }
 .product-code { font-size: 14px; color: var(--g3); font-family: 'Inter', sans-serif; margin-bottom: 20px; }
 #productSize { font-size: 15px; }
@@ -520,10 +520,17 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   <!-- 정보 -->
   <div class="product-info">
     <div class="product-category" id="productCategory">-</div>
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-      <div class="product-name" id="productName" style="margin-bottom:0;">불러오는 중...</div>
-      <div class="product-code" id="productSize" style="margin-bottom:0;">사이즈: -</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:6px;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div class="product-name" id="productName" style="margin-bottom:0;">불러오는 중...</div>
+        <div class="product-code" id="productSize" style="margin-bottom:0;">사이즈: -</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+        <button class="btn-wish" id="wish-btn" onclick="toggleWish()" style="width:40px;padding:8px;"><i class=ic-wish></i></button>
+        <div class="product-code" id="productCode" style="margin-bottom:0;">상품코드: -</div>
+      </div>
     </div>
+    <div style="margin-bottom:20px;"></div>
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
     <div class="price-wrap" id="price-checking">
@@ -550,14 +557,8 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
     <!-- 가격 (회원 - 기본 숨김) -->
     <div class="price-wrap" id="price-visible" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;">
-        <div>
-          <span class="price-label">도매 공급가</span>
-          <span id="priceOriginal" style="font-size:16px;color:var(--g3);text-decoration:line-through;margin-left:10px;"></span>
-        </div>
-        <div class="product-code" id="productCode" style="margin:0;">상품코드: -</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+      <span id="priceOriginal" style="display:none;"></span>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
         <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span style="font-size:12px;color:var(--g3);font-weight:400;margin-left:8px;">부가세 포함</span></div>
         <div class="stock-info" id="stock-status" style="margin:0;">
           <div class="stock-dot"></div>
@@ -593,7 +594,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
     <!-- 구매 버튼 -->
     <div class="buy-btns" id="buy-btns">
-      <button class="btn-wish" id="wish-btn" onclick="toggleWish()"><i class=ic-wish></i></button>
       <button class="btn-cart" onclick="addCart()">장바구니</button>
       <button class="btn-buy" onclick="buyNow()">바로 주문</button>
     </div>
@@ -1124,7 +1124,7 @@ function renderColorButtons(p, previewIdx) {
         border:1.5px solid ${isPreviewing ? 'var(--navy)' : 'var(--g2)'};
         opacity:${outOfStock ? '0.4' : '1'};background:#fff;font-family:inherit;">
         <span style="display:block;width:20px;height:20px;border-radius:50%;flex-shrink:0;${getColorDot(c.colorName)}"></span>
-        <span style="font-size:12px;font-weight:${isPreviewing ? '700' : '500'};color:${isPreviewing ? 'var(--navy)' : 'var(--g4)'};">${c.colorName}${outOfStock ? ' (품절)' : ''}</span>
+        <span style="font-size:12px;font-weight:${isPreviewing ? '700' : '500'};color:${isPreviewing ? 'var(--navy)' : 'var(--g4)'};">${c.colorName}${c.colorCode ? ' ' + c.colorCode : ''}${outOfStock ? ' (품절)' : ''}</span>
       </button>
     `;
   }).join('');
@@ -1138,19 +1138,17 @@ function renderColorButtons(p, previewIdx) {
       <div onclick="${outOfStock ? '' : `pickColor(${i})`}" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:${outOfStock ? 'not-allowed' : 'pointer'};font-size:14px;opacity:${outOfStock ? '0.4' : '1'};background:${inCart ? 'var(--sky-lt)' : 'transparent'};" onmouseover="if(!${outOfStock}) this.style.background='${inCart ? 'var(--sky-lt)' : 'var(--g1)'}'" onmouseout="this.style.background='${inCart ? 'var(--sky-lt)' : 'transparent'}'">
         <input type="checkbox" ${inCart ? 'checked' : ''} ${outOfStock ? 'disabled' : ''} readonly style="width:16px;height:16px;flex-shrink:0;accent-color:var(--navy);pointer-events:none;">
         <div class="color-dot" style="${getColorDot(c.colorName)}"></div>
-        <span style="flex:1;color:var(--black);">${c.colorName}${c.colorCode ? ` (${c.colorCode})` : ''}</span>
+        <span style="flex:1;color:var(--black);">${c.colorName}${c.colorCode ? ` ${c.colorCode}` : ''}</span>
         ${outOfStock ? '<span style="font-size:11px;color:var(--red);font-weight:600;">품절</span>' : ''}
       </div>
     `;
   }).join('');
   const selected = colors[previewIdx];
 
-  // 선택한 색상의 바코드/컬러번호로 상품코드 영역도 갱신
+  // 선택한 색상의 바코드로 상품코드 영역도 갱신
   const codeEl = document.getElementById('productCode');
   if(codeEl) {
-    const codeParts = [`상품코드: ${selected.barcode || p.barcode || '-'}`];
-    if(selected.colorCode) codeParts.push(`컬러번호: ${selected.colorCode}`);
-    codeEl.textContent = codeParts.join('  ·  ');
+    codeEl.textContent = `상품코드: ${selected.barcode || p.barcode || '-'}`;
   }
 
   // 선택한 색상의 이미지로 교체
@@ -1314,7 +1312,7 @@ function updateStockDisplay(stock) {
     document.getElementById('stock-status').innerHTML = '<div class="stock-dot out"></div><span style="color:var(--red);font-weight:600;">품절</span>';
     document.getElementById('restock-btn').style.display = 'flex';
   } else {
-    document.getElementById('stock-status').innerHTML = `<div class="stock-dot"></div><span style="color:var(--green);font-weight:600;">재고 있음</span> <span style="color:var(--g3);">(잔여 ${stock}개)</span>`;
+    document.getElementById('stock-status').innerHTML = `<div class="stock-dot"></div><span style="color:var(--green);font-weight:600;">재고 있음</span>`;
     document.getElementById('restock-btn').style.display = 'none';
   }
 }
