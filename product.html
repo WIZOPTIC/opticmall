@@ -167,9 +167,9 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 /* 상품 정보 */
 .product-info { flex: 1; }
 .product-category { font-family: var(--font-body); font-style: normal; font-size: 26px; font-weight: 800; color: var(--navy); margin-bottom: 8px; letter-spacing: -0.01em; }
-.product-name { font-size: 16px; font-weight: 700; color: var(--navy); line-height: 1.3; margin-bottom: 6px; letter-spacing: -0.01em; }
+.product-name { font-size: 17px; font-weight: 700; color: var(--navy); line-height: 1.3; margin-bottom: 6px; letter-spacing: -0.01em; }
 .product-code { font-size: 14px; color: var(--g3); font-family: 'Inter', sans-serif; margin-bottom: 20px; }
-#productSize { font-size: 15px; color: var(--navy); }
+#productSize { font-size: 14px; color: var(--navy); }
 
 /* 가격 */
 .price-wrap { background: var(--g1); border-radius: 10px; padding: 20px 28px; margin-bottom: 16px; }
@@ -578,9 +578,9 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     <!-- 선택한 색상 목록 -->
     <div id="selectionListWrap" style="margin-bottom:20px;display:none;">
       <div id="selectionList" style="border:1px solid var(--g2);border-radius:10px;max-height:216px;overflow-y:auto;"></div>
-      <div id="selectionSummary" style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-top:1px solid var(--black);margin-top:2px;">
-        <span style="font-size:14px;color:var(--g4);"></span>
-        <span style="font-size:15px;font-weight:800;color:var(--navy);"></span>
+      <div id="selectionSummary" style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-top:1px solid var(--black);margin-top:14px;">
+        <span style="font-size:16px;color:var(--g4);"></span>
+        <span style="font-size:17px;font-weight:800;color:var(--navy);"></span>
       </div>
     </div>
     <div id="selectionEmptyHint" style="font-size:14px;color:var(--g3);"></div>
@@ -1250,7 +1250,10 @@ function renderSelectionList() {
   const totalPrice = selectedItems.reduce((s,it)=>s+getColorPrice(it.colorIdx)*it.qty,0);
   summaryEl.innerHTML = `
     <span style="font-size:16px;color:var(--g4);">총 ${totalQty}개</span>
-    <span style="font-size:17px;font-weight:800;color:var(--navy);">Total ${totalPrice.toLocaleString()}원</span>
+    <span style="display:flex;align-items:baseline;gap:10px;">
+      <span style="font-size:14px;font-weight:600;color:var(--g4);">Total</span>
+      <span style="font-size:22px;font-weight:800;color:var(--navy);">${totalPrice.toLocaleString()}원</span>
+    </span>
   `;
 }
 
