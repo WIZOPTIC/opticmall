@@ -521,10 +521,10 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   <div class="product-info">
     <div class="product-category" id="productCategory">-</div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">
-      <div class="product-code" id="productSize" style="margin-bottom:0;">사이즈: -</div>
+      <div class="product-name" id="productName" style="margin-bottom:0;">불러오는 중...</div>
       <div class="product-code" id="productCode" style="margin-bottom:0;">상품코드: -</div>
     </div>
-    <div class="product-name" id="productName" style="margin-bottom:20px;">불러오는 중...</div>
+    <div class="product-code" id="productSize" style="margin-bottom:20px;">사이즈: -</div>
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
     <div class="price-wrap" id="price-checking">
@@ -1239,8 +1239,8 @@ function renderSelectionList() {
             <div style="width:30px;text-align:center;font-size:14px;font-weight:700;">${item.qty}</div>
             <button onclick="changeSelectionQty(${item.colorIdx},1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">+</button>
           </div>
-          <div style="font-size:14px;font-weight:800;color:var(--navy);min-width:70px;text-align:right;">${lineTotal.toLocaleString()}원</div>
           <button onclick="removeSelection(${item.colorIdx})" aria-label="삭제" style="border:none;background:none;color:var(--g3);font-size:16px;cursor:pointer;">×</button>
+          <div style="font-size:14px;font-weight:800;color:var(--navy);min-width:70px;text-align:right;">${lineTotal.toLocaleString()}원</div>
         </div>
       </div>
     `;
@@ -1249,8 +1249,8 @@ function renderSelectionList() {
   const totalQty = selectedItems.reduce((s,it)=>s+it.qty,0);
   const totalPrice = selectedItems.reduce((s,it)=>s+getColorPrice(it.colorIdx)*it.qty,0);
   summaryEl.innerHTML = `
-    <span style="font-size:14px;color:var(--g4);">총 ${totalQty}개</span>
-    <span style="font-size:15px;font-weight:800;color:var(--navy);">Total ${totalPrice.toLocaleString()}원</span>
+    <span style="font-size:16px;color:var(--g4);">총 ${totalQty}개</span>
+    <span style="font-size:17px;font-weight:800;color:var(--navy);">Total ${totalPrice.toLocaleString()}원</span>
   `;
 }
 
