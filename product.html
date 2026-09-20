@@ -816,16 +816,32 @@ function fitMainImgToPhoto(img) {
   if (window.innerWidth <= 768) return;
   const mainBox = document.getElementById('mainImgBox');
   const thumbList = document.getElementById('thumbList');
-  if (!mainBox || !img || !img.naturalWidth) return;
-  const w = mainBox.offsetWidth;
-  const naturalH = Math.round(w * (img.naturalHeight / img.naturalWidth));
-  // 현재 화면(뷰포트) 안에 사진 하단까지 다 들어오도록, 필요하면 높이를 살짝 더 줄임 (비율은 유지되므로 사진이 찌그러지지 않고 살짝 작게 보일 뿐)
+  const container = mainBox ? mainBox.closest('.product-images') : null;
+  if (!mainBox || !container || !img || !img.naturalWidth) return;
+  const ratio = img.naturalWidth / img.naturalHeight;
+  // 썸네일 칸(68px)+간격(12px)을 뺀, 사진이 쓸 수 있는 전체 가로폭
+  const fullW = container.clientWidth - 68 - 12;
+  const naturalH = Math.round(fullW / ratio);
+  // 현재 화면(뷰포트) 안에 사진 하단까지 다 들어오도록 필요한 높이 한도
   const rectTop = mainBox.getBoundingClientRect().top;
   const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
-  const h = Math.min(naturalH, viewportLimit > 280 ? viewportLimit : naturalH, 720);
-  const clampedH = Math.max(280, h);
-  mainBox.style.height = clampedH + 'px';
-  if (thumbList) thumbList.style.maxHeight = clampedH + 'px';
+
+  if (viewportLimit >= 280 && naturalH > viewportLimit) {
+    // 세로가 화면을 넘치면, 가로세로를 같은 비율로 함께 줄여서 여백 없이 꽉 차게 (찌그러짐 없음)
+    const h = Math.max(280, Math.min(viewportLimit, 720));
+    const w = Math.round(h * ratio);
+    mainBox.style.flex = 'none';
+    mainBox.style.width = w + 'px';
+    mainBox.style.height = h + 'px';
+    if (thumbList) thumbList.style.maxHeight = h + 'px';
+  } else {
+    // 화면에 다 들어가면 원래대로 가로폭 꽉 채움
+    const h = Math.max(280, Math.min(naturalH, 720));
+    mainBox.style.flex = '1';
+    mainBox.style.width = '';
+    mainBox.style.height = h + 'px';
+    if (thumbList) thumbList.style.maxHeight = h + 'px';
+  }
 }
 let currentUserName = '';
 let currentUserRole = null;
