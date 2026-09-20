@@ -662,8 +662,8 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
   <!-- 상세 이미지 -->
   <div id="tab-detail" style="display:none;">
-    <div id="detailImagesWrap">
-      <div style="background:var(--g1);border-radius:12px;padding:60px;text-align:center;color:var(--g3);">
+    <div id="detailImagesWrap" class="detail-photos-grid">
+      <div style="grid-column:1/-1;background:var(--g1);border-radius:12px;padding:60px;text-align:center;color:var(--g3);">
         <div style="font-size:48px;margin-bottom:16px;"><i class=ic-camera></i></div>
         <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
       </div>
@@ -706,12 +706,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
         <div class="delivery-value">1개부터 주문 가능</div>
       </div>
     </div>
-  </div>
-
-  <!-- 상품 상세 사진 (선택된 색상 기준) -->
-  <div class="detail-photos-section" id="detailPhotosSection" style="display:none;">
-    <div class="section-title">상품 상세 사진</div>
-    <div class="detail-photos-grid" id="detailPhotosGrid"></div>
   </div>
 
   <!-- 관련 상품 -->
@@ -1108,14 +1102,13 @@ function renderProduct(p) {
     thumbList.innerHTML = `<div class="thumb active placeholder-emoji"><i class=ic-glasses></i></div>`;
   }
 
-  // 상세이미지 탭 초기 렌더링
+  // 상세이미지 탭 초기 렌더링 (2열 그리드, 클릭 시 크게 보기)
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap && initDetailUrls.length > 0) {
     detailWrap.innerHTML = initDetailUrls.map(url =>
-      `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
+      `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')">`
     ).join('');
   }
-  renderDetailPhotosSection(initDetailUrls);
 
   // 색상 선택 버튼 렌더링
   const colorSection = document.getElementById('colorSection');
@@ -1340,28 +1333,13 @@ function applyColorImages(color) {
     }
   }
 
-  // 상세 이미지 교체
+  // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기)
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap) {
     detailWrap.innerHTML = detailUrls.map(url =>
-      `<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;display:block;">`
+      `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')">`
     ).join('');
   }
-  renderDetailPhotosSection(detailUrls);
-}
-
-// 상품 상세 사진 섹션 (선택된 색상의 상세 이미지, 2열로 표시)
-function renderDetailPhotosSection(urls) {
-  const section = document.getElementById('detailPhotosSection');
-  const grid = document.getElementById('detailPhotosGrid');
-  if(!section || !grid) return;
-  if(!urls || urls.length === 0) {
-    section.style.display = 'none';
-    grid.innerHTML = '';
-    return;
-  }
-  section.style.display = 'block';
-  grid.innerHTML = urls.map(url => `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')">`).join('');
 }
 
 function updateStockDisplay(stock) {
