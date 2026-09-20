@@ -61,9 +61,10 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 }
 .gnb-item:hover { color: var(--sky); }
 .gnb-item.active { color: var(--navy); font-weight: 700; }
-.gnb-item.active::after {
-  content: ''; position: absolute; left: 50%; transform: translateX(-50%); bottom: -2px;
-  width: 64px; height: 3px; background: var(--navy);
+.gnb-label { position: relative; display: inline-block; }
+.gnb-item.active .gnb-label::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -10px;
+  height: 2px; background: var(--navy);
 }
 /* 모바일 요소 */
 .hamburger-btn { display: none; background: none; border: none; padding: 6px; margin-right: 8px; cursor: pointer; color: var(--navy); }
@@ -434,15 +435,15 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     </button>
     <a href="index.html" class="logo">Opticmall</a>
     <nav class="gnb-inner">
-    <button class="gnb-item" onclick="location.href='list.html'">전체상품</button>
-    <button class="gnb-item" onclick="location.href='brands.html'">브랜드별</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'">하금테</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'">뿔테</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'">메탈</button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'">선글라스</button>
-    <button class="gnb-item" onclick="location.href='vkool.html'">V.KOOL</button>
-    <button class="gnb-item" onclick="location.href='timesale.html'">타임세일</button>
-    <button class="gnb-item" onclick="location.href='event.html'">이벤트</button>
+    <button class="gnb-item" onclick="location.href='list.html'"><span class="gnb-label">전체상품</span></button>
+    <button class="gnb-item" onclick="location.href='brands.html'"><span class="gnb-label">브랜드별</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'"><span class="gnb-label">하금테</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'"><span class="gnb-label">뿔테</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'"><span class="gnb-label">메탈</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'"><span class="gnb-label">선글라스</span></button>
+    <button class="gnb-item" onclick="location.href='vkool.html'"><span class="gnb-label">V.KOOL</span></button>
+    <button class="gnb-item" onclick="location.href='timesale.html'"><span class="gnb-label">타임세일</span></button>
+    <button class="gnb-item" onclick="location.href='event.html'"><span class="gnb-label">이벤트</span></button>
     </nav>
     <div class="header-right">
       <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
