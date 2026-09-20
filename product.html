@@ -251,6 +251,21 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 }
 .btn-wish:hover { border-color: var(--navy); }
 .btn-wish.active { border-color: var(--navy); }
+.quickpay-btns { display: flex; gap: 8px; margin-top: -10px; margin-bottom: 20px; }
+.btn-quickpay {
+  flex: 1; padding: 13px; border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: all 0.2s;
+}
+.btn-quickpay:hover { transform: translateY(-1px); filter: brightness(0.97); }
+.btn-quickpay-naver { background: #03C75A; color: #fff; }
+.btn-quickpay-kakao { background: #FEE500; color: #391B1B; }
+.quickpay-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; background: #fff; color: #03C75A;
+  border-radius: 4px; font-size: 11px; font-weight: 900; line-height: 1;
+}
 
 /* 배송 정보 */
 .delivery-info { border-top: 1px solid var(--g2); padding-top: 20px; }
@@ -625,6 +640,12 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <button class="btn-wish" id="wish-btn" onclick="toggleWish()"><i class=ic-wish></i></button>
       <button class="btn-cart" onclick="addCart()">장바구니</button>
       <button class="btn-buy" onclick="buyNow()">바로 주문</button>
+    </div>
+
+    <!-- 간편결제 바로가기 (주문서로 이동 후 해당 결제수단이 바로 선택되도록) -->
+    <div class="quickpay-btns" id="quickpay-btns">
+      <button class="btn-quickpay btn-quickpay-naver" onclick="quickPay('naver')"><span class="quickpay-mark">N</span>&nbsp;페이로 주문</button>
+      <button class="btn-quickpay btn-quickpay-kakao" onclick="quickPay('kakao')"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>&nbsp;페이로 주문</button>
     </div>
 
     <!-- 재입고 알림 (품절시 표시) -->
@@ -1737,6 +1758,18 @@ function buyNow() {
   showToast('주문 페이지로 이동합니다...', 'success');
   setTimeout(() => {
     location.href = `order.html?items=${encodeURIComponent(itemsParam)}`;
+  }, 500);
+}
+// 네이버페이/카카오페이 바로가기 - 주문서(order.html)로 이동한 뒤, 수량/배송지 확인 후 해당 결제 버튼이 바로 눈에 띄도록 스크롤+하이라이트됨
+// (도매 주문 특성상 수량이 많아 결제 직전 확인이 필요해서, 결제창을 곧바로 띄우지 않고 주문서에서 한 번 더 확인하게 함)
+function quickPay(provider) {
+  if(memberLevel < 2) { showToast('로그인 후 이용 가능합니다.', 'error'); openLogin(); return; }
+  if(!currentProduct) return;
+  if(selectedItems.length === 0) { showToast('색상을 먼저 선택해주세요.', 'error'); return; }
+  const itemsParam = selectedItems.map(it => `${currentProduct.id}:${it.qty}:${it.colorIdx}`).join(',');
+  showToast('주문 페이지로 이동합니다...', 'success');
+  setTimeout(() => {
+    location.href = `order.html?items=${encodeURIComponent(itemsParam)}&quickpay=${provider}`;
   }, 500);
 }
 

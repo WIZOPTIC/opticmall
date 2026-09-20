@@ -147,6 +147,8 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .btn-kakaopay{background:#FEE500;color:#391B1B;}
 .npay-mark{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;background:#fff;color:#03C75A;border-radius:4px;font-size:12px;font-weight:900;font-style:normal;line-height:1;}
 .kakao-bubble{flex:none;}
+.quickpay-highlight{animation:quickpayPulse 1s ease-in-out 2;}
+@keyframes quickpayPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,122,26,0.55);}50%{box-shadow:0 0 0 9px rgba(255,122,26,0);}}
 
 .loading-box{text-align:center;padding:60px;color:var(--g3);}
 .spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
@@ -599,6 +601,7 @@ _auth.onAuthStateChanged(async (user) => {
     await loadAddressesForOrder();
     await loadOrderProduct();
     preselectCouponFromParam();
+    preselectQuickPayFromParam();
   } catch(e) {
     console.error(e);
     alert('회원 정보를 불러오지 못했습니다.');
@@ -613,6 +616,21 @@ function preselectCouponFromParam() {
     appliedCoupon = c;
     updateShippingAndTotal();
   }
+}
+// 상품페이지의 "N페이로 주문"/"카카오페이로 주문" 버튼으로 넘어온 경우,
+// 수량/배송지를 확인할 수 있게 결제창을 바로 띄우지 않고, 해당 버튼으로 스크롤 + 강조만 해줌
+function preselectQuickPayFromParam() {
+  const qp = new URLSearchParams(location.search).get('quickpay');
+  if(!qp) return;
+  const btnId = qp === 'naver' ? 'naverPayBtn' : (qp === 'kakao' ? 'kakaoPayBtn' : null);
+  if(!btnId) return;
+  setTimeout(() => {
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    btn.classList.add('quickpay-highlight');
+    setTimeout(() => btn.classList.remove('quickpay-highlight'), 2200);
+  }, 400);
 }
 
 function fillOrdererInfo() {
