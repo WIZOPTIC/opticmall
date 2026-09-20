@@ -123,10 +123,10 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   flex: none; width: 100%;
   display: flex; align-items: stretch; gap: 12px;
 }
-.product-left-col .product-images .main-img { flex: 1; min-width: 0; margin-bottom: 0; height: 480px; }
+.product-left-col .product-images .main-img { flex: 1; min-width: 0; margin-bottom: 0; aspect-ratio: 3 / 2; background: #fff; align-self: flex-start; }
 .product-left-col .product-images .thumb-list {
   flex: 0 0 68px; flex-direction: column; justify-content: flex-start;
-  width: 68px; gap: 8px; overflow-y: auto; padding-right: 2px;
+  width: 68px; gap: 8px; overflow-y: auto; padding-right: 2px; align-self: flex-start;
 }
 .product-left-col .product-images .thumb { width: 68px; height: 68px; flex-shrink: 0; }
 .product-left-col .product-images .thumb-list::-webkit-scrollbar { width: 4px; }
@@ -811,37 +811,9 @@ let currentProduct = null;
 let currentPrice = 0;
 let currentImgIndex = 0;
 
-// 메인 사진 박스를 원본 이미지 비율에 맞춰 세로 높이를 조절 (데스크탑에서만) - 잘림/레터박스 없이 원본 그대로 표시
+// 메인 사진 박스: 고정 비율 + 흰 배경으로 통일 (사진 촬영 배경이 흰색/연회색이라 여백이 있어도 거의 안 보임)
 function fitMainImgToPhoto(img) {
-  if (window.innerWidth <= 768) return;
-  const mainBox = document.getElementById('mainImgBox');
-  const thumbList = document.getElementById('thumbList');
-  const container = mainBox ? mainBox.closest('.product-images') : null;
-  if (!mainBox || !container || !img || !img.naturalWidth) return;
-  const ratio = img.naturalWidth / img.naturalHeight;
-  // 썸네일 칸(68px)+간격(12px)을 뺀, 사진이 쓸 수 있는 전체 가로폭
-  const fullW = container.clientWidth - 68 - 12;
-  const naturalH = Math.round(fullW / ratio);
-  // 현재 화면(뷰포트) 안에 사진 하단까지 다 들어오도록 필요한 높이 한도
-  const rectTop = mainBox.getBoundingClientRect().top;
-  const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
-
-  if (viewportLimit >= 280 && naturalH > viewportLimit) {
-    // 세로가 화면을 넘치면, 가로세로를 같은 비율로 함께 줄여서 여백 없이 꽉 차게 (찌그러짐 없음)
-    const h = Math.max(280, Math.min(viewportLimit, 720));
-    const w = Math.round(h * ratio);
-    mainBox.style.flex = 'none';
-    mainBox.style.width = w + 'px';
-    mainBox.style.height = h + 'px';
-    if (thumbList) thumbList.style.maxHeight = h + 'px';
-  } else {
-    // 화면에 다 들어가면 원래대로 가로폭 꽉 채움
-    const h = Math.max(280, Math.min(naturalH, 720));
-    mainBox.style.flex = '1';
-    mainBox.style.width = '';
-    mainBox.style.height = h + 'px';
-    if (thumbList) thumbList.style.maxHeight = h + 'px';
-  }
+  // 더 이상 사진마다 동적으로 계산하지 않음 - CSS 고정 비율(3:2)로 처리
 }
 let currentUserName = '';
 let currentUserRole = null;
