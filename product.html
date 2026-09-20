@@ -811,9 +811,17 @@ let currentProduct = null;
 let currentPrice = 0;
 let currentImgIndex = 0;
 
-// 메인 사진 박스: 고정 비율 + 흰 배경으로 통일 (사진 촬영 배경이 흰색/연회색이라 여백이 있어도 거의 안 보임)
+// 메인 사진 박스: 가로는 항상 꽉 채우고, 세로만 화면에 맞게 아주 살짝 잘라서(object-fit:cover) 스크롤 없이 한 화면에 다 보이게
 function fitMainImgToPhoto(img) {
-  // 더 이상 사진마다 동적으로 계산하지 않음 - CSS 고정 비율(3:2)로 처리
+  if (window.innerWidth <= 768) return;
+  const mainBox = document.getElementById('mainImgBox');
+  const thumbList = document.getElementById('thumbList');
+  if (!mainBox) return;
+  const rectTop = mainBox.getBoundingClientRect().top;
+  const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
+  const h = Math.max(320, Math.min(viewportLimit, 640));
+  mainBox.style.height = h + 'px';
+  if (thumbList) thumbList.style.maxHeight = h + 'px';
 }
 let currentUserName = '';
 let currentUserRole = null;
@@ -1144,7 +1152,7 @@ function renderProduct(p) {
     if(!img) {
       img = document.createElement('img');
       img.id = 'mainImgTag';
-      img.style.cssText = 'width:100%;height:100%;object-fit:contain;object-position:center center;position:absolute;inset:0;cursor:zoom-in;';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;position:absolute;inset:0;cursor:zoom-in;';
       mainBox.appendChild(img);
     }
     img.onload = function(){ fitMainImgToPhoto(img); };
@@ -1367,7 +1375,7 @@ function applyColorImages(color) {
       if(mainBox) {
         const img = document.createElement('img');
         img.id = 'mainImgTag';
-        img.style.cssText = 'width:100%;height:100%;object-fit:contain;object-position:center center;position:absolute;inset:0;cursor:zoom-in;';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;position:absolute;inset:0;cursor:zoom-in;';
         img.onload = function(){ fitMainImgToPhoto(img); };
         img.src = mainUrl;
         mainBox.appendChild(img);
@@ -1512,7 +1520,7 @@ function switchMainImage(url, el, idx) {
   if(!img) {
     img = document.createElement('img');
     img.id = 'mainImgTag';
-    img.style.cssText = 'width:100%;height:100%;object-fit:contain;object-position:center center;position:absolute;inset:0;';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;position:absolute;inset:0;';
     mainBox.appendChild(img);
   }
   img.onload = function(){ fitMainImgToPhoto(img); };
