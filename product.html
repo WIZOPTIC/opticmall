@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>옵틱몰 | 드렌테 K9191</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%230B1F3A'/%3E%3Ctext x='50' y='69' font-family='Georgia, Times, serif' font-style='italic' font-weight='700' font-size='58' fill='%23C9A227' text-anchor='middle'%3EO%3C/text%3E%3C/svg%3E">
+<title>옵틱몰 - 프리미엄 도매몰</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FFFFFF'/><path d='M50 8 C71 8 88 24 88 44 C88 60 76 73 60 77 L34 90 C31 91 29 89 30 86 L36 74 C20 68 12 56 12 44 C12 24 29 8 50 8 Z' fill='%23FF7A1A'/><text x='50' y='51' font-family='Arial, sans-serif' font-weight='800' font-size='30' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
@@ -1054,7 +1054,8 @@ async function loadProduct() {
 }
 
 function renderProduct(p) {
-  document.title = 'OPTICMALL | ' + (p.modelName || '상품');
+  // 상품 상세 페이지도 탭 제목은 모델명 대신 고정 문구로 통일
+  document.title = '옵틱몰 - 프리미엄 도매몰';
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
   document.getElementById('productCategory').textContent = p.brandName || '';
   document.getElementById('productName').textContent = p.modelName || '-';
