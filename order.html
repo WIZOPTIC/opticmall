@@ -144,6 +144,8 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .btn-easypay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
 .btn-naverpay{background:#03C75A;color:#fff;}
 .btn-kakaopay{background:#FEE500;color:#391B1B;}
+.npay-mark{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;background:#fff;color:#03C75A;border-radius:4px;font-size:12px;font-weight:900;font-style:normal;line-height:1;}
+.kakao-bubble{flex:none;}
 
 .loading-box{text-align:center;padding:60px;color:var(--g3);}
 .spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
@@ -450,8 +452,8 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       </div>
       <button class="btn-pay" id="payBtn" onclick="startPayment()">결제하기</button>
       <div class="easypay-row">
-        <button class="btn-easypay btn-naverpay" id="naverPayBtn" onclick="startPayment('NAVERPAY')">N pay 구매</button>
-        <button class="btn-easypay btn-kakaopay" id="kakaoPayBtn" onclick="startPayment('KAKAOPAY')">kakaopay 구매</button>
+        <button class="btn-easypay btn-naverpay" id="naverPayBtn" onclick="startPayment('NAVERPAY')"><span class="npay-mark">N</span>&nbsp;Pay 구매</button>
+        <button class="btn-easypay btn-kakaopay" id="kakaoPayBtn" onclick="startPayment('KAKAOPAY')"><svg class="kakao-bubble" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>&nbsp;pay 구매</button>
       </div>
     </div>
   </div>
