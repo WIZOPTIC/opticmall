@@ -119,8 +119,9 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
 /* 구매 영역이 스크롤해도 계속 따라오도록 - 왼쪽(이미지+상품정보 탭)과 같은 높이 동안만 고정 */
 .product-left-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.product-left-col .product-images { flex: none; width: 100%; }
+.product-left-col .product-images { flex: none; width: 100%; max-width: 480px; }
 .product-left-tabs { margin-top: 32px; }
+.product-left-tabs .related-grid { grid-template-columns: repeat(2, 1fr); }
 .product-info.product-info-sticky { position: sticky; top: var(--sticky-header-h, 110px); align-self: flex-start; flex: 0 0 420px; }
 
 /* 이미지 영역 */
@@ -739,15 +740,12 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   var relatedSection = document.querySelector('.related-section');
   if (!wrap || !tabSection || !productImages || !productInfo || !relatedSection) return;
 
-  // 관련 상품(전체 너비로 남겨둘 부분)을 제외한 탭 관련 요소들을 하나로 묶는다.
+  // 탭 내용 + 관련 상품까지 전부 왼쪽 컬럼으로 옮겨서, 오른쪽 구매 패널이
+  // "함께 보면 좋은 상품" 구간에서도 끊기지 않고 계속 따라오게 한다.
   var leftTabs = document.createElement('div');
   leftTabs.className = 'product-left-tabs';
-  var node = tabSection.firstChild;
-  while (node) {
-    var next = node.nextSibling;
-    if (node === relatedSection) break;
-    leftTabs.appendChild(node);
-    node = next;
+  while (tabSection.firstChild) {
+    leftTabs.appendChild(tabSection.firstChild);
   }
 
   var leftCol = document.createElement('div');
