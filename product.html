@@ -686,6 +686,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="tab" onclick="switchTab(this,'review')">구매 후기</div>
       <div class="tab" onclick="switchTab(this,'qna')">Q&amp;A</div>
       <div class="tab" onclick="switchTab(this,'shipping')">배송안내</div>
+      <div class="tab" onclick="switchTab(this,'exchange')">교환/반품</div>
     </div>
   </div>
 
@@ -747,6 +748,32 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="delivery-row">
         <div class="delivery-label">최소 주문</div>
         <div class="delivery-value">1개부터 주문 가능</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 교환/반품 -->
+  <div id="tab-exchange" style="display:none;">
+    <div class="delivery-info" style="border-top:none;padding-top:0;">
+      <div class="delivery-row">
+        <div class="delivery-label">불량 교환</div>
+        <div class="delivery-value"><span class="highlight">상품 수령 후 7일 이내</span> 무조건 교환 · 왕복 택배비 무료<br><span style="color:var(--g3);font-size:13px;">(불량 부위 사진을 보내주시면 확인 후 바로 진행해 드립니다)</span></div>
+      </div>
+      <div class="delivery-row">
+        <div class="delivery-label">단순 변심</div>
+        <div class="delivery-value">수령 후 7일 이내 · 미개봉/미사용 상태에 한해 가능 · 왕복 택배비 구매자 부담</div>
+      </div>
+      <div class="delivery-row">
+        <div class="delivery-label">7일 경과 시</div>
+        <div class="delivery-value">교환/반품 원칙적으로 불가 · 부득이하게 진행되는 경우 <span class="highlight">유상 처리</span>(배송비 구매자 부담)</div>
+      </div>
+      <div class="delivery-row">
+        <div class="delivery-label">교환/반품 불가</div>
+        <div class="delivery-value">착용 흔적이 있거나 개별 포장이 훼손된 경우 · 주문제작(각인 등 특수 사양) 상품</div>
+      </div>
+      <div class="delivery-row">
+        <div class="delivery-label">신청 방법</div>
+        <div class="delivery-value">고객센터(카카오톡 채널)로 상품코드와 사유를 남겨주시면 안내해 드립니다</div>
       </div>
     </div>
   </div>
@@ -1806,7 +1833,7 @@ async function requestRestock() {
 function switchTab(tab, name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
-  ['spec','detail','review','qna','shipping'].forEach(t => {
+  ['spec','detail','review','qna','shipping','exchange'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t === name ? 'block' : 'none';
   });
