@@ -115,7 +115,13 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .breadcrumb a:hover { color: var(--sky); }
 
 /* 메인 레이아웃 */
-.product-wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; display: flex; gap: 48px; }
+.product-wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; display: flex; align-items: flex-start; gap: 48px; }
+
+/* 구매 영역이 스크롤해도 계속 따라오도록 - 왼쪽(이미지+상품정보 탭)과 같은 높이 동안만 고정 */
+.product-left-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.product-left-col .product-images { flex: none; width: 100%; }
+.product-left-tabs { margin-top: 32px; }
+.product-info.product-info-sticky { position: sticky; top: var(--sticky-header-h, 110px); align-self: flex-start; flex: 0 0 420px; }
 
 /* 이미지 영역 */
 .product-images { flex: 0 0 520px; }
@@ -719,6 +725,40 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     </div>
   </div>
 </div>
+
+<script>
+// 데스크톱 화면에서는 "상품정보/상품상세/구매후기..." 탭 내용을 이미지 아래쪽(왼쪽 컬럼)으로 옮기고,
+// 가격/색상선택/장바구니·구매하기 버튼(product-info)은 오른쪽에 남겨서 스크롤해도 계속 보이게(sticky) 만든다.
+// 모바일(768px 이하)은 기존처럼 이미지 → 구매영역 → 탭 순서 그대로 유지한다.
+(function restructureProductLayoutForDesktop() {
+  if (window.innerWidth <= 768) return;
+  var wrap = document.querySelector('.product-wrap');
+  var tabSection = document.querySelector('.tab-section');
+  var productImages = document.querySelector('.product-images');
+  var productInfo = document.querySelector('.product-info');
+  var relatedSection = document.querySelector('.related-section');
+  if (!wrap || !tabSection || !productImages || !productInfo || !relatedSection) return;
+
+  // 관련 상품(전체 너비로 남겨둘 부분)을 제외한 탭 관련 요소들을 하나로 묶는다.
+  var leftTabs = document.createElement('div');
+  leftTabs.className = 'product-left-tabs';
+  var node = tabSection.firstChild;
+  while (node) {
+    var next = node.nextSibling;
+    if (node === relatedSection) break;
+    leftTabs.appendChild(node);
+    node = next;
+  }
+
+  var leftCol = document.createElement('div');
+  leftCol.className = 'product-left-col';
+  wrap.insertBefore(leftCol, productImages);
+  leftCol.appendChild(productImages);
+  leftCol.appendChild(leftTabs);
+
+  productInfo.classList.add('product-info-sticky');
+})();
+</script>
 
 <!-- 토스트 -->
 <div class="toast" id="toast"></div>
