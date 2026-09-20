@@ -818,8 +818,12 @@ function fitMainImgToPhoto(img) {
   const thumbList = document.getElementById('thumbList');
   if (!mainBox || !img || !img.naturalWidth) return;
   const w = mainBox.offsetWidth;
-  const h = Math.round(w * (img.naturalHeight / img.naturalWidth));
-  const clampedH = Math.max(280, Math.min(h, 720));
+  const naturalH = Math.round(w * (img.naturalHeight / img.naturalWidth));
+  // 현재 화면(뷰포트) 안에 사진 하단까지 다 들어오도록, 필요하면 높이를 살짝 더 줄임 (비율은 유지되므로 사진이 찌그러지지 않고 살짝 작게 보일 뿐)
+  const rectTop = mainBox.getBoundingClientRect().top;
+  const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
+  const h = Math.min(naturalH, viewportLimit > 280 ? viewportLimit : naturalH, 720);
+  const clampedH = Math.max(280, h);
   mainBox.style.height = clampedH + 'px';
   if (thumbList) thumbList.style.maxHeight = clampedH + 'px';
 }
