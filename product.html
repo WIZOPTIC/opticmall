@@ -659,6 +659,8 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <tr><td>색상</td><td id="spec-color">-</td></tr>
       <tr><td>원산지</td><td id="spec-origin">-</td></tr>
     </table>
+    <!-- 상품정보 바로 아래로 상세 이미지가 탭 클릭 없이 바로 이어서 보이도록 -->
+    <div id="specDetailPhotosGrid" class="detail-photos-grid" style="margin-top:32px;"></div>
   </div>
 
   <!-- 상세 이미지 -->
@@ -1103,13 +1105,8 @@ function renderProduct(p) {
     thumbList.innerHTML = `<div class="thumb active placeholder-emoji"><i class=ic-glasses></i></div>`;
   }
 
-  // 상세이미지 탭 초기 렌더링 (2열 그리드, 클릭 시 크게 보기)
-  const detailWrap = document.getElementById('detailImagesWrap');
-  if(detailWrap && initDetailUrls.length > 0) {
-    detailWrap.innerHTML = initDetailUrls.map(url =>
-      `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')">`
-    ).join('');
-  }
+  // 상세이미지 초기 렌더링 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다
+  renderDetailImageGrids(initDetailUrls);
 
   // 색상 선택 버튼 렌더링
   const colorSection = document.getElementById('colorSection');
@@ -1334,13 +1331,25 @@ function applyColorImages(color) {
     }
   }
 
-  // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기)
+  // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다
+  renderDetailImageGrids(detailUrls);
+}
+
+// 상세 이미지를 "상품정보" 탭 하단(스펙 표 바로 아래)과 "상품 상세" 탭 두 곳에 동일하게 렌더링
+function renderDetailImageGrids(urls) {
+  const html = (urls && urls.length > 0)
+    ? urls.map(url => `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')">`).join('')
+    : '';
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap) {
-    detailWrap.innerHTML = detailUrls.map(url =>
-      `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')">`
-    ).join('');
+    detailWrap.innerHTML = html || `
+      <div style="grid-column:1/-1;background:var(--g1);border-radius:12px;padding:60px;text-align:center;color:var(--g3);">
+        <div style="font-size:48px;margin-bottom:16px;"><i class=ic-camera></i></div>
+        <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
+      </div>`;
   }
+  const specGrid = document.getElementById('specDetailPhotosGrid');
+  if(specGrid) specGrid.innerHTML = html;
 }
 
 function updateStockDisplay(stock) {
