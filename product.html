@@ -194,8 +194,8 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 /* 가격 */
 .price-wrap { background: var(--g1); border-radius: 10px; padding: 20px 28px; margin-bottom: 16px; }
 .price-label { font-size: 11px; font-weight: 700; color: var(--g3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
-.price-value { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; display: flex; align-items: baseline; gap: 2px; }
-.price-value .won { font-size: 17px; font-weight: 700; }
+.price-value { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; display: flex; align-items: baseline; gap: 2px; }
+.price-value .won { font-size: 9px; font-weight: 700; }
 .price-locked { display: flex; align-items: center; gap: 10px; padding: 16px 0; }
 .price-locked-icon { font-size: 24px; }
 .price-locked-text { font-size: 14px; color: var(--g3); line-height: 1.6; }
@@ -603,7 +603,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
     <!-- 가격 (회원 - 기본 숨김) -->
     <div class="price-wrap" id="price-visible" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span id="priceOriginal" style="display:none;font-size:16px;color:var(--g3);text-decoration:line-through;font-weight:400;margin-left:8px;"></span></div>
+        <div class="price-value"><span id="priceDiscountBadge"></span><span class="won">₩</span><span id="priceValue">0</span><span id="priceOriginal" style="display:none;font-size:8px;color:var(--g3);text-decoration:line-through;font-weight:400;margin-left:8px;"></span></div>
         <div class="stock-info" id="stock-status" style="margin:0;">
           <div class="stock-dot"></div>
           <span style="color:var(--green);font-weight:600;">재고 있음</span>
@@ -1036,7 +1036,7 @@ function updatePriceDisplay() {
       const salePrice = Math.round(price * (1 - discountRate/100));
       document.getElementById('priceOriginal').textContent = `₩${price.toLocaleString()}`;
       document.getElementById('priceOriginal').style.display = 'inline';
-      document.getElementById('priceDiscountBadge').innerHTML = `<span style="font-size:16px;color:var(--red);font-weight:800;margin-right:8px;">${discountRate}%</span>`;
+      document.getElementById('priceDiscountBadge').innerHTML = `<span style="font-size:8px;color:var(--red);font-weight:800;margin-right:8px;">${discountRate}%</span>`;
       document.getElementById('priceValue').textContent = salePrice.toLocaleString();
     } else {
       document.getElementById('priceOriginal').style.display = 'none';
