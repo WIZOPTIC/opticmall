@@ -1139,7 +1139,7 @@ function renderProduct(p) {
     if(!img) {
       img = document.createElement('img');
       img.id = 'mainImgTag';
-      img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;cursor:zoom-in;';
+      img.style.cssText = 'width:100%;height:100%;object-fit:contain;position:absolute;inset:0;cursor:zoom-in;';
       mainBox.appendChild(img);
     }
     img.src = initMainUrl;
@@ -1358,7 +1358,7 @@ function applyColorImages(color) {
       if(mainBox) {
         const img = document.createElement('img');
         img.id = 'mainImgTag';
-        img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;cursor:zoom-in;';
+        img.style.cssText = 'width:100%;height:100%;object-fit:contain;position:absolute;inset:0;cursor:zoom-in;';
         img.src = mainUrl;
         mainBox.appendChild(img);
       }
@@ -1502,7 +1502,7 @@ function switchMainImage(url, el, idx) {
   if(!img) {
     img = document.createElement('img');
     img.id = 'mainImgTag';
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;position:absolute;inset:0;';
     mainBox.appendChild(img);
   }
   img.src = url;
