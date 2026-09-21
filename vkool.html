@@ -286,6 +286,43 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .fw-recent-item img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--g1); flex-shrink: 0; }
 .fw-recent-name { font-size: 12.5px; line-height: 1.4; }
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
+.fw-share-panel {
+  position: fixed; right: 84px; bottom: 90px; width: 300px;
+  background: var(--white); border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(10,14,20,0.22); z-index: 501;
+  display: none; padding: 18px;
+}
+.fw-share-panel.open { display: block; }
+.fw-share-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.fw-share-title { font-size: 16px; font-weight: 800; color: var(--black); }
+.fw-share-close { background: none; border: none; font-size: 20px; color: var(--g3); cursor: pointer; line-height: 1; padding: 0; }
+.fw-share-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px 4px; margin-bottom: 16px; }
+.fw-share-item { display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; }
+.fw-share-icon {
+  width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.fw-share-icon svg { width: 20px; height: 20px; }
+.fw-share-label { font-size: 11px; color: var(--g4); }
+.fw-si-blog { background: #03C75A; }
+.fw-si-cafe { background: #03C75A; }
+.fw-si-keep { background: #ffffff; border: 1.5px solid var(--g2); color: #03C75A; }
+.fw-si-mail { background: #03C75A; }
+.fw-si-band { background: #4DC46D; }
+.fw-si-line { background: #06C755; }
+.fw-si-x { background: #000000; }
+.fw-si-fb { background: #1877F2; }
+.fw-si-kakao { background: #FEE500; }
+.fw-share-link-row { display: flex; gap: 8px; }
+.fw-share-link-row input {
+  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius: 10px;
+  font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
+}
+.fw-share-copy-btn {
+  flex-shrink: 0; padding: 10px 16px; border-radius: 10px; border: none; background: var(--navy);
+  color: var(--white); font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.fw-share-copy-btn:hover { background: var(--sky-dk); }
 
 /* 데스크탑에서는 본문 오른쪽에 위젯이 들어갈 최소한의 여백(70px)만 확보해서, 사진 크기 변화는 최소로 하면서도 화면 배율/창 크기와 상관없이 사진 위에 겹치지 않게 함 */
 @media (min-width: 900px) {
@@ -1201,6 +1238,66 @@ loadApprovedProducts();
   </div>
   <div class="fw-recent-list" id="fwRecentList"></div>
 </div>
+<div class="fw-share-panel" id="fwSharePanel">
+  <div class="fw-share-head">
+    <div class="fw-share-title">공유하기</div>
+    <button class="fw-share-close" onclick="document.getElementById('fwSharePanel').classList.remove('open')">&times;</button>
+  </div>
+  <div class="fw-share-grid">
+    <button class="fw-share-item" onclick="fwShareNaver('blog')">
+      <span class="fw-share-icon fw-si-blog">b</span>
+      <span class="fw-share-label">블로그</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareNaver('cafe')">
+      <span class="fw-share-icon fw-si-cafe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 9h13a3 3 0 0 1 0 6h-1"/><path d="M4 9v8a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V9"/><path d="M8 3c0 1.2-1 1.2-1 2.4S8 7.2 8 8.4"/><path d="M12 3c0 1.2-1 1.2-1 2.4S12 7.2 12 8.4"/></svg>
+      </span>
+      <span class="fw-share-label">카페</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareKeep()">
+      <span class="fw-share-icon fw-si-keep">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#03C75A" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
+      </span>
+      <span class="fw-share-label">Keep</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareMail()">
+      <span class="fw-share-icon fw-si-mail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+      </span>
+      <span class="fw-share-label">메일</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareBand()">
+      <span class="fw-share-icon fw-si-band">b</span>
+      <span class="fw-share-label">밴드</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareLine()">
+      <span class="fw-share-icon fw-si-line">
+        <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1 1c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.4C22.2 13.9 22 12.5 22 11c0-4.4-4.5-8-10-8z"/></svg>
+      </span>
+      <span class="fw-share-label">LINE</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareX()">
+      <span class="fw-share-icon fw-si-x">
+        <svg viewBox="0 0 24 24" fill="#fff"><path d="M4 4l16 16M20 4 4 20"/></svg>
+      </span>
+      <span class="fw-share-label">X</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareFacebook()">
+      <span class="fw-share-icon fw-si-fb">f</span>
+      <span class="fw-share-label">페이스북</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareKakao()">
+      <span class="fw-share-icon fw-si-kakao">
+        <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>
+      </span>
+      <span class="fw-share-label">카카오톡</span>
+    </button>
+  </div>
+  <div class="fw-share-link-row">
+    <input type="text" id="fwShareLinkInput" readonly>
+    <button class="fw-share-copy-btn" onclick="fwCopySiteLink()">복사</button>
+  </div>
+</div>
 <div class="floating-widget">
   <a class="fw-btn fw-kakao" href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener">
     <svg width="24" height="24" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>
@@ -1210,7 +1307,7 @@ loadApprovedProducts();
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
     <span class="fw-tip">최근 본 상품</span>
   </button>
-  <button class="fw-btn" id="fwShareBtn" onclick="openNaverShare()">
+  <button class="fw-btn" id="fwShareBtn" onclick="toggleFwSharePanel()">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
     <span class="fw-tip">공유하기</span>
   </button>
@@ -1231,7 +1328,41 @@ document.addEventListener('click', (e) => {
     panel.classList.remove('open');
   }
 });
-function openNaverShare() {
+function toggleFwSharePanel() {
+  const panel = document.getElementById('fwSharePanel');
+  if (!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  panel.classList.toggle('open', willOpen);
+  if (willOpen) {
+    const input = document.getElementById('fwShareLinkInput');
+    if (input) input.value = window.location.href;
+  }
+}
+document.addEventListener('click', (e) => {
+  const sPanel = document.getElementById('fwSharePanel');
+  const sBtn = document.getElementById('fwShareBtn');
+  if (sPanel && sPanel.classList.contains('open') && !sPanel.contains(e.target) && sBtn && !sBtn.contains(e.target)) {
+    sPanel.classList.remove('open');
+  }
+});
+async function fwCopySiteLink() {
+  const url = window.location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e2) {}
+    document.body.removeChild(ta);
+  }
+  if (typeof showToast === 'function') {
+    showToast('링크가 복사됐어요. 원하는 곳에 붙여넣어 공유해보세요.', 'success');
+  } else {
+    alert('링크가 복사됐습니다.');
+  }
+}
+function fwShareNaver(service) {
   const url = encodeURIComponent(window.location.href);
   const title = encodeURIComponent(document.title);
   window.open(
@@ -1239,6 +1370,35 @@ function openNaverShare() {
     'naversharedialog',
     'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=550,width=600'
   );
+}
+function fwShareMail() {
+  const url = window.location.href;
+  const title = document.title;
+  window.location.href = 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(title + '\n' + url);
+}
+function fwShareBand() {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+  window.open('https://band.us/plugin/share?body=' + title + '&route=' + url, '_blank', 'width=600,height=600');
+}
+function fwShareLine() {
+  const url = encodeURIComponent(window.location.href);
+  window.open('https://social-plugins.line.me/lineit/share?url=' + url, '_blank', 'width=500,height=600');
+}
+function fwShareX() {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+  window.open('https://twitter.com/intent/tweet?url=' + url + '&text=' + title, '_blank', 'width=550,height=420');
+}
+function fwShareFacebook() {
+  const url = encodeURIComponent(window.location.href);
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + url, '_blank', 'width=550,height=450');
+}
+async function fwShareKeep() {
+  await fwCopySiteLink();
+}
+async function fwShareKakao() {
+  await fwCopySiteLink();
 }
 function toggleFwRecentPanel() {
   const panel = document.getElementById('fwRecentPanel');
