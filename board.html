@@ -259,7 +259,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 
 /* ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== */
-.floating-widget { position: fixed; right: max(24px, calc((100vw - 1440px) / 2 - 76px)); bottom: 90px; z-index: 500; display: flex; flex-direction: column; gap: 10px; }
+.floating-widget { position: fixed; right: 24px; bottom: 90px; z-index: 500; display: flex; flex-direction: column; gap: 10px; }
 .fw-btn {
   width: 52px; height: 52px; border-radius: 50%; background: var(--white);
   border: 1px solid var(--g2); box-shadow: 0 4px 14px rgba(10,14,20,0.14);
@@ -279,7 +279,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 }
 .fw-btn:hover .fw-tip { opacity: 1; }
 .fw-recent-panel {
-  position: fixed; right: max(84px, calc((100vw - 1440px) / 2 - 16px)); bottom: 90px; width: 260px; max-height: 380px;
+  position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
   background: var(--white); border: 1px solid var(--g2); border-radius: 14px;
   box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
   display: none; flex-direction: column; overflow: hidden;
@@ -293,6 +293,13 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .fw-recent-item img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--g1); flex-shrink: 0; }
 .fw-recent-name { font-size: 12.5px; line-height: 1.4; }
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
+
+/* 데스크탑에서는 본문 오른쪽에 위젯 전용 여백(90px)을 항상 확보해서, 화면 배율/창 크기와 상관없이 상품 사진 위에 절대 겹치지 않게 함 */
+@media (min-width: 900px) {
+  .cs-wrap, .brands-wrap, .event-wrap, .ts-wrap, .page-wrap, .main-wrap, .product-wrap {
+    padding-right: 90px;
+  }
+}
 @media (max-width: 768px) {
   .floating-widget { right: 14px; bottom: 72px; }
   .fw-recent-panel { right: 14px; bottom: 72px; width: calc(100vw - 28px); max-width: 300px; }
