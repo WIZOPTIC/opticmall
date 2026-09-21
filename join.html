@@ -238,7 +238,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 
 /* ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== */
-.floating-widget { position: fixed; right: 24px; bottom: 90px; z-index: 500; display: flex; flex-direction: column; gap: 10px; }
+.floating-widget { position: fixed; right: max(24px, calc((100vw - 1440px) / 2 - 76px)); bottom: 90px; z-index: 500; display: flex; flex-direction: column; gap: 10px; }
 .fw-btn {
   width: 52px; height: 52px; border-radius: 50%; background: var(--white);
   border: 1px solid var(--g2); box-shadow: 0 4px 14px rgba(10,14,20,0.14);
@@ -258,7 +258,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 }
 .fw-btn:hover .fw-tip { opacity: 1; }
 .fw-recent-panel {
-  position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
+  position: fixed; right: max(84px, calc((100vw - 1440px) / 2 - 16px)); bottom: 90px; width: 260px; max-height: 380px;
   background: var(--white); border: 1px solid var(--g2); border-radius: 14px;
   box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
   display: none; flex-direction: column; overflow: hidden;
@@ -277,11 +277,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   .fw-recent-panel { right: 14px; bottom: 24px; width: calc(100vw - 28px); max-width: 300px; }
   .fw-btn { width: 46px; height: 46px; }
   .fw-tip { display: none; }
-}
-/* 넓은 화면(콘텐츠 좌우 여백이 넉넉할 때)에서는 본문 오른쪽 여백에 배치해서 상품정보/배송안내 같은 텍스트와 겹치지 않게 함 */
-@media (min-width: 1680px) {
-  .floating-widget { right: calc((100vw - 1440px) / 2 - 76px); }
-  .fw-recent-panel { right: calc((100vw - 1440px) / 2 - 16px); }
 }
 </style>
 </head>
