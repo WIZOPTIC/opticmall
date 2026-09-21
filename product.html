@@ -902,6 +902,11 @@ let currentProduct = null;
 let currentPrice = 0;
 let currentImgIndex = 0;
 
+// 유효한 이미지 URL만 통과 (빈 문자열/공백/깨진 값이 섬네일에 빈 회색 박스로 나오는 것 방지)
+function isValidImgUrl(u) {
+  return typeof u === 'string' && /^(https?:|data:image|blob:)/i.test(u.trim());
+}
+
 // 메인 사진 박스: 가로는 항상 꽉 채우고, 세로만 화면에 맞게 아주 살짝 잘라서(object-fit:cover) 스크롤 없이 한 화면에 다 보이게
 function fitMainImgToPhoto(img) {
   if (window.innerWidth <= 768) return;
@@ -1229,8 +1234,8 @@ function renderProduct(p) {
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
   const firstColor = (p.colors && p.colors.length > 0) ? p.colors[0] : null;
   const initMainUrl = (firstColor && firstColor.mainImageUrl) ? firstColor.mainImageUrl : p.mainImageUrl;
-  const initDetailUrls = (firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || []);
-  const allImages = [initMainUrl, ...initDetailUrls].filter(Boolean);
+  const initDetailUrls = ((firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || [])).filter(isValidImgUrl);
+  const allImages = [initMainUrl, ...initDetailUrls].filter(isValidImgUrl);
   window._productImages = allImages;
   currentImgIndex = 0;
 
@@ -1261,8 +1266,8 @@ function renderProduct(p) {
     thumbList.innerHTML = `<div class="thumb active placeholder-emoji"><i class=ic-glasses></i></div>`;
   }
 
-  // 상세이미지 초기 렌더링 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다
-  renderDetailImageGrids(initDetailUrls);
+  // 상세이미지 초기 렌더링 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
+  renderDetailImageGrids(allImages);
 
   // 색상 선택 버튼 렌더링
   const colorSection = document.getElementById('colorSection');
@@ -1445,10 +1450,10 @@ function renderSelectionList() {
 function applyColorImages(color) {
   // 색상 자체에 이미지가 없으면 상품 대표 이미지로 대체
   const mainUrl = color.mainImageUrl || (currentProduct && currentProduct.mainImageUrl) || '';
-  const detailUrls = (color.detailImageUrls && color.detailImageUrls.length > 0)
+  const detailUrls = ((color.detailImageUrls && color.detailImageUrls.length > 0)
     ? color.detailImageUrls
-    : ((currentProduct && currentProduct.detailImageUrls) || []);
-  const allUrls = [mainUrl, ...detailUrls].filter(Boolean);
+    : ((currentProduct && currentProduct.detailImageUrls) || [])).filter(isValidImgUrl);
+  const allUrls = [mainUrl, ...detailUrls].filter(isValidImgUrl);
   window._productImages = allUrls;
   currentImgIndex = 0;
 
@@ -1490,8 +1495,8 @@ function applyColorImages(color) {
     }
   }
 
-  // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다
-  renderDetailImageGrids(detailUrls);
+  // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
+  renderDetailImageGrids(allUrls);
 }
 
 // 상세 이미지를 "상품정보" 탭 하단(스펙 표 바로 아래)과 "상품 상세" 탭 두 곳에 동일하게 렌더링
