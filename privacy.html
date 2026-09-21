@@ -105,6 +105,48 @@ footer { background: #071429; padding: 44px 24px 32px; margin-top: 60px; }
 .tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
 .tb-welcome { color: var(--gold-soft); font-weight: 600; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
+
+/* ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== */
+.floating-widget { position: fixed; right: 24px; bottom: 90px; z-index: 500; display: flex; flex-direction: column; gap: 10px; }
+.fw-btn {
+  width: 52px; height: 52px; border-radius: 50%; background: var(--white);
+  border: 1px solid var(--g2); box-shadow: 0 4px 14px rgba(10,14,20,0.14);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--navy); transition: transform 0.15s, box-shadow 0.15s; position: relative;
+  text-decoration: none;
+}
+.fw-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(10,14,20,0.2); }
+.fw-btn.fw-kakao { background: #FEE500; border-color: #FEE500; }
+.fw-btn.fw-top { opacity: 0; pointer-events: none; transform: translateY(8px); font-size: 20px; font-weight: 800; }
+.fw-btn.fw-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.fw-tip {
+  position: absolute; right: 62px; top: 50%; transform: translateY(-50%);
+  background: var(--navy); color: #fff; font-size: 12px; font-weight: 600;
+  padding: 6px 10px; border-radius: 6px; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.fw-btn:hover .fw-tip { opacity: 1; }
+.fw-recent-panel {
+  position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
+  background: var(--white); border: 1px solid var(--g2); border-radius: 14px;
+  box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
+  display: none; flex-direction: column; overflow: hidden;
+}
+.fw-recent-panel.open { display: flex; }
+.fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 800; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
+.fw-recent-close { background: none; border: none; font-size: 18px; color: var(--g3); cursor: pointer; line-height: 1; }
+.fw-recent-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 8px; text-decoration: none; color: var(--black); }
+.fw-recent-item:hover { background: var(--sky-lt); }
+.fw-recent-item img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--g1); flex-shrink: 0; }
+.fw-recent-name { font-size: 12.5px; line-height: 1.4; }
+.fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
+@media (max-width: 768px) {
+  .floating-widget { right: 14px; bottom: 24px; }
+  .fw-recent-panel { right: 14px; bottom: 24px; width: calc(100vw - 28px); max-width: 300px; }
+  .fw-btn { width: 46px; height: 46px; }
+  .fw-tip { display: none; }
+}
 </style>
 </head>
 <body>
@@ -402,6 +444,80 @@ _auth.onAuthStateChanged(async (user) => {
     } catch(e) {}
   } catch(e) { console.error(e); }
 });
+</script>
+
+
+<!-- ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== -->
+<div class="fw-recent-panel" id="fwRecentPanel">
+  <div class="fw-recent-head">
+    최근 본 상품
+    <button class="fw-recent-close" onclick="document.getElementById('fwRecentPanel').classList.remove('open')">&times;</button>
+  </div>
+  <div class="fw-recent-list" id="fwRecentList"></div>
+</div>
+<div class="floating-widget">
+  <a class="fw-btn fw-kakao" href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener">
+    <svg width="24" height="24" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>
+    <span class="fw-tip">카카오 채널 상담</span>
+  </a>
+  <button class="fw-btn" id="fwRecentBtn" onclick="toggleFwRecentPanel()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
+    <span class="fw-tip">최근 본 상품</span>
+  </button>
+  <button class="fw-btn fw-top" id="fwTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    ↑
+    <span class="fw-tip">맨 위로</span>
+  </button>
+</div>
+<script>
+window.addEventListener('scroll', () => {
+  const topBtn = document.getElementById('fwTopBtn');
+  if (topBtn) topBtn.classList.toggle('show', window.scrollY > 400);
+});
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('fwRecentPanel');
+  const btn = document.getElementById('fwRecentBtn');
+  if (panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+function toggleFwRecentPanel() {
+  const panel = document.getElementById('fwRecentPanel');
+  if (!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  panel.classList.toggle('open', willOpen);
+  if (willOpen) renderFwRecentPanel();
+}
+async function renderFwRecentPanel() {
+  const listEl = document.getElementById('fwRecentList');
+  if (!listEl) return;
+  let ids = [];
+  try { ids = JSON.parse(localStorage.getItem('recentlyViewed') || '[]'); } catch(e) {}
+  ids = ids.slice(0, 8);
+  if (ids.length === 0) {
+    listEl.innerHTML = `<div class="fw-recent-empty">최근 본 상품이 없습니다</div>`;
+    return;
+  }
+  listEl.innerHTML = `<div class="fw-recent-empty">불러오는 중...</div>`;
+  try {
+    const docs = await Promise.all(ids.map(id => _db.collection('products').doc(id).get()));
+    const items = docs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() }));
+    if (items.length === 0) {
+      listEl.innerHTML = `<div class="fw-recent-empty">최근 본 상품이 없습니다</div>`;
+      return;
+    }
+    listEl.innerHTML = items.map(p => {
+      const img = (p.colors && p.colors[0] && p.colors[0].mainImageUrl) || p.mainImageUrl || '';
+      const name = p.name || p.modelName || '상품';
+      return `<a class="fw-recent-item" href="product.html?id=${p.id}">
+        <img src="${img}" onerror="this.style.visibility='hidden'">
+        <span class="fw-recent-name">${name}</span>
+      </a>`;
+    }).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div class="fw-recent-empty">불러오지 못했습니다</div>`;
+  }
+}
 </script>
 
 </body>
