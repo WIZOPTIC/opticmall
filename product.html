@@ -125,8 +125,9 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 }
 .product-left-col .product-images .main-img { flex: 1; min-width: 0; margin-bottom: 0; aspect-ratio: 3 / 2; background: #fff; align-self: flex-start; }
 .product-left-col .product-images .thumb-list {
-  flex: 0 0 68px; flex-direction: column; justify-content: flex-start;
-  width: 68px; gap: 8px; overflow-y: auto; padding-right: 2px; align-self: flex-start;
+  /* 컨테이너 폭(72px) = 썸네일 폭(68px) + 스크롤바 자리(4px), 가로 스크롤바가 생기지 않도록 여유를 둠 */
+  flex: 0 0 72px; flex-direction: column; justify-content: flex-start;
+  width: 72px; gap: 8px; overflow-y: auto; overflow-x: hidden; padding-right: 2px; align-self: flex-start;
 }
 .product-left-col .product-images .thumb { width: 68px; height: 68px; flex-shrink: 0; }
 .product-left-col .product-images .thumb-list::-webkit-scrollbar { width: 4px; }
