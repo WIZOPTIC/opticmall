@@ -141,30 +141,6 @@ footer { background: #001A4D; padding: 44px 24px 32px; margin-top: 60px; }
 .fw-recent-item img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--g1); flex-shrink: 0; }
 .fw-recent-name { font-size: 12.5px; line-height: 1.4; }
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
-  .fw-share-panel {
-    position: fixed; right: 84px; bottom: 90px; width: 280px;
-    background: var(--white); border: 1px solid var(--g2); border-radius: 14px;
-    box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
-    display: none; padding: 16px;
-  }
-  .fw-share-panel.open { display: block; }
-  .fw-share-panel-title { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 12px; }
-  .fw-share-link-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  .fw-share-link-row input {
-    flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--g2); border-radius: 8px;
-    font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
-  }
-  .fw-share-copy-btn {
-    flex-shrink: 0; padding: 9px 14px; border-radius: 8px; border: none; background: var(--navy);
-    color: var(--white); font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
-  }
-  .fw-share-copy-btn:hover { background: var(--sky-dk); }
-  .fw-share-kakao-btn {
-    width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 11px 0; border-radius: 8px; border: none; background: #FEE500; color: #391B1B;
-    font-size: 13.5px; font-weight: 800; cursor: pointer; font-family: inherit;
-  }
-  .fw-share-kakao-btn:hover { background: #F5DC00; }
 
 /* 데스크탑에서는 본문 오른쪽에 위젯이 들어갈 최소한의 여백(70px)만 확보해서, 사진 크기 변화는 최소로 하면서도 화면 배율/창 크기와 상관없이 사진 위에 겹치지 않게 함 */
 @media (min-width: 900px) {
@@ -477,17 +453,6 @@ _auth.onAuthStateChanged(async (user) => {
   </div>
   <div class="fw-recent-list" id="fwRecentList"></div>
 </div>
-<div class="fw-share-panel" id="fwSharePanel">
-  <div class="fw-share-panel-title">사이트 공유하기</div>
-  <div class="fw-share-link-row">
-    <input type="text" id="fwShareLinkInput" readonly>
-    <button class="fw-share-copy-btn" onclick="fwCopySiteLink()">복사</button>
-  </div>
-  <button class="fw-share-kakao-btn" onclick="fwShareSite()">
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>
-    카카오톡으로 공유
-  </button>
-</div>
 <div class="floating-widget">
   <a class="fw-btn fw-kakao" href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener">
     <svg width="24" height="24" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>
@@ -497,7 +462,7 @@ _auth.onAuthStateChanged(async (user) => {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
     <span class="fw-tip">최근 본 상품</span>
   </button>
-  <button class="fw-btn" id="fwShareBtn" onclick="toggleFwSharePanel()">
+  <button class="fw-btn" id="fwShareBtn" onclick="openNaverShare()">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
     <span class="fw-tip">공유하기</span>
   </button>
@@ -518,51 +483,14 @@ document.addEventListener('click', (e) => {
     panel.classList.remove('open');
   }
 });
-document.addEventListener('click', (e) => {
-  const sPanel = document.getElementById('fwSharePanel');
-  const sBtn = document.getElementById('fwShareBtn');
-  if (sPanel && sPanel.classList.contains('open') && !sPanel.contains(e.target) && sBtn && !sBtn.contains(e.target)) {
-    sPanel.classList.remove('open');
-  }
-});
-function toggleFwSharePanel() {
-  const panel = document.getElementById('fwSharePanel');
-  if (!panel) return;
-  const willOpen = !panel.classList.contains('open');
-  panel.classList.toggle('open', willOpen);
-  if (willOpen) {
-    const input = document.getElementById('fwShareLinkInput');
-    if (input) input.value = window.location.href;
-  }
-}
-async function fwCopySiteLink() {
-  const url = window.location.href;
-  try {
-    await navigator.clipboard.writeText(url);
-  } catch (e) {
-    const ta = document.createElement('textarea');
-    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); } catch (e2) {}
-    document.body.removeChild(ta);
-  }
-  if (typeof showToast === 'function') {
-    showToast('사이트 링크가 복사됐어요. 카카오톡 등에 붙여넣어 공유해보세요.', 'success');
-  } else {
-    alert('링크가 복사됐습니다.');
-  }
-}
-async function fwShareSite() {
-  const shareData = { title: document.title, text: 'OPTICMALL - 안경 도매 전문몰', url: window.location.href };
-  if (navigator.share) {
-    try {
-      await navigator.share(shareData);
-      const panel = document.getElementById('fwSharePanel');
-      if (panel) panel.classList.remove('open');
-    } catch (e) { /* 사용자가 취소한 경우 등 - 무시 */ }
-  } else {
-    await fwCopySiteLink();
-  }
+function openNaverShare() {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+  window.open(
+    'https://share.naver.com/web/shareView.nhn?url=' + url + '&title=' + title,
+    'naversharedialog',
+    'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=550,width=600'
+  );
 }
 function toggleFwRecentPanel() {
   const panel = document.getElementById('fwRecentPanel');
