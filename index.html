@@ -685,10 +685,10 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
 .fw-recent-name { font-size: 12.5px; line-height: 1.4; }
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
 
-/* 데스크탑에서는 본문 오른쪽에 위젯 전용 여백(90px)을 항상 확보해서, 화면 배율/창 크기와 상관없이 상품 사진 위에 절대 겹치지 않게 함 */
+/* 데스크탑에서는 본문 오른쪽에 위젯이 들어갈 최소한의 여백(70px)만 확보해서, 사진 크기 변화는 최소로 하면서도 화면 배율/창 크기와 상관없이 사진 위에 겹치지 않게 함 */
 @media (min-width: 900px) {
-  .cs-wrap, .brands-wrap, .event-wrap, .ts-wrap, .page-wrap, .main-wrap, .product-wrap {
-    padding-right: 90px;
+  .cs-wrap, .brands-wrap, .event-wrap, .ts-wrap, .page-wrap, .main-wrap, .product-wrap, .event-rank-section {
+    padding-right: 70px;
   }
 }
 @media (max-width: 768px) {
