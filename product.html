@@ -902,9 +902,30 @@ let currentProduct = null;
 let currentPrice = 0;
 let currentImgIndex = 0;
 
-// 유효한 이미지 URL만 통과 (빈 문자열/공백/깨진 값이 섬네일에 빈 회색 박스로 나오는 것 방지)
+// 유효한 이미지 URL만 통과 (빈 문자열/공백 값이 섬네일에 빈 회색 박스로 나오는 것 방지)
 function isValidImgUrl(u) {
   return typeof u === 'string' && /^(https?:|data:image|blob:)/i.test(u.trim());
+}
+
+// 썸네일 목록 렌더링 + 실제로 로드가 안 되는(깨진/삭제된) 이미지는 빈 회색 박스로 남지 않도록 감지해서 자동으로 제거
+// (background-image는 로드 실패해도 에러 이벤트가 없어서, 숨겨진 Image()로 따로 검증함)
+function renderThumbs(container, urls) {
+  if (!container) return;
+  if (!urls || urls.length === 0) {
+    container.innerHTML = `<div class="thumb active placeholder-emoji"><i class=ic-glasses></i></div>`;
+    return;
+  }
+  container.innerHTML = urls.map((url, i) => `
+    <div class="thumb ${i===0?'active':''}" data-thumb-url="${url}" onclick="switchMainImage('${url}', this, ${i})" style="background-image:url('${url}');background-size:cover;background-position:center;"></div>
+  `).join('');
+  urls.forEach(url => {
+    const probe = new Image();
+    probe.onerror = function () {
+      const el = container.querySelector(`.thumb[data-thumb-url="${CSS.escape(url)}"]`);
+      if (el) el.remove();
+    };
+    probe.src = url;
+  });
 }
 
 // 메인 사진 박스: 가로는 항상 꽉 채우고, 세로만 화면에 맞게 아주 살짝 잘라서(object-fit:cover) 스크롤 없이 한 화면에 다 보이게
@@ -1258,13 +1279,7 @@ function renderProduct(p) {
 
   // 썸네일 (메인 + 상세이미지들)
   const thumbList = document.getElementById('thumbList');
-  if(allImages.length > 0) {
-    thumbList.innerHTML = allImages.map((url, i) => `
-      <div class="thumb ${i===0?'active':''}" onclick="switchMainImage('${url}', this, ${i})" style="background-image:url('${url}');background-size:cover;background-position:center;"></div>
-    `).join('');
-  } else {
-    thumbList.innerHTML = `<div class="thumb active placeholder-emoji"><i class=ic-glasses></i></div>`;
-  }
+  renderThumbs(thumbList, allImages);
 
   // 상세이미지 초기 렌더링 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
   renderDetailImageGrids(allImages);
@@ -1484,16 +1499,7 @@ function applyColorImages(color) {
 
   // 썸네일 교체
   const thumbList = document.getElementById('thumbList');
-  if(thumbList) {
-    if(allUrls.length > 0) {
-      thumbList.innerHTML = allUrls.map((url, i) => `
-        <div class="thumb ${i===0?'active':''}" onclick="switchMainImage('${url}', this, ${i})"
-          style="background-image:url('${url}');background-size:cover;background-position:center;"></div>
-      `).join('');
-    } else {
-      thumbList.innerHTML = `<div class="thumb active placeholder-emoji"><i class=ic-glasses></i></div>`;
-    }
-  }
+  renderThumbs(thumbList, allUrls);
 
   // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
   renderDetailImageGrids(allUrls);
@@ -1502,7 +1508,7 @@ function applyColorImages(color) {
 // 상세 이미지를 "상품정보" 탭 하단(스펙 표 바로 아래)과 "상품 상세" 탭 두 곳에 동일하게 렌더링
 function renderDetailImageGrids(urls) {
   const html = (urls && urls.length > 0)
-    ? urls.map(url => `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')">`).join('')
+    ? urls.map(url => `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
     : '';
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap) {
