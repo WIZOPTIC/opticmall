@@ -520,6 +520,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="summary-title">결제 금액</div>
       <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
       <div class="sum-row" id="sumDiscountRow" style="display:none;"><span class="lbl">할인 금액</span><span class="val" id="sumDiscount" style="color:var(--red);">-₩0</span></div>
+      <div class="sum-row" id="sumDiscountedSubtotalRow" style="display:none;"><span class="lbl">할인 적용가</span><span class="val" id="sumDiscountedSubtotal" style="font-weight:700;color:var(--navy);">₩0</span></div>
       <div class="sum-row" id="couponRow">
         <span class="lbl">쿠폰</span>
         <span class="val" id="couponValue" style="cursor:pointer;color:var(--sky);text-decoration:underline;" onclick="openCouponPicker()">쿠폰 선택</span>
@@ -989,13 +990,24 @@ function renderOrderItems() {
       </div>`;
   }).join('');
 
-  document.getElementById('sumProducts').textContent = '₩' + totalOriginalAmount.toLocaleString();
+  const sumProductsEl = document.getElementById('sumProducts');
+  sumProductsEl.textContent = '₩' + totalOriginalAmount.toLocaleString();
   const discountRow = document.getElementById('sumDiscountRow');
+  const discountedSubtotalRow = document.getElementById('sumDiscountedSubtotalRow');
   if(totalDiscount > 0) {
     discountRow.style.display = '';
     document.getElementById('sumDiscount').textContent = '-₩' + totalDiscount.toLocaleString();
+    sumProductsEl.style.color = 'var(--g3)';
+    sumProductsEl.style.textDecoration = 'line-through';
+    sumProductsEl.style.fontWeight = '400';
+    discountedSubtotalRow.style.display = '';
+    document.getElementById('sumDiscountedSubtotal').textContent = '₩' + totalAmount.toLocaleString();
   } else {
     discountRow.style.display = 'none';
+    sumProductsEl.style.color = '';
+    sumProductsEl.style.textDecoration = '';
+    sumProductsEl.style.fontWeight = '';
+    discountedSubtotalRow.style.display = 'none';
   }
   updateShippingAndTotal();
 }
