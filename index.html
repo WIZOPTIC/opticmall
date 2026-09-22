@@ -12,22 +12,22 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 :root {
-  --sky: #0B1F3A;
+  --sky: #000000;
   --sky-lt: #EEF1F5;
-  --sky-dk: #071429;
+  --sky-dk: #000000;
   --pink: #708090;
   --gold: #C9A227;
   --gold-soft: #E4CD84;
   --grad: linear-gradient(90deg, var(--sky), var(--sky-dk));
   --paper: #FAF8F4;
-  --navy: #0B1F3A;
+  --navy: #000000;
   --white: #FFFFFF;
   --off: #F8F9FA;
   --g1: #F2F4F6;
   --g2: #E0E4E8;
   --g3: #9BA5B0;
   --g4: #5A6472;
-  --black: #111318;
+  --black: #000000;
   --yellow: #F5C518;
   --red: #FF4444;
   --stone: #7B7669;
@@ -78,6 +78,7 @@ header {
 }
 .header-main { max-width: 1440px; margin: 0 auto; padding: 48px 24px 22px; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; position: relative; }
 .header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
+.header-nav-row { display: flex; align-items: center; width: 100%; }
 .logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
 .search-tag {
   padding: 7px 16px; background: var(--white); border: 1px solid var(--g2);
@@ -104,16 +105,21 @@ header {
 .h-join:hover { color: var(--sky-dk); }
 .topbar { background: var(--navy); padding: 9px 24px; }
 .topbar-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12.5px; }
-.tb-link { background: none; border: none; color: var(--gold-soft); font-size: 12.5px; font-family: inherit; cursor: pointer; padding: 0; }
-.tb-link:hover { opacity: 0.8; }
-.tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
-.tb-welcome { color: var(--gold-soft); font-weight: 600; }
+.tb-link { background: none; border: none; color: var(--navy); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; padding: 0; white-space: nowrap; transition: opacity 0.15s; }
+.tb-link:hover { opacity: 0.6; }
+.tb-sep { opacity: 0.5; margin: 0 8px; color: var(--g3); font-size: 13px; }
+.tb-welcome { color: var(--navy); font-weight: 700; font-size: 13px; white-space: nowrap; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
+.header-auth { display: flex; align-items: center; margin-right: 18px; }
+.header-search-box { display: flex; align-items: center; border: 1px solid var(--g2); border-radius: 4px; background: var(--white); margin-left: 14px; }
+.header-search-box input { border: none; outline: none; padding: 8px 4px 8px 12px; font-size: 13px; font-family: inherit; width: 160px; color: var(--black); }
+.header-search-box button { border: none; background: none; padding: 0 10px; cursor: pointer; color: var(--g4); display: flex; align-items: center; height: 34px; }
+.header-search-box button:hover { color: var(--navy); }
 .icon-btn {
   width: 36px; height: 36px; border: none; background: none;
   cursor: pointer; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
-  color: var(--g4); transition: all 0.15s; position: relative;
+  color: var(--navy); transition: all 0.15s; position: relative;
 }
 .icon-btn:hover { background: var(--g1); color: var(--navy); }
 .cart-count {
@@ -128,10 +134,10 @@ header {
 /* ── 에디토리얼 배너 (히어로 우측) ── */
 .hero-right { flex: 0 0 972px; max-width: 972px; align-self: center; padding: 0 80px; box-sizing: border-box; position: relative; }
 
-.gnb-inner { display: flex; position: static; gap: 6px; flex-wrap: wrap; }
-.gnb-item { padding: 6px 14px 6px 0; font-size:15px; font-weight: 400; color: var(--g4); cursor: pointer; border: none; background: none; font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap; text-align: center; user-select: none; -webkit-user-select: none; }
-.gnb-item:hover { color: var(--sky); }
-.gnb-item.active { color: var(--navy); font-weight: 400; }
+.gnb-inner { display: flex; position: static; gap: 38px; flex-wrap: wrap; }
+.gnb-item { padding: 6px 0; font-size:15px; font-weight: 400; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; position: relative; transition: color 0.15s, font-weight 0.15s; white-space: nowrap; text-align: center; user-select: none; -webkit-user-select: none; }
+.gnb-item:hover { color: var(--sky-dk); font-weight: 600; }
+.gnb-item.active { color: var(--sky-dk); font-weight: 600; }
 .gnb-label { position: relative; display: inline-block; }
 .gnb-item.active .gnb-label::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: -10px;
@@ -524,9 +530,9 @@ i[class^='ic-']{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 .ic-party{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5a2 2 0 114 0c0 1-1 2-2 3'/%3E%3Cpath d='M4 20l5-14 11 4-14 5-2 5z'/%3E%3Cpath d='M14 3l1 1M18 6l1 1M17 2l.5 1.5'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5a2 2 0 114 0c0 1-1 2-2 3'/%3E%3Cpath d='M4 20l5-14 11 4-14 5-2 5z'/%3E%3Cpath d='M14 3l1 1M18 6l1 1M17 2l.5 1.5'/%3E%3C/svg%3E");}
 .ic-settings{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'/%3E%3C/svg%3E");}
 .ic-wish-filled{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath fill='black' d='M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath fill='black' d='M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z'/%3E%3C/svg%3E");}
-i.ic-wish-filled{background-color:#0B1F3A;width:22px;height:22px;}
+i.ic-wish-filled{background-color:#000000;width:22px;height:22px;}
 .ic-wish{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z'/%3E%3C/svg%3E");}
-i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
+i.ic-wish{background-color:#000000;width:22px;height:22px;}
 .ic-truck{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='1' y='7' width='14' height='10' rx='1'/%3E%3Cpath d='M15 10h4l3 3v4h-7z'/%3E%3Ccircle cx='6' cy='19' r='2'/%3E%3Ccircle cx='17' cy='19' r='2'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='1' y='7' width='14' height='10' rx='1'/%3E%3Cpath d='M15 10h4l3 3v4h-7z'/%3E%3Ccircle cx='6' cy='19' r='2'/%3E%3Ccircle cx='17' cy='19' r='2'/%3E%3C/svg%3E");}
 .ic-store{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l1-5h16l1 5'/%3E%3Cpath d='M3 9a2 2 0 004 0 2 2 0 004 0 2 2 0 004 0 2 2 0 004 0'/%3E%3Cpath d='M5 9v10h14V9'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l1-5h16l1 5'/%3E%3Cpath d='M3 9a2 2 0 004 0 2 2 0 004 0 2 2 0 004 0 2 2 0 004 0'/%3E%3Cpath d='M5 9v10h14V9'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E");}
 .ic-file{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/%3E%3Cpath d='M14 2v6h6'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/%3E%3Cpath d='M14 2v6h6'/%3E%3C/svg%3E");}
@@ -746,8 +752,8 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
           <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
         </div>
       </div>
-      <button id="loginSubmitBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#0B1F3A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.05em;transition:background 0.15s;margin-bottom:10px;" onmouseover="this.style.background='#16305A'" onmouseout="this.style.background='#0B1F3A'">로그인</button>
-      <a href="join.html" style="display:block;width:100%;box-sizing:border-box;padding:14px;background:#fff;color:#0B1F3A;border:1.5px solid #0B1F3A;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;text-align:center;text-decoration:none;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;" onmouseover="this.style.background='#f5f8fb'" onmouseout="this.style.background='#fff'">회원가입</a>
+      <button id="loginSubmitBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#000000;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.05em;transition:background 0.15s;margin-bottom:10px;" onmouseover="this.style.background='#16305A'" onmouseout="this.style.background='#000000'">로그인</button>
+      <a href="join.html" style="display:block;width:100%;box-sizing:border-box;padding:14px;background:#fff;color:#000000;border:1.5px solid #000000;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;text-align:center;text-decoration:none;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;" onmouseover="this.style.background='#f5f8fb'" onmouseout="this.style.background='#fff'">회원가입</a>
       <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin:12px 0 0;text-align:center;"></div>
       <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:16px;">
         <span onclick="window.open('http://pf.kakao.com/_RWTxnX/chat','_blank')" style="font-size:14px;color:#999;cursor:pointer;text-decoration:underline;">아이디 찾기</span>
@@ -775,7 +781,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
         <input type="email" id="forgotPwEmail" placeholder="가입한 이메일" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')sendResetEmail()"/>
       </div>
       <div id="forgotPwMsg" style="display:none;font-size:11px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
-      <button id="forgotPwSubmitBtn" onclick="sendResetEmail()" style="width:100%;padding:13px;background:#0B1F3A;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#16305A'" onmouseout="this.style.background='#0B1F3A'">재설정 링크 보내기</button>
+      <button id="forgotPwSubmitBtn" onclick="sendResetEmail()" style="width:100%;padding:13px;background:#000000;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#16305A'" onmouseout="this.style.background='#000000'">재설정 링크 보내기</button>
     </div>
   </div>
 </div>
@@ -787,8 +793,8 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
   <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:400px;max-width:90vw;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
     <div onclick="closeSignupPromo()" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;line-height:1;z-index:1;">✕</div>
 
-    <div style="background:#0B1F3A;padding:26px 24px 24px;text-align:center;">
-      <div style="display:inline-block;background:#C9A227;color:#0B1F3A;font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">✦ OPTICIAN ONLY · B2B 전용</div>
+    <div style="background:#000000;padding:26px 24px 24px;text-align:center;">
+      <div style="display:inline-block;background:#C9A227;color:#000000;font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">✦ OPTICIAN ONLY · B2B 전용</div>
       <p style="font-size:18px;font-weight:800;color:#fff;margin:0 0 4px;">안경원 사업자 등록증으로 가입하고</p>
       <p style="font-size:22px;font-weight:800;color:#C9A227;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
     </div>
@@ -797,7 +803,7 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
           <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">첫 구매 할인</p>
-          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">10%</p>
+          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">10%</p>
         </div>
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
           <p style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;white-space:nowrap;">
@@ -808,38 +814,28 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
               <text x="17" y="26" font-family="Arial, sans-serif" font-size="11" font-weight="900" fill="#FEE500" text-anchor="middle">Ch</text>
             </svg>
           </p>
-          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">10,000원</p>
+          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">10,000원</p>
         </div>
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
           <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">회원가입 쿠폰</p>
-          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">25,000원</p>
+          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">25,000원</p>
         </div>
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
           <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">멤버십 등급별</p>
-          <p style="font-size:22px;font-weight:800;color:#0B1F3A;margin:0;white-space:nowrap;">추가 혜택</p>
+          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">추가 혜택</p>
         </div>
       </div>
     </div>
     <div style="padding:16px 24px 24px;">
-      <a href="join.html" style="display:block;background:#0B1F3A;color:#fff;font-size:15px;font-weight:700;padding:15px;border-radius:8px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기</a>
+      <a href="join.html" style="display:block;background:#000000;color:#fff;font-size:15px;font-weight:700;padding:15px;border-radius:8px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기</a>
       <div onclick="snoozeSignupPromo()" style="text-align:center;font-size:12.5px;color:#9BA5B0;cursor:pointer;">오늘 하루 보지 않기</div>
     </div>
   </div>
 </div>
 
 
-<!-- TOPBAR + HEADER (함께 고정) -->
+<!-- HEADER (고정) -->
 <div style="position:sticky;top:0;z-index:200;" id="stickyHeaderWrap">
-<div class="topbar">
-  <div class="topbar-inner">
-    <div id="topbarGuest">
-      <button class="tb-link" onclick="openLogin()">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
-    </div>
-    <div id="topbarUser" style="display:none;align-items:center;">
-      <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="doLogout()">로그아웃</button>
-    </div>
-  </div>
-</div>
 <header style="position:relative;background:var(--white);border-bottom:1px solid #EDE3CF;">
   <!-- 헤더 2행: 메인 -->
   <div class="header-main">
@@ -848,31 +844,8 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a href="#" class="logo">Opticmall</a>
-    
-    <div class="header-right">
-      <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
-        <svg id="searchIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
-      <div style="position:relative;margin-left:8px;" id="userMenuWrap">
-        <button class="icon-btn" id="userMenuBtn">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </button>
-        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:140px;z-index:500;overflow:hidden;">
-          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#0B1F3A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">마이페이지</a>
-          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#0B1F3A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">주문/배송조회</a>
-          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#0B1F3A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">최근 본 상품</a>
-          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6';this.style.color='#0B1F3A'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">관심상품</a>
-        </div>
-      </div>
-      <button class="icon-btn" onclick="location.href='mypage.html?tab=wish'">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
-      </button>
-      <button class="icon-btn" onclick="location.href='cart.html'">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13a1 1 0 01-1 1H6a1 1 0 01-1-1L6 7z"/><path d="M9 10V6a3 3 0 016 0v4"/></svg>
-        <span class="cart-count" id="cartCountBadge" style="display:none;">0</span>
-      </button>
-    </div>
   </div>
+  <div class="header-nav-row">
   <nav class="gnb-inner">
       <button class="gnb-item" onclick="location.href='list.html'"><span class="gnb-label">전체상품</span></button>
       <button class="gnb-item" onclick="location.href='brands.html'"><span class="gnb-label">브랜드별</span></button>
@@ -884,6 +857,38 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <button class="gnb-item" onclick="location.href='timesale.html'"><span class="gnb-label">타임세일</span></button>
       <button class="gnb-item" onclick="location.href='event.html'"><span class="gnb-label">이벤트</span></button>
     </nav>
+    <div class="header-right">
+      <div class="header-auth">
+        <div id="topbarGuest">
+          <button class="tb-link" onclick="openLogin()">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
+        </div>
+        <div id="topbarUser" style="display:none;align-items:center;">
+          <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="doLogout()">로그아웃</button>
+        </div>
+      </div>
+      <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
+        <svg id="searchIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div style="position:relative;margin-left:8px;" id="userMenuWrap">
+        <button class="icon-btn" id="userMenuBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:140px;z-index:500;overflow:hidden;">
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#000000'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">마이페이지</a>
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#000000'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">주문/배송조회</a>
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#F2F4F6';this.style.color='#000000'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">최근 본 상품</a>
+          <a href="#" onclick="openLogin();return false;" style="display:block;padding:13px 20px;font-size:14px;font-weight:500;color:#5A6472;text-decoration:none;transition:background 0.15s;border-top:1px solid #F2F4F6;" onmouseover="this.style.background='#F2F4F6';this.style.color='#000000'" onmouseout="this.style.background='#fff';this.style.color='#5A6472'">관심상품</a>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="location.href='mypage.html?tab=wish'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      </button>
+      <button class="icon-btn" onclick="location.href='cart.html'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13a1 1 0 01-1 1H6a1 1 0 01-1-1L6 7z"/><path d="M9 10V6a3 3 0 016 0v4"/></svg>
+        <span class="cart-count" id="cartCountBadge" style="display:none;">0</span>
+      </button>
+    </div>
+  </div>
 
   </div>
 
@@ -907,28 +912,6 @@ i.ic-wish{background-color:#0B1F3A;width:22px;height:22px;}
       <button onclick="location.href='timesale.html'">타임세일</button>
       <button onclick="location.href='event.html'">이벤트</button>
     </nav>
-  </div>
-  <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--g1);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
-    <div style="max-width:600px;margin:0 auto;padding:32px 24px;">
-      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:8px;overflow:hidden;">
-        <input type="text" id="mainSearchInput" placeholder="상품명, 상품코드 검색" autocomplete="off" style="flex:1;padding:14px 18px;border:none;outline:none;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter') doMainSearch()">
-        <button onclick="doMainSearch()" style="padding:0 18px;background:none;border:none;cursor:pointer;color:var(--g4);">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </button>
-        <button onclick="toggleSearchOverlay()" style="padding:0 16px;background:none;border:none;border-left:1px solid var(--g2);cursor:pointer;color:var(--g4);display:flex;align-items:center;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div style="margin-top:18px;">
-        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;">인기 검색어</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="search-tag" onclick="quickSearch('선글라스')">선글라스</button>
-          <button class="search-tag" onclick="quickSearch('메탈')">메탈</button>
-          <button class="search-tag" onclick="quickSearch('뿔테')">뿔테</button>
-          <button class="search-tag" onclick="quickSearch('V.KOOL')">V.KOOL</button>
-        </div>
-      </div>
-    </div>
   </div>
 </header>
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
@@ -1316,7 +1299,7 @@ async function sendResetEmail() {
   try {
     await _auth.sendPasswordResetEmail(email);
     msgEl.textContent = '입력하신 이메일로 재설정 링크를 보냈어요. 메일함(스팸함 포함)을 확인해주세요.';
-    msgEl.style.color = '#0B1F3A';
+    msgEl.style.color = '#000000';
     msgEl.style.display = 'block';
     btn.textContent = '다시 보내기';
     btn.disabled = false;
@@ -1366,7 +1349,7 @@ function updateHeaderLoggedIn(name, level, status, role) {
   if(dropdown) {
     dropdown.innerHTML = `
       <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
-        <div style="font-size:12px;font-weight:700;color:#0B1F3A;">${name}님</div>
+        <div style="font-size:12px;font-weight:700;color:#000000;">${name}님</div>
         <div style="font-size:10px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
       </div>
       ${adminLinkHtml}
@@ -1525,11 +1508,11 @@ function showMainToast(msg, type) {
   if(!toast) {
     toast = document.createElement('div');
     toast.id = 'mainFloatToast';
-    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#0B1F3A;color:#fff;padding:12px 22px;border-radius:100px;font-size:12px;font-weight:600;z-index:2000;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;';
+    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#000000;color:#fff;padding:12px 22px;border-radius:100px;font-size:12px;font-weight:600;z-index:2000;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;';
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
-  toast.style.background = type === 'success' ? '#C9A227' : '#0B1F3A';
+  toast.style.background = type === 'success' ? '#C9A227' : '#000000';
   toast.style.opacity = '1';
   toast.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(toast._hideTimer);
@@ -1691,16 +1674,16 @@ function renderTimesaleEmptyState() {
           @keyframes tsClockTick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         </style>
         <g transform="translate(340,110)">
-          <circle cx="0" cy="0" r="52" fill="#0B1F3A"/>
+          <circle cx="0" cy="0" r="52" fill="#000000"/>
           <circle cx="0" cy="0" r="43" fill="#FAF8F4"/>
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#0B1F3A" stroke-width="4" stroke-linecap="round"/>
-          <line x1="0" y1="0" x2="15" y2="8" stroke="#0B1F3A" stroke-width="4" stroke-linecap="round"/>
+          <line x1="0" y1="0" x2="0" y2="-22" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+          <line x1="0" y1="0" x2="15" y2="8" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
           <circle cx="0" cy="0" r="3.5" fill="#C9A227"/>
-          <rect x="-13" y="-64" width="26" height="10" rx="4" fill="#0B1F3A"/>
+          <rect x="-13" y="-64" width="26" height="10" rx="4" fill="#000000"/>
           <circle cx="-36" cy="-36" r="4" fill="#C9A227"/>
         </g>
         <line class="clock-hand-sec" x1="340" y1="110" x2="340" y2="78" stroke="#C9A227" stroke-width="2" stroke-linecap="round"/>
-        <text x="340" y="220" text-anchor="middle" font-size="19" font-weight="500" fill="#111318">다음 타임세일을 준비하는 중입니다</text>
+        <text x="340" y="220" text-anchor="middle" font-size="19" font-weight="500" fill="#000000">다음 타임세일을 준비하는 중입니다</text>
         <text x="340" y="246" text-anchor="middle" font-size="14" fill="#9BA5B0">엄선된 상품으로 곧 만나요</text>
       </svg>
     </div>`;

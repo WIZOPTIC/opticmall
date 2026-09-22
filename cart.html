@@ -11,28 +11,30 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{overflow-y:scroll;}
-:root{--sky:#0B1F3A;--sky-lt:#EEF1F5;--sky-dk:#071429;--navy:#0B1F3A;--gold:#C9A227;--gold-soft:#E4CD84;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:'Fraunces',serif;--font-body:'Pretendard Variable','Pretendard','Noto Sans KR',sans-serif;}
+:root{--sky:#000000;--sky-lt:#EEF1F5;--sky-dk:#000000;--navy:#000000;--gold:#C9A227;--gold-soft:#E4CD84;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:'Fraunces',serif;--font-body:'Pretendard Variable','Pretendard','Noto Sans KR',sans-serif;}
 body{font-family:var(--font-body);background:var(--g1);color:var(--black);}
 /* 헤더 */
 header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 .header-main { max-width: 1440px; margin: 0 auto; padding: 48px 24px 22px; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; position: relative; }
 .header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
+.header-nav-row { display: flex; align-items: center; width: 100%; }
+.header-auth { display: flex; align-items: center; margin-right: 18px; }
 .logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
 .header-right{margin-left:auto;display:flex;align-items:center;gap:2px;}
 .icon-btn {
   width: 36px; height: 36px; border: none; background: none;
   cursor: pointer; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
-  color: var(--g4); transition: all 0.15s; position: relative;
+  color: var(--navy); transition: all 0.15s; position: relative;
 }
 .icon-btn:hover { background: var(--g1); color: var(--navy); }
 .cart-count{position:absolute;top:2px;right:2px;background:#FF7A1A;color:#fff;font-size:9px;font-weight:700;border-radius:100px;padding:1px 4px;min-width:15px;text-align:center;display:flex;align-items:center;justify-content:center;}
 
 /* GNB */
-.gnb-inner { display: flex; position: static; gap: 6px; flex-wrap: wrap; }
-.gnb-item { padding: 6px 14px 6px 0; font-size:15px; font-weight: 400; color: var(--g4); cursor: pointer; border: none; background: none; font-family: inherit; position: relative; transition: color 0.15s; white-space: nowrap; text-align: center; user-select: none; -webkit-user-select: none; }
-.gnb-item:hover { color: var(--sky); }
-.gnb-item.active { color: var(--navy); font-weight: 400; }
+.gnb-inner { display: flex; position: static; gap: 38px; flex-wrap: wrap; }
+.gnb-item { padding: 6px 0; font-size:15px; font-weight: 400; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; position: relative; transition: color 0.15s, font-weight 0.15s; white-space: nowrap; text-align: center; user-select: none; -webkit-user-select: none; }
+.gnb-item:hover { color: var(--sky-dk); font-weight: 600; }
+.gnb-item.active { color: var(--sky-dk); font-weight: 600; }
 .gnb-label { position: relative; display: inline-block; }
 .gnb-item.active .gnb-label::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: -10px;
@@ -182,10 +184,10 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 /* ── TOPBAR ── */
 .topbar { background: var(--navy); padding: 9px 24px; }
 .topbar-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12.5px; }
-.tb-link { background: none; border: none; color: var(--gold-soft); font-size: 12.5px; font-family: inherit; cursor: pointer; padding: 0; }
-.tb-link:hover { opacity: 0.8; }
+.tb-link { background: none; border: none; color: var(--navy); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; padding: 0; white-space: nowrap; transition: opacity 0.15s; }
+.tb-link:hover { opacity: 0.6; }
 .tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
-.tb-welcome { color: var(--gold-soft); font-weight: 600; }
+.tb-welcome { color: var(--navy); font-weight: 700; font-size: 13px; white-space: nowrap; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 
 /* ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== */
@@ -278,25 +280,38 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 <body>
 <!-- TOPBAR + HEADER (함께 고정) -->
 <div style="position:sticky;top:0;z-index:200;">
-<div class="topbar">
-  <div class="topbar-inner">
-    <div id="topbarGuest">
-      <button class="tb-link" onclick="location.href='index.html?openLogin=1'">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
-    </div>
-    <div id="topbarUser" style="display:none;align-items:center;">
-      <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="topbarLogout()">로그아웃</button>
-    </div>
-  </div>
-</div>
 <header style="position:relative;">
   <div class="header-main">
     <div class="header-top-row">
-    <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a href="index.html" class="logo">Opticmall</a>
     
+    
+  </div>
+  <div class="header-nav-row">
+  <nav class="gnb-inner">
+    <button class="gnb-item" onclick="location.href='list.html'"><span class="gnb-label">전체상품</span></button>
+    <button class="gnb-item" onclick="location.href='brands.html'"><span class="gnb-label">브랜드별</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'"><span class="gnb-label">하금테</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'"><span class="gnb-label">뿔테</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'"><span class="gnb-label">메탈</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'"><span class="gnb-label">선글라스</span></button>
+    <button class="gnb-item" onclick="location.href='vkool.html'"><span class="gnb-label">V.KOOL</span></button>
+    <button class="gnb-item" onclick="location.href='timesale.html'"><span class="gnb-label">타임세일</span></button>
+    <button class="gnb-item" onclick="location.href='event.html'"><span class="gnb-label">이벤트</span></button>
+    </nav>
     <div class="header-right">
+      <div class="header-auth">
+        <div id="topbarGuest">
+      <button class="tb-link" onclick="location.href='index.html?openLogin=1'">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
+    </div>
+        <div id="topbarUser" style="display:none;align-items:center;">
+      <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="topbarLogout()">로그아웃</button>
+    </div>
+      </div>
+
       <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
         <svg id="searchIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <svg id="closeIcon" style="display:none;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -312,19 +327,9 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       </div>
       <button class="icon-btn" onclick="location.href='mypage.html?tab=wish'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></button>
       <button class="icon-btn" onclick="location.href='cart.html'" style="color:var(--navy);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13a1 1 0 01-1 1H6a1 1 0 01-1-1L6 7z"/><path d="M9 10V6a3 3 0 016 0v4"/></svg><span class="cart-count" id="cartCountBadge" style="display:none;">0</span></button>
-    </div>
+        </div>
   </div>
-  <nav class="gnb-inner">
-    <button class="gnb-item" onclick="location.href='list.html'"><span class="gnb-label">전체상품</span></button>
-    <button class="gnb-item" onclick="location.href='brands.html'"><span class="gnb-label">브랜드별</span></button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'"><span class="gnb-label">하금테</span></button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'"><span class="gnb-label">뿔테</span></button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'"><span class="gnb-label">메탈</span></button>
-    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'"><span class="gnb-label">선글라스</span></button>
-    <button class="gnb-item" onclick="location.href='vkool.html'"><span class="gnb-label">V.KOOL</span></button>
-    <button class="gnb-item" onclick="location.href='timesale.html'"><span class="gnb-label">타임세일</span></button>
-    <button class="gnb-item" onclick="location.href='event.html'"><span class="gnb-label">이벤트</span></button>
-    </nav>
+
 
   </div>
 
@@ -440,13 +445,13 @@ function updateTopbarLoggedIn(name, level, role) {
   if(dropdown) {
     let adminLinkHtml = '';
     if(role === 'brand') {
-      adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+      adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#000000;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
     } else if(role === 'master' || role === 'submaster') {
-      adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#0B1F3A;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+      adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#000000;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
     }
     dropdown.innerHTML = `
       <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
-        <div style="font-size:14px;font-weight:700;color:#0B1F3A;">${name}님</div>
+        <div style="font-size:14px;font-weight:700;color:#000000;">${name}님</div>
         <div style="font-size:11px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
       </div>
       ${adminLinkHtml}
