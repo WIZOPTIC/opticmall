@@ -81,7 +81,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .step.active .step-label{color:var(--sky);font-weight:700;}
 .step.done .step-label{color:var(--navy);}
 
-.main{max-width:1100px;margin:24px auto;padding:0 24px;display:flex;gap:20px;align-items:flex-start;}
+.main{max-width:1100px;margin:0 auto;padding:24px;display:flex;gap:20px;align-items:flex-start;}
 .order-form{flex:1;}
 .card{background:var(--white);border-radius:10px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .card-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--g2);}
@@ -520,19 +520,18 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
       <div class="summary-title">결제 금액</div>
       <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
       <div class="sum-row" id="sumDiscountRow" style="display:none;"><span class="lbl">할인 금액</span><span class="val" id="sumDiscount" style="color:var(--red);">-₩0</span></div>
-      <div class="sum-row" id="sumDiscountedSubtotalRow" style="display:none;"><span class="lbl">할인 적용가</span><span class="val" id="sumDiscountedSubtotal" style="font-weight:700;color:var(--navy);">₩0</span></div>
       <div class="sum-row" id="couponRow">
         <span class="lbl">쿠폰</span>
         <span class="val" id="couponValue" style="cursor:pointer;color:var(--sky);text-decoration:underline;" onclick="openCouponPicker()">쿠폰 선택</span>
       </div>
       <div class="sum-row"><span class="lbl">배송비</span><span class="val" id="shippingFeeDisplay" style="color:var(--green);">무료</span></div>
-      <div class="sum-row" id="pointsUseRow" style="display:none;align-items:center;">
+      <div class="sum-row" id="pointsUseRow" style="display:none;flex-direction:column;align-items:stretch;gap:8px;">
         <span class="lbl">적립금 <span id="pointsBalanceLabel" style="color:var(--g3);font-weight:400;">(보유 0원)</span></span>
-        <span style="display:flex;align-items:center;gap:6px;">
+        <span style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
           <input type="number" id="pointsUseInput" min="0" step="1" value="0" placeholder="0"
             style="width:90px;padding:6px 8px;border:1px solid var(--g2);border-radius:6px;text-align:right;font-size:14px;font-family:inherit;"
             oninput="onPointsInputChange()">
-          <button type="button" onclick="useAllPoints()" style="padding:6px 10px;border:1px solid var(--g2);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:var(--g4);">전액사용</button>
+          <button type="button" onclick="useAllPoints()" style="padding:6px 10px;border:1px solid var(--g2);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:var(--g4);white-space:nowrap;">전액사용</button>
         </span>
       </div>
       <div class="sum-row" id="pointsAppliedRow" style="display:none;"><span class="lbl">적립금 사용</span><span class="val" id="pointsAppliedVal" style="color:var(--red);">-₩0</span></div>
@@ -990,24 +989,13 @@ function renderOrderItems() {
       </div>`;
   }).join('');
 
-  const sumProductsEl = document.getElementById('sumProducts');
-  sumProductsEl.textContent = '₩' + totalOriginalAmount.toLocaleString();
+  document.getElementById('sumProducts').textContent = '₩' + totalOriginalAmount.toLocaleString();
   const discountRow = document.getElementById('sumDiscountRow');
-  const discountedSubtotalRow = document.getElementById('sumDiscountedSubtotalRow');
   if(totalDiscount > 0) {
     discountRow.style.display = '';
     document.getElementById('sumDiscount').textContent = '-₩' + totalDiscount.toLocaleString();
-    sumProductsEl.style.color = 'var(--g3)';
-    sumProductsEl.style.textDecoration = 'line-through';
-    sumProductsEl.style.fontWeight = '400';
-    discountedSubtotalRow.style.display = '';
-    document.getElementById('sumDiscountedSubtotal').textContent = '₩' + totalAmount.toLocaleString();
   } else {
     discountRow.style.display = 'none';
-    sumProductsEl.style.color = '';
-    sumProductsEl.style.textDecoration = '';
-    sumProductsEl.style.fontWeight = '';
-    discountedSubtotalRow.style.display = 'none';
   }
   updateShippingAndTotal();
 }
