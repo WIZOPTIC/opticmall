@@ -78,7 +78,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .item-img.no-img{opacity:0.15;}
 .item-img img{width:100%;height:100%;object-fit:contain;}
 .item-info{flex:1;}
-.item-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.item-name{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;}
 .item-option{font-size:12px;color:var(--g3);}
 .item-qty{display:flex;align-items:center;border:1.5px solid var(--g2);border-radius:6px;overflow:hidden;flex-shrink:0;}
 .qty-btn{width:32px;height:32px;border:none;background:var(--g1);font-size:16px;cursor:pointer;}
@@ -87,7 +87,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .qty-val::-webkit-outer-spin-button,.qty-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .item-price{font-family:'Inter',sans-serif;text-align:right;width:120px;flex-shrink:0;}
 .item-price-orig{font-size:12px;color:var(--g3);text-decoration:line-through;font-weight:400;height:16px;line-height:16px;}
-.item-price-final{font-size:17px;font-weight:800;color:var(--navy);line-height:1.3;}
+.item-price-final{font-size:17px;font-weight:700;color:var(--navy);line-height:1.3;}
 .item-price-pct{font-size:12px;color:var(--red);font-weight:700;margin-right:3px;}
 .item-locked{font-size:12px;color:var(--g3);min-width:80px;text-align:right;}
 .item-del{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--g3);font-size:18px;margin-left:4px;}
@@ -102,17 +102,17 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 /* 주문 요약 */
 .order-summary{width:420px;flex-shrink:0;position:sticky;top:88px;}
 .summary-card{background:var(--white);border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:12px;}
-.summary-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+.summary-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;letter-spacing:0.01em;}
 .summary-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px;}
 .summary-row .label{color:var(--g4);}
 .summary-row .value{font-weight:600;color:var(--black);}
 .summary-divider{border:none;border-top:1px solid var(--g2);margin:14px 0;}
 .summary-total{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:700;}
-.summary-total .total-price{font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:var(--sky);}
-.btn-order{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:4px;}
+.summary-total .total-price{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--sky);}
+.btn-order{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:4px;letter-spacing:0.01em;}
 .btn-order:hover{background:var(--sky-dk);transform:translateY(-1px);}
 .btn-order:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
-.btn-continue{width:100%;padding:16px;background:var(--white);color:var(--navy);border:2px solid var(--navy);border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;transition:all 0.2s;}
+.btn-continue{width:100%;padding:16px;background:var(--white);color:var(--navy);border:1.5px solid var(--navy);border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:8px;transition:all 0.2s;letter-spacing:0.01em;}
 .btn-continue:hover{background:var(--navy);color:var(--white);}
 
 /* 하단 네비 */
@@ -174,7 +174,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .kakao-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; background: #FAE300; color: #1A1A1A; border: none; border-radius: 6px; font-size:12px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none; }
 .kakao-btn:hover { background: #E8D100; }
 .footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
-.footer-col h5 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: #FFFFFF; text-transform: uppercase; margin-bottom: 12px; }
+.footer-col h5 { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; color: #FFFFFF; text-transform: uppercase; margin-bottom: 12px; }
 .footer-col a { display: block; font-size:11px; color: #FFFFFF; text-decoration: none; margin-bottom: 9px; font-weight: 300; transition: opacity 0.15s; }
 .footer-col a:hover { opacity: 0.7; }
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
@@ -187,7 +187,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 .tb-link { background: none; border: none; color: var(--navy); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; padding: 0; white-space: nowrap; transition: opacity 0.15s; }
 .tb-link:hover { opacity: 0.6; }
 .tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
-.tb-welcome { color: var(--navy); font-weight: 700; font-size: 13px; white-space: nowrap; }
+.tb-welcome { color: var(--navy); font-weight: 600; font-size: 13px; white-space: nowrap; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 
 /* ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== */
@@ -201,7 +201,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 }
 .fw-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(10,14,20,0.2); }
 .fw-btn.fw-kakao { background: #FEE500; border-color: #FEE500; }
-.fw-btn.fw-top { opacity: 0; pointer-events: none; transform: translateY(8px); font-size: 20px; font-weight: 800; }
+.fw-btn.fw-top { opacity: 0; pointer-events: none; transform: translateY(8px); font-size: 20px; font-weight: 700; }
 .fw-btn.fw-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
 .fw-tip {
   position: absolute; right: 62px; top: 50%; transform: translateY(-50%);
@@ -217,7 +217,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   display: none; flex-direction: column; overflow: hidden;
 }
 .fw-recent-panel.open { display: flex; }
-.fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 800; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
+.fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
 .fw-recent-close { background: none; border: none; font-size: 18px; color: var(--g3); cursor: pointer; line-height: 1; }
 .fw-recent-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
 .fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 8px; text-decoration: none; color: var(--black); }
@@ -233,7 +233,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 }
 .fw-share-panel.open { display: block; }
 .fw-share-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.fw-share-title { font-size: 16px; font-weight: 800; color: var(--black); }
+.fw-share-title { font-size: 16px; font-weight: 700; color: var(--black); }
 .fw-share-close { background: none; border: none; font-size: 20px; color: var(--g3); cursor: pointer; line-height: 1; padding: 0; }
 .fw-share-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px 4px; margin-bottom: 16px; }
 .fw-share-item { display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; }
@@ -258,8 +258,8 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
 }
 .fw-share-copy-btn {
-  flex-shrink: 0; padding: 10px 16px; border-radius: 10px; border: none; background: var(--navy);
-  color: var(--white); font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+  flex-shrink: 0; padding: 10px 16px; border-radius: 8px; border: none; background: var(--navy);
+  color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .fw-share-copy-btn:hover { background: var(--sky-dk); }
 
@@ -408,7 +408,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeCouponPicker()"></div>
   <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:420px;max-width:90vw;max-height:80vh;overflow-y:auto;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
     <div style="padding:22px 24px 8px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:16px;font-weight:800;color:var(--navy);">보유 쿠폰</span>
+      <span style="font-size:16px;font-weight:600;color:var(--navy);">보유 쿠폰</span>
       <span onclick="closeCouponPicker()" style="cursor:pointer;color:var(--g3);font-size:14px;">✕</span>
     </div>
     <div id="couponList" style="padding:8px 16px 20px;"></div>
@@ -538,8 +538,8 @@ function openCouponPicker() {
       return `
         <div onclick="${eligible ? `selectCoupon('${c.id}')` : ''}" style="border:1.5px solid ${eligible ? 'var(--sky)' : 'var(--g2)'};border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:${eligible ? 'pointer' : 'not-allowed'};opacity:${eligible ? '1' : '0.5'};background:${appliedCoupon?.id === c.id ? 'var(--g1)' : '#fff'};">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:14px;font-weight:800;color:var(--navy);">${c.name}</span>
-            <span style="font-size:14px;font-weight:800;color:${eligible ? 'var(--red)' : 'var(--g3)'};">${valueLabel}</span>
+            <span style="font-size:14px;font-weight:600;color:var(--navy);">${c.name}</span>
+            <span style="font-size:14px;font-weight:700;color:${eligible ? 'var(--red)' : 'var(--g3)'};">${valueLabel}</span>
           </div>
           <div style="font-size:12px;color:var(--g3);margin-top:6px;">
             ${(c.minOrderAmount || 0).toLocaleString()}원 이상 구매 시 사용 가능 · ${expLabel}
@@ -923,7 +923,7 @@ function updateSummary() {
   }
   const couponValueEl = document.getElementById('couponValue');
   if(appliedCoupon) {
-    couponValueEl.innerHTML = `${appliedCoupon.name} <span style="color:var(--red);font-weight:800;">-₩${couponDiscount.toLocaleString()}</span> <span style="color:var(--g3);font-weight:400;text-decoration:underline;">변경</span>`;
+    couponValueEl.innerHTML = `${appliedCoupon.name} <span style="color:var(--red);font-weight:700;">-₩${couponDiscount.toLocaleString()}</span> <span style="color:var(--g3);font-weight:400;text-decoration:underline;">변경</span>`;
   } else {
     couponValueEl.textContent = count > 0 ? '쿠폰 선택' : '쿠폰 없음';
     couponValueEl.style.cursor = count > 0 ? 'pointer' : 'default';

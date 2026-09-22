@@ -108,7 +108,7 @@ header {
 .tb-link { background: none; border: none; color: var(--navy); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; padding: 0; white-space: nowrap; transition: opacity 0.15s; }
 .tb-link:hover { opacity: 0.6; }
 .tb-sep { opacity: 0.5; margin: 0 8px; color: var(--g3); font-size: 13px; }
-.tb-welcome { color: var(--navy); font-weight: 700; font-size: 13px; white-space: nowrap; }
+.tb-welcome { color: var(--navy); font-weight: 600; font-size: 13px; white-space: nowrap; }
 .tb-badge { font-size: 10px; background: var(--gold); color: var(--navy); padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 .header-auth { display: flex; align-items: center; margin-right: 18px; }
 .header-search-box { display: flex; align-items: center; border: 1px solid var(--g2); border-radius: 4px; background: var(--white); margin-left: 14px; }
@@ -202,7 +202,7 @@ header {
 }
 .feature-bar-item { flex: 1; padding: 0 20px; text-align: center; }
 .feature-bar-item:not(:first-child) { border-left: 1px solid #DDE3EA; }
-.fb-title { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 3px; }
+.fb-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
 .fb-sub { font-size: 11.5px; color: var(--g3); word-break: keep-all; }
 
 /* ── 좌측 고정 스파인 ── */
@@ -243,13 +243,13 @@ header {
 .contents-strip .c-rule { width: 1px; height: 13px; background: var(--stone); opacity: 0.35; }
 @media (max-width: 640px) { .contents-strip { display: none; } }
 .ers-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
-.ers-head h2 { font-family: var(--font-body); font-style: normal; font-weight: 800; font-size: 21px; color: var(--navy); margin: 0; }
+.ers-head h2 { font-family: var(--font-body); font-style: normal; font-weight: 700; font-size: 21px; color: var(--navy); margin: 0; }
 .ers-head .more { font-size: 12.5px; color: var(--stone); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; white-space: nowrap; }
 .ers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
 .ers-rank {
   position: absolute; top: 10px; left: 10px; z-index: 3;
   width: 26px; height: 26px; border-radius: 6px; background: var(--navy); color: #fff;
-  display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700;
 }
 @media (max-width: 1100px) { .ers-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 640px) { .ers-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -319,14 +319,14 @@ header {
   position: static; display: inline-block; background: var(--navy); color: #fff;
   font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.02em;
 }
-.card-header .title { position: static; font-size: 19px; font-weight: 800; margin: 0; color: var(--navy); }
+.card-header .title { position: static; font-size: 19px; font-weight: 700; margin: 0; color: var(--navy); }
 .card-header .glasses-svg { display: none; }
 .card-timer { position: static; text-align: right; }
 .card-timer .ct-label { display: block; font-size: 10px; color: var(--stone); margin-bottom: 4px; }
 .card-timer .ct-row { display: flex; align-items: center; gap: 3px; justify-content: flex-end; }
 .card-timer .ct-box {
   background: var(--red); color: #fff; border-radius: 4px; min-width: 24px; padding: 3px 4px;
-  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
   font-variant-numeric: tabular-nums; text-align: center;
 }
 .card-timer .ct-colon { font-weight: 900; font-size: 12px; }
@@ -340,9 +340,9 @@ header {
 .p-row-info { flex: 1; min-width: 0; }
 .p-row-code { font-size: 11.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
 .p-row-name-main { font-size: 12px; color: var(--stone); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.15s; }
-.p-row-price { font-size: 15px; font-weight: 800; color: var(--ink); font-family: var(--font-body); }
+.p-row-price { font-size: 15px; font-weight: 700; color: var(--ink); font-family: var(--font-body); }
 .p-row-price .won { font-size: 12.5px; font-weight: 600; }
-.p-row-price .discount-pct { color: var(--red); font-weight: 800; margin-right: 6px; }
+.p-row-price .discount-pct { color: var(--red); font-weight: 700; margin-right: 6px; }
 .p-row-price .orig-price { font-size: 11px; color: #9BA5B0; text-decoration: line-through; font-weight: 500; margin-left: 6px; }
 .p-row-wish { flex: 0 0 auto; width: 26px; height: 26px; border: none; background: transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--g3); padding:0; }
 .p-row-wish:hover { color: var(--red); }
@@ -352,14 +352,14 @@ header {
 .cat-section { padding: 0; }
 .cat-badge-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
 .cat-badge-row .badge {
-  background: var(--navy); color: #fff; font-size: 12px; font-weight: 800;
+  background: var(--navy); color: #fff; font-size: 12px; font-weight: 700;
   padding: 6px 14px; border-radius: 100px; letter-spacing: 0.02em;
 }
-.cat-badge-row .title { font-size: 24px; font-weight: 800; color: var(--navy); margin: 0; }
+.cat-badge-row .title { font-size: 24px; font-weight: 700; color: var(--navy); margin: 0; }
 .cat-badge-row .card-timer { display: flex; align-items: center; }
 .ts-pill { display: inline-flex; align-items: center; gap: 8px; background: none; padding: 0; border-radius: 0; }
 .ts-pill .ts-clock { color: var(--red); flex-shrink: 0; }
-.ts-pill .ts-time { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 18px; color: var(--red); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.ts-pill .ts-time { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 18px; color: var(--red); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 .ts-pill .ts-suffix { font-size: 13px; font-weight: 500; color: var(--g3); }
 
 .hero-split { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: stretch; margin-bottom: 36px; }
@@ -380,7 +380,7 @@ header {
 }
 
 .full-grid-wrap .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
-.full-grid-wrap .sec-head h2 { font-size: 20px; font-weight: 800; color: var(--navy); margin: 0; }
+.full-grid-wrap .sec-head h2 { font-size: 20px; font-weight: 700; color: var(--navy); margin: 0; }
 .full-grid-wrap .sec-head .more { font-size: 12.5px; color: var(--stone); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; white-space: nowrap; }
 .more-box-wrap { text-align: center; margin-top: 18px; }
 .more-box {
@@ -424,7 +424,7 @@ header {
   padding: 14px 0 14px 10px; margin: 48px 0 28px;
 }
 .section-box .sb-left { display: flex; align-items: center; gap: 18px; }
-.section-box h2 { font-size: 24px; font-weight: 800; color: var(--navy); letter-spacing: -0.01em; margin: 0; }
+.section-box h2 { font-size: 24px; font-weight: 700; color: var(--navy); letter-spacing: -0.01em; margin: 0; }
 .section-box .sb-sub { font-size: 11px; color: var(--g3); }
 .section-box .sb-more { font-size: 12px; color: var(--g3); text-decoration: none; white-space: nowrap; }
 .section-box .sb-more:hover { color: var(--sky); }
@@ -443,7 +443,7 @@ header {
 .img-ph svg { opacity: 0.18; }
 .p-badge {
   position: absolute; top: 10px; left: 10px;
-  font-size:12px; font-weight: 800; background:none; padding:0;
+  font-size:12px; font-weight: 700; background:none; padding:0;
 }
 .p-badge.new { color: var(--navy); }
 .p-badge.hot { color: var(--red); }
@@ -465,9 +465,9 @@ header {
 .p-colors { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
 .p-color-chip { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex-shrink: 0; }
 .p-color-more { font-size: 10px; color: var(--g3); align-self: center; }
-.product-price { font-size:16px; font-weight: 800; color: var(--ink); font-family: var(--font-body); }
+.product-price { font-size:16px; font-weight: 700; color: var(--ink); font-family: var(--font-body); }
 .product-price .won { font-size:14px; font-weight: 600; }
-.product-price .discount-pct { color: var(--red); font-weight: 800; margin-right: 6px; }
+.product-price .discount-pct { color: var(--red); font-weight: 700; margin-right: 6px; }
 .product-price .orig-price { font-size: 11.5px; color: #9BA5B0; text-decoration: line-through; font-weight: 500; margin-left: 6px; }
 .price-locked { display: flex; align-items: center; gap: 5px; font-size:11px; color: var(--g3); }
 .price-locked svg { width: 14px; height: 14px; }
@@ -480,7 +480,7 @@ header {
   font-size:11px; font-weight: 700; letter-spacing: 0.2em; color: var(--sky);
   text-transform: uppercase; margin-bottom: 14px;
 }
-.member-section h2 { font-size:19px; font-weight: 800; color: var(--white); line-height: 1.3; margin-bottom: 10px; }
+.member-section h2 { font-size:19px; font-weight: 700; color: var(--white); line-height: 1.3; margin-bottom: 10px; }
 .member-section p { font-size:12px; color: rgba(255,255,255,0.45); font-weight: 300; margin-bottom: 24px; }
 .btn-member {
   padding: 14px 36px; background: var(--sky); color: var(--white);
@@ -507,7 +507,7 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; }
 }
 .kakao-btn:hover { background: #E8D100; }
 .footer-cols { display: flex; gap: 48px; }
-.footer-col h5 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: #fff; text-transform: uppercase; margin-bottom: 12px; }
+.footer-col h5 { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; color: #fff; text-transform: uppercase; margin-bottom: 12px; }
 .footer-col a { display: block; font-size:11px; color: #fff; text-decoration: none; margin-bottom: 9px; font-weight: 300; transition: opacity 0.15s; }
 .footer-col a:hover { opacity: 0.7; }
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
@@ -655,7 +655,7 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 }
 .fw-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(10,14,20,0.2); }
 .fw-btn.fw-kakao { background: #FEE500; border-color: #FEE500; }
-.fw-btn.fw-top { opacity: 0; pointer-events: none; transform: translateY(8px); font-size: 20px; font-weight: 800; }
+.fw-btn.fw-top { opacity: 0; pointer-events: none; transform: translateY(8px); font-size: 20px; font-weight: 700; }
 .fw-btn.fw-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
 .fw-tip {
   position: absolute; right: 62px; top: 50%; transform: translateY(-50%);
@@ -671,7 +671,7 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
   display: none; flex-direction: column; overflow: hidden;
 }
 .fw-recent-panel.open { display: flex; }
-.fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 800; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
+.fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
 .fw-recent-close { background: none; border: none; font-size: 18px; color: var(--g3); cursor: pointer; line-height: 1; }
 .fw-recent-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
 .fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 8px; text-decoration: none; color: var(--black); }
@@ -687,13 +687,13 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 }
 .fw-share-panel.open { display: block; }
 .fw-share-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.fw-share-title { font-size: 16px; font-weight: 800; color: var(--black); }
+.fw-share-title { font-size: 16px; font-weight: 700; color: var(--black); }
 .fw-share-close { background: none; border: none; font-size: 20px; color: var(--g3); cursor: pointer; line-height: 1; padding: 0; }
 .fw-share-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px 4px; margin-bottom: 16px; }
 .fw-share-item { display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; }
 .fw-share-icon {
   width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 800; color: #fff; flex-shrink: 0;
+  font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;
 }
 .fw-share-icon svg { width: 20px; height: 20px; }
 .fw-share-label { font-size: 11px; color: var(--g4); }
@@ -712,8 +712,8 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
   font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
 }
 .fw-share-copy-btn {
-  flex-shrink: 0; padding: 10px 16px; border-radius: 10px; border: none; background: var(--navy);
-  color: var(--white); font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+  flex-shrink: 0; padding: 10px 16px; border-radius: 8px; border: none; background: var(--navy);
+  color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .fw-share-copy-btn:hover { background: var(--sky-dk); }
 
@@ -794,19 +794,19 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
     <div onclick="closeSignupPromo()" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;line-height:1;z-index:1;">✕</div>
 
     <div style="background:#000000;padding:26px 24px 24px;text-align:center;">
-      <div style="display:inline-block;background:#C9A227;color:#000000;font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">✦ OPTICIAN ONLY · B2B 전용</div>
-      <p style="font-size:18px;font-weight:800;color:#fff;margin:0 0 4px;">안경원 사업자 등록증으로 가입하고</p>
-      <p style="font-size:22px;font-weight:800;color:#C9A227;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
+      <div style="display:inline-block;background:#C9A227;color:#000000;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">✦ OPTICIAN ONLY · B2B 전용</div>
+      <p style="font-size:18px;font-weight:700;color:#fff;margin:0 0 4px;">안경원 사업자 등록증으로 가입하고</p>
+      <p style="font-size:22px;font-weight:700;color:#C9A227;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
     </div>
 
     <div style="padding:20px 24px 4px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">첫 구매 할인</p>
-          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">10%</p>
+          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;">첫 구매 할인</p>
+          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10%</p>
         </div>
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;white-space:nowrap;">
+          <p style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;white-space:nowrap;">
             카카오채널 추가
             <svg width="15" height="15" viewBox="0 0 40 40" style="flex-shrink:0;">
               <rect x="2" y="6" width="30" height="30" rx="8" fill="#FEE500"/>
@@ -814,15 +814,15 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
               <text x="17" y="26" font-family="Arial, sans-serif" font-size="11" font-weight="900" fill="#FEE500" text-anchor="middle">Ch</text>
             </svg>
           </p>
-          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">10,000원</p>
+          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10,000원</p>
         </div>
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">회원가입 쿠폰</p>
-          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">25,000원</p>
+          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;">회원가입 쿠폰</p>
+          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">25,000원</p>
         </div>
         <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:800;">멤버십 등급별</p>
-          <p style="font-size:22px;font-weight:800;color:#000000;margin:0;white-space:nowrap;">추가 혜택</p>
+          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;">멤버십 등급별</p>
+          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">추가 혜택</p>
         </div>
       </div>
     </div>
