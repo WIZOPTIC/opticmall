@@ -976,6 +976,12 @@ function toggleSearchOverlay() {
     backdrop.style.display = 'none';
     searchIcon.style.display = '';
     closeIcon.style.display = 'none';
+    // 검색창을 닫을 때 입력했던 검색어를 지우고, 검색 결과로 필터링되어 있던 상품 목록을 원래대로 복원
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput && searchInput.value.trim() !== '') {
+      searchInput.value = '';
+      applyFilters();
+    }
   } else {
     overlay.style.display = 'block';
     backdrop.style.display = 'block';
