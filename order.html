@@ -81,7 +81,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .step.active .step-label{color:var(--sky);font-weight:700;}
 .step.done .step-label{color:var(--navy);}
 
-.main{max-width:1440px;margin:0 auto;padding:24px;display:flex;gap:48px;align-items:flex-start;}
+.main{max-width:1360px;margin:0 auto;padding:40px 24px 24px;display:flex;gap:48px;align-items:flex-start;}
 .order-form{flex:1;}
 .card{background:var(--white);border-radius:10px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .card-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--g2);}
@@ -138,7 +138,10 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .btn-pay{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:12px;letter-spacing:0.01em;}
 .btn-pay:hover{background:var(--sky-dk);transform:translateY(-1px);}
 .btn-pay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
-.easypay-row{display:flex;gap:8px;margin-top:8px;}
+.quickpay-divider{display:flex;align-items:center;gap:12px;margin:16px 0 12px;}
+.quickpay-divider span{flex:1;height:1px;background:var(--g2);}
+.quickpay-divider em{font-style:normal;font-size:11px;font-weight:600;color:var(--g3);letter-spacing:0.06em;white-space:nowrap;}
+.easypay-row{display:flex;gap:8px;}
 .btn-easypay{flex:1;padding:12.5px 0;border:none;border-radius:8px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;opacity:0.94;}
 .btn-easypay:hover{transform:translateY(-1px);opacity:1;}
 .btn-easypay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
@@ -409,14 +412,6 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 </div>
 
-<div class="steps">
-  <div class="steps-inner">
-    <div class="step done"><div class="step-circle">✓</div><div class="step-label">상품선택</div></div>
-    <div class="step active"><div class="step-circle">2</div><div class="step-label">주문/결제</div></div>
-    <div class="step"><div class="step-circle">3</div><div class="step-label">주문완료</div></div>
-  </div>
-</div>
-
 <div id="loadingArea" class="loading-box">
   <div class="spinner"></div>주문 정보를 불러오는 중...
 </div>
@@ -546,6 +541,9 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
         <div class="agree-item"><input type="checkbox" id="agree2"> 개인정보 제3자 제공 동의 (필수)</div>
       </div>
       <button class="btn-pay" id="payBtn" onclick="startPayment()">결제하기</button>
+      <div class="quickpay-divider">
+        <span></span><em>간편결제</em><span></span>
+      </div>
       <div class="easypay-row">
         <button class="btn-easypay btn-naverpay" id="naverPayBtn" onclick="startPayment('NAVERPAY')"><span class="npay-mark">N</span>&nbsp;Pay 구매</button>
         <button class="btn-easypay btn-kakaopay" id="kakaoPayBtn" onclick="startPayment('KAKAOPAY')"><svg class="kakao-bubble" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>&nbsp;pay 구매</button>
