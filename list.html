@@ -36,7 +36,7 @@ header {
   cursor: pointer; transition: all 0.15s;
 }
 .search-tag:hover { border-color: var(--sky); color: var(--sky); }
-.header-right { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.header-right { display: flex; align-items: center; gap: 2px; margin-left: auto; margin-right: -7px; }
 .h-btn {
   padding: 7px 12px; border: none; background: none;
   font-size:12px; font-weight: 500; color: var(--g4);
@@ -134,18 +134,16 @@ header {
 .page-wrap { max-width: 1440px; margin: 0 auto; padding: 32px 24px 24px; }
 
 /* 카테고리 히어로 (상품 목록 진입 시 상단 소개 영역) */
-.category-hero { padding: 22px 0 20px; border-bottom: 1px solid var(--g2); margin-bottom: 24px; }
-.category-hero-eyebrow { font-family: var(--font-serif); font-style: italic; color: var(--navy); font-size: 13px; letter-spacing: 0.02em; margin-bottom: 6px; }
+.category-hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; margin-bottom: 20px; flex-wrap: wrap; }
+.category-hero-titlewrap { display: flex; align-items: baseline; gap: 10px; }
+.category-hero-eyebrow { font-family: var(--font-serif); font-style: italic; color: var(--navy); font-size: 13px; letter-spacing: 0.02em; }
 .category-hero-title { font-family: inherit; font-style: normal; font-size: 20px; font-weight: 600; color: var(--navy); line-height: 1.3; margin: 0; letter-spacing: -0.005em; }
 @media (max-width: 720px) {
-  .category-hero { padding: 16px 0 14px; margin-bottom: 16px; }
+  .category-hero { padding: 14px 0; margin-bottom: 16px; }
   .category-hero-title { font-size: 17px; }
 }
 
 /* 상품 목록 */
-.list-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-.list-count { font-size: 14px; color: var(--g3); margin-top: 6px; }
-.list-count strong { color: var(--navy); }
 .list-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .stock-toggle {
   display: flex; align-items: center; gap: 7px; padding: 8px 15px;
@@ -512,12 +510,9 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 
 <div class="page-wrap">
   <div class="category-hero" id="categoryHero">
-    <div class="category-hero-eyebrow" id="categoryEyebrow">EYEWEAR COLLECTION</div>
-    <h1 class="category-hero-title" id="listTitle">전체상품</h1>
-  </div>
-  <div class="list-header">
-    <div>
-      <div class="list-count">총 <strong>0</strong>개 상품</div>
+    <div class="category-hero-titlewrap">
+      <h1 class="category-hero-title" id="listTitle">전체상품</h1>
+      <span class="category-hero-eyebrow" id="categoryEyebrow">EYEWEAR COLLECTION</span>
     </div>
     <div class="list-controls">
       <button class="stock-toggle" id="stockToggleBtn" onclick="toggleStockOnly()"><span class="dot"></span>재고있음만</button>
@@ -971,7 +966,8 @@ function goToProduct(productId) {
 }
 
 function updateCount(n) {
-  document.querySelector('.list-count').innerHTML = `총 <strong>${n}</strong>개 상품`;
+  const el = document.querySelector('.list-count');
+  if(el) el.innerHTML = `총 <strong>${n}</strong>개 상품`;
 }
 
 const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
