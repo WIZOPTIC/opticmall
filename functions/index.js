@@ -7,6 +7,9 @@
  *
  * 호출 예시 (프론트엔드에서):
  *   https://asia-northeast3-opticmall.cloudfunctions.net/getTrackingInfo?t_code=04&t_invoice=698809846835
+ *
+ * [2026-09-27] 스마트택배 API의 GET 방식 지원 종료(2026-10-30) 공지에 따라
+ * POST + JSON body 방식으로 전환. (공식 문서: https://info.sweettracker.co.kr/apidoc)
  */
 
 const { onRequest } = require("firebase-functions/v2/https");
@@ -32,13 +35,15 @@ exports.getTrackingInfo = onRequest(
     }
 
     try {
-      const url =
-        `https://info.sweettracker.co.kr/api/v1/trackingInfo` +
-        `?t_key=${encodeURIComponent(SWEETTRACKER_KEY)}` +
-        `&t_code=${encodeURIComponent(courierCode)}` +
-        `&t_invoice=${encodeURIComponent(invoiceNo)}`;
-
-      const response = await fetch(url);
+      const response = await fetch("https://info.sweettracker.co.kr/api/v1/trackingInfo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          t_key: SWEETTRACKER_KEY,
+          t_code: courierCode,
+          t_invoice: invoiceNo,
+        }),
+      });
       const data = await response.json();
 
       res.status(200).json(data);
