@@ -100,10 +100,15 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
   body { padding-bottom: 58px; }
 }
 
-/* 히어로 */
-.event-hero{max-width:1440px;margin:0 auto;padding:48px 24px 20px;text-align:center;}
-.event-hero h1{font-family:inherit;font-style:normal;font-size:28px;font-weight:800;color:var(--navy);margin-bottom:8px;}
-.event-hero p{font-size:14px;color:var(--g3);}
+/* 카테고리 히어로 (하금테/뿔테 목록과 동일한 컴팩트 타이틀 스타일) */
+.category-hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; margin-bottom: 20px; flex-wrap: wrap; }
+.category-hero-titlewrap { display: flex; align-items: baseline; gap: 10px; }
+.category-hero-eyebrow { font-family: var(--font-serif); font-style: italic; color: var(--navy); font-size: 13px; letter-spacing: 0.02em; }
+.category-hero-title { font-family: inherit; font-style: normal; font-size: 20px; font-weight: 600; color: var(--navy); line-height: 1.3; margin: 0; letter-spacing: -0.005em; }
+@media (max-width: 720px) {
+  .category-hero { padding: 14px 0; margin-bottom: 16px; }
+  .category-hero-title { font-size: 17px; }
+}
 
 .event-wrap{max-width:1440px;margin:0 auto;padding:0 24px;}
 
@@ -382,12 +387,13 @@ footer { background: var(--sky-dk); padding: 44px 24px 32px; margin-top: 60px; }
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 </div>
 
-<div class="event-hero">
-  <h1>이벤트</h1>
-  <p>지금 진행중인 브랜드 이벤트/할인을 모아봤어요</p>
-</div>
-
 <div class="event-wrap">
+  <div class="category-hero">
+    <div class="category-hero-titlewrap">
+      <h1 class="category-hero-title">이벤트</h1>
+      <span class="category-hero-eyebrow">BRAND EVENTS</span>
+    </div>
+  </div>
   <div id="eventArea"><div class="loading-box"><div class="spinner"></div>이벤트를 불러오는 중...</div></div>
 </div>
 
