@@ -1802,33 +1802,71 @@ async function loadMainProducts() {
 loadMainProducts();
 loadTimesaleData();
 
-// ── 메인 상단 배너(3분할) : "롤링 배너 관리"(editorialBanners)에 등록된 내용 중 순서 1~3번째를 그대로 사용 ──
+// ── 메인 상단 배너(3분할) : "롤링 배너 관리"(editorialBanners)에 등록된 내용을 사용, 4개 이상이면 자동으로 롤링 ──
 const HERO_BANNER_GRADIENT = 'linear-gradient(180deg, rgba(11,31,58,0.10), rgba(7,20,41,0.62))';
 const HERO_BANNER_SLOT_KEYS = ['a', 'b', 'c'];
+const HERO_BANNER_ROTATE_MS = 5000;
+let heroBannerList = [];
+let heroBannerStart = 0;
+let heroBannerTimer = null;
+
+function applyHeroBannerAt(startIdx) {
+  const n = heroBannerList.length;
+  HERO_BANNER_SLOT_KEYS.forEach((slot, i) => {
+    const d = heroBannerList[(startIdx + i) % n];
+    if (!d) return;
+    const bg = document.getElementById('heroBannerBg_' + slot);
+    const t1 = document.getElementById('heroBannerT1_' + slot);
+    const t2 = document.getElementById('heroBannerT2_' + slot);
+    const wrap = document.getElementById('heroBanner_' + slot);
+    if (bg && d.imageUrl) {
+      bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
+      bg.style.backgroundSize = 'cover';
+      bg.style.backgroundPosition = 'center';
+    }
+    if (t1) t1.textContent = d.title || '';
+    if (t2) t2.textContent = d.subtitle || '';
+    if (wrap) {
+      if (d.link) {
+        wrap.classList.add('banner-link');
+        wrap.onclick = () => { location.href = d.link; };
+      } else {
+        wrap.classList.remove('banner-link');
+        wrap.onclick = null;
+      }
+    }
+  });
+}
+
+function rotateHeroBanners() {
+  const wraps = HERO_BANNER_SLOT_KEYS.map(slot => document.getElementById('heroBanner_' + slot)).filter(Boolean);
+  wraps.forEach(w => w.style.opacity = '0');
+  setTimeout(() => {
+    heroBannerStart = (heroBannerStart + 3) % heroBannerList.length;
+    applyHeroBannerAt(heroBannerStart);
+    wraps.forEach(w => w.style.opacity = '1');
+  }, 400);
+}
+
 async function loadHomeBanners() {
   try {
     const snap = await _db.collection('editorialBanners').get();
     const list = [];
     snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
     list.sort((a, b) => (a.order || 0) - (b.order || 0));
-    list.slice(0, 3).forEach((d, i) => {
-      const slot = HERO_BANNER_SLOT_KEYS[i];
-      const bg = document.getElementById('heroBannerBg_' + slot);
-      const t1 = document.getElementById('heroBannerT1_' + slot);
-      const t2 = document.getElementById('heroBannerT2_' + slot);
+    heroBannerList = list;
+    if (list.length === 0) return;
+
+    HERO_BANNER_SLOT_KEYS.forEach(slot => {
       const wrap = document.getElementById('heroBanner_' + slot);
-      if (bg && d.imageUrl) {
-        bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
-        bg.style.backgroundSize = 'cover';
-        bg.style.backgroundPosition = 'center';
-      }
-      if (t1 && d.title) t1.textContent = d.title;
-      if (t2 && d.subtitle) t2.textContent = d.subtitle;
-      if (wrap && d.link) {
-        wrap.classList.add('banner-link');
-        wrap.onclick = () => { location.href = d.link; };
-      }
+      if (wrap) wrap.style.transition = 'opacity 0.4s ease';
     });
+    applyHeroBannerAt(0);
+
+    if (heroBannerTimer) clearInterval(heroBannerTimer);
+    if (list.length > 3) {
+      heroBannerTimer = setInterval(rotateHeroBanners, HERO_BANNER_ROTATE_MS);
+    }
   } catch (e) {
     console.error('메인 배너 로드 실패:', e);
   }
