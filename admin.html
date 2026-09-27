@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPTICMALL 관리자</title>
+<title>옵틱몰 - 프리미엄 도매몰 관리자</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF7A1A'/><text x='50' y='68' font-family='Arial, sans-serif' font-weight='800' font-size='48' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&family=Fraunces:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -282,6 +283,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <button class="menu-item" onclick="showPage('timesaleManage',this)"><span><i class=ic-fire></i></span> 타임세일 관리 <span class="menu-badge" id="pendingTimesaleBadge"></span></button>
     <div class="menu-section">메인 화면 관리</div>
     <button class="menu-item" onclick="showPage('categoryImages',this)"><span><i class=ic-glasses></i></span> 카테고리 대표사진 관리</button>
+    <button class="menu-item" onclick="showPage('heroPhotos',this)"><span><i class=ic-glasses></i></span> 메인 대표사진 관리</button>
     <button class="menu-item" onclick="showPage('editorial',this)"><span><i class=ic-image></i></span> 롤링 배너 관리</button>
     <div class="menu-section">운영</div>
     <button class="menu-item" onclick="showPage('orderManage',this)"><span><i class=ic-truck></i></span> 주문/배송 관리 <span class="menu-badge" id="pendingShipBadge"></span></button>
@@ -424,6 +426,17 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       </div>
     </div>
 
+    <!-- 메인 대표사진 관리 -->
+    <div class="page" id="page-heroPhotos">
+      <div class="section-header">
+        <div class="section-title">메인 대표사진 관리</div>
+      </div>
+      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">홈페이지 메인의 타임세일/신상품/베스트상품 코너 왼쪽에 나오는 큰 사진이에요. 사진을 등록하지 않으면 빈 칸으로 표시돼요. (가로로 긴 사진일수록 잘 어울려요)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="heroPhotoSlotsWrap">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
     <!-- 설정 -->
     <div class="page" id="page-adminSettings">
       <div class="section-header">
@@ -447,7 +460,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <div class="section-title">롤링 배너 관리</div>
         <button class="btn-sm btn-primary" onclick="addEditorialBanner()">+ 새 배너 추가</button>
       </div>
-      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">여기 등록된 배너 중 <b style="color:var(--navy);">순서 1~3번</b>이 홈페이지 맨 위 3분할 배너로 그대로 나가요 (제목→큰 문구, 설명→작은 문구로 사용돼요). 4번째부터는 아직 홈페이지에 노출되는 자리가 없으니 지금은 3개까지만 관리해주세요. "이동 링크"에 페이지 주소를 넣으면 클릭 시 그 페이지로 이동해요. (예: brands.html, join.html, event.html, https://pf.kakao.com/... 등)</div>
+      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">여기 등록된 배너 중 <b style="color:var(--navy);">순서 1~3번</b>이 홈페이지 맨 위 3분할 배너로 그대로 나가요 (제목→큰 문구, 설명→작은 문구로 사용돼요). 4번째부터는 아직 홈페이지에 노출되는 자리가 없으니 지금은 3개까지만 관리해주세요. "클릭 시 이동 위치"에서 전체상품/브랜드관/이벤트/공지사항 등 자주 쓰는 곳을 바로 고르거나, "직접 입력"을 선택해 특정 상품 페이지나 카카오톡 채널 등 원하는 주소를 넣을 수 있어요.</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="editorialSlotsWrap">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
@@ -901,7 +914,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', categoryImages:'카테고리 대표사진 관리', adminSettings:'설정'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', categoryImages:'카테고리 대표사진 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
@@ -915,6 +928,7 @@ function showPage(name, el) {
   if(name === 'settlement') loadSettlement();
   if(name === 'editorial') loadEditorialBanners();
   if(name === 'categoryImages') loadCategoryImages();
+  if(name === 'heroPhotos') loadHeroPhotoSlots();
 }
 
 
@@ -1614,10 +1628,44 @@ function addEditorialBanner() {
   document.getElementById('editorialTitle_'+newCard.id)?.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
+const EDITORIAL_LINK_PRESETS = [
+  {label:'선택 안 함 (클릭해도 이동 안 함)', value:''},
+  {label:'전체상품', value:'list.html'},
+  {label:'브랜드관', value:'brands.html'},
+  {label:'타임세일', value:'timesale.html'},
+  {label:'이벤트', value:'event.html'},
+  {label:'공지사항', value:'board.html?tab=notice'},
+  {label:'V.KOOL', value:'vkool.html'},
+  {label:'회원가입', value:'join.html'},
+  {label:'직접 입력 (특정 상품/URL 등)', value:'__custom__'}
+];
+
+function matchEditorialLinkPreset(link) {
+  if (!link) return '';
+  const found = EDITORIAL_LINK_PRESETS.find(p => p.value === link);
+  return found ? found.value : '__custom__';
+}
+
+function onEditorialLinkPresetChange(slotId) {
+  const sel = document.getElementById('editorialLinkPreset_'+slotId);
+  const input = document.getElementById('editorialLink_'+slotId);
+  if (sel.value === '__custom__') {
+    input.style.display = 'block';
+    input.focus();
+  } else {
+    input.style.display = 'none';
+    input.value = sel.value;
+  }
+}
+
 function renderEditorialSlot(s) {
   const imgHtml = s.imageUrl
     ? `<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover;">`
     : `<span style="font-size:12px;color:#9BA5B0;">사진 없음</span>`;
+  const linkPreset = matchEditorialLinkPreset(s.link);
+  const linkPresetOptions = EDITORIAL_LINK_PRESETS.map(p =>
+    `<option value="${p.value}" ${p.value===linkPreset?'selected':''}>${p.label}</option>`
+  ).join('');
   return `
   <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:16px;position:relative;">
     <button onclick="deleteEditorialSlot('${s.id}')" style="position:absolute;top:12px;right:12px;background:none;border:none;color:#9BA5B0;font-size:13px;cursor:pointer;">삭제</button>
@@ -1632,8 +1680,11 @@ function renderEditorialSlot(s) {
     <input type="text" id="editorialTitle_${s.id}" value="${(s.title||'').replace(/"/g,'&quot;')}" placeholder="제목을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">설명</label>
     <textarea id="editorialSubtitle_${s.id}" placeholder="설명을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;min-height:64px;resize:vertical;">${(s.subtitle||'')}</textarea>
-    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">클릭 시 이동 링크</label>
-    <input type="text" id="editorialLink_${s.id}" value="${(s.link||'').replace(/"/g,'&quot;')}" placeholder="예: brands.html, join.html, https://pf.kakao.com/..." style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">클릭 시 이동 위치</label>
+    <select id="editorialLinkPreset_${s.id}" onchange="onEditorialLinkPresetChange('${s.id}')" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:8px;box-sizing:border-box;background:#fff;">
+      ${linkPresetOptions}
+    </select>
+    <input type="text" id="editorialLink_${s.id}" value="${(s.link||'').replace(/"/g,'&quot;')}" placeholder="예: brands.html, join.html, product.html?id=상품ID, https://pf.kakao.com/..." style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;display:${linkPreset==='__custom__'?'block':'none'};">
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">노출 순서 (숫자가 작을수록 먼저)</label>
     <input type="number" id="editorialOrder_${s.id}" value="${s.order||1}" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:12px;box-sizing:border-box;">
     <button class="btn-sm btn-primary" style="width:100%;" onclick="saveEditorialSlot('${s.id}')" id="editorialSaveBtn_${s.id}">저장</button>
@@ -1772,6 +1823,88 @@ async function saveCategoryImageSlot(cat) {
     delete categoryImagePendingFiles[cat];
     showToast('저장했어요.', 'success');
     loadCategoryImages();
+  } catch(e) {
+    showToast('저장 실패: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
+  }
+}
+
+// ── 메인 대표사진 관리 (타임세일/신상품/베스트상품 코너의 큰 사진) ──
+const HERO_PHOTO_LIST = [
+  {id:'timesale', label:'타임세일'},
+  {id:'newArrival', label:'신상품'},
+  {id:'best', label:'베스트상품'}
+];
+const heroPhotoPendingFiles = {};
+let heroPhotoCache = {};
+
+async function loadHeroPhotoSlots() {
+  const wrap = document.getElementById('heroPhotoSlotsWrap');
+  wrap.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'heroPhotos'));
+    heroPhotoCache = {};
+    snap.forEach(d => { heroPhotoCache[d.id] = d.data(); });
+    wrap.innerHTML = HERO_PHOTO_LIST.map(item => renderHeroPhotoSlot(item, heroPhotoCache[item.id] || {})).join('');
+  } catch(e) {
+    wrap.innerHTML = `<div style="grid-column:1/-1;color:#FF4444;padding:20px;">불러오기 실패: ${e.message}</div>`;
+  }
+}
+
+function renderHeroPhotoSlot(item, d) {
+  const imgHtml = d.imageUrl
+    ? `<img src="${d.imageUrl}" style="width:100%;height:100%;object-fit:cover;">`
+    : `<span style="font-size:11px;color:#9BA5B0;">사진 없음</span>`;
+  return `
+  <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:14px;">
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;text-align:center;">${item.label}</div>
+    <div id="heroPhotoPreview_${item.id}" style="position:relative;aspect-ratio:16/9;border-radius:12px;background:#F2F4F6;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;cursor:pointer;" onclick="document.getElementById('heroPhotoFile_${item.id}').click()">
+      ${imgHtml}
+    </div>
+    <input type="file" id="heroPhotoFile_${item.id}" accept="image/*" style="display:none;" onchange="handleHeroPhotoPick('${item.id}', this)">
+    <button class="btn-sm btn-primary" style="width:100%;" onclick="saveHeroPhotoSlot('${item.id}')" id="heroPhotoSaveBtn_${item.id}">저장</button>
+  </div>`;
+}
+
+function handleHeroPhotoPick(id, input) {
+  const file = input.files[0];
+  if(!file) return;
+  heroPhotoPendingFiles[id] = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('heroPhotoPreview_'+id);
+    preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveHeroPhotoSlot(id) {
+  const btn = document.getElementById('heroPhotoSaveBtn_'+id);
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  try {
+    const existingSnap = await window._getDoc(window._doc(window._db, 'heroPhotos', id));
+    let imageUrl = existingSnap.exists() ? (existingSnap.data().imageUrl || '') : '';
+
+    const file = heroPhotoPendingFiles[id];
+    if(file) {
+      const rand = Math.random().toString(36).slice(2, 8);
+      const path = `heroPhotos/${id}_${Date.now()}_${rand}_${file.name}`;
+      const fileRef = window._ref(window._storage, path);
+      await window._uploadBytes(fileRef, file);
+      imageUrl = await window._getDownloadURL(fileRef);
+    }
+
+    await window._setDoc(window._doc(window._db, 'heroPhotos', id), {
+      imageUrl,
+      updatedAt: window._serverTimestamp()
+    });
+
+    delete heroPhotoPendingFiles[id];
+    showToast('저장했어요.', 'success');
+    loadHeroPhotoSlots();
   } catch(e) {
     showToast('저장 실패: ' + e.message, 'error');
   } finally {
