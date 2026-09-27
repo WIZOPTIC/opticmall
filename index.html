@@ -265,9 +265,13 @@ header {
   display: flex;
   gap: 14px;
 }
+.banner-track {
+  --hero-item-divisor: 3; /* JS가 롤링 여부에 따라 이 값을 바꿔줌. flex-basis와 이동 거리 계산이 항상 이 하나의 값만 보고 계산되게 함 */
+}
+.banner-track.peek { --hero-item-divisor: 3.2; }
 .banner-slide-item {
   position: relative;
-  flex: 0 0 calc((100% - 28px) / 3);
+  flex: 0 0 calc((100% - 28px) / var(--hero-item-divisor));
   aspect-ratio: 3/4;
   overflow: hidden;
   border-radius: 0;
@@ -279,7 +283,8 @@ header {
 .banner-slide-item .caption .t2 { font-size: 12.5px; color: rgba(247,244,238,0.75); margin: 0; }
 .banner-slide-item.banner-link { cursor: pointer; }
 @media (max-width: 860px) {
-  .banner-slide-item { flex: 0 0 100%; }
+  .banner-track { --hero-item-divisor: 1; }
+  .banner-track.peek { --hero-item-divisor: 1.1; }
 }
 
 /* ── 헤드라인 옆 포토 슬롯 ── */
@@ -1834,8 +1839,8 @@ function moveHeroTrack(withTransition) {
   const track = document.getElementById('heroBannerTrack');
   if (!track) return;
   track.style.transition = withTransition ? ('transform ' + HERO_BANNER_SLIDE_MS + 'ms cubic-bezier(.45,0,.2,1)') : 'none';
-  // 항목 하나의 너비(칸 사이 14px 간격 포함)만큼씩 이동 — .banner-slide-item의 flex-basis 계산과 동일한 식이어야 함
-  track.style.transform = 'translateX(calc(-1 * ' + heroBannerPos + ' * ((100% - 28px) / 3 + 14px)))';
+  // 항목 하나의 너비(칸 사이 14px 간격 포함)만큼씩 이동 — var(--hero-item-divisor)를 그대로 참조해서 .banner-slide-item의 flex-basis 계산과 절대 어긋나지 않게 함
+  track.style.transform = 'translateX(calc(-1 * ' + heroBannerPos + ' * ((100% - 28px) / var(--hero-item-divisor) + 14px)))';
 }
 
 function slideHeroTrack() {
@@ -1872,6 +1877,7 @@ async function loadHomeBanners() {
     if (!track) return;
     track.innerHTML = '';
     trackList.forEach(d => track.appendChild(buildHeroSlideItemEl(d)));
+    track.classList.toggle('peek', list.length > 3); // 롤링될 때만 다음 사진이 살짝 보이게
 
     heroBannerRealCount = list.length;
     heroBannerPos = 0;
