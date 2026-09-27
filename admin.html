@@ -281,7 +281,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <button class="menu-item" onclick="showPage('allPromos',this)"><span><i class=ic-tag></i>️</span> 전체 이벤트 목록</button>
     <button class="menu-item" onclick="showPage('timesaleManage',this)"><span><i class=ic-fire></i></span> 타임세일 관리 <span class="menu-badge" id="pendingTimesaleBadge"></span></button>
     <div class="menu-section">메인 화면 관리</div>
-    <button class="menu-item" onclick="showPage('heroBanners',this)"><span><i class=ic-image></i></span> 메인 상단 배너 관리</button>
     <button class="menu-item" onclick="showPage('categoryImages',this)"><span><i class=ic-glasses></i></span> 카테고리 대표사진 관리</button>
     <button class="menu-item" onclick="showPage('editorial',this)"><span><i class=ic-image></i></span> 롤링 배너 관리</button>
     <div class="menu-section">운영</div>
@@ -414,17 +413,6 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
       </div>
     </div>
 
-    <!-- 메인 상단 배너 관리 -->
-    <div class="page" id="page-heroBanners">
-      <div class="section-header">
-        <div class="section-title">메인 상단 배너 관리</div>
-      </div>
-      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">홈페이지 맨 위 3분할 배너예요. 사진을 바꾸면 실제 홈페이지에 바로 반영돼요. 문구는 비워두면 기존 문구가 유지돼요.</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="heroBannerSlotsWrap">
-        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
-      </div>
-    </div>
-
     <!-- 카테고리 대표사진 관리 -->
     <div class="page" id="page-categoryImages">
       <div class="section-header">
@@ -459,7 +447,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <div class="section-title">롤링 배너 관리</div>
         <button class="btn-sm btn-primary" onclick="addEditorialBanner()">+ 새 배너 추가</button>
       </div>
-      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">메인페이지 히어로 옆에 나오는 배너예요. 3개 이하면 그대로, 4개 이상이면 자동으로 롤링돼요. "이동 링크"에 페이지 주소를 넣으면 클릭 시 그 페이지로 이동해요. (예: brands.html, join.html, event.html, https://pf.kakao.com/... 등)</div>
+      <div style="font-size:13px;color:#9BA5B0;margin-bottom:20px;">여기 등록된 배너 중 <b style="color:var(--navy);">순서 1~3번</b>이 홈페이지 맨 위 3분할 배너로 그대로 나가요 (제목→큰 문구, 설명→작은 문구로 사용돼요). 4번째부터는 아직 홈페이지에 노출되는 자리가 없으니 지금은 3개까지만 관리해주세요. "이동 링크"에 페이지 주소를 넣으면 클릭 시 그 페이지로 이동해요. (예: brands.html, join.html, event.html, https://pf.kakao.com/... 등)</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="editorialSlotsWrap">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
@@ -913,7 +901,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroBanners:'메인 상단 배너 관리', categoryImages:'카테고리 대표사진 관리', adminSettings:'설정'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', categoryImages:'카테고리 대표사진 관리', adminSettings:'설정'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
@@ -926,7 +914,6 @@ function showPage(name, el) {
   if(name === 'cancelManage') loadCancelManage();
   if(name === 'settlement') loadSettlement();
   if(name === 'editorial') loadEditorialBanners();
-  if(name === 'heroBanners') loadHeroBanners();
   if(name === 'categoryImages') loadCategoryImages();
 }
 
@@ -1712,99 +1699,6 @@ async function deleteEditorialSlot(slotId) {
     loadEditorialBanners();
   } catch(e) {
     showToast('삭제 실패: ' + e.message, 'error');
-  }
-}
-
-// ── 메인 상단 배너(3분할) 관리 ──
-const HERO_BANNER_SLOTS = [
-  {id:'a', label:'배너 A (왼쪽)'},
-  {id:'b', label:'배너 B (가운데)'},
-  {id:'c', label:'배너 C (오른쪽)'}
-];
-const heroBannerPendingFiles = {};
-let heroBannerCache = {};
-
-async function loadHeroBanners() {
-  const wrap = document.getElementById('heroBannerSlotsWrap');
-  wrap.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
-  try {
-    const snap = await window._getDocs(window._collection(window._db, 'homeBanners'));
-    heroBannerCache = {};
-    snap.forEach(d => { heroBannerCache[d.id] = d.data(); });
-    wrap.innerHTML = HERO_BANNER_SLOTS.map(s => renderHeroBannerSlot(s.id, s.label, heroBannerCache[s.id] || {})).join('');
-  } catch(e) {
-    wrap.innerHTML = `<div style="grid-column:1/-1;color:#FF4444;padding:20px;">불러오기 실패: ${e.message}</div>`;
-  }
-}
-
-function renderHeroBannerSlot(slotId, label, d) {
-  const imgHtml = d.imageUrl
-    ? `<img src="${d.imageUrl}" style="width:100%;height:100%;object-fit:cover;">`
-    : `<span style="font-size:12px;color:#9BA5B0;">사진 없음</span>`;
-  return `
-  <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:16px;">
-    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">${label}</div>
-    <div id="heroBannerPreview_${slotId}" style="position:relative;aspect-ratio:3/4;background:#F2F4F6;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;cursor:pointer;" onclick="document.getElementById('heroBannerFile_${slotId}').click()">
-      ${imgHtml}
-      <div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;">사진 변경</div>
-    </div>
-    <input type="file" id="heroBannerFile_${slotId}" accept="image/*" style="display:none;" onchange="handleHeroBannerImagePick('${slotId}', this)">
-    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">큰 문구</label>
-    <input type="text" id="heroBannerT1_${slotId}" value="${(d.t1||'').replace(/"/g,'&quot;')}" placeholder="예: 가벼워서 하루 종일, 티타늄 라인" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
-    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">작은 문구</label>
-    <input type="text" id="heroBannerT2_${slotId}" value="${(d.t2||'').replace(/"/g,'&quot;')}" placeholder="예: 신상품 컬렉션 새로 입고" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
-    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">클릭 시 이동 링크 (선택)</label>
-    <input type="text" id="heroBannerLink_${slotId}" value="${(d.link||'').replace(/"/g,'&quot;')}" placeholder="예: brands.html, list.html?cat=선글라스" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:12px;box-sizing:border-box;">
-    <button class="btn-sm btn-primary" style="width:100%;" onclick="saveHeroBannerSlot('${slotId}')" id="heroBannerSaveBtn_${slotId}">저장</button>
-  </div>`;
-}
-
-function handleHeroBannerImagePick(slotId, input) {
-  const file = input.files[0];
-  if(!file) return;
-  heroBannerPendingFiles[slotId] = file;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const preview = document.getElementById('heroBannerPreview_'+slotId);
-    preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;">사진 변경</div>`;
-  };
-  reader.readAsDataURL(file);
-}
-
-async function saveHeroBannerSlot(slotId) {
-  const btn = document.getElementById('heroBannerSaveBtn_'+slotId);
-  btn.disabled = true;
-  btn.textContent = '저장 중...';
-  try {
-    const t1 = document.getElementById('heroBannerT1_'+slotId).value.trim();
-    const t2 = document.getElementById('heroBannerT2_'+slotId).value.trim();
-    const link = document.getElementById('heroBannerLink_'+slotId).value.trim();
-
-    const existingSnap = await window._getDoc(window._doc(window._db, 'homeBanners', slotId));
-    let imageUrl = existingSnap.exists() ? (existingSnap.data().imageUrl || '') : '';
-
-    const file = heroBannerPendingFiles[slotId];
-    if(file) {
-      const rand = Math.random().toString(36).slice(2, 8);
-      const path = `homeBanners/${slotId}_${Date.now()}_${rand}_${file.name}`;
-      const fileRef = window._ref(window._storage, path);
-      await window._uploadBytes(fileRef, file);
-      imageUrl = await window._getDownloadURL(fileRef);
-    }
-
-    await window._setDoc(window._doc(window._db, 'homeBanners', slotId), {
-      t1, t2, link, imageUrl,
-      updatedAt: window._serverTimestamp()
-    });
-
-    delete heroBannerPendingFiles[slotId];
-    showToast('저장했어요.', 'success');
-    loadHeroBanners();
-  } catch(e) {
-    showToast('저장 실패: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '저장';
   }
 }
 

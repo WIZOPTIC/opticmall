@@ -1811,23 +1811,28 @@ async function loadMainProducts() {
 loadMainProducts();
 loadTimesaleData();
 
-// ── 메인 상단 배너(3개) + 카테고리 대표사진 : 관리자에서 등록한 내용으로 덮어쓰기 ──
+// ── 메인 상단 배너(3분할) : "롤링 배너 관리"(editorialBanners)에 등록된 내용 중 순서 1~3번째를 그대로 사용 ──
 const HERO_BANNER_GRADIENT = 'linear-gradient(180deg, rgba(11,31,58,0.10), rgba(7,20,41,0.62))';
+const HERO_BANNER_SLOT_KEYS = ['a', 'b', 'c'];
 async function loadHomeBanners() {
   try {
-    const snap = await _db.collection('homeBanners').get();
-    snap.forEach(doc => {
-      const slot = doc.id; // 'a' | 'b' | 'c'
-      const d = doc.data();
-      if (!d) return;
+    const snap = await _db.collection('editorialBanners').get();
+    const list = [];
+    snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+    list.sort((a, b) => (a.order || 0) - (b.order || 0));
+    list.slice(0, 3).forEach((d, i) => {
+      const slot = HERO_BANNER_SLOT_KEYS[i];
       const bg = document.getElementById('heroBannerBg_' + slot);
       const t1 = document.getElementById('heroBannerT1_' + slot);
       const t2 = document.getElementById('heroBannerT2_' + slot);
       const wrap = document.getElementById('heroBanner_' + slot);
-      if (bg && d.imageUrl) bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
-      if (bg && d.imageUrl) { bg.style.backgroundSize = 'cover'; bg.style.backgroundPosition = 'center'; }
-      if (t1 && d.t1) t1.textContent = d.t1;
-      if (t2 && d.t2) t2.textContent = d.t2;
+      if (bg && d.imageUrl) {
+        bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
+        bg.style.backgroundSize = 'cover';
+        bg.style.backgroundPosition = 'center';
+      }
+      if (t1 && d.title) t1.textContent = d.title;
+      if (t2 && d.subtitle) t2.textContent = d.subtitle;
       if (wrap && d.link) {
         wrap.classList.add('banner-link');
         wrap.onclick = () => { location.href = d.link; };
