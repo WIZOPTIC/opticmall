@@ -507,25 +507,27 @@ header {
 footer { background: var(--sky-dk); padding: 56px 24px 36px; }
 .footer-inner { max-width: 1440px; margin: 0 auto; }
 .footer-top {
-  display: flex; justify-content: space-between; gap: 60px;
-  padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 28px;
+  display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px;
+  padding: 0 110px 40px 0; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 28px;
 }
-.footer-logo { font-family: var(--font-serif); font-style: italic; font-size:22px; font-weight: 500; color: #fff; margin-bottom: 10px; }
+.footer-mid { display: flex; gap: 64px; flex-wrap: wrap; }
+.footer-logo { font-family: var(--font-serif); font-style: italic; font-size:22px; font-weight: 500; color: #fff; margin-bottom: 22px; }
 .footer-logo span { color: var(--gold-soft); font-style: normal; }
-.footer-brand p { font-size:13px; color: #fff; font-weight: 300; line-height: 1.9; margin-bottom: 0; }
 .footer-cols { display: flex; gap: 64px; }
 .footer-col h5 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 16px; }
 .footer-col a { display: block; font-size:14px; color: rgba(255,255,255,0.75); text-decoration: none; margin-bottom: 13px; font-weight: 400; transition: opacity 0.15s; }
 .footer-col a:hover { opacity: 0.7; }
 .footer-contact .fc-label { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; }
 .footer-contact .fc-hours { font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 400; line-height: 1.8; }
-.footer-biz-right { text-align: right; font-size:13px; color: rgba(255,255,255,0.55); font-weight: 400; line-height: 1.9; }
+.footer-right { max-width: 360px; }
+.footer-biz { font-size:13px; color: rgba(255,255,255,0.55); font-weight: 400; line-height: 1.9; }
 .footer-bottom { padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
 .footer-copy { font-size:12px; color: rgba(255,255,255,0.45); font-family: 'Inter', sans-serif; }
 @media (max-width: 860px) {
-  .footer-top { flex-direction: column; gap: 32px; }
+  .footer-top { flex-direction: column; gap: 32px; padding-right: 0; }
+  .footer-mid { gap: 40px; }
   .footer-cols { gap: 40px; flex-wrap: wrap; }
-  .footer-biz-right { text-align: left; }
+  .footer-right { max-width: none; }
 }
 
 /* ── 하단 네비 ── */
@@ -1076,28 +1078,29 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 <footer>
   <div class="footer-inner">
     <div class="footer-top">
-      <div class="footer-brand">
+      <div class="footer-mid">
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h5>고객지원</h5>
+            <a href="board.html?tab=notice">공지사항</a><a href="board.html?tab=faq">배송안내</a><a href="board.html?tab=faq">반품/교환</a><a href="board.html?tab=inquiry">1:1 문의</a>
+          </div>
+          <div class="footer-col">
+            <h5>회사</h5>
+            <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+          </div>
+        </div>
+        <div class="footer-contact">
+          <div class="fc-label">고객센터 032-563-9984</div>
+          <div class="fc-hours">평일 오전 10:00 ~ 오후 05:00<br>주말 · 공휴일 휴무</div>
+        </div>
+      </div>
+      <div class="footer-right">
         <div class="footer-logo">Opticmall</div>
-        <p>안경테·선글라스 도매 전문 B2B 플랫폼<br>안경사를 위한 25년의 신뢰</p>
-      </div>
-      <div class="footer-cols">
-        <div class="footer-col">
-          <h5>고객지원</h5>
-          <a href="board.html?tab=notice">공지사항</a><a href="board.html?tab=faq">배송안내</a><a href="board.html?tab=faq">반품/교환</a><a href="board.html?tab=inquiry">1:1 문의</a>
+        <div class="footer-biz">
+          위즈옵틱 · 대표: 손진영 · 인천광역시 검단구 원당대로 840번길 5 장원프라자 5F ·<br>
+          사업자등록번호: 137-19-96848<br>
+          통신판매업신고번호: 2025-인천서구-0228 · E-mail: info@opticmall.co.kr
         </div>
-        <div class="footer-col">
-          <h5>회사</h5>
-          <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
-        </div>
-      </div>
-      <div class="footer-contact">
-        <div class="fc-label">고객센터 032-563-9984</div>
-        <div class="fc-hours">평일 오전 10:00 ~ 오후 05:00<br>주말 · 공휴일 휴무</div>
-      </div>
-      <div class="footer-biz-right">
-        위즈옵틱 · 대표: 손진영 · 사업자등록번호: 137-19-96848<br>
-        통신판매업신고번호: 2025-인천서구-0228<br>
-        인천광역시 검단구 원당대로 840번길 5 장원프라자 5F · E-mail: info@opticmall.co.kr
       </div>
     </div>
     <div class="footer-bottom">
@@ -1997,8 +2000,11 @@ window.addEventListener('scroll', () => {
     ticking = false;
     const baseBottom = window.innerWidth <= 860 ? 72 : 90;
     const footerRect = footer.getBoundingClientRect();
-    const overlap = window.innerHeight - footerRect.top;
-    widget.style.bottom = overlap > 0 ? (baseBottom + overlap + 16) + 'px' : baseBottom + 'px';
+    // 위젯이 원래 있어야 할 위치(뷰포트 하단에서 baseBottom + 버튼들 높이)보다 푸터 윗쪽이 더 위로 올라와 있으면,
+    // 그만큼만 위젯을 밀어올려서 푸터 영역 안에서 나란히 계속 따라 내려오게 함(끝까지 자연스럽게 이어짐)
+    const widgetHeight = widget.offsetHeight;
+    const dockedBottom = window.innerHeight - footerRect.top - widgetHeight;
+    widget.style.bottom = (dockedBottom > baseBottom ? dockedBottom : baseBottom) + 'px';
   }
   function onScrollOrResize() {
     if (!ticking) { window.requestAnimationFrame(adjustFloatingWidget); ticking = true; }
