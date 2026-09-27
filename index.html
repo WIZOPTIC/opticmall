@@ -263,6 +263,7 @@ header {
 }
 .banner { position: relative; aspect-ratio: 3/4; overflow: hidden; border-radius: 0; color: var(--ivory); }
 .banner-bg { position: absolute; inset: 0; }
+.banner-slide { position: absolute; inset: 0; z-index: 0; }
 .banner .badge {
   position: absolute; top: 18px; left: 18px;
   background: var(--ivory); color: var(--navy);
@@ -939,28 +940,34 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
   <div class="main-wrap">
     <section class="banner-grid">
       <div class="banner a" id="heroBanner_a">
-        <div class="banner-bg" id="heroBannerBg_a"></div>
-        <svg class="glasses-svg" viewBox="0 0 400 200" fill="none"><circle cx="115" cy="100" r="72" stroke="#C9A227" stroke-width="3"/><circle cx="285" cy="100" r="72" stroke="#C9A227" stroke-width="3"/><path d="M187 92C195 78 205 78 213 92" stroke="#C9A227" stroke-width="3"/></svg>
-        <div class="caption">
-          <p class="t1" id="heroBannerT1_a">가벼워서 하루 종일, 티타늄 라인</p>
-          <p class="t2" id="heroBannerT2_a">신상품 컬렉션 새로 입고</p>
+        <div class="banner-slide" id="heroBannerSlide_a">
+          <div class="banner-bg" id="heroBannerBg_a"></div>
+          <div class="caption">
+            <p class="t1" id="heroBannerT1_a">가벼워서 하루 종일, 티타늄 라인</p>
+            <p class="t2" id="heroBannerT2_a">신상품 컬렉션 새로 입고</p>
+          </div>
         </div>
+        <svg class="glasses-svg" viewBox="0 0 400 200" fill="none"><circle cx="115" cy="100" r="72" stroke="#C9A227" stroke-width="3"/><circle cx="285" cy="100" r="72" stroke="#C9A227" stroke-width="3"/><path d="M187 92C195 78 205 78 213 92" stroke="#C9A227" stroke-width="3"/></svg>
       </div>
       <div class="banner b" id="heroBanner_b">
-        <div class="banner-bg" id="heroBannerBg_b"></div>
-        <svg class="glasses-svg" viewBox="0 0 400 200" fill="none"><rect x="55" y="58" width="120" height="84" rx="10" stroke="#C9A227" stroke-width="3"/><rect x="225" y="58" width="120" height="84" rx="10" stroke="#C9A227" stroke-width="3"/><path d="M175 96H225" stroke="#C9A227" stroke-width="3"/></svg>
-        <div class="caption">
-          <p class="t1" id="heroBannerT1_b">엄선된 브랜드관</p>
-          <p class="t2" id="heroBannerT2_b">국내 최저 매입가 안내</p>
+        <div class="banner-slide" id="heroBannerSlide_b">
+          <div class="banner-bg" id="heroBannerBg_b"></div>
+          <div class="caption">
+            <p class="t1" id="heroBannerT1_b">엄선된 브랜드관</p>
+            <p class="t2" id="heroBannerT2_b">국내 최저 매입가 안내</p>
+          </div>
         </div>
+        <svg class="glasses-svg" viewBox="0 0 400 200" fill="none"><rect x="55" y="58" width="120" height="84" rx="10" stroke="#C9A227" stroke-width="3"/><rect x="225" y="58" width="120" height="84" rx="10" stroke="#C9A227" stroke-width="3"/><path d="M175 96H225" stroke="#C9A227" stroke-width="3"/></svg>
       </div>
       <div class="banner c" id="heroBanner_c">
-        <div class="banner-bg" id="heroBannerBg_c"></div>
-        <svg class="glasses-svg" viewBox="0 0 400 200" fill="none"><path d="M50 110C50 70 90 60 118 78C130 86 130 108 118 118C90 138 50 130 50 110Z" stroke="#C9A227" stroke-width="3"/><path d="M282 110C282 70 322 60 350 78C362 86 362 108 350 118C322 138 282 130 282 110Z" stroke="#C9A227" stroke-width="3"/></svg>
-        <div class="caption">
-          <p class="t1" id="heroBannerT1_c">10만원 이상 구매 시 5% 적립</p>
-          <p class="t2" id="heroBannerT2_c">이번 달 말까지</p>
+        <div class="banner-slide" id="heroBannerSlide_c">
+          <div class="banner-bg" id="heroBannerBg_c"></div>
+          <div class="caption">
+            <p class="t1" id="heroBannerT1_c">10만원 이상 구매 시 5% 적립</p>
+            <p class="t2" id="heroBannerT2_c">이번 달 말까지</p>
+          </div>
         </div>
+        <svg class="glasses-svg" viewBox="0 0 400 200" fill="none"><path d="M50 110C50 70 90 60 118 78C130 86 130 108 118 118C90 138 50 130 50 110Z" stroke="#C9A227" stroke-width="3"/><path d="M282 110C282 70 322 60 350 78C362 86 362 108 350 118C322 138 282 130 282 110Z" stroke="#C9A227" stroke-width="3"/></svg>
       </div>
     </section>
   </div>
@@ -1802,50 +1809,96 @@ async function loadMainProducts() {
 loadMainProducts();
 loadTimesaleData();
 
-// ── 메인 상단 배너(3분할) : "롤링 배너 관리"(editorialBanners)에 등록된 내용을 사용, 4개 이상이면 자동으로 롤링 ──
+// ── 메인 상단 배너(3분할) : "롤링 배너 관리"(editorialBanners)에 등록된 내용을 사용, 4개 이상이면 옆으로 흐르듯 자동 전환 ──
 const HERO_BANNER_GRADIENT = 'linear-gradient(180deg, rgba(11,31,58,0.10), rgba(7,20,41,0.62))';
 const HERO_BANNER_SLOT_KEYS = ['a', 'b', 'c'];
 const HERO_BANNER_ROTATE_MS = 5000;
+const HERO_BANNER_SLIDE_MS = 700;
 let heroBannerList = [];
 let heroBannerStart = 0;
 let heroBannerTimer = null;
 
-function applyHeroBannerAt(startIdx) {
-  const n = heroBannerList.length;
-  HERO_BANNER_SLOT_KEYS.forEach((slot, i) => {
-    const d = heroBannerList[(startIdx + i) % n];
-    if (!d) return;
-    const bg = document.getElementById('heroBannerBg_' + slot);
-    const t1 = document.getElementById('heroBannerT1_' + slot);
-    const t2 = document.getElementById('heroBannerT2_' + slot);
-    const wrap = document.getElementById('heroBanner_' + slot);
-    if (bg && d.imageUrl) {
-      bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
-      bg.style.backgroundSize = 'cover';
-      bg.style.backgroundPosition = 'center';
-    }
-    if (t1) t1.textContent = d.title || '';
-    if (t2) t2.textContent = d.subtitle || '';
-    if (wrap) {
-      if (d.link) {
-        wrap.classList.add('banner-link');
-        wrap.onclick = () => { location.href = d.link; };
-      } else {
-        wrap.classList.remove('banner-link');
-        wrap.onclick = null;
-      }
-    }
+function preloadHeroImage(url) {
+  return new Promise((resolve) => {
+    if (!url) { resolve(); return; }
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url;
   });
 }
 
-function rotateHeroBanners() {
-  const wraps = HERO_BANNER_SLOT_KEYS.map(slot => document.getElementById('heroBanner_' + slot)).filter(Boolean);
-  wraps.forEach(w => w.style.opacity = '0');
-  setTimeout(() => {
-    heroBannerStart = (heroBannerStart + 3) % heroBannerList.length;
-    applyHeroBannerAt(heroBannerStart);
-    wraps.forEach(w => w.style.opacity = '1');
-  }, 400);
+function buildHeroSlideEl(d) {
+  const slide = document.createElement('div');
+  slide.className = 'banner-slide';
+  const bg = document.createElement('div');
+  bg.className = 'banner-bg';
+  if (d && d.imageUrl) {
+    bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
+    bg.style.backgroundSize = 'cover';
+    bg.style.backgroundPosition = 'center';
+  }
+  const caption = document.createElement('div');
+  caption.className = 'caption';
+  const t1 = document.createElement('p');
+  t1.className = 't1';
+  t1.textContent = (d && d.title) || '';
+  const t2 = document.createElement('p');
+  t2.className = 't2';
+  t2.textContent = (d && d.subtitle) || '';
+  caption.appendChild(t1);
+  caption.appendChild(t2);
+  slide.appendChild(bg);
+  slide.appendChild(caption);
+  if (d && d.link) {
+    slide.style.cursor = 'pointer';
+    slide.onclick = () => { location.href = d.link; };
+  }
+  return slide;
+}
+
+async function initHeroSlide(startIdx) {
+  const n = heroBannerList.length;
+  const items = HERO_BANNER_SLOT_KEYS.map((slot, i) => heroBannerList[(startIdx + i) % n]);
+  // 사진을 먼저 완전히 내려받은 뒤에 화면을 바꿔서, 다운로드 중 빈 화면이 보이는 깜빡임을 없앰
+  await Promise.all(items.map(d => preloadHeroImage(d && d.imageUrl)));
+  HERO_BANNER_SLOT_KEYS.forEach((slot, i) => {
+    const wrap = document.getElementById('heroBanner_' + slot);
+    const oldSlide = document.getElementById('heroBannerSlide_' + slot);
+    if (!wrap) return;
+    const newSlide = buildHeroSlideEl(items[i]);
+    newSlide.id = 'heroBannerSlide_' + slot;
+    if (oldSlide) oldSlide.remove();
+    wrap.appendChild(newSlide);
+  });
+}
+
+async function slideHeroBanners() {
+  const n = heroBannerList.length;
+  const nextStart = (heroBannerStart + 3) % n;
+  const items = HERO_BANNER_SLOT_KEYS.map((slot, i) => heroBannerList[(nextStart + i) % n]);
+  // 다음 사진을 미리 내려받은 뒤에 슬라이드 애니메이션을 시작 (안 그러면 넘어가는 도중 빈 화면이 보임)
+  await Promise.all(items.map(d => preloadHeroImage(d && d.imageUrl)));
+  HERO_BANNER_SLOT_KEYS.forEach((slot, i) => {
+    const wrap = document.getElementById('heroBanner_' + slot);
+    const oldSlide = document.getElementById('heroBannerSlide_' + slot);
+    if (!wrap || !oldSlide) return;
+    const newSlide = buildHeroSlideEl(items[i]);
+    newSlide.style.transition = 'none';
+    newSlide.style.transform = 'translateX(100%)';
+    wrap.appendChild(newSlide);
+    // 강제 리플로우 후 트랜지션 시작
+    void newSlide.offsetWidth;
+    newSlide.style.transition = 'transform ' + HERO_BANNER_SLIDE_MS + 'ms cubic-bezier(.45,0,.2,1)';
+    oldSlide.style.transition = 'transform ' + HERO_BANNER_SLIDE_MS + 'ms cubic-bezier(.45,0,.2,1)';
+    newSlide.style.transform = 'translateX(0)';
+    oldSlide.style.transform = 'translateX(-100%)';
+    setTimeout(() => {
+      oldSlide.remove();
+      newSlide.id = 'heroBannerSlide_' + slot;
+    }, HERO_BANNER_SLIDE_MS + 50);
+  });
+  heroBannerStart = nextStart;
 }
 
 async function loadHomeBanners() {
@@ -1857,15 +1910,11 @@ async function loadHomeBanners() {
     heroBannerList = list;
     if (list.length === 0) return;
 
-    HERO_BANNER_SLOT_KEYS.forEach(slot => {
-      const wrap = document.getElementById('heroBanner_' + slot);
-      if (wrap) wrap.style.transition = 'opacity 0.4s ease';
-    });
-    applyHeroBannerAt(0);
+    await initHeroSlide(0);
 
     if (heroBannerTimer) clearInterval(heroBannerTimer);
     if (list.length > 3) {
-      heroBannerTimer = setInterval(rotateHeroBanners, HERO_BANNER_ROTATE_MS);
+      heroBannerTimer = setInterval(slideHeroBanners, HERO_BANNER_ROTATE_MS);
     }
   } catch (e) {
     console.error('메인 배너 로드 실패:', e);
