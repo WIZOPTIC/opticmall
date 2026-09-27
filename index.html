@@ -1987,6 +1987,26 @@ window.addEventListener('scroll', () => {
   const topBtn = document.getElementById('fwTopBtn');
   if (topBtn) topBtn.classList.toggle('show', window.scrollY > 400);
 });
+// 스크롤이 푸터에 닿으면 플로팅 버튼(카카오/최근본상품/공유/맨위로)이 푸터 내용을 가리지 않도록 위로 밀어줌
+(function () {
+  const widget = document.querySelector('.floating-widget');
+  const footer = document.querySelector('footer');
+  if (!widget || !footer) return;
+  let ticking = false;
+  function adjustFloatingWidget() {
+    ticking = false;
+    const baseBottom = window.innerWidth <= 860 ? 72 : 90;
+    const footerRect = footer.getBoundingClientRect();
+    const overlap = window.innerHeight - footerRect.top;
+    widget.style.bottom = overlap > 0 ? (baseBottom + overlap + 16) + 'px' : baseBottom + 'px';
+  }
+  function onScrollOrResize() {
+    if (!ticking) { window.requestAnimationFrame(adjustFloatingWidget); ticking = true; }
+  }
+  window.addEventListener('scroll', onScrollOrResize);
+  window.addEventListener('resize', onScrollOrResize);
+  adjustFloatingWidget();
+})();
 document.addEventListener('click', (e) => {
   const panel = document.getElementById('fwRecentPanel');
   const btn = document.getElementById('fwRecentBtn');
