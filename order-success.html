@@ -471,9 +471,9 @@ document.addEventListener('click', (e) => {
 const PURCHASE_LEVELS = [
   { level: 1, name: '화이트', nameEn: 'White', min: 0 },
   { level: 2, name: '실버', nameEn: 'Silver', min: 1000000 },
-  { level: 3, name: '골드', nameEn: 'Gold', min: 3000000 },
-  { level: 4, name: '플래티넘', nameEn: 'Platinum', min: 5000000 },
-  { level: 5, name: '옵틱 마스터', nameEn: 'Optic Master', min: 10000000 }
+  { level: 3, name: '골드', nameEn: 'Gold', min: 2000000 },
+  { level: 4, name: '플래티넘', nameEn: 'Platinum', min: 4000000 },
+  { level: 5, name: '옵틱 마스터', nameEn: 'Optic Master', min: 8000000 }
 ];
 
 function calcPurchaseLevel(totalAmount) {
@@ -482,6 +482,38 @@ function calcPurchaseLevel(totalAmount) {
     if (totalAmount >= lv.min) result = lv;
   }
   return result;
+}
+
+// 등급 승급 시 자동 지급되는 축하 적립금
+const GRADE_UP_POINTS = {
+  2: 20000,  // 실버
+  3: 50000,  // 골드
+  4: 70000,  // 플래티넘
+  5: 100000  // 옵틱 마스터
+};
+
+async function awardGradeUpPoints(userId, level) {
+  const earnAmount = GRADE_UP_POINTS[level];
+  if(!earnAmount) return; // 화이트(1등급)는 지급 없음
+  const levelName = (PURCHASE_LEVELS.find(l => l.level === level) || {}).name || '';
+  const userRef = _db.collection('users').doc(userId);
+  try {
+    await _db.runTransaction(async (tx) => {
+      const userSnap = await tx.get(userRef);
+      const currentBalance = Number(userSnap.exists ? userSnap.data().pointsBalance : 0) || 0;
+      tx.update(userRef, { pointsBalance: currentBalance + earnAmount });
+      const ledgerRef = userRef.collection('pointsLedger').doc();
+      tx.set(ledgerRef, {
+        type: 'earn',
+        amount: earnAmount,
+        orderId: null,
+        note: `${levelName} 등급 승급 축하 적립금`,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+  } catch(e) {
+    console.error('등급 승급 적립금 지급 실패:', e);
+  }
 }
 
 async function deductUsedPoints(userId, orderId, pointsUsed) {
@@ -532,6 +564,7 @@ async function updateUserPurchaseLevel(userId, orderAmount) {
   try {
     const userSnap = await userRef.get();
     const userData = userSnap.exists ? userSnap.data() : {};
+    const oldLevel = Number(userData.purchase_level || 1);
     const newTotal = Number(userData.total_purchase_amount || 0) + Number(orderAmount || 0);
     const newLevelInfo = calcPurchaseLevel(newTotal);
     await userRef.update({
@@ -539,6 +572,11 @@ async function updateUserPurchaseLevel(userId, orderAmount) {
       purchase_level: newLevelInfo.level,
       purchase_level_name: newLevelInfo.name
     });
+
+    // 등급이 실제로 올라간 경우에만 축하 적립금 자동 지급
+    if(newLevelInfo.level > oldLevel) {
+      await awardGradeUpPoints(userId, newLevelInfo.level);
+    }
   } catch(e) {
     console.error('구매등급 갱신 실패:', e);
   }
@@ -578,6 +616,17 @@ async function handleSuccess() {
     // 금액 위변조 체크 (클라이언트 단계 기초 검증)
     if(Number(amount) !== Number(order.totalAmount)) {
       showError('결제 금액이 주문 금액과 일치하지 않습니다. 고객센터로 문의해주세요.');
+      return;
+    }
+
+    // 이미 처리된 주문이면(새로고침, 뒤로가기 등으로 이 페이지에 재진입한 경우)
+    // 적립금 차감/쿠폰 사용/구매등급 갱신이 중복으로 일어나지 않도록 결과 화면만 다시 보여주고 종료
+    if(order.status !== 'payment_pending') {
+      document.getElementById('rOrderId').textContent = orderId;
+      document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
+      document.getElementById('rAmount').textContent = '₩' + Number(order.paidAmount ?? amount).toLocaleString();
+      document.getElementById('loadingArea').style.display = 'none';
+      document.getElementById('resultArea').style.display = 'block';
       return;
     }
 

@@ -1243,10 +1243,19 @@ let allUsers = {};
 const PURCHASE_LEVELS = [
   { level: 1, name: '화이트', min: 0 },
   { level: 2, name: '실버', min: 1000000 },
-  { level: 3, name: '골드', min: 3000000 },
-  { level: 4, name: '플래티넘', min: 5000000 },
-  { level: 5, name: '옵틱 마스터', min: 10000000 }
+  { level: 3, name: '골드', min: 2000000 },
+  { level: 4, name: '플래티넘', min: 4000000 },
+  { level: 5, name: '옵틱 마스터', min: 8000000 }
 ];
+
+// 누적구매액 기준으로 등급 계산 (취소/반품 처리 시 등급 재계산에 사용, order-success.html과 동일 로직)
+function calcPurchaseLevel(totalAmount) {
+  let result = PURCHASE_LEVELS[0];
+  for (const lv of PURCHASE_LEVELS) {
+    if (totalAmount >= lv.min) result = lv;
+  }
+  return result;
+}
 
 async function openModal(uid) {
   currentUserId = uid;
@@ -3558,6 +3567,8 @@ async function processCancel(orderId, cancelType, expectedRefund) {
     const orderSnap = await window._getDoc(orderRef);
     if(!orderSnap.exists()) { showToast('주문 정보를 찾을 수 없습니다.', 'error'); return; }
     const orderData = orderSnap.data();
+    // 구매등급 계산에서 차감할 금액 (결제 완료 시 누적구매액에 더해졌던 금액과 동일 기준)
+    const purchaseAmountToDeduct = Number(orderData.paidAmount ?? orderData.totalAmount ?? 0);
 
     // 트랜잭션: 모든 read 먼저 → 모든 write 나중에 (Firestore 규칙)
     await window._runTransaction(window._db, async (tx) => {
@@ -3568,6 +3579,10 @@ async function processCancel(orderId, cancelType, expectedRefund) {
           return tx.get(ref).then(snap => ({ item, ref, snap }));
         })
       );
+
+      // 1단계: 구매등급 재계산을 위한 회원 정보 read
+      const userRef = orderData.userId ? window._doc(window._db, 'users', orderData.userId) : null;
+      const userSnap = userRef ? await tx.get(userRef) : null;
 
       // 2단계: 모든 write
       for(const { item, ref, snap } of productReads) {
@@ -3584,6 +3599,20 @@ async function processCancel(orderId, cancelType, expectedRefund) {
           tx.update(ref, { stock: Number(pData.stock||0) + qty });
         }
       }
+
+      // 취소/반품 완료된 금액만큼 누적구매액에서 차감하고 등급을 재계산
+      // (취소로 인해 등급이 올라가는 경우는 없으므로 승급 쿠폰 지급 로직은 없음)
+      if(userRef && userSnap && userSnap.exists()) {
+        const userData = userSnap.data();
+        const newTotal = Math.max(0, Number(userData.total_purchase_amount || 0) - purchaseAmountToDeduct);
+        const newLevelInfo = calcPurchaseLevel(newTotal);
+        tx.update(userRef, {
+          total_purchase_amount: newTotal,
+          purchase_level: newLevelInfo.level,
+          purchase_level_name: newLevelInfo.name
+        });
+      }
+
       tx.update(orderRef, {
         status: 'cancel_completed',
         cancelNote: note,
@@ -3591,7 +3620,7 @@ async function processCancel(orderId, cancelType, expectedRefund) {
       });
     });
 
-    showToast('<i class=ic-check-circle></i> 환불 완료 처리되었습니다. 재고가 복구되었습니다.', 'success');
+    showToast('<i class=ic-check-circle></i> 환불 완료 처리되었습니다. 재고가 복구되고 구매등급이 재계산되었습니다.', 'success');
     loadCancelManage();
     loadDashboard();
   } catch(e) {
