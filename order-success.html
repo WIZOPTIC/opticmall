@@ -470,10 +470,10 @@ document.addEventListener('click', (e) => {
 // ===================== 구매등급 체계 (공용) =====================
 const PURCHASE_LEVELS = [
   { level: 1, name: '화이트', nameEn: 'White', min: 0 },
-  { level: 2, name: '실버', nameEn: 'Silver', min: 1000000 },
-  { level: 3, name: '골드', nameEn: 'Gold', min: 2000000 },
-  { level: 4, name: '플래티넘', nameEn: 'Platinum', min: 4000000 },
-  { level: 5, name: '옵틱 마스터', nameEn: 'Optic Master', min: 8000000 }
+  { level: 2, name: '실버', nameEn: 'Silver', min: 2000000 },
+  { level: 3, name: '골드', nameEn: 'Gold', min: 3000000 },
+  { level: 4, name: '플래티넘', nameEn: 'Platinum', min: 5000000 },
+  { level: 5, name: '옵틱 마스터', nameEn: 'Optic Master', min: 9000000 }
 ];
 
 function calcPurchaseLevel(totalAmount) {
@@ -486,10 +486,10 @@ function calcPurchaseLevel(totalAmount) {
 
 // 등급 승급 시 자동 지급되는 축하 적립금
 const GRADE_UP_POINTS = {
-  2: 20000,  // 실버
-  3: 50000,  // 골드
-  4: 70000,  // 플래티넘
-  5: 100000  // 옵틱 마스터
+  2: 10000,  // 실버
+  3: 30000,  // 골드
+  4: 50000,  // 플래티넘
+  5: 70000   // 옵틱 마스터
 };
 
 async function awardGradeUpPoints(userId, level) {
