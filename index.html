@@ -1012,7 +1012,7 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
         <div class="product-grid" id="newArrivalFullGrid">
           <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
         </div>
-        <div class="more-box-wrap"><a href="list.html" class="more-box">신상품 더보기<span class="arrow">›</span></a></div>
+        <div class="more-box-wrap"><a href="list.html?feature=new" class="more-box">신상품 더보기<span class="arrow">›</span></a></div>
       </div>
     </section>
 
@@ -1035,7 +1035,7 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
         <div class="product-grid" id="bestFullGrid">
           <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
         </div>
-        <div class="more-box-wrap"><a href="list.html" class="more-box">베스트상품 더보기<span class="arrow">›</span></a></div>
+        <div class="more-box-wrap"><a href="list.html?feature=best" class="more-box">베스트상품 더보기<span class="arrow">›</span></a></div>
       </div>
     </section>
 
@@ -1698,19 +1698,28 @@ function renderAllMainSections() {
     return;
   }
 
-  // 신상품: 최신 등록순 상위 3개는 히어로 리스트, 상위 10개는 전체 그리드로 표시
-  const newArrivals = [...mainAllProducts].slice(0, 10);
+  // 신상품: 관리자가 고정한 상품(admin.html > 신상품·베스트 선정)을 먼저 보여주고,
+  // 나머지는 최신 등록순(mainAllProducts가 이미 그 순서로 정렬돼 있음)으로 채운다.
+  const pinnedNew = mainAllProducts.filter(p => p.adminPick && p.adminPick.new);
+  const restByDate = mainAllProducts.filter(p => !(p.adminPick && p.adminPick.new));
+  const newArrivals = [...pinnedNew, ...restByDate].slice(0, 10);
   document.getElementById('newArrivalHeroList').innerHTML =
     newArrivals.slice(0, 3).map(p => renderMainProductRow(p)).join('');
   document.getElementById('newArrivalFullGrid').innerHTML =
     newArrivals.map(p => renderMainProductCard(p, 'NEW', 'new')).join('');
 
-  // 베스트: 판매데이터 없어 임시로 가격 내림차순 기준 상위 3개/10개
-  const best = [...mainAllProducts].sort((a,b) => (b.price||0)-(a.price||0)).slice(0, 10);
-  document.getElementById('bestHeroList').innerHTML =
-    best.slice(0, 3).map(p => renderMainProductRow(p)).join('');
-  document.getElementById('bestFullGrid').innerHTML =
-    best.map(p => renderMainProductCard(p, 'BEST', 'best')).join('');
+  // 베스트: 아직 실 판매데이터가 없어, 관리자가 admin.html에서 직접 선정한 상품만 노출한다.
+  // (추후 주문 데이터가 쌓이면 실 판매량 기준 랭킹으로 교체 예정)
+  const best = mainAllProducts.filter(p => p.adminPick && p.adminPick.best).slice(0, 10);
+  if(best.length === 0) {
+    renderEmptyMainSection('bestHeroList', '아직 선정된 베스트상품이 없습니다.');
+    renderEmptyMainSection('bestFullGrid', '아직 선정된 베스트상품이 없습니다.');
+  } else {
+    document.getElementById('bestHeroList').innerHTML =
+      best.slice(0, 3).map(p => renderMainProductRow(p)).join('');
+    document.getElementById('bestFullGrid').innerHTML =
+      best.map(p => renderMainProductCard(p, 'BEST', 'best')).join('');
+  }
 }
 
 // 타임세일: 실제 관리자 승인 데이터 연동

@@ -277,6 +277,7 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
     <div class="menu-section">상품 관리</div>
     <button class="menu-item" onclick="showPage('productApproval',this)"><span><i class=ic-package></i></span> 상품 승인 관리 <span class="menu-badge" id="pendingProductBadge"></span></button>
     <button class="menu-item" onclick="showPage('allProducts',this)"><span><i class=ic-glasses></i></span> 전체 상품 목록</button>
+    <button class="menu-item" onclick="showPage('featuredPicks',this)"><span><i class=ic-fire></i></span> 신상품·베스트 선정</button>
     <div class="menu-section">프로모션</div>
     <button class="menu-item" onclick="showPage('promoApproval',this)"><span><i class=ic-party></i></span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge"></span></button>
     <button class="menu-item" onclick="showPage('allPromos',this)"><span><i class=ic-tag></i>️</span> 전체 이벤트 목록</button>
@@ -392,6 +393,24 @@ i.ic-heart{background-color:#C3CBD3;width:0.8em;height:0.8em;}
         <input type="text" id="adminProductSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyAdminProductSearch()">
       </div>
       <div class="table-wrap" id="allProductsTable">
+        <div class="loading"><div class="spinner"></div>불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- 신상품·베스트 선정 -->
+    <div class="page" id="page-featuredPicks">
+      <div class="section-header">
+        <div class="section-title">신상품·베스트 선정</div>
+        <button class="btn-sm btn-primary" onclick="loadFeaturedPicks()"><i class=ic-refresh></i> 새로고침</button>
+      </div>
+      <div style="background:#F6F8FA;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#555;line-height:1.6;">
+        신상품은 기본적으로 등록일 최신순으로 노출되며, 아래에서 체크하면 목록 맨 앞에 고정 노출됩니다.<br>
+        베스트상품은 실시간 판매 데이터가 준비되기 전까지 아래 체크로만 노출됩니다 (체크하지 않으면 메인/목록에 노출되지 않습니다).
+      </div>
+      <div class="product-search-bar">
+        <input type="text" id="featuredPicksSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyFeaturedPicksSearch()">
+      </div>
+      <div class="table-wrap" id="featuredPicksTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
     </div>
@@ -902,12 +921,13 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', featuredPicks:'신상품·베스트 선정', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
   if(name === 'productApproval') loadProductApproval();
   if(name === 'allProducts') loadAllProducts();
+  if(name === 'featuredPicks') loadFeaturedPicks();
   if(name === 'promoApproval') loadPromoApproval();
   if(name === 'allPromos') loadAllPromos();
   if(name === 'timesaleManage') loadTimesaleManage();
@@ -1564,6 +1584,97 @@ function applyAdminProductSearch() {
       </tr></thead>
       <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
     </table>`;
+}
+
+// 신상품·베스트 선정
+function renderFeaturedPickRow(p) {
+  const thumb = p.mainImageUrl
+    ? `<img src="${p.mainImageUrl}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">`
+    : `<div style="width:44px;height:44px;border-radius:8px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0.3;"><i class=ic-glasses></i></div>`;
+  const isNew = !!(p.adminPick && p.adminPick.new);
+  const isBest = !!(p.adminPick && p.adminPick.best);
+  return `
+    <tr>
+      <td>${thumb}</td>
+      <td><strong>${p.modelName||'-'}</strong></td>
+      <td style="font-size:12px;">${p.barcode||'-'}</td>
+      <td>${p.brandName||'-'}</td>
+      <td>${p.category||'-'}</td>
+      <td>${p.price ? '₩'+Number(p.price).toLocaleString() : '-'}</td>
+      <td>${formatDate(p.createdAt)}</td>
+      <td style="text-align:center;">
+        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" ${isNew?'checked':''} onchange="toggleFeaturedPick('${p.id}','new',this.checked)">
+        </label>
+      </td>
+      <td style="text-align:center;">
+        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" ${isBest?'checked':''} onchange="toggleFeaturedPick('${p.id}','best',this.checked)">
+        </label>
+      </td>
+    </tr>`;
+}
+
+async function loadFeaturedPicks() {
+  const tableEl = document.getElementById('featuredPicksTable');
+  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const products = await fetchAllProducts();
+    window._allFeaturedPickProducts = products.filter(p => p.status === 'approved'); // 승인된 상품만 노출 대상
+    applyFeaturedPicksSearch();
+  } catch(e) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+function applyFeaturedPicksSearch() {
+  const tableEl = document.getElementById('featuredPicksTable');
+  const products = window._allFeaturedPickProducts || [];
+  const keyword = (document.getElementById('featuredPicksSearchInput')?.value || '').trim().toLowerCase();
+
+  const filtered = keyword
+    ? products.filter(p =>
+        (p.modelName||'').toLowerCase().includes(keyword) ||
+        (p.barcode||'').toLowerCase().includes(keyword) ||
+        (p.brandName||'').toLowerCase().includes(keyword) ||
+        (p.color||'').toLowerCase().includes(keyword)
+      )
+    : products;
+
+  if(products.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">승인된 상품이 없습니다.</div>';
+    return;
+  }
+  if(filtered.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">검색 결과가 없습니다.</div>';
+    return;
+  }
+  tableEl.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>카테고리</th>
+        <th>도매가</th><th>등록일</th><th>신상품</th><th>베스트</th>
+      </tr></thead>
+      <tbody>${filtered.map(p => renderFeaturedPickRow(p)).join('')}</tbody>
+    </table>`;
+}
+
+async function toggleFeaturedPick(pid, field, value) {
+  try {
+    await window._updateDoc(window._doc(window._db, 'products', pid), {
+      [`adminPick.${field}`]: value
+    });
+    const list = window._allFeaturedPickProducts || [];
+    const p = list.find(x => x.id === pid);
+    if(p) {
+      p.adminPick = p.adminPick || {};
+      p.adminPick[field] = value;
+    }
+    showToast(value ? '선정되었습니다.' : '선정이 해제되었습니다.', 'success');
+  } catch(e) {
+    showToast('저장 실패: ' + e.message, 'error');
+    applyFeaturedPicksSearch(); // 실패 시 체크박스 상태 되돌리기
+  }
 }
 
 // ===================== 정산 관리 (마스터 전용) =====================

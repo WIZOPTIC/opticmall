@@ -756,6 +756,7 @@ async function updateCartCount() {
 const grid = document.getElementById('productGrid');
 let currentGnbCategory = '전체';
 let currentBrandFilter = null;
+let currentFeature = null; // 'new' | 'best' | null — 메인페이지 신상품/베스트상품 "더보기"로 진입한 경우
 
 // 카테고리 히어로 영역 (상단 영문 라벨) 콘텐츠
 const CATEGORY_HERO_META = {
@@ -981,6 +982,7 @@ let stockOnly = false;
   const urlParams = new URLSearchParams(location.search);
   const catParam = urlParams.get('cat');
   const qParam = urlParams.get('q');
+  const featureParam = urlParams.get('feature');
   if(catParam && CATEGORIES.includes(catParam)) {
     currentGnbCategory = catParam;
     document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
@@ -989,6 +991,11 @@ let stockOnly = false;
     const titleEl = document.getElementById('listTitle');
     if(titleEl) titleEl.textContent = catParam;
     categoryHeroFor(catParam);
+  } else if(featureParam === 'new' || featureParam === 'best') {
+    currentFeature = featureParam;
+    const titleEl = document.getElementById('listTitle');
+    if(titleEl) titleEl.textContent = featureParam === 'new' ? '신상품' : '베스트상품';
+    setCategoryHero(featureParam === 'new' ? 'NEW ARRIVALS' : 'BEST PICKS');
   } else if(qParam) {
     const searchInputEl = document.getElementById('searchInput');
     if(searchInputEl) searchInputEl.value = qParam;
@@ -1111,6 +1118,17 @@ function doSearch() {
 
 function applyFilters() {
   let result = [...allProducts];
+
+  // 신상품/베스트상품 "더보기" 필터 (메인페이지에서 진입한 경우)
+  if(currentFeature === 'best') {
+    // 아직 실 판매데이터가 없어 관리자가 직접 선정한 상품만 노출 (admin.html > 신상품·베스트 선정)
+    result = result.filter(p => p.adminPick && p.adminPick.best);
+  } else if(currentFeature === 'new') {
+    // 관리자가 고정한 신상품을 먼저, 나머지는 최신 등록순(allProducts가 이미 그 순서로 정렬돼 있음)으로
+    const pinned = result.filter(p => p.adminPick && p.adminPick.new);
+    const rest = result.filter(p => !(p.adminPick && p.adminPick.new));
+    result = [...pinned, ...rest];
+  }
 
   // 브랜드 필터 (브랜드관에서 진입한 경우)
   if(currentBrandFilter) {
@@ -1239,6 +1257,14 @@ async function loadApprovedProducts() {
       if(matchingGnbBtn) matchingGnbBtn.classList.add('active');
       document.getElementById('listTitle').textContent = catParam;
       categoryHeroFor(catParam);
+    }
+
+    // URL의 feature 파라미터 처리 (메인페이지 "신상품/베스트상품 더보기"로 넘어온 경우)
+    const featureParam = urlParams.get('feature');
+    if(featureParam === 'new' || featureParam === 'best') {
+      currentFeature = featureParam;
+      document.getElementById('listTitle').textContent = featureParam === 'new' ? '신상품' : '베스트상품';
+      setCategoryHero(featureParam === 'new' ? 'NEW ARRIVALS' : 'BEST PICKS');
     }
 
     // URL의 q 파라미터 처리 (다른 페이지 검색창으로 넘어온 경우)
