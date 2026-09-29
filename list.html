@@ -993,6 +993,7 @@ let stockOnly = false;
     categoryHeroFor(catParam);
   } else if(featureParam === 'new' || featureParam === 'best') {
     currentFeature = featureParam;
+    document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
     const titleEl = document.getElementById('listTitle');
     if(titleEl) titleEl.textContent = featureParam === 'new' ? '신상품' : '베스트상품';
     setCategoryHero(featureParam === 'new' ? 'NEW ARRIVALS' : 'BEST PICKS');
@@ -1263,6 +1264,7 @@ async function loadApprovedProducts() {
     const featureParam = urlParams.get('feature');
     if(featureParam === 'new' || featureParam === 'best') {
       currentFeature = featureParam;
+      document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
       document.getElementById('listTitle').textContent = featureParam === 'new' ? '신상품' : '베스트상품';
       setCategoryHero(featureParam === 'new' ? 'NEW ARRIVALS' : 'BEST PICKS');
     }
