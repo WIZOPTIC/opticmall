@@ -1805,24 +1805,12 @@ let heroBannerRealCount = 0;
 let heroBannerPos = 0;
 let heroBannerTimer = null;
 
-function preloadHeroImage(url) {
-  return new Promise((resolve) => {
-    if (!url) { resolve(); return; }
-    const img = new Image();
-    img.onload = () => resolve();
-    img.onerror = () => resolve();
-    img.src = url;
-  });
-}
-
 function buildHeroSlideItemEl(d) {
   const item = document.createElement('div');
-  item.className = 'banner-slide-item';
+  // 이미지가 로딩되는 동안은 스켈레톤(반짝이는 회색) 유지 → 로딩 끝나면 클래스 제거하고 사진으로 교체
+  item.className = 'banner-slide-item banner-skeleton';
   const bg = document.createElement('div');
   bg.className = 'banner-bg';
-  if (d && d.imageUrl) {
-    bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
-  }
   const caption = document.createElement('div');
   caption.className = 'caption';
   const t1 = document.createElement('p');
@@ -1839,6 +1827,18 @@ function buildHeroSlideItemEl(d) {
     item.classList.add('banner-link');
     item.onclick = () => { location.href = d.link; };
   }
+  if (d && d.imageUrl) {
+    // 이 슬라이드의 사진만 개별적으로 백그라운드에서 불러오고, 준비되는 즉시 표시 (다른 배너 사진들을 기다리지 않음)
+    const preload = new Image();
+    preload.onload = () => {
+      bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
+      item.classList.remove('banner-skeleton');
+    };
+    preload.onerror = () => { item.classList.remove('banner-skeleton'); };
+    preload.src = d.imageUrl;
+  } else {
+    item.classList.remove('banner-skeleton');
+  }
   return item;
 }
 
@@ -1852,7 +1852,7 @@ function moveHeroTrack(withTransition) {
 
 function slideHeroTrack() {
   if (heroBannerRealCount <= 3) return;
-  // 사진은 loadHomeBanners에서 이미 전부 미리 내려받아 둔 상태라 바로 이동해도 빈 화면이 생기지 않음
+  // 5초마다 한 칸씩 이동 (사진이 아직 준비 안 된 슬라이드는 스켈레톤 상태로 넘어갔다가, 로딩되면 자동으로 채워짐)
   heroBannerPos = heroBannerPos + 1;
   moveHeroTrack(true);
 
@@ -1878,8 +1878,8 @@ async function loadHomeBanners() {
     // 4개 이상이면 앞의 3개를 끝에 복제해 붙여서, 끝까지 흐른 뒤 처음으로 자연스럽게 되돌아가게 함
     const trackList = list.length > 3 ? displayList.concat(list.slice(0, 3)) : displayList;
 
-    await Promise.all(trackList.map(d => preloadHeroImage(d && d.imageUrl)));
-
+    // 예전에는 모든 배너 사진(롤링용 복제본까지)이 전부 다운로드될 때까지 화면을 안 그려서 첫 화면이 늦게 나왔음.
+    // 이제는 바로 자리를 잡아 그리고, 각 사진은 개별적으로 준비되는 대로 하나씩 나타남 (buildHeroSlideItemEl 참고).
     const track = document.getElementById('heroBannerTrack');
     if (!track) return;
     track.innerHTML = '';
