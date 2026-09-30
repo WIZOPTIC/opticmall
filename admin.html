@@ -1889,7 +1889,7 @@ async function saveEditorialSlot(slotId) {
     if(file) {
       const optimizedFile = await resizeImageForUpload(file, 1600, 0.85);
       const rand = Math.random().toString(36).slice(2, 8);
-      const path = `editorial/${slotId}_${Date.now()}_${rand}_${file.name}`;
+      const path = `editorial/${slotId}_${Date.now()}_${rand}_${optimizedFile.name}`;
       const fileRef = window._ref(window._storage, path);
       await window._uploadBytes(fileRef, optimizedFile);
       imageUrl = await window._getDownloadURL(fileRef);
@@ -1983,7 +1983,7 @@ async function saveHeroPhotoSlot(id) {
     if(file) {
       const optimizedFile = await resizeImageForUpload(file, 1600, 0.85);
       const rand = Math.random().toString(36).slice(2, 8);
-      const path = `heroPhotos/${id}_${Date.now()}_${rand}_${file.name}`;
+      const path = `heroPhotos/${id}_${Date.now()}_${rand}_${optimizedFile.name}`;
       const fileRef = window._ref(window._storage, path);
       await window._uploadBytes(fileRef, optimizedFile);
       imageUrl = await window._getDownloadURL(fileRef);
@@ -3049,7 +3049,7 @@ async function saveAdminProductEdit() {
         if(s.newFile) {
           const optimizedFile = await resizeImageForUpload(s.newFile, 1200, 0.85);
           const rand = Math.random().toString(36).slice(2, 8);
-          const path = `products/${ownerUid}/${Date.now()}_c${ci}_${slot}_${rand}_${s.newFile.name}`;
+          const path = `products/${ownerUid}/${Date.now()}_c${ci}_${slot}_${rand}_${optimizedFile.name}`;
           const fileRef = window._ref(window._storage, path);
           await window._uploadBytes(fileRef, optimizedFile);
           urls[slot] = await window._getDownloadURL(fileRef);

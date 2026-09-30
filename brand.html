@@ -1515,6 +1515,76 @@ function renderProductRowHtml(p, withActions) {
     </tr>`;
 }
 
+// ===================== 업로드 전 이미지 리사이징/압축 =====================
+// 휴대폰/카메라 원본(수천 px, 수 MB)을 그대로 올리면 화면에는 작게 보이는데도
+// 방문자마다 매번 원본 용량을 통째로 다운로드하게 되어 사이트가 느려진다.
+// 그래서 업로드 직전에 화면에 필요한 수준으로 리사이징 + JPG 압축해서 올린다.
+function resizeImageForUpload(file, maxDimension, quality) {
+  maxDimension = maxDimension || 1600;
+  quality = quality || 0.85;
+  return new Promise((resolve) => {
+    if (!file || !file.type || !file.type.startsWith('image/') || file.type === 'image/gif') {
+      resolve(file); // GIF(애니메이션)나 이미지가 아닌 파일은 원본 그대로 업로드
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const { width, height } = img;
+      if (Math.max(width, height) <= maxDimension && file.size <= 400 * 1024) {
+        resolve(file); // 이미 충분히 작은 파일이면 그대로 사용
+        return;
+      }
+      const scale = Math.min(1, maxDimension / Math.max(width, height));
+      const targetW = Math.round(width * scale);
+      const targetH = Math.round(height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      canvas.getContext('2d').drawImage(img, 0, 0, targetW, targetH);
+      canvas.toBlob((blob) => {
+        if (!blob) { resolve(file); return; }
+        const newName = file.name.replace(/\.\w+$/, '') + '.jpg';
+        resolve(new File([blob], newName, { type: 'image/jpeg' }));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); }; // 실패해도 업로드 자체는 막지 않음
+    img.src = url;
+  });
+}
+
+// 투명 배경을 유지해야 하는 이미지(브랜드 로고 등) 전용 - 포맷은 유지하고 크기만 줄인다
+function resizeImageKeepFormat(file, maxDimension) {
+  maxDimension = maxDimension || 800;
+  return new Promise((resolve) => {
+    if (!file || !file.type || !file.type.startsWith('image/') || file.type === 'image/gif') {
+      resolve(file);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const { width, height } = img;
+      if (Math.max(width, height) <= maxDimension) { resolve(file); return; }
+      const scale = maxDimension / Math.max(width, height);
+      const targetW = Math.round(width * scale);
+      const targetH = Math.round(height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      canvas.getContext('2d').drawImage(img, 0, 0, targetW, targetH);
+      canvas.toBlob((blob) => {
+        if (!blob) { resolve(file); return; }
+        resolve(new File([blob], file.name, { type: file.type }));
+      }, file.type);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 // ===================== 상품 수정 모달 (전체 항목) =====================
 let editingProductId = null;
 let editingProductData = null;
@@ -1759,10 +1829,11 @@ async function saveProductEdit() {
       for(const slot of SLOT_KEYS) {
         const s = color.slots[slot];
         if(s.newFile) {
+          const optimizedFile = await resizeImageForUpload(s.newFile, 1200, 0.85);
           const rand = Math.random().toString(36).slice(2, 8);
-          const path = `products/${uid}/${Date.now()}_c${ci}_${slot}_${rand}_${s.newFile.name}`;
+          const path = `products/${uid}/${Date.now()}_c${ci}_${slot}_${rand}_${optimizedFile.name}`;
           const fileRef = window._ref(window._storage, path);
-          await window._uploadBytes(fileRef, s.newFile);
+          await window._uploadBytes(fileRef, optimizedFile);
           urls[slot] = await window._getDownloadURL(fileRef);
         } else if(s.removed) {
           urls[slot] = '';
@@ -2238,11 +2309,12 @@ async function submitBulkRegister() {
         for(const slot of SLOT_KEYS) {
           const img = color.images[slot];
           if(img && img.file) {
+            const optimizedFile = await resizeImageForUpload(img.file, 1200, 0.85);
             // 색상 인덱스(ci) + 슬롯명 + 랜덤값으로 경로 중복 완전 방지
             const rand = Math.random().toString(36).slice(2, 8);
-            const path = `products/${uid}/${Date.now()}_c${ci}_${slot}_${rand}_${img.file.name}`;
+            const path = `products/${uid}/${Date.now()}_c${ci}_${slot}_${rand}_${optimizedFile.name}`;
             const fileRef = window._ref(window._storage, path);
-            await window._uploadBytes(fileRef, img.file);
+            await window._uploadBytes(fileRef, optimizedFile);
             imgUrls[slot] = await window._getDownloadURL(fileRef);
           }
         }
@@ -2657,9 +2729,10 @@ async function saveBrand() {
     }
 
     if(newBrandLogoFile) {
-      const path = `brand_logos/${uid}/${Date.now()}_${newBrandLogoFile.name}`;
+      const optimizedLogo = await resizeImageKeepFormat(newBrandLogoFile, 800);
+      const path = `brand_logos/${uid}/${Date.now()}_${optimizedLogo.name}`;
       const fileRef = window._ref(window._storage, path);
-      await window._uploadBytes(fileRef, newBrandLogoFile);
+      await window._uploadBytes(fileRef, optimizedLogo);
       logoUrl = await window._getDownloadURL(fileRef);
     }
 
