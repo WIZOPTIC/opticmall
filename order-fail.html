@@ -10,7 +10,7 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--sky:#000000;--sky-lt:#EEF1F5;--sky-dk:#000000;--navy:#000000;--white:#FFFFFF;--gold:#C9A227;--gold-soft:#E4CD84;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--font-serif:'Fraunces',serif;--font-body:'Pretendard Variable','Pretendard','Noto Sans KR',sans-serif;}
+:root{--sky:#000000;--sky-lt:#EEF1F5;--sky-dk:#000000;--navy:#000000;--white:#FFFFFF;--gold:#C9A227;--gold-soft:#E4CD84;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--font-serif:"Fraunces",serif;--font-body:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;}
 body{font-family:var(--font-body);background:var(--g1);color:var(--black);min-height:100vh;}
 /* 헤더 */
 header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
@@ -35,12 +35,9 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .gnb-inner { display: flex; position: static; gap: 38px; flex-wrap: wrap; }
 .gnb-item { padding: 6px 0; font-size:15px; font-weight: 400; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; position: relative; transition: color 0.15s, font-weight 0.15s; white-space: nowrap; text-align: center; user-select: none; -webkit-user-select: none; }
 .gnb-item:hover { color: var(--sky-dk); font-weight: 600; }
-.gnb-item.active { color: var(--sky-dk); font-weight: 600; }
+
 .gnb-label { position: relative; display: inline-block; }
-.gnb-item.active .gnb-label::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: -10px;
-  height: 2px; background: var(--navy);
-}
+
 /* 모바일 요소 */
 .hamburger-btn { display: none; background: none; border: none; padding: 6px; margin-right: 8px; cursor: pointer; color: var(--navy); }
 .mobile-menu-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 998; opacity: 0; transition: opacity 0.25s; }
@@ -64,8 +61,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
   .header-top-row { gap: 10px; }
   .logo { font-size: 20px; }
   .icon-btn { width: 32px; height: 32px; }
-  .topbar { padding: 8px 16px; }
-  .topbar-inner { font-size: 11px; }
+
 }
 
 .main{max-width:480px;margin:100px auto;padding:0 24px;text-align:center;}
@@ -107,11 +103,10 @@ footer { background: var(--sky-dk); padding: 56px 24px 36px; }
 .footer-biz { font-size:13px; color: rgba(255,255,255,0.55); font-weight: 400; line-height: 1.9; }
 .footer-biz-addr { white-space: nowrap; }
 .footer-bottom { padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
-.footer-copy { font-size:12px; color: rgba(255,255,255,0.45); font-family: 'Inter', sans-serif; }
+.footer-copy { font-size:12px; color: rgba(255,255,255,0.45); font-family: "Inter", sans-serif; }
 
 /* ── TOPBAR ── */
-.topbar { background: var(--navy); padding: 9px 24px; }
-.topbar-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; font-size: 12.5px; }
+
 .tb-link { background: none; border: none; color: var(--navy); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; padding: 0; white-space: nowrap; transition: opacity 0.15s; }
 .tb-link:hover { opacity: 0.6; }
 .tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
@@ -182,11 +177,7 @@ footer { background: var(--sky-dk); padding: 56px 24px 36px; }
 .fw-share-copy-btn:hover { background: var(--sky-dk); }
 
 /* 데스크탑에서는 본문 오른쪽에 위젯이 들어갈 최소한의 여백(70px)만 확보해서, 사진 크기 변화는 최소로 하면서도 화면 배율/창 크기와 상관없이 사진 위에 겹치지 않게 함 */
-@media (min-width: 900px) {
-  .cs-wrap, .brands-wrap, .event-wrap, .ts-wrap, .page-wrap, .main-wrap, .product-wrap, .event-rank-section {
-    padding-right: 70px;
-  }
-}
+
 @media (max-width: 768px) {
   .floating-widget { right: 14px; bottom: 24px; }
   .fw-recent-panel { right: 14px; bottom: 24px; width: calc(100vw - 28px); max-width: 300px; }
