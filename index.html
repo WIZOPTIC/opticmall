@@ -1836,7 +1836,7 @@ function buildHeroSlideItemEl(d) {
     // 이 슬라이드의 사진만 개별적으로 백그라운드에서 불러오고, 준비되는 즉시 표시 (다른 배너 사진들을 기다리지 않음)
     const preload = new Image();
     preload.onload = () => {
-      bg.style.backgroundImage = HERO_BANNER_GRADIENT + ", url('" + d.imageUrl + "')";
+      bg.style.backgroundImage = "url('" + d.imageUrl + "')";
       item.classList.remove('banner-skeleton');
     };
     preload.onerror = () => { item.classList.remove('banner-skeleton'); };
