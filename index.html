@@ -158,11 +158,6 @@ header {
 
 /* ── HERO (블롭 디자인) ── */
 .hero { background: var(--paper); position: relative; overflow: hidden; border-bottom: 1px solid var(--g2); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.static-blob-1, .static-blob-2 {
-  position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none;
-}
-.static-blob-1 { width: 420px; height: 420px; background: radial-gradient(circle, var(--sky) 0%, transparent 70%); opacity: 0.08; }
-.static-blob-2 { width: 380px; height: 380px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); opacity: 0.32; }
 .hero-inner { max-width: 1440px; margin: 0 auto; padding: 16px 24px 16px; position: relative; z-index: 2; }
 .hero-badge {
   font-family: 'Inter', monospace; font-size: 12px; color: var(--sky); font-weight: 600;
@@ -954,8 +949,6 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 
 <!-- HERO -->
 <section class="hero">
-  <div class="static-blob-1" style="top:20px;left:8%;"></div>
-  <div class="static-blob-2" style="top:90px;left:22%;"></div>
 
   <!-- 정적 3분할 배너 -->
   <div class="main-wrap">
@@ -971,7 +964,7 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
   <section class="event-rank-section">
     <div class="ers-head">
       <h2>실시간 베스트 상품</h2>
-      <a href="list.html" class="more">더보기 ›</a>
+      <a href="timesale.html" class="more">더보기 ›</a>
     </div>
     <div class="ers-grid" id="eventRankGrid">
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
