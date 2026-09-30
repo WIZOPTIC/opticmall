@@ -1848,6 +1848,11 @@ function renderEditorialSlot(s) {
     <input type="text" id="editorialTitle_${s.id}" value="${(s.title||'').replace(/"/g,'&quot;')}" placeholder="제목을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">설명</label>
     <textarea id="editorialSubtitle_${s.id}" placeholder="설명을 입력하세요" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;min-height:64px;resize:vertical;">${(s.subtitle||'')}</textarea>
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">글씨 색상 (사진 밝기에 맞게 선택)</label>
+    <select id="editorialTextColor_${s.id}" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;background:#fff;">
+      <option value="white" ${(s.textColor||'white')==='white'?'selected':''}>흰색 글씨 (어두운 사진용)</option>
+      <option value="black" ${s.textColor==='black'?'selected':''}>검정 글씨 (밝은 사진용)</option>
+    </select>
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">클릭 시 이동 위치</label>
     <select id="editorialLinkPreset_${s.id}" onchange="onEditorialLinkPresetChange('${s.id}')" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:8px;box-sizing:border-box;background:#fff;">
       ${linkPresetOptions}
@@ -1879,6 +1884,7 @@ async function saveEditorialSlot(slotId) {
     const tag = document.getElementById('editorialTag_'+slotId).value.trim();
     const title = document.getElementById('editorialTitle_'+slotId).value.trim();
     const subtitle = document.getElementById('editorialSubtitle_'+slotId).value.trim();
+    const textColor = document.getElementById('editorialTextColor_'+slotId).value;
     const link = document.getElementById('editorialLink_'+slotId).value.trim();
     const order = parseInt(document.getElementById('editorialOrder_'+slotId).value, 10) || 1;
 
@@ -1896,7 +1902,7 @@ async function saveEditorialSlot(slotId) {
     }
 
     await window._setDoc(window._doc(window._db, 'editorialBanners', slotId), {
-      tag, title, subtitle, link, order, imageUrl,
+      tag, title, subtitle, textColor, link, order, imageUrl,
       updatedAt: window._serverTimestamp()
     });
 

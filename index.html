@@ -277,15 +277,30 @@ header {
 .banner-slide-item {
   position: relative;
   flex: 0 0 calc((100% - 28px) / var(--hero-item-divisor));
-  aspect-ratio: 3/4;
+  aspect-ratio: 3/3.3;
   overflow: hidden;
   border-radius: 16px;
   color: var(--ivory);
 }
+/* 사진은 항상 원본 그대로, 전체에 필터 없이 꽉 채워서 보여줌 */
 .banner-slide-item .banner-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
-.banner-slide-item .caption { position: absolute; left: 24px; bottom: 24px; z-index: 2; max-width: 78%; }
-.banner-slide-item .caption .t1 { font-size: 19px; font-weight: 700; margin: 0 0 4px; }
-.banner-slide-item .caption .t2 { font-size: 12.5px; color: rgba(247,244,238,0.75); margin: 0; }
+/* 글씨가 있을 때만, 사진 맨 아래쪽 글씨 바로 뒤쪽(전체 높이의 22%)에만 살짝 그라데이션을 깔아서 글씨만 잘 보이게 함 (사진 대부분은 필터 없이 그대로, 높이도 안 늘어남) */
+.banner-slide-item:has(.caption .t1:not(:empty))::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; z-index: 1;
+  background: linear-gradient(180deg, rgba(7,20,41,0) 0%, rgba(7,20,41,0.45) 55%, rgba(7,20,41,0.72) 100%);
+  pointer-events: none;
+}
+/* 관리자가 "검정 글씨"를 고른 배너는 반대로 밝은 그라데이션 위에 어두운 글씨를 올림 (밝은 사진용) */
+.banner-slide-item.cap-dark:has(.caption .t1:not(:empty))::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.85) 100%);
+}
+.banner-slide-item .caption { position: absolute; left: 20px; right: 20px; bottom: 18px; z-index: 2; }
+.banner-slide-item .caption .t1 { position: relative; z-index: 2; font-size: 17px; font-weight: 700; margin: 0 0 3px; }
+.banner-slide-item .caption .t1:empty { display: none; }
+.banner-slide-item .caption .t2 { position: relative; z-index: 2; font-size: 12px; color: rgba(247,244,238,0.8); margin: 0; }
+.banner-slide-item .caption .t2:empty { display: none; }
+.banner-slide-item.cap-dark .caption .t1 { color: #171A1F; }
+.banner-slide-item.cap-dark .caption .t2 { color: #5A6472; }
 .banner-slide-item.banner-link { cursor: pointer; }
 .banner-skeleton { background: linear-gradient(90deg, var(--g1) 25%, var(--g2) 37%, var(--g1) 63%); background-size: 400% 100%; animation: heroSkeletonShimmer 1.4s ease infinite; }
 @keyframes heroSkeletonShimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
@@ -1828,6 +1843,9 @@ function buildHeroSlideItemEl(d) {
   caption.appendChild(t2);
   item.appendChild(bg);
   item.appendChild(caption);
+  if (d && d.textColor === 'black') {
+    item.classList.add('cap-dark');
+  }
   if (d && d.link) {
     item.classList.add('banner-link');
     item.onclick = () => { location.href = d.link; };
