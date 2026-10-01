@@ -1065,7 +1065,7 @@ async function doLogin() {
     await _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     await _auth.signInWithEmailAndPassword(email, pw);
     closeLogin();
-    showToastMain('✓ 로그인되었습니다!', 'success');
+    showMainToast('✓ 로그인되었습니다!', 'success');
   } catch(e) {
     errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
     errEl.style.display = 'block';
@@ -1077,7 +1077,7 @@ async function doLogin() {
 // 로그아웃
 async function doLogout() {
   await _auth.signOut();
-  showToastMain('로그아웃되었습니다.');
+  showMainToast('로그아웃되었습니다.');
 }
 
 // 비밀번호 찾기
