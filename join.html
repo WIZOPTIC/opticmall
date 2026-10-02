@@ -10,7 +10,7 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--sky:#000000;--sky-dk:#000000;--footer-bg:#2F3A33;--navy:#000000;--gold:#C9A227;--gold-soft:#E4CD84;--white:#fff;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:'Fraunces',serif;--font-body:'Pretendard Variable','Pretendard','Noto Sans KR',sans-serif;}
+:root{--sky:#2F3A33;--sky-dk:#2F3A33;--footer-bg:#2F3A33;--navy:#000000;--gold:#C9A227;--gold-soft:#E4CD84;--white:#fff;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:'Fraunces',serif;--font-body:'Pretendard Variable','Pretendard','Noto Sans KR',sans-serif;}
 body{font-family:var(--font-body);background:var(--white);color:var(--black);}
 
 /* 헤더 */
@@ -19,8 +19,8 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
 .header-nav-row { display: flex; align-items: center; width: 100%; }
 .header-auth { display: flex; align-items: center; margin-right: 18px; }
-.logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
-.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; }
+.logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; user-select: none; }
+.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; user-select: none; pointer-events: none; }
 .header-right{margin-left:auto;display:flex;align-items:center;gap:2px;}
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
