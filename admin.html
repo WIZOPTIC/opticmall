@@ -814,8 +814,13 @@ onAuthStateChanged(auth, async (user) => {
       const role = userData.role || 'optician';
 
       if (role !== 'master' && role !== 'submaster') {
-        // 관리자 권한이 없으면 접근 차단
+        // 관리자 권한이 없으면 접근 차단 — 로그인 화면으로 즉시 복귀시킴
         await signOut(auth);
+        currentAdminRole = null;
+        document.getElementById('sidebar').style.display = 'none';
+        document.getElementById('mainArea').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('adminPw').value = '';
         alert('관리자 권한이 없는 계정입니다.');
         return;
       }
@@ -838,7 +843,13 @@ onAuthStateChanged(auth, async (user) => {
       startNewOrderWatcher();
     } catch(e) {
       console.error(e);
-      alert('권한 확인 중 오류가 발생했습니다.');
+      await signOut(auth);
+      currentAdminRole = null;
+      document.getElementById('sidebar').style.display = 'none';
+      document.getElementById('mainArea').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('adminPw').value = '';
+      alert('권한 확인 중 오류가 발생했습니다. 다시 로그인해주세요.');
     }
   } else {
     currentAdminRole = null;
