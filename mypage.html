@@ -19,8 +19,8 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
 .header-nav-row { display: flex; align-items: center; width: 100%; }
 .header-auth { display: flex; align-items: center; margin-right: 18px; }
-.logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
-.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; }
+.logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; user-select: none; }
+.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; user-select: none; pointer-events: none; }
 .header-right{margin-left:auto;display:flex;align-items:center;gap:2px;}
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
@@ -586,7 +586,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
     <!-- 재입고 알림 -->
     <div id="section-points" style="display:none;">
       <div class="section-title">적립금</div>
-      <div style="background:var(--navy);border-radius:12px;padding:24px;margin-bottom:20px;color:#fff;">
+      <div style="background:var(--footer-bg);border-radius:12px;padding:24px;margin-bottom:20px;color:#fff;">
         <div style="font-size:12px;opacity:0.7;margin-bottom:6px;">보유 적립금</div>
         <div id="pointsBalanceDisplay" style="font-size:28px;font-weight:700;">₩0</div>
         <div style="font-size:11px;opacity:0.6;margin-top:8px;">구매 확정(배송완료) 시 구매금액의 1%가 자동 적립돼요. 주문/결제 시 1원 단위로 사용할 수 있어요.</div>
