@@ -16,11 +16,12 @@ body{font-family:var(--font-body);background:var(--white);color:var(--black);}
 
 /* 헤더 */
 header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-.header-main { max-width: 1440px; margin: 0 auto; padding: 48px 24px 22px; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; position: relative; }
+.header-main { max-width: 1440px; margin: 0 auto; padding: 39px 24px 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; position: relative; }
 .header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
 .header-nav-row { display: flex; align-items: center; width: 100%; }
 .header-auth { display: flex; align-items: center; margin-right: 18px; }
 .logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
+.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; }
 .header-right{margin-left:auto;display:flex;align-items:center;gap:2px;}
 
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
@@ -257,7 +258,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
         <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <a href="index.html" class="logo">Opticmall</a>
+    <a href="index.html" class="logo"><img src="assets/opticmall-logo.svg" alt="Opticmall" class="logo-img"></a>
     
     
   </div>
@@ -308,7 +309,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
   <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
   <div class="mobile-menu-drawer" id="mobileMenuDrawer">
     <div class="mobile-menu-header">
-      <span class="logo" style="font-size:20px;">Opticmall</span>
+      <span class="logo"><img src="assets/opticmall-logo.svg" alt="Opticmall" class="logo-img" style="height:36px;"></span>
       <button onclick="toggleMobileMenu()" aria-label="메뉴 닫기" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--g4);">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
