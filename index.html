@@ -1793,12 +1793,23 @@ function buildHeroSlideItemEl(d) {
   return item;
 }
 
+function heroPeekOffset() {
+  // 롤링 중일 때, 맨 앞에 살짝 끼워둔 복제 슬라이드(leading peek) 때문에 생기는 보정값.
+  // divisor의 소수부(0.2, 0.1 등) 절반만큼을 앞쪽 peek으로 쓰고, 나머지 절반은 뒤쪽 peek으로 남겨서 좌우 대칭이 되게 함.
+  const track = document.getElementById('heroBannerTrack');
+  if (!track || !track.classList.contains('peek')) return 0;
+  const divisor = parseFloat(getComputedStyle(track).getPropertyValue('--hero-item-divisor')) || 3;
+  const frac = divisor - Math.floor(divisor);
+  return 1 - (frac / 2);
+}
+
 function moveHeroTrack(withTransition) {
   const track = document.getElementById('heroBannerTrack');
   if (!track) return;
   track.style.transition = withTransition ? ('transform ' + HERO_BANNER_SLIDE_MS + 'ms cubic-bezier(.45,0,.2,1)') : 'none';
   // 항목 하나의 너비(칸 사이 14px 간격 포함)만큼씩 이동 — var(--hero-item-divisor)를 그대로 참조해서 .banner-slide-item의 flex-basis 계산과 절대 어긋나지 않게 함
-  track.style.transform = 'translateX(calc(-1 * ' + heroBannerPos + ' * ((100% - 28px) / var(--hero-item-divisor) + 14px)))';
+  const offset = heroPeekOffset();
+  track.style.transform = 'translateX(calc(-1 * (' + heroBannerPos + ' + ' + offset + ') * ((100% - 28px) / var(--hero-item-divisor) + 14px)))';
 }
 
 function slideHeroTrack() {
@@ -1873,7 +1884,8 @@ function heroDragMove(clientX) {
   if (Math.abs(delta) > 4) heroDragMoved = true;
   const track = document.getElementById('heroBannerTrack');
   if (!track) return;
-  track.style.transform = 'translateX(calc(-1 * ' + heroBannerPos + ' * ((100% - 28px) / var(--hero-item-divisor) + 14px) + ' + delta + 'px))';
+  const offset = heroPeekOffset();
+  track.style.transform = 'translateX(calc(-1 * (' + heroBannerPos + ' + ' + offset + ') * ((100% - 28px) / var(--hero-item-divisor) + 14px) + ' + delta + 'px))';
 }
 
 function heroDragEnd() {
@@ -1918,8 +1930,10 @@ async function loadHomeBanners() {
 
     // 3개 미만이면 있는 것만 반복해서 3칸을 채움 (롤링 없음)
     const displayList = list.length >= 3 ? list : Array.from({length: 3}, (_, i) => list[i % list.length]);
+    const rolling = list.length > 3;
     // 4개 이상이면 앞의 3개를 끝에 복제해 붙여서, 끝까지 흐른 뒤 처음으로 자연스럽게 되돌아가게 함
-    const trackList = list.length > 3 ? displayList.concat(list.slice(0, 3)) : displayList;
+    // + 맨 앞에도 마지막 배너를 하나 복제해 끼워 넣어서, 시작 지점에서도 왼쪽에 이전 배너가 살짝 보이게 함(좌우 대칭 peek)
+    const trackList = rolling ? [list[list.length - 1]].concat(displayList, list.slice(0, 3)) : displayList;
 
     // 예전에는 모든 배너 사진(롤링용 복제본까지)이 전부 다운로드될 때까지 화면을 안 그려서 첫 화면이 늦게 나왔음.
     // 이제는 바로 자리를 잡아 그리고, 각 사진은 개별적으로 준비되는 대로 하나씩 나타남 (buildHeroSlideItemEl 참고).
@@ -1927,12 +1941,12 @@ async function loadHomeBanners() {
     if (!track) return;
     track.innerHTML = '';
     trackList.forEach(d => track.appendChild(buildHeroSlideItemEl(d)));
-    track.classList.toggle('peek', list.length > 3); // 롤링될 때만 다음 사진이 살짝 보이게
+    track.classList.toggle('peek', rolling); // 롤링될 때만 양옆 사진이 살짝 보이게
 
     const viewport = document.getElementById('heroBannerViewport');
     if (viewport) {
-      viewport.classList.toggle('draggable', list.length > 3);
-      viewport.classList.toggle('has-nav', list.length > 3);
+      viewport.classList.toggle('draggable', rolling);
+      viewport.classList.toggle('has-nav', rolling);
     }
 
     heroBannerRealCount = list.length;
