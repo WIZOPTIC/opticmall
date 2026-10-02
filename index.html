@@ -603,44 +603,52 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 <!-- 회원가입 유도 팝업 (비회원 전용) -->
 <div id="signupPromoOverlay" style="display:none;position:fixed;inset:0;z-index:900;">
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);" onclick="closeSignupPromo()"></div>
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:400px;max-width:90vw;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-    <div onclick="closeSignupPromo()" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;line-height:1;z-index:1;">✕</div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:440px;max-width:90vw;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div onclick="closeSignupPromo()" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(20,20,19,0.06);color:#5A6472;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;line-height:1;z-index:1;">✕</div>
 
-    <div style="background:#000000;padding:26px 24px 24px;text-align:center;">
-      <div style="display:inline-block;background:#C9A227;color:#000000;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">✦ OPTICIAN ONLY · B2B 전용</div>
-      <p style="font-size:18px;font-weight:700;color:#fff;margin:0 0 4px;">안경원 사업자 등록증으로 가입하고</p>
-      <p style="font-size:22px;font-weight:700;color:#C9A227;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
+    <div style="background:var(--ivory);padding:26px 24px 24px;text-align:center;border-bottom:1px solid #EDE3CF;">
+      <div style="display:inline-block;background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">✦ OPTICIAN ONLY · B2B 전용</div>
+      <p style="font-size:18px;font-weight:700;color:#141413;margin:0 0 4px;">안경원 사업자 등록증으로 가입하고</p>
+      <p style="font-size:22px;font-weight:700;color:#A3811C;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
     </div>
 
-    <div style="padding:20px 24px 4px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
-        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;">첫 구매 할인</p>
-          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10%</p>
+    <div style="padding:22px 24px 6px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
+        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          </div>
+          <p style="font-size:13.5px;color:#5A6472;margin:0 0 7px;font-weight:700;">첫 구매 할인</p>
+          <p style="font-size:20px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10%</p>
         </div>
-        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;white-space:nowrap;">
-            카카오채널 추가
-            <svg width="15" height="15" viewBox="0 0 40 40" style="flex-shrink:0;">
-              <rect x="2" y="6" width="30" height="30" rx="8" fill="#FEE500"/>
-              <path d="M9 13 h16 a5 5 0 0 1 5 5 v6 a5 5 0 0 1 -5 5 h-10 l-6 5 v-5 h0 a5 5 0 0 1 -5 -5 v-6 a5 5 0 0 1 5 -5 z" fill="#1A1A1A"/>
-              <text x="17" y="26" font-family="Arial, sans-serif" font-size="11" font-weight="900" fill="#FEE500" text-anchor="middle">Ch</text>
+        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
+            <svg width="27" height="27" viewBox="0 0 40 40" style="flex-shrink:0;">
+              <path d="M20 4 C10 4 2 10.5 2 18.5 C2 24 6 28.8 12 31.3 L10.5 38 L18 33.2 C18.6 33.3 19.3 33.3 20 33.3 C30 33.3 38 26.8 38 18.5 C38 10.5 30 4 20 4 Z" fill="#ffffff"/>
+              <text x="20" y="22" font-family="Arial, sans-serif" font-size="17" font-weight="900" fill="#141413" text-anchor="middle">Ch</text>
             </svg>
-          </p>
-          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10,000원</p>
+          </div>
+          <p style="font-size:13.5px;color:#5A6472;margin:0 0 7px;font-weight:700;white-space:nowrap;">카카오채널 추가</p>
+          <p style="font-size:20px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10,000원</p>
         </div>
-        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;">회원가입 쿠폰</p>
-          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">25,000원</p>
+        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 001 1h1a2 2 0 110 4H4a1 1 0 01-1 1v-2"/><path d="M21 10v4a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 001 1v-2"/><path d="M3 10a1 1 0 011-1h16a1 1 0 011 1" /><rect x="3" y="7" width="18" height="12" rx="2"/><line x1="9" y1="7" x2="9" y2="19" stroke-dasharray="2 2"/></svg>
+          </div>
+          <p style="font-size:13.5px;color:#5A6472;margin:0 0 7px;font-weight:700;">회원가입 쿠폰</p>
+          <p style="font-size:20px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">25,000원</p>
         </div>
-        <div style="background:#F5F4F1;border-radius:14px;padding:16px 10px;text-align:center;">
-          <p style="font-size:14.5px;color:#5A6472;margin:0 0 8px;font-weight:700;">멤버십 등급별</p>
-          <p style="font-size:22px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">추가 혜택</p>
+        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4 3 5-6 5 6 4-3-2 10H5L3 8z"/></svg>
+          </div>
+          <p style="font-size:13.5px;color:#5A6472;margin:0 0 7px;font-weight:700;">멤버십 등급별</p>
+          <p style="font-size:20px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">추가 혜택</p>
         </div>
       </div>
     </div>
-    <div style="padding:16px 24px 24px;">
-      <a href="join.html" style="display:block;background:#000000;color:#fff;font-size:15px;font-weight:700;padding:15px;border-radius:8px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기</a>
+    <div style="padding:18px 24px 24px;">
+      <a href="join.html" style="display:block;background:var(--gold);color:#fff;font-size:15px;font-weight:700;padding:16px;border-radius:100px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기 →</a>
       <div onclick="snoozeSignupPromo()" style="text-align:center;font-size:12.5px;color:#9BA5B0;cursor:pointer;">오늘 하루 보지 않기</div>
     </div>
   </div>
