@@ -306,6 +306,14 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
   .fw-btn { width: 46px; height: 46px; }
   .fw-tip { display: none; }
 }
+
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #333 !important;
+  caret-color: #333;
+  transition: background-color 9999s ease-in-out 0s;
+}
 </style>
 </head>
 <body>
@@ -326,7 +334,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
           <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
         </div>
       </div>
-      <button id="loginSubmitBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#000000;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.05em;transition:background 0.15s;margin-bottom:10px;" onmouseover="this.style.background='#16305A'" onmouseout="this.style.background='#000000'">로그인</button>
+      <button id="loginSubmitBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#000000;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.05em;transition:background 0.15s;margin-bottom:10px;" onmouseover="this.style.background='#1A1A1A'" onmouseout="this.style.background='#000000'">로그인</button>
       <a href="join.html" style="display:block;width:100%;box-sizing:border-box;padding:14px;background:#fff;color:#000000;border:1.5px solid #000000;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;text-align:center;text-decoration:none;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;" onmouseover="this.style.background='#f5f8fb'" onmouseout="this.style.background='#fff'">회원가입</a>
       <div id="loginError" style="display:none;font-size:11px;color:#FF4444;margin:12px 0 0;text-align:center;"></div>
       <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px;">
@@ -355,7 +363,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
         <input type="email" id="forgotPwEmail" placeholder="가입한 이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')sendResetEmail()"/>
       </div>
       <div id="forgotPwMsg" style="display:none;font-size:11px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
-      <button id="forgotPwSubmitBtn" onclick="sendResetEmail()" style="width:100%;padding:13px;background:#000000;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#16305A'" onmouseout="this.style.background='#000000'">재설정 링크 보내기</button>
+      <button id="forgotPwSubmitBtn" onclick="sendResetEmail()" style="width:100%;padding:13px;background:#000000;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#1A1A1A'" onmouseout="this.style.background='#000000'">재설정 링크 보내기</button>
     </div>
   </div>
 </div>

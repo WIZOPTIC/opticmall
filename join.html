@@ -320,6 +320,14 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
   .fw-btn { width: 46px; height: 46px; }
   .fw-tip { display: none; }
 }
+
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #333 !important;
+  caret-color: #333;
+  transition: background-color 9999s ease-in-out 0s;
+}
 </style>
 </head>
 <body>
