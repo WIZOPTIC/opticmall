@@ -202,3 +202,31 @@ exports.verifyFindIdCode = onCall(async (request) => {
 
   return { email: matched.email };
 });
+
+/**
+ * 이메일(아이디) 중복 확인
+ * 입력: { email }
+ * 반환: { exists: boolean }
+ *
+ * 주의: 클라이언트에서 Firebase Auth의 fetchSignInMethodsForEmail()을 직접 쓰면
+ *       "이메일 열거 보호(Email Enumeration Protection)" 설정 때문에 가입된 이메일이어도
+ *       항상 빈 배열을 반환해서 "사용 가능합니다"로 잘못 뜬다.
+ *       Admin SDK(getUserByEmail)는 이 보호의 영향을 받지 않으므로 서버(Cloud Function)에서 확인한다.
+ */
+exports.checkEmailExists = onCall(async (request) => {
+  const email = String(request.data?.email || "").trim().toLowerCase();
+
+  if (!email || !email.includes("@")) {
+    throw new HttpsError("invalid-argument", "올바른 이메일을 입력해주세요.");
+  }
+
+  try {
+    await admin.auth().getUserByEmail(email);
+    return { exists: true };
+  } catch (e) {
+    if (e.code === "auth/user-not-found") {
+      return { exists: false };
+    }
+    throw new HttpsError("internal", "이메일 확인 중 오류가 발생했습니다.");
+  }
+});
