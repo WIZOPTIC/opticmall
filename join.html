@@ -856,19 +856,41 @@ function checkAllTerms() {
   else document.getElementById('chk-all').classList.remove('checked');
 }
 
+// 전화번호에 하이픈(-) 자동으로 넣어주기 (휴대폰 010-0000-0000 / 서울 02-000-0000 / 그 외 지역 000-000-0000)
+function formatPhoneHyphen(raw) {
+  const digits = String(raw || '').replace(/[^0-9]/g, '');
+  if (digits.length === 11) return digits.replace(/^(\d{3})(\d{4})(\d{4})$/, '$1-$2-$3');
+  if (digits.length === 10) {
+    if (digits.startsWith('02')) return digits.replace(/^(\d{2})(\d{4})(\d{4})$/, '$1-$2-$3');
+    return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
+  }
+  if (digits.length === 9) {
+    if (digits.startsWith('02')) return digits.replace(/^(\d{2})(\d{3})(\d{4})$/, '$1-$2-$3');
+    return digits.replace(/^(\d{3})(\d{2})(\d{4})$/, '$1-$2-$3');
+  }
+  return raw.trim(); // 인식 못하는 자릿수면 입력한 그대로 둠
+}
+
+// 사업자등록번호에 하이픈(-) 자동으로 넣어주기 (000-00-00000)
+function formatBizNoHyphen(raw) {
+  const digits = String(raw || '').replace(/[^0-9]/g, '');
+  if (digits.length === 10) return digits.replace(/^(\d{3})(\d{2})(\d{5})$/, '$1-$2-$3');
+  return raw.trim();
+}
+
 // 회원가입 제출
 async function submitForm() {
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
   const pw = document.getElementById('pw').value;
   const pw2 = document.getElementById('pw2').value;
-  const phone = document.getElementById('phone').value.trim();
+  const phone = formatPhoneHyphen(document.getElementById('phone').value.trim());
   const zipcode = document.getElementById('zipcode').value;
   const addr1 = document.getElementById('addr1').value;
   const addr2 = document.getElementById('addr2').value;
   const storeName = document.getElementById('storeName').value.trim();
-  const bizNo = document.getElementById('bizNo').value.trim();
-  const storePhone = document.getElementById('storePhone').value.trim();
+  const bizNo = formatBizNoHyphen(document.getElementById('bizNo').value.trim());
+  const storePhone = formatPhoneHyphen(document.getElementById('storePhone').value.trim());
 
   // 유효성 검사
   if (!name) { showToast('이름을 입력해주세요.', 'error'); return; }
