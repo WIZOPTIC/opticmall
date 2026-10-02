@@ -82,8 +82,8 @@ header {
 .header-main { max-width: 1440px; margin: 0 auto; padding: 39px 24px 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; position: relative; }
 .header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
 .header-nav-row { display: flex; align-items: center; width: 100%; }
-.logo { font-family: var(--font-serif); font-style: italic; font-size: 42px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; }
-.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; }
+.logo { font-family: var(--font-serif); font-style: italic; font-size: 42px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; user-select: none; }
+.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; user-select: none; pointer-events: none; }
 
 .header-right { display: flex; align-items: center; gap: 2px; margin-left: auto; }
 
@@ -154,8 +154,36 @@ header {
 
 /* ── 상단 3분할 배너 (한 줄로 흐르는 캐러셀) ── */
 .banner-viewport {
+  position: relative;
   overflow: hidden;
   padding: 10px 0 0;
+}
+.banner-viewport.draggable { cursor: grab; }
+.banner-viewport.draggable:active { cursor: grabbing; }
+.hero-nav-btn {
+  display: none;
+  position: absolute;
+  top: calc(50% + 5px);
+  transform: translateY(-50%);
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(10,15,20,0.38);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.15s;
+}
+.hero-nav-btn:hover { background: rgba(10,15,20,0.58); }
+.banner-viewport.has-nav .hero-nav-btn { display: flex; }
+.hero-nav-prev { left: 12px; }
+.hero-nav-next { right: 12px; }
+@media (max-width: 640px) {
+  .hero-nav-btn { width: 30px; height: 30px; font-size: 15px; }
 }
 .banner-track {
   display: flex;
@@ -760,6 +788,8 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
         <div class="banner-slide-item banner-skeleton"></div>
         <div class="banner-slide-item banner-skeleton"></div>
       </div>
+      <button type="button" class="hero-nav-btn hero-nav-prev" onclick="heroBannerGoPrev()" aria-label="이전 배너">‹</button>
+      <button type="button" class="hero-nav-btn hero-nav-next" onclick="heroBannerGoNext()" aria-label="다음 배너">›</button>
     </section>
   </div>
 
@@ -1786,6 +1816,98 @@ function slideHeroTrack() {
   }
 }
 
+// ── 사용자가 버튼/드래그로 직접 배너를 넘기는 기능 ──
+function heroResetAutoTimer() {
+  if (heroBannerTimer) clearInterval(heroBannerTimer);
+  if (heroBannerRealCount > 3) heroBannerTimer = setInterval(slideHeroTrack, HERO_BANNER_ROTATE_MS);
+}
+
+function heroBannerGoTo(pos, withTransition) {
+  if (heroBannerRealCount <= 3) return;
+  const maxPos = heroBannerRealCount; // 복제본까지 다 보여준 지점(여기 도달하면 처음으로 되돌림)
+  if (pos < 0) pos = 0;
+  if (pos > maxPos) pos = maxPos;
+  heroBannerPos = pos;
+  moveHeroTrack(withTransition !== false);
+  if (heroBannerPos >= maxPos) {
+    setTimeout(() => {
+      heroBannerPos = 0;
+      moveHeroTrack(false);
+    }, withTransition === false ? 0 : HERO_BANNER_SLIDE_MS + 50);
+  }
+}
+
+function heroBannerGoNext() {
+  if (heroBannerRealCount <= 3) return;
+  heroResetAutoTimer();
+  heroBannerGoTo(heroBannerPos + 1, true);
+}
+
+function heroBannerGoPrev() {
+  if (heroBannerRealCount <= 3 || heroBannerPos <= 0) return;
+  heroResetAutoTimer();
+  heroBannerGoTo(heroBannerPos - 1, true);
+}
+
+// ── 마우스/터치로 배너를 잡고 좌우로 끌어서 넘기는 기능 ──
+let heroIsDragging = false;
+let heroDragMoved = false;
+let heroDragStartX = 0;
+let heroDragCurrentX = 0;
+
+function heroDragStart(clientX) {
+  if (heroBannerRealCount <= 3) return;
+  heroIsDragging = true;
+  heroDragMoved = false;
+  heroDragStartX = clientX;
+  heroDragCurrentX = clientX;
+  if (heroBannerTimer) clearInterval(heroBannerTimer);
+  const track = document.getElementById('heroBannerTrack');
+  if (track) track.style.transition = 'none';
+}
+
+function heroDragMove(clientX) {
+  if (!heroIsDragging) return;
+  heroDragCurrentX = clientX;
+  const delta = heroDragCurrentX - heroDragStartX;
+  if (Math.abs(delta) > 4) heroDragMoved = true;
+  const track = document.getElementById('heroBannerTrack');
+  if (!track) return;
+  track.style.transform = 'translateX(calc(-1 * ' + heroBannerPos + ' * ((100% - 28px) / var(--hero-item-divisor) + 14px) + ' + delta + 'px))';
+}
+
+function heroDragEnd() {
+  if (!heroIsDragging) return;
+  heroIsDragging = false;
+  const delta = heroDragCurrentX - heroDragStartX;
+  const THRESHOLD = 50;
+  if (delta <= -THRESHOLD) {
+    heroBannerGoTo(heroBannerPos + 1, true);
+  } else if (delta >= THRESHOLD) {
+    heroBannerGoTo(heroBannerPos - 1, true);
+  } else {
+    moveHeroTrack(true);
+  }
+  heroResetAutoTimer();
+}
+
+function initHeroDrag() {
+  const vp = document.getElementById('heroBannerViewport');
+  if (!vp || vp.dataset.dragInit) return;
+  vp.dataset.dragInit = '1';
+  vp.addEventListener('mousedown', (e) => { heroDragStart(e.clientX); });
+  window.addEventListener('mousemove', (e) => { if (heroIsDragging) heroDragMove(e.clientX); });
+  window.addEventListener('mouseup', () => { heroDragEnd(); });
+  vp.addEventListener('touchstart', (e) => { heroDragStart(e.touches[0].clientX); }, { passive: true });
+  vp.addEventListener('touchmove', (e) => { if (heroIsDragging) heroDragMove(e.touches[0].clientX); }, { passive: true });
+  vp.addEventListener('touchend', () => { heroDragEnd(); });
+  // 드래그 도중에는 배너 사진의 링크 클릭이 바로 실행되지 않게 막음
+  vp.addEventListener('click', (e) => {
+    if (heroDragMoved) { e.preventDefault(); e.stopPropagation(); heroDragMoved = false; }
+  }, true);
+}
+initHeroDrag();
+
 async function loadHomeBanners() {
   try {
     const snap = await _db.collection('editorialBanners').get();
@@ -1806,6 +1928,12 @@ async function loadHomeBanners() {
     track.innerHTML = '';
     trackList.forEach(d => track.appendChild(buildHeroSlideItemEl(d)));
     track.classList.toggle('peek', list.length > 3); // 롤링될 때만 다음 사진이 살짝 보이게
+
+    const viewport = document.getElementById('heroBannerViewport');
+    if (viewport) {
+      viewport.classList.toggle('draggable', list.length > 3);
+      viewport.classList.toggle('has-nav', list.length > 3);
+    }
 
     heroBannerRealCount = list.length;
     heroBannerPos = 0;
