@@ -444,7 +444,7 @@ footer { background: var(--sky-dk); padding: 56px 24px 36px; }
         <div class="field-label"><span class="dot">•</span>이메일 (아이디)</div>
         <div class="field-body">
           <div class="input-btn-row">
-            <input class="form-input" type="email" placeholder="example@email.com" id="email" oninput="emailVerified=false; document.getElementById('emailCheckBtn').textContent='중복확인'; document.getElementById('emailCheckBtn').classList.remove('done'); this.classList.remove('success','error'); document.getElementById('email-hint').textContent='';">
+            <input class="form-input" type="email" placeholder="example@email.com" id="email" autocomplete="off" oninput="emailVerified=false; document.getElementById('emailCheckBtn').textContent='중복확인'; document.getElementById('emailCheckBtn').classList.remove('done'); this.classList.remove('success','error'); document.getElementById('email-hint').textContent='';">
             <button class="btn-check" id="emailCheckBtn" onclick="checkEmail()">중복확인</button>
           </div>
           <div class="form-hint" id="email-hint"></div>
@@ -453,7 +453,7 @@ footer { background: var(--sky-dk); padding: 56px 24px 36px; }
       <div class="field-row">
         <div class="field-label"><span class="dot">•</span>비밀번호</div>
         <div class="field-body">
-          <input class="form-input" type="password" placeholder="8자 이상, 영문+숫자+특수문자" id="pw" oninput="checkPw()">
+          <input class="form-input" type="password" placeholder="8자 이상, 영문+숫자+특수문자" id="pw" autocomplete="new-password" oninput="checkPw()">
           <div class="pw-strength"><div class="pw-bar" id="pw-bar1"></div><div class="pw-bar" id="pw-bar2"></div><div class="pw-bar" id="pw-bar3"></div></div>
           <div class="form-hint" id="pw-hint"></div>
         </div>
@@ -461,7 +461,7 @@ footer { background: var(--sky-dk); padding: 56px 24px 36px; }
       <div class="field-row">
         <div class="field-label"><span class="dot">•</span>비밀번호 확인</div>
         <div class="field-body">
-          <input class="form-input" type="password" placeholder="비밀번호 재입력" id="pw2" oninput="checkPw2()">
+          <input class="form-input" type="password" placeholder="비밀번호 재입력" id="pw2" autocomplete="new-password" oninput="checkPw2()">
           <div class="form-hint" id="pw2-hint"></div>
         </div>
       </div>
