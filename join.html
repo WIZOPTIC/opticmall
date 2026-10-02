@@ -444,7 +444,24 @@ footer { background: var(--sky-dk); padding: 56px 24px 36px; }
         <div class="field-label"><span class="dot">•</span>이메일 (아이디)</div>
         <div class="field-body">
           <div class="input-btn-row">
-            <input class="form-input" type="email" placeholder="example@email.com" id="email" autocomplete="off" oninput="emailVerified=false; document.getElementById('emailCheckBtn').textContent='중복확인'; document.getElementById('emailCheckBtn').classList.remove('done'); this.classList.remove('success','error'); document.getElementById('email-hint').textContent='';">
+            <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap;">
+              <input class="form-input" type="text" placeholder="example" id="emailLocal" autocomplete="off" style="flex:1;min-width:100px;" oninput="onEmailPartsChanged()">
+              <span style="color:#8a8a86;flex-shrink:0;">@</span>
+              <select class="form-input" id="emailDomainSelect" style="flex:1;min-width:130px;" onchange="onEmailDomainSelectChanged()">
+                <option value="">선택</option>
+                <option value="naver.com">naver.com</option>
+                <option value="gmail.com">gmail.com</option>
+                <option value="daum.net">daum.net</option>
+                <option value="hanmail.net">hanmail.net</option>
+                <option value="nate.com">nate.com</option>
+                <option value="kakao.com">kakao.com</option>
+                <option value="icloud.com">icloud.com</option>
+                <option value="outlook.com">outlook.com</option>
+                <option value="custom">직접입력</option>
+              </select>
+              <input class="form-input" type="text" placeholder="example.com" id="emailDomainCustom" autocomplete="off" style="display:none;flex:1;min-width:130px;" oninput="onEmailPartsChanged()">
+            </div>
+            <input type="hidden" id="email">
             <button class="btn-check" id="emailCheckBtn" onclick="checkEmail()">중복확인</button>
           </div>
           <div class="form-hint" id="email-hint"></div>
@@ -716,10 +733,48 @@ function showToast(msg, type='') {
   setTimeout(() => t.className = 'toast', 3000);
 }
 
+// 이메일 도메인 드롭다운에서 "직접입력" 선택 시 입력칸 보여주기
+function onEmailDomainSelectChanged() {
+  const sel = document.getElementById('emailDomainSelect');
+  const customInput = document.getElementById('emailDomainCustom');
+  if (sel.value === 'custom') {
+    customInput.style.display = '';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+    customInput.value = '';
+  }
+  onEmailPartsChanged();
+}
+
+// 아이디/도메인 입력칸이 바뀔 때마다 실제 이메일 값(#email)을 합쳐서 갱신 + 중복확인 상태 초기화
+function onEmailPartsChanged() {
+  const local = document.getElementById('emailLocal').value.trim();
+  const sel = document.getElementById('emailDomainSelect');
+  const domain = sel.value === 'custom'
+    ? document.getElementById('emailDomainCustom').value.trim()
+    : sel.value;
+  document.getElementById('email').value = (local && domain) ? (local + '@' + domain) : '';
+
+  emailVerified = false;
+  document.getElementById('emailCheckBtn').textContent = '중복확인';
+  document.getElementById('emailCheckBtn').classList.remove('done');
+  document.getElementById('emailLocal').classList.remove('success', 'error');
+  document.getElementById('email-hint').textContent = '';
+}
+
 // 이메일 중복확인
 async function checkEmail() {
   const email = document.getElementById('email').value.trim();
   const hint = document.getElementById('email-hint');
+  if (!email || !document.getElementById('emailLocal').value.trim() ||
+      !(document.getElementById('emailDomainSelect').value === 'custom'
+        ? document.getElementById('emailDomainCustom').value.trim()
+        : document.getElementById('emailDomainSelect').value)) {
+    hint.textContent = '이메일 주소를 모두 입력해주세요.';
+    hint.className = 'form-hint error';
+    return;
+  }
   if (!email || !email.includes('@')) {
     hint.textContent = '올바른 이메일을 입력해주세요.';
     hint.className = 'form-hint error';
@@ -737,15 +792,15 @@ async function checkEmail() {
     if (result.data.exists) {
       hint.textContent = '이미 사용중인 이메일입니다.';
       hint.className = 'form-hint error';
-      document.getElementById('email').classList.remove('success');
-      document.getElementById('email').classList.add('error');
+      document.getElementById('emailLocal').classList.remove('success');
+      document.getElementById('emailLocal').classList.add('error');
       document.getElementById('emailCheckBtn').classList.remove('done');
       emailVerified = false;
     } else {
       hint.textContent = '✓ 사용 가능한 이메일입니다.';
       hint.className = 'form-hint success';
-      document.getElementById('email').classList.remove('error');
-      document.getElementById('email').classList.add('success');
+      document.getElementById('emailLocal').classList.remove('error');
+      document.getElementById('emailLocal').classList.add('success');
       document.getElementById('emailCheckBtn').textContent = '확인완료';
       document.getElementById('emailCheckBtn').classList.add('done');
       emailVerified = true;
