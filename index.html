@@ -596,6 +596,17 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .floating-widget.fw-visible{opacity:1;visibility:visible;transform:none}
 /* 각진 라운드 (고급스러운 톤) */
 .banner-slide-item{border-radius:4px!important}
+/* 로그인/회원가입만 로고 줄 오른쪽으로 */
+@media (min-width:1001px){
+  .header-auth{position:absolute!important;top:44px;height:54px;right:14px;margin:0!important;align-items:center}
+  html.hero-peek .header-auth{right:calc(12.7px + 3.125%)}
+}
+/* 글씨 위계: 섹션 제목 크기 키움 (서체는 그대로) */
+.ers-head{align-items:flex-end!important;margin-bottom:24px!important}
+.ers-head h2{font-size:30px!important;font-weight:700!important;letter-spacing:-0.025em;line-height:1.2}
+.cat-badge-row .title{font-size:30px!important;letter-spacing:-0.025em}
+.ers-head .more{font-size:12px!important;padding-bottom:3px!important}
+@media (max-width:640px){.ers-head h2,.cat-badge-row .title{font-size:24px!important}}
 </style>
 </head>
 <body>
