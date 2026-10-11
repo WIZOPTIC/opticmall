@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>옵틱몰 - 프리미엄 도매몰</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF7A1A'/><text x='50' y='68' font-family='Arial, sans-serif' font-weight='800' font-size='48' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&family=Montserrat:wght@700&family=Playfair+Display:wght@700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 <!-- Firebase 관련 서버들에 미리 연결을 열어둬서(DNS+TLS 핸드셰이크를 HTML 파싱과 동시에 진행), 실제 스크립트가 데이터/사진을 요청하는 순간 바로 통신이 시작되도록 함 -->
@@ -598,7 +598,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 /* 각진 라운드 (고급스러운 톤) */
 .banner-slide-item{border-radius:4px!important}
 /* 글씨 위계: 섹션 제목 크기 키움 (서체는 그대로) */
-.ers-head{align-items:flex-end!important;margin-bottom:24px!important}
+.ers-head{align-items:center!important;margin-bottom:24px!important}
 .ers-head h2{font-size:30px!important;font-weight:700!important;letter-spacing:-0.025em;line-height:1.2}
 .cat-badge-row .title{font-size:30px!important;letter-spacing:-0.025em}
 .ers-head .more{font-size:12px!important;padding-bottom:3px!important}
@@ -607,8 +607,8 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .banner-slide-item:has(.caption .t1:not(:empty))::before{height:40%!important;background:linear-gradient(180deg,rgba(15,20,17,0) 0%,rgba(15,20,17,.55) 50%,rgba(15,20,17,.82) 100%)!important}
 .banner-slide-item.cap-dark:has(.caption .t1:not(:empty))::before{background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.6) 50%,rgba(255,255,255,.9) 100%)!important}
 .banner-slide-item .caption{left:28px!important;right:28px!important;bottom:30px!important}
-.banner-slide-item .caption .t1{font-size:clamp(26px,2.3vw,36px)!important;font-weight:700!important;letter-spacing:-0.025em;line-height:1.2;margin:0 0 12px!important;color:#fff}
-.banner-slide-item .caption .t2{font-size:clamp(14px,1.05vw,16px)!important;font-weight:600;line-height:1.5;color:rgba(255,255,255,.92)!important;white-space:pre-line}
+.banner-slide-item .caption .t1{font-size:clamp(23px,2.07vw,32px)!important;font-weight:700!important;letter-spacing:-0.025em;line-height:1.2;margin:0 0 12px!important;color:#fff}
+.banner-slide-item .caption .t2{font-size:clamp(13px,.95vw,14.5px)!important;font-weight:600;line-height:1.5;color:rgba(255,255,255,.92)!important;white-space:pre-line}
 .banner-slide-item.cap-dark .caption .t1{color:#171A1F}
 .banner-slide-item.cap-dark .caption .t2{color:#3A4350!important}
 .banner-slide-item .caption .t2{min-height:3em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -624,6 +624,35 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
   footer{padding-left:var(--edge-l)!important;padding-right:var(--edge-r)!important}
   .footer-inner{max-width:none!important}
 }
+/* 참고 시안 스타일: 뱃지·섹션 제목·상품 글씨 */
+.ers-rank{border-radius:0!important;width:22px!important;height:22px!important;top:8px!important;left:8px!important;background:#8B6242!important;color:#F4F2EF!important;font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-size:11px!important;font-weight:500!important}
+.p-toprow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.p-toprow .product-code{margin:0}
+.p-badge{position:static!important;display:inline-block;border-radius:0;padding:3px 7px!important;font-family:'Montserrat','Pretendard Variable',sans-serif;font-size:9.5px!important;font-weight:500;letter-spacing:.08em;line-height:1.2;flex-shrink:0}
+.p-badge.new{background:#EADFD1!important;color:#5A4A3A!important}
+.p-badge.hot,.p-badge.best{background:#8B6242!important;color:#F4F2EF!important}
+.product-code{font-size:12.5px!important;font-weight:600!important;letter-spacing:.02em;text-transform:uppercase;color:var(--ink,#141413)!important}
+.product-name{font-size:11px!important;font-weight:400!important;letter-spacing:.03em;color:#8A8279!important;margin-bottom:8px!important}
+.product-price{font-size:14px!important;font-weight:600!important}
+.ers-head h2,.cat-badge-row .title{display:flex;align-items:center}
+.ers-head h2::before,.cat-badge-row .title::before{font-family:'Montserrat','Pretendard Variable',sans-serif;font-size:12px;font-weight:500;letter-spacing:1.5px;color:#7A7167;margin-right:16px;padding-right:16px;border-right:1px solid #CFC7BC;line-height:1;position:relative;top:0}
+.ers-head h2::before{content:"REAL-TIME BEST"}
+.cat-section:nth-of-type(1) .cat-badge-row .title::before{content:"TIME SALE"}
+.cat-section:nth-of-type(2) .cat-badge-row .title::before{content:"NEW ARRIVALS"}
+.cat-section:nth-of-type(3) .cat-badge-row .title::before{content:"BEST SELLERS"}
+@media (max-width:640px){.ers-head h2::before,.cat-badge-row .title::before{display:none}}
+.ers-head h2,.cat-badge-row .title{font-size:26px!important;font-weight:600!important}
+/* 메뉴·더보기 글씨 정돈 */
+.gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}
+.gnb-item:hover,.gnb-item.active{font-weight:500!important;color:#D6C49A!important}
+.more-box{font-family:var(--font-body)!important;font-size:13px!important;font-weight:600!important;letter-spacing:.02em}
+.more-box .arrow{font-size:14px!important;font-weight:400}
+.ers-head .more{font-weight:500!important;letter-spacing:.02em}
+/* 푸터 글씨 톤 통일 */
+.footer-col a{font-weight:500!important;letter-spacing:.02em;color:rgba(255,255,255,.78)}
+.footer-col h5,.footer-contact .fc-label{font-weight:600!important;letter-spacing:.02em}
+.footer-biz,.footer-contact .fc-hours{letter-spacing:.01em}
+.footer-copy{font-family:var(--font-body)!important;letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -912,7 +941,7 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
   <section class="event-rank-section">
     <div class="ers-head">
       <h2>실시간 베스트 상품</h2>
-      <a href="timesale.html" class="more">더보기 ›</a>
+      <a href="timesale.html" class="more">더보기 →</a>
     </div>
     <div class="ers-grid" id="eventRankGrid">
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
@@ -949,7 +978,7 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
         <div class="product-grid" id="eventFullGrid">
           <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
         </div>
-        <div class="more-box-wrap"><a href="timesale.html" class="more-box">타임세일 상품 더보기<span class="arrow">›</span></a></div>
+        <div class="more-box-wrap"><a href="timesale.html" class="more-box">타임세일 상품 더보기<span class="arrow">→</span></a></div>
       </div>
     </section>
 
@@ -972,7 +1001,7 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
         <div class="product-grid" id="newArrivalFullGrid">
           <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
         </div>
-        <div class="more-box-wrap"><a href="list.html?feature=new" class="more-box">신상품 더보기<span class="arrow">›</span></a></div>
+        <div class="more-box-wrap"><a href="list.html?feature=new" class="more-box">신상품 더보기<span class="arrow">→</span></a></div>
       </div>
     </section>
 
@@ -995,7 +1024,7 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
         <div class="product-grid" id="bestFullGrid">
           <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
         </div>
-        <div class="more-box-wrap"><a href="list.html?feature=best" class="more-box">베스트상품 더보기<span class="arrow">›</span></a></div>
+        <div class="more-box-wrap"><a href="list.html?feature=best" class="more-box">베스트상품 더보기<span class="arrow">→</span></a></div>
       </div>
     </section>
 
@@ -1612,7 +1641,7 @@ function renderMainProductCard(p, badgeText, badgeClass) {
            </div>`
         : `<div class="product-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
-  const codeLabel = p.brandName ? `[${p.brandName}]` : '';
+  const codeLabel = p.brandName ? `${p.brandName}` : '';
 
   const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
   const isWished = mainWishlistIds.has(mainWishId);
@@ -1620,13 +1649,12 @@ function renderMainProductCard(p, badgeText, badgeClass) {
     <div class="product-card" onclick="goToProductFromMain('${p.id}')" style="cursor:pointer;">
       <div class="product-img-wrap">
         <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
-        ${badgeHtml}
         <button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleMainWish(event,'${p.id}','${mainWishId}',${(p.colors&&p.colors[0])?`'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'`:'null'})">${isWished ? '<i class=ic-wish-filled></i>' : '<i class=ic-wish></i>'}</button>
       </div>
       <div class="product-info">
-        <div class="product-code">${codeLabel}</div>
+        <div class="p-toprow"><div class="product-code">${codeLabel}</div>${badgeHtml}</div>
         <div class="product-name">${p.modelName||'-'}</div>
-        <div class="product-size">${p.size ? p.size + ' · ' : ''}${p.barcode||''}</div>
+        <div class="product-size">${[p.size,p.barcode].filter(Boolean).join(' · ')}</div>
         ${(() => {
           const colorNames = p.colorNames || (p.color ? [p.color] : []);
           if(colorNames.length === 0) return '';
@@ -1657,7 +1685,7 @@ function renderMainProductRow(p) {
            </div>`
         : `<div class="p-row-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
-  const codeLabel = p.brandName ? `[${p.brandName}]` : '';
+  const codeLabel = p.brandName ? `${p.brandName}` : '';
   const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
   const isWished = mainWishlistIds.has(mainWishId);
   const wishColorArg = (p.colors&&p.colors[0]) ? `'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'` : 'null';
@@ -1689,7 +1717,7 @@ function renderEventRankCard(p, rank) {
            </div>`
         : `<div class="product-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
-  const codeLabel = p.brandName ? `[${p.brandName}]` : '';
+  const codeLabel = p.brandName ? `${p.brandName}` : '';
   const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
   const isWished = mainWishlistIds.has(mainWishId);
   return `
@@ -1715,7 +1743,7 @@ function renderEventRankPlaceholder(rank) {
         <span class="ers-rank">${rank}</span>
       </div>
       <div class="product-info">
-        <div class="product-code">[BRAND]</div>
+        <div class="product-code">BRAND</div>
         <div class="product-name" style="color:var(--g3);">이벤트 상품 준비 중</div>
         <div class="product-price" style="color:var(--g3);"><span class="won">₩</span>00,000</div>
       </div>
