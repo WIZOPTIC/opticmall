@@ -572,8 +572,11 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 @media (max-width:768px){.hero-banner-band{padding:10px 0 12px}}
 /* 데스크톱: 첫 화면에서 배너 카드가 창 아래쪽 끝까지 차도록 높이를 창 높이 기준으로 계산 (헤더 높이는 JS가 --hdr-h에 넣어줌) */
 @media (min-width:861px){
-  .hero-banner-band{padding-top:0}
-  .banner-slide-item{aspect-ratio:auto!important;height:clamp(460px, calc(100vh - var(--hdr-h,130px) - 22px), 780px)}
+  /* 헤더 높이를 폰트/로고 로딩과 상관없이 항상 같게 고정 (로고줄 54px + 메뉴줄 34px) */
+  .header-top-row{height:54px}
+  .header-nav-row{height:34px}
+  .hero-banner-band{padding-top:2px}
+  .banner-slide-item{aspect-ratio:auto!important;height:clamp(460px, calc(100vh - var(--hdr-h,142px) - 24px), 780px)}
 }
 /* 헤더도 배너와 같은 좌우 끝선에 맞춤 */
 .header-main{max-width:none!important;padding-left:14px!important;padding-right:14px!important}
