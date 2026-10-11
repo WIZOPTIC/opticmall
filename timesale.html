@@ -303,6 +303,16 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .p-name{font-weight:400!important;font-size:12px!important;letter-spacing:.02em;color:#8A8279!important}
 .p-price{font-family:var(--font-body)!important;font-size:14.5px!important;font-weight:600!important;color:var(--ink)!important}
 .product-card:hover{border-color:var(--gold)!important}
+.ts-wrap .category-hero{justify-content:flex-start!important;gap:36px!important}
+.ts-wrap .category-hero-titlewrap{align-items:center!important;gap:0!important}
+.ts-wrap .category-hero-title{order:2;font-size:30px!important;font-weight:700!important;letter-spacing:-0.025em!important;line-height:1.2!important}
+.ts-wrap .category-hero-eyebrow{order:1;font-size:12px!important;letter-spacing:1.5px!important;margin-right:16px;padding-right:16px;border-right:1px solid #CFC7BC;line-height:1}
+.ts-wrap .category-hero{gap:44px!important}
+@media (max-width:640px){.ts-wrap .category-hero-title{font-size:24px!important}}
+.ts-wrap .ts-pill{display:inline-flex;align-items:center;gap:8px}
+.ts-wrap .ts-pill .ts-clock{color:var(--red);flex-shrink:0}
+.ts-wrap .ts-pill .ts-time{font-family:"Inter",sans-serif;font-weight:700;font-size:18px;color:var(--red);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.ts-wrap .ts-pill .ts-suffix{font-size:13px;font-weight:500;color:var(--g3)}
 </style>
 </head>
 <body>
@@ -401,11 +411,10 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
       <span class="category-hero-eyebrow">TIME SALE</span>
     </div>
     <div class="ts-countdown-wrap">
-      <span class="ts-countdown-label">종료까지</span>
-      <div class="ts-countdown">
-        <div class="box" id="timer-h">00</div><span class="sep">:</span>
-        <div class="box" id="timer-m">00</div><span class="sep">:</span>
-        <div class="box" id="timer-s">00</div>
+      <div class="ts-pill">
+        <svg class="ts-clock" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span class="ts-time"><span id="timer-h">00</span>:<span id="timer-m">00</span>:<span id="timer-s">00</span></span>
+        <span class="ts-suffix">후 마감</span>
       </div>
     </div>
   </div>
