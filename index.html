@@ -26,7 +26,8 @@ html { overflow-y: scroll; }
   --grad: linear-gradient(90deg, var(--sky), var(--sky-dk));
   --paper: #FAF8F4;
   --navy: #000000;
-  --footer-bg: #2F3A33;
+  --footer-bg: #262F29;
+  --hdr-bg: #262F29;
   --white: #FFFFFF;
   --off: #F8F9FA;
   --g1: #F2F4F6;
@@ -554,7 +555,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 }
 
 /* 딥그린 헤더 (푸터와 같은 색) */
-header{background:var(--footer-bg)!important;border-bottom:none!important;box-shadow:none!important}
+header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shadow:none!important}
 .header-main{padding:44px 24px 12px!important;gap:6px!important}
 .logo-img{height:54px!important;filter:invert(1) brightness(1.05)}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
@@ -568,7 +569,7 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 @media (max-width:1000px){.header-cs{display:none}}
 @media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:40px!important}}
 /* 배너 영역도 딥그린으로 이어서, '실시간 베스트 상품'부터 베이지 시작 */
-.hero-banner-band{background:var(--footer-bg);padding:0 0 8px}
+.hero-banner-band{background:var(--hdr-bg);padding:0 0 8px}
 @media (max-width:768px){.hero-banner-band{padding:10px 0 12px}}
 /* 데스크톱: 첫 화면에서 배너 카드가 창 아래쪽 끝까지 차도록 높이를 창 높이 기준으로 계산 (헤더 높이는 JS가 --hdr-h에 넣어줌) */
 @media (min-width:861px){
@@ -586,7 +587,7 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 .hero-banner-band .main-wrap{max-width:none!important;padding:0 14px!important}
 @media (max-width:768px){.hero-banner-band .main-wrap{padding:0 12px!important}}
 /* 왼쪽 세로 글씨: 딥그린, 배너 아래부터 나타남 */
-.spine span{color:var(--footer-bg)!important;opacity:.8}
+.spine span{color:var(--hdr-bg)!important;opacity:.8}
 .spine{opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}
 .spine.fw-visible{opacity:1;visibility:visible}
 
