@@ -576,8 +576,12 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 }
 /* 헤더도 배너와 같은 좌우 끝선에 맞춤 */
 .header-main{max-width:none!important;padding-left:14px!important;padding-right:14px!important}
-@media (min-width:900px){.header-right{margin-right:-6px!important}}
+@media (min-width:900px){.header-right{margin-right:-8px!important}}
 @media (max-width:768px){.header-main{padding-left:12px!important;padding-right:12px!important}}
+/* 롤링 배너가 양옆 peek을 보여줄 때는, 헤더 로고/아이콘을 '진짜 카드'의 시작선/끝선에 맞춤 (peek 폭 = 카드 폭의 약 10%) */
+@media (min-width:861px){
+  html.hero-peek .header-main{padding-left:calc(13.65px + 3.125%)!important;padding-right:calc(11.7px + 3.125%)!important}
+}
 /* 배너는 좌우 끝까지 (작은 여백만) */
 .hero-banner-band .main-wrap{max-width:none!important;padding:0 14px!important}
 @media (max-width:768px){.hero-banner-band .main-wrap{padding:0 12px!important}}
@@ -2016,6 +2020,7 @@ async function loadHomeBanners() {
     track.innerHTML = '';
     trackList.forEach(d => track.appendChild(buildHeroSlideItemEl(d)));
     track.classList.toggle('peek', rolling); // 롤링될 때만 양옆 사진이 살짝 보이게
+    document.documentElement.classList.toggle('hero-peek', !!rolling);
 
     const viewport = document.getElementById('heroBannerViewport');
     if (viewport) {
