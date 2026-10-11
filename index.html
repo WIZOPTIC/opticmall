@@ -615,6 +615,14 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 /* 아이콘 간격: 눈에 보이는 여백이 같도록 */
 .header-right>.icon-btn:nth-child(4){margin-left:6px}
 .header-right>.icon-btn:nth-child(5){margin-left:4px}
+/* 본문·푸터 좌우 끝선을 헤더/배너 카드 끝선에 맞춤 */
+:root{--edge-l:14px;--edge-r:14px}
+html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
+@media (min-width:861px){
+  .event-rank-section,.main-wrap{max-width:none!important;padding-left:var(--edge-l)!important;padding-right:var(--edge-r)!important}
+  footer{padding-left:var(--edge-l)!important;padding-right:var(--edge-r)!important}
+  .footer-inner{max-width:none!important}
+}
 </style>
 </head>
 <body>
