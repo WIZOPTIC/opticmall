@@ -568,11 +568,11 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 @media (max-width:1000px){.header-cs{display:none}}
 @media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:40px!important}}
 /* 배너 영역도 딥그린으로 이어서, '실시간 베스트 상품'부터 베이지 시작 */
-.hero-banner-band{background:var(--footer-bg);padding:14px 0 12px}
+.hero-banner-band{background:var(--footer-bg);padding:22px 0 8px}
 @media (max-width:768px){.hero-banner-band{padding:10px 0 12px}}
 /* 데스크톱: 첫 화면에서 배너 카드가 창 아래쪽 끝까지 차도록 높이를 창 높이 기준으로 계산 (헤더 높이는 JS가 --hdr-h에 넣어줌) */
 @media (min-width:861px){
-  .banner-slide-item{aspect-ratio:auto!important;height:clamp(460px, calc(100vh - var(--hdr-h,130px) - 36px), 780px)}
+  .banner-slide-item{aspect-ratio:auto!important;height:clamp(460px, var(--hero-h, calc(100vh - 170px)), 780px)}
 }
 /* 헤더도 배너와 같은 좌우 끝선에 맞춤 */
 .header-main{max-width:none!important;padding-left:14px!important;padding-right:14px!important}
@@ -848,6 +848,13 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
   function setHdr(){
     var w=document.getElementById('stickyHeaderWrap');
     if(w) document.documentElement.style.setProperty('--hdr-h', w.offsetHeight+'px');
+    /* 배너 카드가 실제로 시작하는 위치를 재서, 첫 화면에서 창 아래 끝(8px 여백)까지 꽉 차도록 높이 계산 */
+    var v=document.getElementById('heroBannerViewport');
+    if(v){
+      var top=v.getBoundingClientRect().top + window.pageYOffset + (parseFloat(getComputedStyle(v).paddingTop)||0);
+      var h=Math.round(window.innerHeight - top - 8);
+      document.documentElement.style.setProperty('--hero-h', h+'px');
+    }
   }
   setHdr();
   window.addEventListener('load', setHdr);
