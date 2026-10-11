@@ -568,9 +568,27 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 @media (max-width:1000px){.header-cs{display:none}}
 @media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:40px!important}}
 /* 배너 영역도 딥그린으로 이어서, '실시간 베스트 상품'부터 베이지 시작 */
-.hero-banner-band{background:var(--footer-bg);padding:14px 0 40px}
-@media (max-width:768px){.hero-banner-band{padding:10px 0 24px}}
-.spine span{color:#fff!important;mix-blend-mode:difference;opacity:.5}
+.hero-banner-band{background:var(--footer-bg);padding:14px 0 12px}
+@media (max-width:768px){.hero-banner-band{padding:10px 0 12px}}
+/* 데스크톱: 첫 화면에서 배너 카드가 창 아래쪽 끝까지 차도록 높이를 창 높이 기준으로 계산 (헤더 높이는 JS가 --hdr-h에 넣어줌) */
+@media (min-width:861px){
+  .banner-slide-item{aspect-ratio:auto!important;height:clamp(460px, calc(100vh - var(--hdr-h,130px) - 36px), 780px)}
+}
+/* 헤더도 배너와 같은 좌우 끝선에 맞춤 */
+.header-main{max-width:none!important;padding-left:14px!important;padding-right:14px!important}
+@media (min-width:900px){.header-right{margin-right:-6px!important}}
+@media (max-width:768px){.header-main{padding-left:12px!important;padding-right:12px!important}}
+/* 배너는 좌우 끝까지 (작은 여백만) */
+.hero-banner-band .main-wrap{max-width:none!important;padding:0 14px!important}
+@media (max-width:768px){.hero-banner-band .main-wrap{padding:0 12px!important}}
+/* 왼쪽 세로 글씨: 딥그린, 배너 아래부터 나타남 */
+.spine span{color:var(--footer-bg)!important;opacity:.8}
+.spine{opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}
+.spine.fw-visible{opacity:1;visibility:visible}
+
+/* 플로팅 버튼(카톡상담/최근본상품/공유)은 첫 화면(배너)에서는 숨기고, 배너를 지나 스크롤하면 나타남 */
+.floating-widget{opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease,visibility .25s}
+.floating-widget.fw-visible{opacity:1;visibility:visible;transform:none}
 </style>
 </head>
 <body>
@@ -820,6 +838,19 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 </div>
 
+<script>
+/* 헤더 실제 높이를 CSS 변수로 전달 (배너 높이 계산용) */
+(function(){
+  function setHdr(){
+    var w=document.getElementById('stickyHeaderWrap');
+    if(w) document.documentElement.style.setProperty('--hdr-h', w.offsetHeight+'px');
+  }
+  setHdr();
+  window.addEventListener('load', setHdr);
+  window.addEventListener('resize', setHdr);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(setHdr);
+})();
+</script>
 <!-- HERO -->
 <section class="hero">
 
@@ -2104,6 +2135,31 @@ loadHeroPhotos();
     <span class="fw-tip">맨 위로</span>
   </button>
 </div>
+<script>
+/* 배너 영역이 화면에서 거의 지나갔을 때부터 플로팅 위젯 표시 */
+(function(){
+  var widget=document.querySelector('.floating-widget');
+  var band=document.querySelector('.hero-banner-band');
+  if(!widget||!band) return;
+  var ticking=false;
+  function update(){
+    ticking=false;
+    var show=band.getBoundingClientRect().bottom < window.innerHeight*0.5;
+    widget.classList.toggle('fw-visible', show);
+    var spine=document.querySelector('.spine');
+    if(spine) spine.classList.toggle('fw-visible', band.getBoundingClientRect().bottom < window.innerHeight-310);
+    if(!show){
+      var r=document.getElementById('fwRecentPanel'), sh=document.getElementById('fwSharePanel');
+      if(r) r.classList.remove('open'); if(sh) sh.classList.remove('open');
+    }
+  }
+  function onScroll(){ if(!ticking){ticking=true; requestAnimationFrame(update);} }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
+  window.addEventListener('load',update);
+  update();
+})();
+</script>
 <script>
 window.addEventListener('scroll', () => {
   const topBtn = document.getElementById('fwTopBtn');
