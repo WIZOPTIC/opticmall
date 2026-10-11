@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>옵틱몰 - 프리미엄 도매몰</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF7A1A'/><text x='50' y='68' font-family='Arial, sans-serif' font-weight='800' font-size='48' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@600;700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700&family=Inter:wght@600;700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--sky:#000000;--sky-lt:#EEF1F5;--sky-dk:#000000;--footer-bg:#2F3A33;--navy:#000000;--gold:#C9A227;--gold-soft:#E4CD84;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:"Fraunces",serif;--font-body:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;}
+:root{--sky:#000000;--sky-lt:#EEF1F5;--sky-dk:#000000;--footer-bg:#262F29;--navy:#000000;--gold:#A98C52;--gold-soft:#D6C49A;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:"Fraunces",serif;--font-body:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;}
 body{font-family:var(--font-body);background:var(--g1);color:var(--black);padding-bottom:40px;}
 /* 헤더 */
 header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
@@ -73,37 +73,37 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 
 .main{max-width:1360px;margin:0 auto;padding:40px 24px 24px;display:flex;gap:48px;align-items:flex-start;}
 .order-form{flex:1;}
-.card{background:var(--white);border-radius:10px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.card{background:var(--white);border-radius:4px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .card-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--g2);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .form-group{margin-bottom:12px;}
 .form-group:last-child{margin-bottom:0;}
 .form-label{display:block;font-size:12px;font-weight:600;color:var(--g4);margin-bottom:5px;}
-.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
 .form-input:focus{border-color:var(--sky);}
 .form-input::placeholder{color:var(--g3);}
 .form-input[readonly]{background:var(--g1);color:var(--g4);}
 .addr-row{display:flex;gap:8px;margin-bottom:8px;}
-.addr-select-card{border:1.5px solid var(--g2);border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;}
+.addr-select-card{border:1.5px solid var(--g2);border-radius:4px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;}
 .addr-select-card:hover{border-color:var(--sky);}
 .addr-select-card.selected{border-color:var(--sky);background:var(--sky-lt);}
 .addr-select-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
 .addr-select-label{font-size:14px;font-weight:700;color:var(--navy);}
 .addr-select-default{font-size:10px;font-weight:700;background:var(--sky);color:var(--white);padding:1px 8px;border-radius:100px;}
 .addr-select-info{font-size:12px;color:var(--g4);line-height:1.6;}
-.btn-addr{padding:11px 16px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
-.form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:80px;}
+.btn-addr{padding:11px 16px;background:var(--navy);color:var(--white);border:none;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:80px;}
 .form-textarea:focus{border-color:var(--sky);}
 
 /* 결제 안내 */
-.pay-info-box{background:var(--sky-lt);border:1px solid #B3E0F5;border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px;}
+.pay-info-box{background:var(--sky-lt);border:1px solid #B3E0F5;border-radius:4px;padding:16px;display:flex;align-items:center;gap:12px;}
 .pay-info-box .icon{font-size:24px;}
 .pay-info-box .txt{font-size:12px;color:var(--sky-dk);line-height:1.6;}
 
 /* 주문 상품 */
 .order-item{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--g1);}
 .order-item:last-child{border-bottom:none;}
-.order-img{width:84px;height:84px;background:var(--g1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;overflow:hidden;}
+.order-img{width:84px;height:84px;background:var(--g1);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;overflow:hidden;}
 .order-img.no-img{opacity:0.15;}
 .order-img img{width:100%;height:100%;object-fit:cover;}
 .order-item-info{flex:1;}
@@ -113,7 +113,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 
 /* 요약 */
 .summary-box{width:420px;flex-shrink:0;position:sticky;top:88px;}
-.summary-card{background:var(--white);border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.summary-card{background:var(--white);border-radius:4px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .summary-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;letter-spacing:0.01em;}
 .sum-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px;}
 .sum-row .lbl{color:var(--g4);}
@@ -121,18 +121,18 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .sum-divider{border:none;border-top:1px solid var(--g2);margin:14px 0;}
 .sum-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;}
 .sum-total .price{font-family:"Inter",sans-serif;font-size:24px;font-weight:700;color:var(--sky);}
-.agree-box{margin-top:16px;padding:12px;background:var(--g1);border-radius:8px;}
+.agree-box{margin-top:16px;padding:12px;background:var(--g1);border-radius:4px;}
 .agree-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g4);margin-bottom:6px;cursor:pointer;}
 .agree-item:last-child{margin-bottom:0;}
 .agree-item input{accent-color:var(--sky);cursor:pointer;}
-.btn-pay{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:12px;letter-spacing:0.01em;}
+.btn-pay{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:4px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:12px;letter-spacing:0.01em;}
 .btn-pay:hover{background:var(--sky-dk);transform:translateY(-1px);}
 .btn-pay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
 .quickpay-divider{display:flex;align-items:center;gap:12px;margin:16px 0 12px;}
 .quickpay-divider span{flex:1;height:1px;background:var(--g2);}
 .quickpay-divider em{font-style:normal;font-size:11px;font-weight:600;color:var(--g3);letter-spacing:0.06em;white-space:nowrap;}
 .easypay-row{display:flex;gap:8px;}
-.btn-easypay{flex:1;padding:12.5px 0;border:none;border-radius:8px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;opacity:0.94;}
+.btn-easypay{flex:1;padding:12.5px 0;border:none;border-radius:4px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;opacity:0.94;}
 .btn-easypay:hover{transform:translateY(-1px);opacity:1;}
 .btn-easypay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
 .btn-naverpay{background:#03C75A;color:#fff;}
@@ -215,7 +215,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-btn:hover .fw-tip { opacity: 1; }
 .fw-recent-panel {
   position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
-  background: var(--white); border: 1px solid var(--g2); border-radius: 14px;
+  background: var(--white); border: 1px solid var(--g2); border-radius: 4px;
   box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
   display: none; flex-direction: column; overflow: hidden;
 }
@@ -223,14 +223,14 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
 .fw-recent-close { background: none; border: none; font-size: 18px; color: var(--g3); cursor: pointer; line-height: 1; }
 .fw-recent-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
-.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 8px; text-decoration: none; color: var(--black); }
+.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 4px; text-decoration: none; color: var(--black); }
 .fw-recent-item:hover { background: var(--sky-lt); }
 .fw-recent-item img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--g1); flex-shrink: 0; }
 .fw-recent-name { font-size: 12.5px; line-height: 1.4; }
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
 .fw-share-panel {
   position: fixed; right: 84px; bottom: 90px; width: 320px;
-  background: var(--white); border-radius: 20px;
+  background: var(--white); border-radius: 4px;
   box-shadow: 0 12px 36px rgba(10,14,20,0.22); z-index: 501;
   display: none; padding: 22px 20px;
 }
@@ -247,11 +247,11 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-share-label { font-size: 11.5px; color: var(--g4); }
 .fw-share-link-row { display: flex; gap: 8px; }
 .fw-share-link-row input {
-  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius: 10px;
+  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius: 4px;
   font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
 }
 .fw-share-copy-btn {
-  flex-shrink: 0; padding: 10px 16px; border-radius: 8px; border: none; background: var(--navy);
+  flex-shrink: 0; padding: 10px 16px; border-radius: 4px; border: none; background: var(--navy);
   color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .fw-share-copy-btn:hover { background: var(--sky-dk); }
@@ -272,15 +272,52 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
   caret-color: #333;
   transition: background-color 9999s ease-in-out 0s;
 }
+/* ===== OPTICMALL 메인 통일 스타일 ===== */
+:root{--hdr-bg:#262F29;--footer-bg:#262F29;--gold:#A98C52;--gold-soft:#D6C49A;--bg-subtle:#FAF8F4;--ivory:#F7F4EE;--ink:#12181F}
+header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shadow:none!important}
+.header-main{padding:25px 24px 12px!important;gap:6px!important}
+.logo-img{height:69px!important;filter:invert(1) brightness(1.05)}
+.mobile-menu-drawer .logo-img{filter:none!important}
+@media (min-width:769px) and (max-width:1000px){.logo-img{height:57px!important}.header-main{padding-top:41px!important}}
+@media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:40px!important}.mobile-menu-drawer .logo-img{height:36px!important}}
+.gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
+.gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}
+.gnb-item:hover,.gnb-item.active{font-weight:500!important;color:#D6C49A!important}
+.gnb-item.active .gnb-label::after{background:#F4F3F0!important}
+.tb-sep{color:#9aa39d!important}
+.icon-btn:hover{background:rgba(255,255,255,.1)!important}
+.header-right>.icon-btn:nth-child(4){margin-left:6px}
+.header-right>.icon-btn:nth-child(5){margin-left:4px}
+.mobile-menu-drawer .icon-btn,.mobile-menu-drawer .hamburger-btn{color:#141413!important}
+/* 푸터 좌우 끝선을 헤더·본문 선에 맞춤 */
+@media (min-width:861px){.footer-inner{padding:0 24px!important}.footer-top{padding-right:0!important}}
+/* 푸터 글씨 톤 */
+.footer-col a{font-weight:500!important;letter-spacing:.02em;color:rgba(255,255,255,.78)}
+.footer-col h5,.footer-contact .fc-label{font-weight:600!important;letter-spacing:.02em}
+.footer-biz,.footer-contact .fc-hours{letter-spacing:.01em}
+.footer-copy{font-family:var(--font-body)!important;letter-spacing:.02em}
+/* 세리프 이탤릭 → 깔끔한 영문 라벨(Montserrat) */
+.category-hero-eyebrow,.cs-hero .eyebrow,.list-eyebrow{font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-style:normal!important;font-size:12px!important;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#7A7167!important}
+.cs-hero h1{font-family:var(--font-body)!important;font-weight:600!important;letter-spacing:-.02em}
+.event-discount{font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-style:normal!important;font-weight:600!important}
+.product-code{font-family:var(--font-body)!important;font-style:normal!important;font-size:12.5px!important;font-weight:600!important;letter-spacing:.02em;text-transform:uppercase}
+/* 칩·탭·필터·상태 라벨: 알약 → 각진 모서리 */
+.cs-tab,.cs-cat-chip,.stock-toggle,.sort-select,.filter-btn,.filter-chip{border-radius:4px!important}
+.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag{border-radius:2px!important}
+/* 상품 카드: 각진 모서리 + 참고 시안 글씨 */
+.p-badge{border-radius:0!important;font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-size:9.5px!important;font-weight:500!important;letter-spacing:.08em;padding:3px 7px!important}
+.p-badge.new{background:#EADFD1!important;color:#5A4A3A!important}
+.p-badge.hot,.p-badge.best{background:#8B6242!important;color:#F4F2EF!important}
+.p-cat{font-size:11px!important;font-weight:400!important;color:#8A8279!important;letter-spacing:.03em}
+.p-brand{font-weight:600!important;letter-spacing:.02em;text-transform:uppercase;font-size:12px!important;color:var(--ink)!important}
+.p-name{font-weight:400!important;font-size:12px!important;letter-spacing:.02em;color:#8A8279!important}
+.p-price{font-family:var(--font-body)!important;font-size:14.5px!important;font-weight:600!important;color:var(--ink)!important}
+.product-card:hover{border-color:var(--gold)!important}
+body{background:#FAF8F4!important}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
-<div style="background:#FAE300;text-align:center;padding:10px;font-size:14px;font-weight:700;color:#1A1A1A;display:flex;align-items:center;justify-content:center;gap:8px;visibility:hidden;pointer-events:none;" aria-hidden="true"><!-- 메인페이지 카카오배너와 높이를 맞추기 위한 투명 줄 (스크롤하면 메인과 동일하게 같이 사라짐) -->
-  <span style="font-size:18px;"><i class=ic-chat></i></span>
-  카카오채널 추가하고 <span style="background:#FF4444;color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;">10,000원 쿠폰받기</span>
-  →
-</div>
 <!-- TOPBAR + HEADER (함께 고정) -->
 <div style="position:sticky;top:0;z-index:200;">
 <header style="position:relative;">
@@ -321,7 +358,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
       </button>
       <div style="position:relative;margin-left:8px;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
           <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">마이페이지</a>
           <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
           <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">관심상품</a>
@@ -359,7 +396,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
   </div>
   <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
     <div style="max-width:600px;margin:0 auto;padding:20px 24px;">
-      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:8px;overflow:hidden;">
+      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:4px;overflow:hidden;">
         <input type="text" id="searchInput" placeholder="상품 검색" autocomplete="off" style="flex:1;padding:12px 16px;border:none;outline:none;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter') doSearch()">
         <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
       </div>
@@ -978,7 +1015,7 @@ function openCouponPicker() {
       const valueLabel = c.type === 'fixed' ? `${c.value.toLocaleString()}원 할인` : `${c.value}% 할인${c.maxDiscountAmount != null ? ` (최대 ${c.maxDiscountAmount.toLocaleString()}원)` : ''}`;
       const expLabel = c.expiresAt ? `${c.expiresAt.getFullYear()}.${String(c.expiresAt.getMonth()+1).padStart(2,'0')}.${String(c.expiresAt.getDate()).padStart(2,'0')}까지` : '';
       return `
-        <div onclick="${eligible ? `selectCoupon('${c.id}')` : ''}" style="border:1.5px solid ${eligible ? 'var(--sky)' : 'var(--g2)'};border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:${eligible ? 'pointer' : 'not-allowed'};opacity:${eligible ? '1' : '0.5'};background:${appliedCoupon?.id === c.id ? 'var(--g1)' : '#fff'};">
+        <div onclick="${eligible ? `selectCoupon('${c.id}')` : ''}" style="border:1.5px solid ${eligible ? 'var(--sky)' : 'var(--g2)'};border-radius:4px;padding:14px 16px;margin-bottom:10px;cursor:${eligible ? 'pointer' : 'not-allowed'};opacity:${eligible ? '1' : '0.5'};background:${appliedCoupon?.id === c.id ? 'var(--g1)' : '#fff'};">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:14px;font-weight:600;color:var(--navy);">${c.name}</span>
             <span style="font-size:14px;font-weight:700;color:${eligible ? 'var(--red)' : 'var(--g3)'};">${valueLabel}</span>
@@ -1257,7 +1294,7 @@ async function startPayment(easyPayProvider) {
 <!-- 쿠폰 선택 팝업 -->
 <div id="couponOverlay" style="display:none;position:fixed;inset:0;z-index:900;">
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeCouponPicker()"></div>
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:420px;max-width:90vw;max-height:80vh;overflow-y:auto;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:420px;max-width:90vw;max-height:80vh;overflow-y:auto;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
     <div style="padding:22px 24px 8px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:16px;font-weight:600;color:var(--navy);">보유 쿠폰</span>
       <span onclick="closeCouponPicker()" style="cursor:pointer;color:var(--g3);font-size:14px;">✕</span>
