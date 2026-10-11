@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{if(localStorage.getItem('opticmall_heroPeek')!=='0')document.documentElement.classList.add('hero-peek')}catch(e){document.documentElement.classList.add('hero-peek')}</script>
 <title>옵틱몰 - 프리미엄 도매몰</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF7A1A'/><text x='50' y='68' font-family='Arial, sans-serif' font-weight='800' font-size='48' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
@@ -671,6 +672,15 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
 @media (max-width:768px){.sp-card{left:12px;right:12px;bottom:76px;width:auto;max-width:none}.sp-grid{display:none}.sp-head{padding:16px 16px 14px}.sp-cta{margin:12px 16px 0}.sp-snooze{padding:10px 0 12px}}
 .mobile-menu-drawer .logo-img{filter:none!important}
 .mobile-menu-drawer .icon-btn,.mobile-menu-drawer .hamburger-btn{color:#141413!important}
+/* 첫 화면: 배너 불러오기 전에도 '롤링 배너 여백 구도'로 미리 그려서, 로딩 끝나고 정렬이 갑자기 바뀌지 않게 함 */
+.banner-skeleton.sk-peek{display:none}
+html.hero-peek .banner-track:not(.peek) .sk-peek{display:block}
+html.hero-peek .banner-track{--hero-item-divisor:3.2}
+html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% - 28px) / var(--hero-item-divisor) + 14px)))}
+@media (max-width:860px){
+  html.hero-peek .banner-track{--hero-item-divisor:1.1}
+  html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.95 * ((100% - 28px) / var(--hero-item-divisor) + 14px)))}
+}
 </style>
 </head>
 <body>
@@ -911,9 +921,11 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
   <div class="hero-banner-band"><div class="main-wrap">
     <section class="banner-viewport" id="heroBannerViewport">
       <div class="banner-track" id="heroBannerTrack">
+        <div class="banner-slide-item banner-skeleton sk-peek"></div>
         <div class="banner-slide-item banner-skeleton"></div>
         <div class="banner-slide-item banner-skeleton"></div>
         <div class="banner-slide-item banner-skeleton"></div>
+        <div class="banner-slide-item banner-skeleton sk-peek"></div>
       </div>
       <button type="button" class="hero-nav-btn hero-nav-prev" onclick="heroBannerGoPrev()" aria-label="이전 배너">‹</button>
       <button type="button" class="hero-nav-btn hero-nav-next" onclick="heroBannerGoNext()" aria-label="다음 배너">›</button>
@@ -2070,6 +2082,7 @@ async function loadHomeBanners() {
     trackList.forEach(d => track.appendChild(buildHeroSlideItemEl(d)));
     track.classList.toggle('peek', rolling); // 롤링될 때만 양옆 사진이 살짝 보이게
     document.documentElement.classList.toggle('hero-peek', !!rolling);
+    try{localStorage.setItem('opticmall_heroPeek', rolling ? '1' : '0');}catch(e){}
 
     const viewport = document.getElementById('heroBannerViewport');
     if (viewport) {
