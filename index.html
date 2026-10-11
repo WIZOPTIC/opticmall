@@ -21,8 +21,8 @@ html { overflow-y: scroll; }
   --sky-lt: #EEF1F5;
   --sky-dk:#000000;
   --pink: #708090;
-  --gold: #C9A227;
-  --gold-soft: #E4CD84;
+  --gold: #A98C52;
+  --gold-soft: #D6C49A;
   --grad: linear-gradient(90deg, var(--sky), var(--sky-dk));
   --paper: #FAF8F4;
   --navy: #000000;
@@ -268,7 +268,7 @@ header {
 .cat-badge-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
 .cat-badge-row .badge {
   background: var(--navy); color: #fff; font-size: 12px; font-weight: 700;
-  padding: 6px 14px; border-radius: 100px; letter-spacing: 0.02em;
+  padding: 6px 14px; border-radius: 2px; letter-spacing: 0.02em;
 }
 .cat-badge-row .title { font-size: 24px; font-weight: 700; color: var(--navy); margin: 0; }
 .cat-badge-row .card-timer { display: flex; align-items: center; }
@@ -279,13 +279,13 @@ header {
 
 .hero-split { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: stretch; margin-bottom: 36px; }
 .hero-split .left-photo {
-  position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 16 / 9;
+  position: relative; border-radius: 4px; overflow: hidden; aspect-ratio: 16 / 9;
   box-shadow: 0 16px 40px rgba(11,31,58,0.10); background: var(--paper);
 }
 .hero-split .left-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
 .hero-split .right-panel {
   display: flex; flex-direction: column; justify-content: space-between;
-  background: var(--white); border-radius: 16px; padding: 4px 22px;
+  background: var(--white); border-radius: 4px; padding: 4px 22px;
   box-shadow: 0 16px 40px rgba(11,31,58,0.10);
 }
 .hero-split .right-panel .product-row:last-child { border-bottom: none; }
@@ -300,7 +300,7 @@ header {
 .more-box-wrap { text-align: center; margin-top: 18px; }
 .more-box {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 10px 22px; border: 1.5px solid var(--line); border-radius: 100px;
+  padding: 10px 22px; border: 1.5px solid var(--line); border-radius: 4px;
   background: var(--ivory); color: var(--navy); font-size: 13.5px; font-weight: 700;
   text-decoration: none; transition: border-color .2s, background .2s;
 }
@@ -317,7 +317,7 @@ header {
 
 .product-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
 .product-card {
-  background: var(--white); border-radius: 14px; overflow: hidden;
+  background: var(--white); border-radius: 4px; overflow: hidden;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid var(--line);
 }
@@ -489,7 +489,7 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 .fw-btn:hover .fw-tip { opacity: 1; }
 .fw-recent-panel {
   position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
-  background: var(--white); border: 1px solid var(--g2); border-radius: 14px;
+  background: var(--white); border: 1px solid var(--g2); border-radius: 4px;
   box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
   display: none; flex-direction: column; overflow: hidden;
 }
@@ -504,7 +504,7 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
 .fw-share-panel {
   position: fixed; right: 84px; bottom: 90px; width: 320px;
-  background: var(--white); border-radius: 20px;
+  background: var(--white); border-radius: 4px;
   box-shadow: 0 12px 36px rgba(10,14,20,0.22); z-index: 501;
   display: none; padding: 22px 20px;
 }
@@ -521,11 +521,11 @@ i.ic-wish{background-color:#000000;width:22px;height:22px;}
 .fw-share-label { font-size: 11.5px; color: var(--g4); }
 .fw-share-link-row { display: flex; gap: 8px; }
 .fw-share-link-row input {
-  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius: 10px;
+  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius: 4px;
   font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
 }
 .fw-share-copy-btn {
-  flex-shrink: 0; padding: 10px 16px; border-radius: 8px; border: none; background: var(--navy);
+  flex-shrink: 0; padding: 10px 16px; border-radius: 4px; border: none; background: var(--navy);
   color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .fw-share-copy-btn:hover { background: var(--sky-dk); }
@@ -593,6 +593,8 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 /* 플로팅 버튼(카톡상담/최근본상품/공유)은 첫 화면(배너)에서는 숨기고, 배너를 지나 스크롤하면 나타남 */
 .floating-widget{opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease,visibility .25s}
 .floating-widget.fw-visible{opacity:1;visibility:visible;transform:none}
+/* 각진 라운드 (고급스러운 톤) */
+.banner-slide-item{border-radius:4px!important}
 </style>
 </head>
 <body>
@@ -607,11 +609,11 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
     <div style="padding:48px 44px 40px;">
       <div style="font-family:'Inter',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:28px;">LOGIN</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#C9A227'" onfocusout="this.style.borderColor='#e8e8e8'">
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#A98C52'" onfocusout="this.style.borderColor='#e8e8e8'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <input type="email" id="loginEmail" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
         </div>
-        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#C9A227'" onfocusout="this.style.borderColor='#e8e8e8'">
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#A98C52'" onfocusout="this.style.borderColor='#e8e8e8'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
           <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
         </div>
@@ -640,7 +642,7 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
     <div style="padding:44px 40px 36px;">
       <div style="font-family:'Inter',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:14px;">비밀번호 찾기</div>
       <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:24px;">가입하신 이메일을 입력하시면<br>비밀번호 재설정 링크를 보내드려요.</p>
-      <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#C9A227'" onfocusout="this.style.borderColor='#e8e8e8'">
+      <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#A98C52'" onfocusout="this.style.borderColor='#e8e8e8'">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <input type="email" id="forgotPwEmail" placeholder="가입한 이메일" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')sendResetEmail()"/>
       </div>
@@ -661,10 +663,10 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
       <!-- 1단계: 이름 + 전화번호 입력 -->
       <div id="findIdStep1">
         <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:22px;">가입 시 등록한 이름과 휴대폰 번호를 입력하시면<br>등록된 이메일로 인증번호를 보내드려요.</p>
-        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#C9A227'" onfocusout="this.style.borderColor='#e8e8e8'">
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#A98C52'" onfocusout="this.style.borderColor='#e8e8e8'">
           <input type="text" id="findIdName" placeholder="이름" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')requestFindId()"/>
         </div>
-        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#C9A227'" onfocusout="this.style.borderColor='#e8e8e8'">
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#A98C52'" onfocusout="this.style.borderColor='#e8e8e8'">
           <input type="tel" id="findIdPhone" placeholder="휴대폰 번호 ('-' 없이 또는 포함)" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')requestFindId()"/>
         </div>
         <div id="findIdStep1Msg" style="display:none;font-size:11.5px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
@@ -674,7 +676,7 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
       <!-- 2단계: 인증번호 입력 -->
       <div id="findIdStep2" style="display:none;">
         <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:20px;">등록된 이메일로 인증번호를 보내드렸어요.<br>5분 이내에 입력해주세요.</p>
-        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#C9A227'" onfocusout="this.style.borderColor='#e8e8e8'">
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#A98C52'" onfocusout="this.style.borderColor='#e8e8e8'">
           <input type="text" inputmode="numeric" maxlength="6" id="findIdCode" placeholder="인증번호 6자리" style="border:none;outline:none;flex:1;font-size:15px;letter-spacing:0.1em;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')verifyFindId()"/>
         </div>
         <div id="findIdStep2Msg" style="display:none;font-size:11.5px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
@@ -698,25 +700,25 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
 <!-- 회원가입 유도 팝업 (비회원 전용) -->
 <div id="signupPromoOverlay" style="display:none;position:fixed;inset:0;z-index:900;">
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);" onclick="closeSignupPromo()"></div>
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:440px;max-width:90vw;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:440px;max-width:90vw;border-radius:4px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
     <div onclick="closeSignupPromo()" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(20,20,19,0.06);color:#5A6472;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;line-height:1;z-index:1;">✕</div>
 
     <div style="background:var(--ivory);padding:26px 24px 24px;text-align:center;border-bottom:1px solid #EDE3CF;">
-      <div style="display:inline-block;background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:10px;letter-spacing:0.03em;">OPTICIAN ONLY · B2B 전용</div>
+      <div style="display:inline-block;background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:2px;margin-bottom:10px;letter-spacing:0.03em;">OPTICIAN ONLY · B2B 전용</div>
       <p style="font-size:18px;font-weight:700;color:#141413;margin:0 0 4px;">안경원 사업자 등록증으로 가입하고</p>
-      <p style="font-size:22px;font-weight:700;color:#A3811C;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
+      <p style="font-size:22px;font-weight:700;color:#8E7440;margin:0;">프리미엄 도매몰만의 혜택 누리기</p>
     </div>
 
     <div style="padding:22px 24px 6px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
-        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+        <div style="background:#F5F4F1;border-radius:4px;padding:20px 12px 16px;text-align:center;">
           <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
           </div>
           <p style="font-size:13.5px;color:#5A6472;margin:0 0 7px;font-weight:700;">첫 구매 할인</p>
           <p style="font-size:20px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10%</p>
         </div>
-        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+        <div style="background:#F5F4F1;border-radius:4px;padding:20px 12px 16px;text-align:center;">
           <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
             <svg width="27" height="27" viewBox="0 0 40 40" style="flex-shrink:0;">
               <path d="M20 4 C10 4 2 10.5 2 18.5 C2 24 6 28.8 12 31.3 L10.5 38 L18 33.2 C18.6 33.3 19.3 33.3 20 33.3 C30 33.3 38 26.8 38 18.5 C38 10.5 30 4 20 4 Z" fill="#ffffff"/>
@@ -726,14 +728,14 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
           <p style="font-size:13.5px;color:#5A6472;margin:0 0 7px;font-weight:700;white-space:nowrap;">카카오채널 추가</p>
           <p style="font-size:20px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">10,000원</p>
         </div>
-        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+        <div style="background:#F5F4F1;border-radius:4px;padding:20px 12px 16px;text-align:center;">
           <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 001 1h1a2 2 0 110 4H4a1 1 0 01-1 1v-2"/><path d="M21 10v4a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 001 1v-2"/><path d="M3 10a1 1 0 011-1h16a1 1 0 011 1" /><rect x="3" y="7" width="18" height="12" rx="2"/><line x1="9" y1="7" x2="9" y2="19" stroke-dasharray="2 2"/></svg>
           </div>
           <p style="font-size:13.5px;color:#5A6472;margin:0 0 7px;font-weight:700;">회원가입 쿠폰</p>
           <p style="font-size:20px;font-weight:700;color:#000000;margin:0;white-space:nowrap;">25,000원</p>
         </div>
-        <div style="background:#F5F4F1;border-radius:22px;padding:20px 12px 16px;text-align:center;">
+        <div style="background:#F5F4F1;border-radius:4px;padding:20px 12px 16px;text-align:center;">
           <div style="width:38px;height:38px;border-radius:50%;background:#141413;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4 3 5-6 5 6 4-3-2 10H5L3 8z"/></svg>
           </div>
@@ -743,7 +745,7 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
       </div>
     </div>
     <div style="padding:18px 24px 24px;">
-      <a href="join.html" style="display:block;background:var(--gold);color:#fff;font-size:15px;font-weight:700;padding:16px;border-radius:100px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기</a>
+      <a href="join.html" style="display:block;background:var(--gold);color:#fff;font-size:15px;font-weight:700;padding:16px;border-radius:4px;text-align:center;text-decoration:none;margin-bottom:14px;">회원가입하고 혜택받기</a>
       <div onclick="snoozeSignupPromo()" style="text-align:center;font-size:12.5px;color:#9BA5B0;cursor:pointer;">오늘 하루 보지 않기</div>
     </div>
   </div>
@@ -831,7 +833,7 @@ header{background:var(--footer-bg)!important;border-bottom:none!important;box-sh
   </div>
   <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
     <div style="max-width:600px;margin:0 auto;padding:20px 24px;">
-      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:8px;overflow:hidden;">
+      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:4px;overflow:hidden;">
         <input type="text" id="mainSearchInput" placeholder="상품 검색" autocomplete="off" style="flex:1;padding:12px 16px;border:none;outline:none;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter') doMainSearch()">
         <button class="search-btn" onclick="doMainSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
         <button class="search-close-btn" onclick="toggleSearchOverlay()" aria-label="검색 닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -1371,9 +1373,9 @@ function updateHeaderLoggedIn(name, level, status, role) {
   // 관리자 모드 링크 (브랜드사/마스터/서브마스터 전용)
   let adminLinkHtml = '';
   if(role === 'brand') {
-    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:12px;font-weight:700;color:#C9A227;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#FBF3DC'" onmouseout="this.style.background=''">관리자 모드</a>`;
+    adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:12px;font-weight:700;color:#A98C52;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#FBF3DC'" onmouseout="this.style.background=''">관리자 모드</a>`;
   } else if(role === 'master' || role === 'submaster') {
-    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:12px;font-weight:700;color:#C9A227;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#FBF3DC'" onmouseout="this.style.background=''"><i class=ic-settings></i>️ 관리자 모드</a>`;
+    adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:12px;font-weight:700;color:#A98C52;text-decoration:none;border-bottom:1px solid #F2F4F6;" onmouseover="this.style.background='#FBF3DC'" onmouseout="this.style.background=''"><i class=ic-settings></i>️ 관리자 모드</a>`;
   }
 
   // 드롭다운 메뉴 업데이트
@@ -1544,7 +1546,7 @@ function showMainToast(msg, type) {
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
-  toast.style.background = type === 'success' ? '#C9A227' : '#000000';
+  toast.style.background = type === 'success' ? '#A98C52' : '#000000';
   toast.style.opacity = '1';
   toast.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(toast._hideTimer);
@@ -1710,11 +1712,11 @@ function renderTimesaleEmptyState() {
           <circle cx="0" cy="0" r="43" fill="#FAF8F4"/>
           <line x1="0" y1="0" x2="0" y2="-22" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
           <line x1="0" y1="0" x2="15" y2="8" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
-          <circle cx="0" cy="0" r="3.5" fill="#C9A227"/>
+          <circle cx="0" cy="0" r="3.5" fill="#A98C52"/>
           <rect x="-13" y="-64" width="26" height="10" rx="4" fill="#000000"/>
-          <circle cx="-36" cy="-36" r="4" fill="#C9A227"/>
+          <circle cx="-36" cy="-36" r="4" fill="#A98C52"/>
         </g>
-        <line class="clock-hand-sec" x1="340" y1="110" x2="340" y2="78" stroke="#C9A227" stroke-width="2" stroke-linecap="round"/>
+        <line class="clock-hand-sec" x1="340" y1="110" x2="340" y2="78" stroke="#A98C52" stroke-width="2" stroke-linecap="round"/>
         <text x="340" y="220" text-anchor="middle" font-size="19" font-weight="500" fill="#000000">다음 타임세일을 준비하는 중입니다</text>
         <text x="340" y="246" text-anchor="middle" font-size="14" fill="#9BA5B0">엄선된 상품으로 곧 만나요</text>
       </svg>
