@@ -292,18 +292,20 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 }
 /* ===== OPTICMALL 메인 통일 스타일 ===== */
 :root{--hdr-bg:#262F29;--footer-bg:#262F29;--gold:#A98C52;--gold-soft:#D6C49A;--bg-subtle:#FAF8F4;--ivory:#F7F4EE;--ink:#12181F}
+html{overflow-y:scroll}
 header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shadow:none!important}
-.header-main{padding:25px 24px 12px!important;gap:6px!important}
+.header-main,.header-inner{padding:25px 24px 12px!important;gap:6px!important}
 .logo-img{height:69px!important;filter:invert(1) brightness(1.05)}
 .mobile-menu-drawer .logo-img{filter:none!important}
-@media (min-width:769px) and (max-width:1000px){.logo-img{height:57px!important}.header-main{padding-top:41px!important}}
-@media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:40px!important}.mobile-menu-drawer .logo-img{height:36px!important}}
+@media (min-width:769px) and (max-width:1000px){.logo-img{height:57px!important}.header-main,.header-inner{padding-top:41px!important}}
+@media (max-width:768px){.header-main,.header-inner{padding:12px 16px!important}.logo-img{height:40px!important}.mobile-menu-drawer .logo-img{height:36px!important}}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}
 .gnb-item:hover,.gnb-item.active{font-weight:500!important;color:#D6C49A!important}
 .gnb-item.active .gnb-label::after{background:#F4F3F0!important}
 .tb-sep{color:#9aa39d!important}
 .icon-btn:hover{background:rgba(255,255,255,.1)!important}
+.header-right{margin-right:0!important}
 .header-right>.icon-btn:nth-child(4){margin-left:6px}
 .header-right>.icon-btn:nth-child(5){margin-left:4px}
 .mobile-menu-drawer .icon-btn,.mobile-menu-drawer .hamburger-btn{color:#141413!important}
