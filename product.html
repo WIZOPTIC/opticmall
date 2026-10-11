@@ -2738,5 +2738,12 @@ async function renderFwRecentPanel() {
 }
 </script>
 
+<script>/* 내용이 짧은 페이지에서도 푸터를 화면 맨 아래에 고정 (페이지마다 푸터가 위아래로 움찔거리지 않게) */
+(function(){var f=document.querySelector('footer');if(!f)return;var busy=false;
+function fit(){if(busy)return;busy=true;f.style.marginTop='0px';var b=document.body.getBoundingClientRect().bottom+window.pageYOffset;var gap=document.documentElement.clientHeight-b;f.style.marginTop=(gap>0?Math.round(gap):0)+'px';busy=false;}
+fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);
+if(window.ResizeObserver){var t=0;new ResizeObserver(function(){cancelAnimationFrame(t);t=requestAnimationFrame(fit)}).observe(document.body);}
+setTimeout(fit,300);setTimeout(fit,1200);})();
+</script>
 </body>
 </html>
