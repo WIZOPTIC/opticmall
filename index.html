@@ -556,9 +556,9 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 
 /* 딥그린 헤더 (푸터와 같은 색) */
 header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shadow:none!important}
-.header-main{padding:22px 24px 12px!important;gap:6px!important}
-.logo-img{height:72px!important;filter:invert(1) brightness(1.05)}
-@media (min-width:769px) and (max-width:1000px){.logo-img{height:60px!important}.header-main{padding-top:38px!important}}
+.header-main{padding:25px 24px 12px!important;gap:6px!important}
+.logo-img{height:69px!important;filter:invert(1) brightness(1.05)}
+@media (min-width:769px) and (max-width:1000px){.logo-img{height:57px!important}.header-main{padding-top:41px!important}}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item:hover,.gnb-item.active{color:#fff!important}
 .gnb-item{font-size:14px;letter-spacing:.04em}
@@ -1105,6 +1105,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin
 const SIGNUP_PROMO_SNOOZE_KEY = 'opticmall_signupPromoSnoozeUntil';
 function maybeShowSignupPromo() {
   try {
+    if (new URLSearchParams(location.search).get('promo') === '1') localStorage.removeItem(SIGNUP_PROMO_SNOOZE_KEY);
     const snoozeUntil = Number(localStorage.getItem(SIGNUP_PROMO_SNOOZE_KEY) || 0);
     if (Date.now() < snoozeUntil) return;
   } catch(e) {}
