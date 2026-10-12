@@ -135,10 +135,11 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .btn-easypay{flex:1;padding:12.5px 0;border:none;border-radius:0;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;opacity:0.94;}
 .btn-easypay:hover{transform:translateY(-1px);opacity:1;}
 .btn-easypay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
-.btn-naverpay{background:#03C75A;color:#fff;}
-.btn-kakaopay{background:#FEE500;color:#391B1B;}
-.npay-mark{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;background:#fff;color:#03C75A;border-radius:0;font-size:12px;font-weight:900;font-style:normal;line-height:1;}
+.btn-naverpay{background:#00DE5A;color:#000;}
+.btn-kakaopay{background:#FFEB00;color:#000;}
+.npay-mark{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;background:#000;color:#00DE5A;border-radius:50%;font-size:12px;font-weight:900;font-style:normal;line-height:1;}
 .kakao-bubble{flex:none;}
+.btn-naverpay,.btn-kakaopay{font-size:19px;font-weight:800;letter-spacing:0;gap:3px;padding:15px 0;opacity:1}
 .quickpay-highlight{animation:quickpayPulse 1s ease-in-out 2;}
 @keyframes quickpayPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,122,26,0.55);}50%{box-shadow:0 0 0 9px rgba(255,122,26,0);}}
 
@@ -549,8 +550,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
         <span></span><em>간편결제</em><span></span>
       </div>
       <div class="easypay-row">
-        <button class="btn-easypay btn-naverpay" id="naverPayBtn" onclick="startPayment('NAVERPAY')"><span class="npay-mark">N</span>&nbsp;Pay 구매</button>
-        <button class="btn-easypay btn-kakaopay" id="kakaoPayBtn" onclick="startPayment('KAKAOPAY')"><svg class="kakao-bubble" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>&nbsp;pay 구매</button>
+        <button class="btn-easypay btn-naverpay" id="naverPayBtn" onclick="startPayment('NAVERPAY')"><span class="npay-mark">N</span>pay</button>
+        <button class="btn-easypay btn-kakaopay" id="kakaoPayBtn" onclick="startPayment('KAKAOPAY')"><svg class="kakao-bubble" width="17" height="17" viewBox="0 0 16 16" aria-hidden="true"><path fill="#000" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>pay</button>
       </div>
     </div>
   </div>
