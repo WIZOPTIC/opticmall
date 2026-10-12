@@ -336,6 +336,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .co-steps .st.done{color:#6E675C}
 .co-steps .sep{flex:1;min-width:10px;height:1px;background:#CFC7BC}
 @media(max-width:768px){.co-steps{padding:0;justify-content:flex-start;font-size:12px}.co-steps .sep{width:14px}}
+.agree-box{padding:8px 12px!important}
+.agree-item{font-size:13.5px!important;gap:10px!important;padding:9px 0;margin-bottom:0!important;user-select:none}
+.agree-item input{width:20px;height:20px;flex-shrink:0;margin:0;accent-color:#1C3429}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -554,8 +557,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       </div>
       <div class="sum-row" id="sumEarnPointsRow" style="display:none;padding-top:4px;"><span class="lbl" style="color:var(--g3);">적립 예정 적립금</span><span class="val" id="sumEarnPoints" style="color:var(--navy);font-weight:700;">+₩0</span></div>
       <div class="agree-box">
-        <div class="agree-item"><input type="checkbox" id="agree1"> 구매조건 확인 및 결제 동의 (필수)</div>
-        <div class="agree-item"><input type="checkbox" id="agree2"> 개인정보 제3자 제공 동의 (필수)</div>
+        <label class="agree-item" for="agree1"><input type="checkbox" id="agree1"> 구매조건 확인 및 결제 동의 (필수)</label>
+        <label class="agree-item" for="agree2"><input type="checkbox" id="agree2"> 개인정보 제3자 제공 동의 (필수)</label>
       </div>
       <button class="btn-pay" id="payBtn" onclick="startPayment()">결제하기</button>
       <div class="quickpay-divider">
