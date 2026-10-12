@@ -615,8 +615,8 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .banner-slide-item .caption .t2{min-height:3em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 @media (max-width:768px){.banner-slide-item .caption{left:18px!important;right:18px!important;bottom:20px!important}.banner-slide-item .caption .t1{font-size:22px!important}.banner-slide-item .caption .t2{font-size:13px!important}}
 /* 아이콘 간격: 눈에 보이는 여백이 같도록 */
-.header-right>.icon-btn:nth-child(4){margin-left:6px}
-.header-right>.icon-btn:nth-child(5){margin-left:4px}
+@media (min-width:769px){.header-right{gap:0!important}.header-right>#userMenuWrap,.header-right>div[id=userMenuWrap]{margin-left:8px!important}.header-right>.icon-btn:nth-child(4),.header-right>.icon-btn:nth-child(5){margin-left:8px!important}}
+
 /* 본문·푸터 좌우 끝선을 헤더/배너 카드 끝선에 맞춤 */
 :root{--edge-l:14px;--edge-r:14px}
 html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}

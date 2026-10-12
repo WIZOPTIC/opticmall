@@ -344,8 +344,9 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .tb-sep{color:#9aa39d!important}
 .icon-btn:hover{background:rgba(255,255,255,.1)!important}
 .header-right{margin-right:0!important}
-.header-right>.icon-btn:nth-child(4){margin-left:6px}
-.header-right>.icon-btn:nth-child(5){margin-left:4px}
+@media (min-width:769px){.header-right{gap:0!important}.header-right>#userMenuWrap,.header-right>div[id=userMenuWrap]{margin-left:8px!important}.header-right>.icon-btn:nth-child(4),.header-right>.icon-btn:nth-child(5){margin-left:8px!important}}
+@media (min-width:900px){.header-right{margin-right:-8px!important}}
+
 .mobile-menu-drawer .icon-btn,.mobile-menu-drawer .hamburger-btn{color:#141413!important}
 /* 푸터 좌우 끝선을 헤더·본문 선에 맞춤 */
 @media (min-width:861px){.footer-inner{padding:0 24px!important}.footer-top{padding-right:0!important}}
