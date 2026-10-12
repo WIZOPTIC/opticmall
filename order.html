@@ -10,7 +10,7 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--sky:#000000;--sky-lt:#EEF1F5;--sky-dk:#000000;--footer-bg:#1B2D24;--navy:#000000;--gold:#A98C52;--gold-soft:#D6C49A;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:"Fraunces",serif;--font-body:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;}
+:root{--sky:#000000;--sky-lt:#F7F4EE;--sky-dk:#000000;--footer-bg:#1B2D24;--navy:#000000;--gold:#A98C52;--gold-soft:#D6C49A;--white:#FFFFFF;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--red:#FF4444;--green:#2ECC71;--font-serif:"Fraunces",serif;--font-body:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;}
 body{font-family:var(--font-body);background:var(--g1);color:var(--black);padding-bottom:40px;}
 /* 헤더 */
 header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
@@ -25,7 +25,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .search-btn:hover { color: var(--sky); }
 .icon-btn {
   width: 36px; height: 36px; border: none; background: none;
-  cursor: pointer; border-radius: 6px;
+  cursor: pointer; border-radius:0;
   display: flex; align-items: center; justify-content: center;
   color: var(--navy); transition: all 0.15s; position: relative;
 }
@@ -73,37 +73,37 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 
 .main{max-width:1360px;margin:0 auto;padding:40px 24px 24px;display:flex;gap:48px;align-items:flex-start;}
 .order-form{flex:1;}
-.card{background:var(--white);border-radius:4px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.card{background:var(--white);border-radius:0;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .card-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--g2);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .form-group{margin-bottom:12px;}
 .form-group:last-child{margin-bottom:0;}
 .form-label{display:block;font-size:12px;font-weight:600;color:var(--g4);margin-bottom:5px;}
-.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s;}
 .form-input:focus{border-color:var(--sky);}
 .form-input::placeholder{color:var(--g3);}
 .form-input[readonly]{background:var(--g1);color:var(--g4);}
 .addr-row{display:flex;gap:8px;margin-bottom:8px;}
-.addr-select-card{border:1.5px solid var(--g2);border-radius:4px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;}
+.addr-select-card{border:1.5px solid var(--g2);border-radius:0;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;}
 .addr-select-card:hover{border-color:var(--sky);}
 .addr-select-card.selected{border-color:var(--sky);background:var(--sky-lt);}
 .addr-select-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
 .addr-select-label{font-size:14px;font-weight:700;color:var(--navy);}
 .addr-select-default{font-size:10px;font-weight:700;background:var(--sky);color:var(--white);padding:1px 8px;border-radius:100px;}
 .addr-select-info{font-size:12px;color:var(--g4);line-height:1.6;}
-.btn-addr{padding:11px 16px;background:var(--navy);color:var(--white);border:none;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
-.form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:80px;}
+.btn-addr{padding:11px 16px;background:var(--navy);color:var(--white);border:none;border-radius:0;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:80px;}
 .form-textarea:focus{border-color:var(--sky);}
 
 /* 결제 안내 */
-.pay-info-box{background:var(--sky-lt);border:1px solid #B3E0F5;border-radius:4px;padding:16px;display:flex;align-items:center;gap:12px;}
+.pay-info-box{background:var(--sky-lt);border:1px solid #E3DACB;border-radius:0;padding:16px;display:flex;align-items:center;gap:12px;}
 .pay-info-box .icon{font-size:24px;}
 .pay-info-box .txt{font-size:12px;color:var(--sky-dk);line-height:1.6;}
 
 /* 주문 상품 */
 .order-item{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--g1);}
 .order-item:last-child{border-bottom:none;}
-.order-img{width:84px;height:84px;background:var(--g1);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;overflow:hidden;}
+.order-img{width:84px;height:84px;background:var(--g1);border-radius:0;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;overflow:hidden;}
 .order-img.no-img{opacity:0.15;}
 .order-img img{width:100%;height:100%;object-fit:cover;}
 .order-item-info{flex:1;}
@@ -113,7 +113,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 
 /* 요약 */
 .summary-box{width:420px;flex-shrink:0;position:sticky;top:88px;}
-.summary-card{background:var(--white);border-radius:4px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.summary-card{background:var(--white);border-radius:0;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .summary-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;letter-spacing:0.01em;}
 .sum-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px;}
 .sum-row .lbl{color:var(--g4);}
@@ -121,23 +121,23 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .sum-divider{border:none;border-top:1px solid var(--g2);margin:14px 0;}
 .sum-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;}
 .sum-total .price{font-family:"Inter",sans-serif;font-size:24px;font-weight:700;color:var(--sky);}
-.agree-box{margin-top:16px;padding:12px;background:var(--g1);border-radius:4px;}
+.agree-box{margin-top:16px;padding:12px;background:var(--g1);border-radius:0;}
 .agree-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g4);margin-bottom:6px;cursor:pointer;}
 .agree-item:last-child{margin-bottom:0;}
 .agree-item input{accent-color:var(--sky);cursor:pointer;}
-.btn-pay{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:4px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:12px;letter-spacing:0.01em;}
+.btn-pay{width:100%;padding:16px;background:var(--sky);color:var(--white);border:none;border-radius:0;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:12px;letter-spacing:0.01em;}
 .btn-pay:hover{background:var(--sky-dk);transform:translateY(-1px);}
 .btn-pay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
 .quickpay-divider{display:flex;align-items:center;gap:12px;margin:16px 0 12px;}
 .quickpay-divider span{flex:1;height:1px;background:var(--g2);}
 .quickpay-divider em{font-style:normal;font-size:11px;font-weight:600;color:var(--g3);letter-spacing:0.06em;white-space:nowrap;}
 .easypay-row{display:flex;gap:8px;}
-.btn-easypay{flex:1;padding:12.5px 0;border:none;border-radius:4px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;opacity:0.94;}
+.btn-easypay{flex:1;padding:12.5px 0;border:none;border-radius:0;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;opacity:0.94;}
 .btn-easypay:hover{transform:translateY(-1px);opacity:1;}
 .btn-easypay:disabled{background:var(--g2);color:var(--g3);cursor:not-allowed;transform:none;}
 .btn-naverpay{background:#03C75A;color:#fff;}
 .btn-kakaopay{background:#FEE500;color:#391B1B;}
-.npay-mark{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;background:#fff;color:#03C75A;border-radius:4px;font-size:12px;font-weight:900;font-style:normal;line-height:1;}
+.npay-mark{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;background:#fff;color:#03C75A;border-radius:0;font-size:12px;font-weight:900;font-style:normal;line-height:1;}
 .kakao-bubble{flex:none;}
 .quickpay-highlight{animation:quickpayPulse 1s ease-in-out 2;}
 @keyframes quickpayPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,122,26,0.55);}50%{box-shadow:0 0 0 9px rgba(255,122,26,0);}}
@@ -209,13 +209,13 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-tip {
   position: absolute; right: 62px; top: 50%; transform: translateY(-50%);
   background: var(--navy); color: #fff; font-size: 12px; font-weight: 600;
-  padding: 6px 10px; border-radius: 6px; white-space: nowrap;
+  padding: 6px 10px; border-radius:0; white-space: nowrap;
   opacity: 0; pointer-events: none; transition: opacity 0.15s;
 }
 .fw-btn:hover .fw-tip { opacity: 1; }
 .fw-recent-panel {
   position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
-  background: var(--white); border: 1px solid var(--g2); border-radius: 4px;
+  background: var(--white); border: 1px solid var(--g2); border-radius:0;
   box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
   display: none; flex-direction: column; overflow: hidden;
 }
@@ -223,14 +223,14 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
 .fw-recent-close { background: none; border: none; font-size: 18px; color: var(--g3); cursor: pointer; line-height: 1; }
 .fw-recent-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
-.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 4px; text-decoration: none; color: var(--black); }
+.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius:0; text-decoration: none; color: var(--black); }
 .fw-recent-item:hover { background: var(--sky-lt); }
-.fw-recent-item img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--g1); flex-shrink: 0; }
+.fw-recent-item img { width: 44px; height: 44px; border-radius:0; object-fit: cover; background: var(--g1); flex-shrink: 0; }
 .fw-recent-name { font-size: 12.5px; line-height: 1.4; }
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
 .fw-share-panel {
   position: fixed; right: 84px; bottom: 90px; width: 320px;
-  background: var(--white); border-radius: 4px;
+  background: var(--white); border-radius:0;
   box-shadow: 0 12px 36px rgba(10,14,20,0.22); z-index: 501;
   display: none; padding: 22px 20px;
 }
@@ -247,11 +247,11 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-share-label { font-size: 11.5px; color: var(--g4); }
 .fw-share-link-row { display: flex; gap: 8px; }
 .fw-share-link-row input {
-  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius: 4px;
+  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius:0;
   font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
 }
 .fw-share-copy-btn {
-  flex-shrink: 0; padding: 10px 16px; border-radius: 4px; border: none; background: var(--navy);
+  flex-shrink: 0; padding: 10px 16px; border-radius:0; border: none; background: var(--navy);
   color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .fw-share-copy-btn:hover { background: var(--sky-dk); }
@@ -304,7 +304,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .event-discount{font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-style:normal!important;font-weight:600!important}
 .product-code{font-family:var(--font-body)!important;font-style:normal!important;font-size:12.5px!important;font-weight:600!important;letter-spacing:.02em;text-transform:uppercase}
 /* 칩·탭·필터·상태 라벨: 알약 → 각진 모서리 */
-.cs-tab,.cs-cat-chip,.stock-toggle,.sort-select,.filter-btn,.filter-chip{border-radius:4px!important}
+.cs-tab,.cs-cat-chip,.stock-toggle,.sort-select,.filter-btn,.filter-chip{border-radius:0!important}
 .status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag{border-radius:2px!important}
 /* 상품 카드: 각진 모서리 + 참고 시안 글씨 */
 .p-badge{border-radius:0!important;font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-size:9.5px!important;font-weight:500!important;letter-spacing:.08em;padding:3px 7px!important}
@@ -316,6 +316,10 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .p-price{font-family:var(--font-body)!important;font-size:14.5px!important;font-weight:600!important;color:var(--ink)!important}
 .product-card:hover{border-color:var(--gold)!important}
 body{background:#FAF8F4!important}
+/* ===== OPTICMALL 직각 컨셉 ===== */
+:root{--sky-lt:#F7F4EE}
+.filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
+input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -360,7 +364,7 @@ body{background:#FAF8F4!important}
       </button>
       <div style="position:relative;margin-left:8px;" id="userMenuWrap">
         <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:0;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
           <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">마이페이지</a>
           <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
           <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">관심상품</a>
@@ -398,7 +402,7 @@ body{background:#FAF8F4!important}
   </div>
   <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
     <div style="max-width:600px;margin:0 auto;padding:20px 24px;">
-      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:4px;overflow:hidden;">
+      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:0;overflow:hidden;">
         <input type="text" id="searchInput" placeholder="상품 검색" autocomplete="off" style="flex:1;padding:12px 16px;border:none;outline:none;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter') doSearch()">
         <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
       </div>
@@ -520,9 +524,9 @@ body{background:#FAF8F4!important}
         <span class="lbl">적립금 <span id="pointsBalanceLabel" style="color:var(--g3);font-weight:400;">(보유 0원)</span></span>
         <span style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
           <input type="number" id="pointsUseInput" min="0" step="1" value="0" placeholder="0"
-            style="width:90px;padding:6px 8px;border:1px solid var(--g2);border-radius:6px;text-align:right;font-size:14px;font-family:inherit;"
+            style="width:90px;padding:6px 8px;border:1px solid var(--g2);border-radius:0;text-align:right;font-size:14px;font-family:inherit;"
             oninput="onPointsInputChange()">
-          <button type="button" onclick="useAllPoints()" style="padding:6px 10px;border:1px solid var(--g2);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:var(--g4);white-space:nowrap;">전액사용</button>
+          <button type="button" onclick="useAllPoints()" style="padding:6px 10px;border:1px solid var(--g2);border-radius:0;background:#fff;font-size:12px;cursor:pointer;color:var(--g4);white-space:nowrap;">전액사용</button>
         </span>
       </div>
       <div class="sum-row" id="pointsAppliedRow" style="display:none;"><span class="lbl">적립금 사용</span><span class="val" id="pointsAppliedVal" style="color:var(--red);">-₩0</span></div>
@@ -1017,7 +1021,7 @@ function openCouponPicker() {
       const valueLabel = c.type === 'fixed' ? `${c.value.toLocaleString()}원 할인` : `${c.value}% 할인${c.maxDiscountAmount != null ? ` (최대 ${c.maxDiscountAmount.toLocaleString()}원)` : ''}`;
       const expLabel = c.expiresAt ? `${c.expiresAt.getFullYear()}.${String(c.expiresAt.getMonth()+1).padStart(2,'0')}.${String(c.expiresAt.getDate()).padStart(2,'0')}까지` : '';
       return `
-        <div onclick="${eligible ? `selectCoupon('${c.id}')` : ''}" style="border:1.5px solid ${eligible ? 'var(--sky)' : 'var(--g2)'};border-radius:4px;padding:14px 16px;margin-bottom:10px;cursor:${eligible ? 'pointer' : 'not-allowed'};opacity:${eligible ? '1' : '0.5'};background:${appliedCoupon?.id === c.id ? 'var(--g1)' : '#fff'};">
+        <div onclick="${eligible ? `selectCoupon('${c.id}')` : ''}" style="border:1.5px solid ${eligible ? 'var(--sky)' : 'var(--g2)'};border-radius:0;padding:14px 16px;margin-bottom:10px;cursor:${eligible ? 'pointer' : 'not-allowed'};opacity:${eligible ? '1' : '0.5'};background:${appliedCoupon?.id === c.id ? 'var(--g1)' : '#fff'};">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:14px;font-weight:600;color:var(--navy);">${c.name}</span>
             <span style="font-size:14px;font-weight:700;color:${eligible ? 'var(--red)' : 'var(--g3)'};">${valueLabel}</span>
@@ -1296,7 +1300,7 @@ async function startPayment(easyPayProvider) {
 <!-- 쿠폰 선택 팝업 -->
 <div id="couponOverlay" style="display:none;position:fixed;inset:0;z-index:900;">
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeCouponPicker()"></div>
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:420px;max-width:90vw;max-height:80vh;overflow-y:auto;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:420px;max-width:90vw;max-height:80vh;overflow-y:auto;border-radius:0;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
     <div style="padding:22px 24px 8px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:16px;font-weight:600;color:var(--navy);">보유 쿠폰</span>
       <span onclick="closeCouponPicker()" style="cursor:pointer;color:var(--g3);font-size:14px;">✕</span>

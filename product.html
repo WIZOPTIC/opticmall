@@ -12,7 +12,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-y: scroll; }
 :root {
-  --sky:#000000; --sky-lt:#EEF1F5; --sky-dk:#000000; --footer-bg:#1B2D24;
+  --sky:#000000; --sky-lt:#F7F4EE; --sky-dk:#000000; --footer-bg:#1B2D24;
   --navy:#000000;--gold:#A98C52; --gold-soft:#D6C49A; --white: #FFFFFF;
   --g1: #F2F4F6; --g2: #E0E4E8; --g3: #9BA5B0; --g4: #5A6472;
   --black: #111318; --red: #FF4444; --green: #2ECC71; --orange: #F39C12;
@@ -34,7 +34,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
 .icon-btn {
   width: 36px; height: 36px; border: none; background: none;
-  cursor: pointer; border-radius: 6px;
+  cursor: pointer; border-radius:0;
   display: flex; align-items: center; justify-content: center;
   color: var(--navy); transition: all 0.15s; position: relative;
 }
@@ -119,7 +119,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 }
 .product-left-col .product-images .thumb { width: 68px; height: 68px; flex-shrink: 0; }
 .product-left-col .product-images .thumb-list::-webkit-scrollbar { width: 4px; }
-.product-left-col .product-images .thumb-list::-webkit-scrollbar-thumb { background: var(--g2); border-radius: 4px; }
+.product-left-col .product-images .thumb-list::-webkit-scrollbar-thumb { background: var(--g2); border-radius:0; }
 .product-left-tabs { margin-top: 32px; }
 .product-left-tabs .related-grid { grid-template-columns: repeat(2, 1fr); }
 .product-info.product-info-sticky { position: sticky; top: var(--sticky-header-h, 110px); align-self: flex-start; flex: 0 0 420px; }
@@ -128,15 +128,15 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .product-images { flex: 0 0 520px; }
 .main-img {
   width: 100%; aspect-ratio: 4/3;
-  background: var(--g1); border-radius: 4px;
+  background: var(--g1); border-radius:0;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 12px; position: relative; overflow: hidden;
 }
 .main-img-placeholder { font-size: 100px; opacity: 0.08; }
-.img-badge { position: absolute; top: 16px; left: 16px; background: var(--sky); color: var(--white); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 6px; }
+.img-badge { position: absolute; top: 16px; left: 16px; background: var(--sky); color: var(--white); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius:0; }
 .thumb-list { display: flex; gap: 10px; justify-content: center; }
 .thumb {
-  width: 80px; height: 80px; border-radius: 4px; flex-shrink: 0;
+  width: 80px; height: 80px; border-radius:0; flex-shrink: 0;
   background: var(--g1); border: 2px solid var(--g2);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; font-size: 30px;
@@ -155,7 +155,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 }
 .lightbox-overlay.open { display: flex; }
 .lightbox-img-wrap { max-width: 90vw; max-height: 78vh; display: flex; align-items: center; justify-content: center; }
-.lightbox-img-wrap img { max-width: 90vw; max-height: 78vh; object-fit: contain; border-radius: 4px; }
+.lightbox-img-wrap img { max-width: 90vw; max-height: 78vh; object-fit: contain; border-radius:0; }
 .lightbox-close {
   position: absolute; top: 20px; right: 28px; width: 40px; height: 40px;
   border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 22px;
@@ -189,7 +189,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .price-locked-icon { font-size: 24px; }
 .price-locked-text { font-size: 14px; color: var(--g3); line-height: 1.6; }
 .price-locked-text strong { color: var(--navy); display: block; font-size: 15px; }
-.btn-login-for-price { padding: 10px 20px; background: var(--sky); color: var(--white); border: none; border-radius: 4px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 8px; }
+.btn-login-for-price { padding: 10px 20px; background: var(--sky); color: var(--white); border: none; border-radius:0; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 8px; }
 
 /* 색상 선택 */
 .option-section { margin-bottom: 20px; }
@@ -206,7 +206,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 /* 재입고 알림 */
 .restock-btn {
   width: 100%; padding: 14px; background: var(--g1);
-  border: 1.5px dashed var(--g2); border-radius: 4px;
+  border: 1.5px dashed var(--g2); border-radius:0;
   font-size: 14px; font-weight: 600; color: var(--g4);
   font-family: inherit; cursor: pointer; margin-bottom: 12px;
   transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -220,7 +220,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   /* 북마크(52px) + 간격(10px)만큼 네이버페이 버튼보다 좁게: 아래줄 네이버페이 폭과 "북마크+장바구니" 덩어리 폭이 정확히 같아짐 */
   flex: 0 0 calc(50% - 67px); padding: 15px; background: var(--white);
   border: 1.5px solid var(--navy); color: var(--navy);
-  border-radius: 4px; font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
+  border-radius:0; font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
   font-family: inherit; cursor: pointer; transition: all 0.2s;
 }
 .btn-cart:hover { background: var(--navy); color: var(--white); }
@@ -228,13 +228,13 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   /* 카카오페이 버튼과 폭이 정확히 같도록 */
   flex: 0 0 calc(50% - 5px); padding: 15px; background: var(--sky);
   border: none; color: var(--white);
-  border-radius: 4px; font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
+  border-radius:0; font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
   font-family: inherit; cursor: pointer; transition: all 0.2s;
 }
 .btn-buy:hover { background: var(--sky-dk); transform: translateY(-1px); }
 .btn-wish {
   width: 52px; padding: 15px; background: var(--white);
-  border: 1.5px solid var(--g2); border-radius: 4px;
+  border: 1.5px solid var(--g2); border-radius:0;
   display: flex; align-items: center; justify-content: center;
   line-height: 1; font-size: 18px; cursor: pointer; transition: all 0.2s;
 }
@@ -250,24 +250,24 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .share-btn:hover { border-color: var(--navy); color: var(--navy); }
 .share-panel {
   position: absolute; top: calc(100% + 8px); right: 0; width: 300px;
-  background: var(--white); border: 1px solid var(--g2); border-radius: 4px;
+  background: var(--white); border: 1px solid var(--g2); border-radius:0;
   box-shadow: 0 10px 32px rgba(10,14,20,0.16); z-index: 60; display: none; padding: 16px;
 }
 .share-panel.open { display: block; }
 .share-panel-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
 .share-link-row { display: flex; gap: 8px; margin-bottom: 12px; }
 .share-link-row input {
-  flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--g2); border-radius: 4px;
+  flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--g2); border-radius:0;
   font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
 }
 .share-copy-btn {
-  flex-shrink: 0; padding: 9px 14px; border-radius: 4px; border: none; background: var(--navy);
+  flex-shrink: 0; padding: 9px 14px; border-radius:0; border: none; background: var(--navy);
   color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .share-copy-btn:hover { background: var(--sky-dk); }
 .share-kakao-btn {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 11px 0; border-radius: 4px; border: none; background: #FEE500; color: #391B1B;
+  padding: 11px 0; border-radius:0; border: none; background: #FEE500; color: #391B1B;
   font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .share-kakao-btn:hover { background: #F5DC00; }
@@ -276,7 +276,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .quickpay-divider em { font-style: normal; font-size: 11px; font-weight: 600; color: var(--g3); letter-spacing: 0.06em; white-space: nowrap; }
 .quickpay-btns { display: flex; gap: 10px; margin-bottom: 20px; }
 .btn-easypay {
-  flex: 1; padding: 12.5px 0; border: none; border-radius: 4px;
+  flex: 1; padding: 12.5px 0; border: none; border-radius:0;
   font-size: 13.5px; font-weight: 600; letter-spacing: 0.01em; font-family: inherit; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 4px;
   transition: all 0.2s; opacity: 0.94;
@@ -287,7 +287,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .npay-mark {
   display: inline-flex; align-items: center; justify-content: center;
   width: 16px; height: 16px; background: #fff; color: #03C75A;
-  border-radius: 4px; font-size: 11px; font-weight: 900; font-style: normal; line-height: 1;
+  border-radius:0; font-size: 11px; font-weight: 900; font-style: normal; line-height: 1;
 }
 .kakao-bubble { flex: none; }
 
@@ -316,13 +316,13 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 /* 상품 상세 사진 */
 
 .detail-photos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-.detail-photos-grid img { width: 100%; display: block; border-radius: 4px; }
+.detail-photos-grid img { width: 100%; display: block; border-radius:0; }
 
 /* 관련 상품 */
 .related-section { margin: 48px 0; }
 .section-title { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 20px; }
 .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-.related-card { border: 1px solid var(--g2); border-radius: 4px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+.related-card { border: 1px solid var(--g2); border-radius:0; overflow: hidden; cursor: pointer; transition: all 0.2s; }
 .related-card:hover { border-color: var(--sky); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
 .related-img { aspect-ratio: 4/3; background: var(--g1); display: flex; align-items: center; justify-content: center; font-size: 50px; }
 .related-img.no-img { opacity: 0.12; }
@@ -331,7 +331,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .related-price { font-size: 14px; color: var(--g3); display: flex; align-items: center; gap: 4px; }
 
 /* 토스트 */
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: var(--white); padding: 14px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 1000; white-space: nowrap; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: var(--white); padding: 14px 24px; border-radius:0; font-size: 14px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 1000; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 .toast.success { background: var(--navy); }
 .toast.remove { background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); }
@@ -339,7 +339,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 /* 장바구니 담기 중앙 오버레이 */
 .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 2000; }
 .cart-overlay.show { display: flex; }
-.cart-overlay-box { background: #fff; border-radius: 4px; padding: 36px 48px; text-align: center; min-width: 220px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); animation: cartPop 0.25s ease; }
+.cart-overlay-box { background: #fff; border-radius:0; padding: 36px 48px; text-align: center; min-width: 220px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); animation: cartPop 0.25s ease; }
 @keyframes cartPop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .cart-overlay-icon { font-size: 40px; margin-bottom: 14px; height: 44px; display: flex; align-items: center; justify-content: center; }
 .cart-spinner { width: 32px; height: 32px; border: 3px solid var(--g2); border-top-color: var(--sky); border-radius: 50%; animation: spin 0.7s linear infinite; }
@@ -421,13 +421,13 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-tip {
   position: absolute; right: 62px; top: 50%; transform: translateY(-50%);
   background: var(--navy); color: #fff; font-size: 12px; font-weight: 600;
-  padding: 6px 10px; border-radius: 6px; white-space: nowrap;
+  padding: 6px 10px; border-radius:0; white-space: nowrap;
   opacity: 0; pointer-events: none; transition: opacity 0.15s;
 }
 .fw-btn:hover .fw-tip { opacity: 1; }
 .fw-recent-panel {
   position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
-  background: var(--white); border: 1px solid var(--g2); border-radius: 4px;
+  background: var(--white); border: 1px solid var(--g2); border-radius:0;
   box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
   display: none; flex-direction: column; overflow: hidden;
 }
@@ -435,14 +435,14 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
 .fw-recent-close { background: none; border: none; font-size: 18px; color: var(--g3); cursor: pointer; line-height: 1; }
 .fw-recent-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
-.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 4px; text-decoration: none; color: var(--black); }
+.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius:0; text-decoration: none; color: var(--black); }
 .fw-recent-item:hover { background: var(--sky-lt); }
-.fw-recent-item img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--g1); flex-shrink: 0; }
+.fw-recent-item img { width: 44px; height: 44px; border-radius:0; object-fit: cover; background: var(--g1); flex-shrink: 0; }
 .fw-recent-name { font-size: 12.5px; line-height: 1.4; }
 .fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
 .fw-share-panel {
   position: fixed; right: 84px; bottom: 90px; width: 320px;
-  background: var(--white); border-radius: 4px;
+  background: var(--white); border-radius:0;
   box-shadow: 0 12px 36px rgba(10,14,20,0.22); z-index: 501;
   display: none; padding: 22px 20px;
 }
@@ -459,11 +459,11 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 .fw-share-label { font-size: 11.5px; color: var(--g4); }
 .fw-share-link-row { display: flex; gap: 8px; }
 .fw-share-link-row input {
-  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius: 4px;
+  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius:0;
   font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
 }
 .fw-share-copy-btn {
-  flex-shrink: 0; padding: 10px 16px; border-radius: 4px; border: none; background: var(--navy);
+  flex-shrink: 0; padding: 10px 16px; border-radius:0; border: none; background: var(--navy);
   color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .fw-share-copy-btn:hover { background: var(--sky-dk); }
@@ -520,7 +520,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .event-discount{font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-style:normal!important;font-weight:600!important}
 .product-code{font-family:var(--font-body)!important;font-style:normal!important;font-size:12.5px!important;font-weight:600!important;letter-spacing:.02em;text-transform:uppercase}
 /* 칩·탭·필터·상태 라벨: 알약 → 각진 모서리 */
-.cs-tab,.cs-cat-chip,.stock-toggle,.sort-select,.filter-btn,.filter-chip{border-radius:4px!important}
+.cs-tab,.cs-cat-chip,.stock-toggle,.sort-select,.filter-btn,.filter-chip{border-radius:0!important}
 .status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag{border-radius:2px!important}
 /* 상품 카드: 각진 모서리 + 참고 시안 글씨 */
 .p-badge{border-radius:0!important;font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-size:9.5px!important;font-weight:500!important;letter-spacing:.08em;padding:3px 7px!important}
@@ -532,28 +532,32 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .p-price{font-family:var(--font-body)!important;font-size:14.5px!important;font-weight:600!important;color:var(--ink)!important}
 .product-card:hover{border-color:var(--gold)!important}
 .product-code{font-family:var(--font-body)!important}
+/* ===== OPTICMALL 직각 컨셉 ===== */
+:root{--sky-lt:#F7F4EE}
+.filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
+input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
 </style>
 </head>
 <body>
 <!-- 로그인 팝업 -->
 <div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:1000;">
   <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" onclick="closeLogin()"></div>
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:460px;max-width:90vw;border-radius:6px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:460px;max-width:90vw;border-radius:0;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
     <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:none;font-size:20px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;">✕</button>
     <div style="padding:48px 44px 40px;">
       <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.2em;text-align:center;color:#111;margin-bottom:28px;">LOGIN</div>
       <div style="display:flex;gap:10px;margin-bottom:12px;">
         <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;">
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <input type="email" id="loginEmail" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
           </div>
-          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:4px;padding:12px 16px;gap:10px;">
+          <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
             <input type="password" id="loginPw" placeholder="비밀번호" style="border:none;outline:none;flex:1;font-size:14px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
           </div>
         </div>
-        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#000000;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;">로그인</button>
+        <button id="loginSubmitBtn" onclick="doLogin()" style="padding:0 22px;background:#000000;color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;writing-mode:vertical-rl;letter-spacing:0.1em;">로그인</button>
       </div>
       <div id="loginError" style="display:none;font-size:12px;color:#FF4444;margin-bottom:10px;text-align:center;"></div>
       <div style="margin-bottom:16px;">
@@ -625,7 +629,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
         <button class="icon-btn" id="userMenuBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </button>
-        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:0;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
           <a href="mypage.html" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">마이페이지</a>
           <a href="mypage.html" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
           <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">관심상품</a>
@@ -668,7 +672,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
   </div>
   <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
     <div style="max-width:600px;margin:0 auto;padding:20px 24px;">
-      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:4px;overflow:hidden;">
+      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:0;overflow:hidden;">
         <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" autocomplete="off" style="flex:1;padding:12px 16px;border:none;outline:none;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter') doSearch()">
         <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
       </div>
@@ -772,11 +776,11 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
       <div class="option-label">색상</div>
       <div id="colorDotsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
       <div class="color-dropdown-wrap" id="colorDropdownWrap" style="position:relative;">
-        <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:4px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
+        <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
           <span>선택</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="color-dropdown-panel" id="colorDropdownPanel" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--g2);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:260px;overflow-y:auto;z-index:20;">
+        <div class="color-dropdown-panel" id="colorDropdownPanel" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--g2);border-radius:0;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:260px;overflow-y:auto;z-index:20;">
           <!-- JS로 동적 생성 -->
         </div>
       </div>
@@ -784,7 +788,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 
     <!-- 선택한 색상 목록 -->
     <div id="selectionListWrap" style="margin-bottom:20px;display:none;">
-      <div id="selectionList" style="border:1px solid var(--g2);border-radius:4px;max-height:216px;overflow-y:auto;"></div>
+      <div id="selectionList" style="border:1px solid var(--g2);border-radius:0;max-height:216px;overflow-y:auto;"></div>
       <div id="selectionSummary" style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-top:1px solid var(--black);margin-top:14px;">
         <span style="font-size:16px;color:var(--g4);"></span>
         <span style="font-size:17px;font-weight:700;color:var(--navy);"></span>
@@ -868,7 +872,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
   <!-- 상세 이미지 -->
   <div id="tab-detail" style="display:none;">
     <div id="detailImagesWrap" class="detail-photos-grid">
-      <div style="grid-column:1/-1;background:var(--g1);border-radius:4px;padding:60px;text-align:center;color:var(--g3);">
+      <div style="grid-column:1/-1;background:var(--g1);border-radius:0;padding:60px;text-align:center;color:var(--g3);">
         <div style="font-size:48px;margin-bottom:16px;"><i class=ic-camera></i></div>
         <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
       </div>
@@ -1613,7 +1617,7 @@ function renderSelectionList() {
           <div style="font-size:14px;font-weight:700;color:var(--navy);">${currentProduct.modelName || ''} · ${c.colorName}</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;">
-          <div style="display:flex;align-items:center;border:1px solid var(--g2);border-radius:6px;">
+          <div style="display:flex;align-items:center;border:1px solid var(--g2);border-radius:0;">
             <button onclick="changeSelectionQty(${item.colorIdx},-1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">−</button>
             <div style="width:30px;text-align:center;font-size:14px;font-weight:700;">${item.qty}</div>
             <button onclick="changeSelectionQty(${item.colorIdx},1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">+</button>
@@ -1687,7 +1691,7 @@ function renderDetailImageGrids(urls) {
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap) {
     detailWrap.innerHTML = html || `
-      <div style="grid-column:1/-1;background:var(--g1);border-radius:4px;padding:60px;text-align:center;color:var(--g3);">
+      <div style="grid-column:1/-1;background:var(--g1);border-radius:0;padding:60px;text-align:center;color:var(--g3);">
         <div style="font-size:48px;margin-bottom:16px;"><i class=ic-camera></i></div>
         <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
       </div>`;
@@ -2188,20 +2192,20 @@ function renderReviewWriteArea() {
   if(!authChecked) { area.innerHTML = ''; return; }
   if(!_auth.currentUser) {
     area.innerHTML = `
-      <div style="background:var(--g1);border-radius:4px;padding:20px;text-align:center;">
+      <div style="background:var(--g1);border-radius:0;padding:20px;text-align:center;">
         <div style="font-size:14px;color:var(--g4);margin-bottom:10px;">로그인 후 구매 후기를 작성할 수 있어요.</div>
-        <button onclick="openLogin()" style="padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;">로그인</button>
+        <button onclick="openLogin()" style="padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">로그인</button>
       </div>`;
     return;
   }
   if(!hasPurchased) {
     area.innerHTML = `
-      <div style="background:var(--g1);border-radius:4px;padding:20px;text-align:center;">
+      <div style="background:var(--g1);border-radius:0;padding:20px;text-align:center;">
         <div style="font-size:14px;color:var(--g4);">이 상품을 구매하신 분만 후기를 작성할 수 있어요.</div>
       </div>`;
     return;
   }
-  area.innerHTML = `<button onclick="openReviewForm()" style="padding:10px 18px;background:var(--sky);color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;"><i class=ic-edit></i>️ 후기 작성하기</button>`;
+  area.innerHTML = `<button onclick="openReviewForm()" style="padding:10px 18px;background:var(--sky);color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;"><i class=ic-edit></i>️ 후기 작성하기</button>`;
 }
 
 let selectedReviewRating = 5;
@@ -2210,13 +2214,13 @@ function openReviewForm() {
   selectedReviewRating = 5;
   const area = document.getElementById('reviewWriteArea');
   area.innerHTML = `
-    <div style="background:var(--g1);border-radius:4px;padding:18px;">
+    <div style="background:var(--g1);border-radius:0;padding:18px;">
       <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:10px;">후기 작성</div>
       <div id="reviewStarPicker" style="margin-bottom:12px;font-size:22px;letter-spacing:2px;"></div>
-      <textarea id="reviewContentInput" placeholder="상품에 대한 솔직한 후기를 남겨주세요." style="width:100%;min-height:80px;padding:12px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <textarea id="reviewContentInput" placeholder="상품에 대한 솔직한 후기를 남겨주세요." style="width:100%;min-height:80px;padding:12px;border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
       <div style="display:flex;gap:8px;margin-top:10px;">
-        <button onclick="submitReview()" style="padding:10px 28px;background:var(--navy);color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;">등록</button>
-        <button onclick="renderReviewWriteArea()" style="padding:10px 20px;background:#fff;color:var(--g4);border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;">취소</button>
+        <button onclick="submitReview()" style="padding:10px 28px;background:var(--navy);color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">등록</button>
+        <button onclick="renderReviewWriteArea()" style="padding:10px 20px;background:#fff;color:var(--g4);border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">취소</button>
       </div>
     </div>`;
   renderStarPicker();
@@ -2269,7 +2273,7 @@ function renderReviews() {
             <span style="font-size:12px;color:var(--g4);font-weight:700;margin-left:8px;">${escapeHtml(maskedName)}</span>
             <span style="font-size:11px;color:var(--g3);margin-left:6px;">${formatSimpleDate(r.createdAt)}</span>
           </div>
-          ${canDelete ? `<button onclick="deleteReview('${r.id}')" style="border:1px solid var(--sky-lt);background:var(--sky-lt);color:var(--sky-dk);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;"><i class=ic-trash></i> 삭제</button>` : ''}
+          ${canDelete ? `<button onclick="deleteReview('${r.id}')" style="border:1px solid var(--sky-lt);background:var(--sky-lt);color:var(--sky-dk);font-size:11px;font-weight:700;padding:4px 10px;border-radius:0;cursor:pointer;white-space:nowrap;"><i class=ic-trash></i> 삭제</button>` : ''}
         </div>
         <div style="font-size:14px;color:var(--black);margin-top:8px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(r.content)}</div>
       </div>`;
@@ -2319,26 +2323,26 @@ function renderQnaWriteArea() {
       <div style="text-align:center;padding:40px 0 20px;color:var(--g3);">
         <div style="font-size:40px;margin-bottom:12px;"><i class=ic-chat></i></div>
         <div style="font-size:14px;margin-bottom:14px;">1:1 문의는 로그인 후 이용 가능합니다.</div>
-        <button onclick="openLogin()" style="padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;">로그인</button>
+        <button onclick="openLogin()" style="padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">로그인</button>
       </div>`;
     return;
   }
-  area.innerHTML = `<button onclick="openInquiryForm()" style="padding:10px 18px;background:var(--sky);color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;"><i class=ic-edit></i>️ 문의 작성하기</button>`;
+  area.innerHTML = `<button onclick="openInquiryForm()" style="padding:10px 18px;background:var(--sky);color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;"><i class=ic-edit></i>️ 문의 작성하기</button>`;
 }
 
 function openInquiryForm() {
   const area = document.getElementById('qnaWriteArea');
   area.innerHTML = `
-    <div style="background:var(--g1);border-radius:4px;padding:18px;">
+    <div style="background:var(--g1);border-radius:0;padding:18px;">
       <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:10px;">문의 작성</div>
-      <input type="text" id="inquiryTitleInput" placeholder="제목" style="width:100%;padding:11px 12px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;margin-bottom:8px;box-sizing:border-box;">
-      <textarea id="inquiryContentInput" placeholder="문의하실 내용을 입력해주세요." style="width:100%;min-height:80px;padding:12px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <input type="text" id="inquiryTitleInput" placeholder="제목" style="width:100%;padding:11px 12px;border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-family:inherit;outline:none;margin-bottom:8px;box-sizing:border-box;">
+      <textarea id="inquiryContentInput" placeholder="문의하실 내용을 입력해주세요." style="width:100%;min-height:80px;padding:12px;border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
       <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--g4);margin-top:8px;cursor:pointer;">
         <input type="checkbox" id="inquirySecretChk">비밀글로 작성 (작성자와 관리자만 볼 수 있어요)
       </label>
       <div style="display:flex;gap:8px;margin-top:10px;">
-        <button onclick="submitInquiry()" style="padding:10px 28px;background:var(--navy);color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;">등록</button>
-        <button onclick="renderQnaWriteArea()" style="padding:10px 20px;background:#fff;color:var(--g4);border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;">취소</button>
+        <button onclick="submitInquiry()" style="padding:10px 28px;background:var(--navy);color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">등록</button>
+        <button onclick="renderQnaWriteArea()" style="padding:10px 20px;background:#fff;color:var(--g4);border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">취소</button>
       </div>
     </div>`;
 }
@@ -2403,18 +2407,18 @@ function renderInquiryBody(q, canView, canDelete) {
     return `<div style="padding:0 0 16px;font-size:14px;color:var(--g3);">비밀글은 작성자와 관리자만 볼 수 있어요.</div>`;
   }
   const answerHtml = q.answer
-    ? `<div style="margin-top:10px;background:var(--g1);border-radius:4px;padding:12px;font-size:14px;color:var(--navy);"><strong><i class=ic-chat></i> 답변</strong><div style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(q.answer)}</div></div>`
+    ? `<div style="margin-top:10px;background:var(--g1);border-radius:0;padding:12px;font-size:14px;color:var(--navy);"><strong><i class=ic-chat></i> 답변</strong><div style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(q.answer)}</div></div>`
     : (isMaster() ? `
         <div style="margin-top:10px;">
-          <textarea id="answerInput-${q.id}" placeholder="답변을 입력해주세요." style="width:100%;min-height:60px;padding:10px;border:1.5px solid var(--g2);border-radius:4px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
-          <button onclick="submitAnswer('${q.id}')" style="margin-top:6px;padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">답변 등록</button>
+          <textarea id="answerInput-${q.id}" placeholder="답변을 입력해주세요." style="width:100%;min-height:60px;padding:10px;border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+          <button onclick="submitAnswer('${q.id}')" style="margin-top:6px;padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:0;font-size:12px;font-weight:700;cursor:pointer;">답변 등록</button>
         </div>`
       : `<div style="margin-top:10px;font-size:12px;color:var(--g3);">아직 답변이 등록되지 않았습니다.</div>`);
   return `
     <div style="padding:0 0 16px;">
       <div style="font-size:14px;color:var(--black);white-space:pre-wrap;line-height:1.6;">${escapeHtml(q.content)}</div>
       ${answerHtml}
-      ${canDelete ? `<button onclick="deleteInquiry('${q.id}')" style="margin-top:10px;border:1px solid var(--sky-lt);background:var(--sky-lt);color:var(--sky-dk);font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;"><i class=ic-trash></i> 삭제</button>` : ''}
+      ${canDelete ? `<button onclick="deleteInquiry('${q.id}')" style="margin-top:10px;border:1px solid var(--sky-lt);background:var(--sky-lt);color:var(--sky-dk);font-size:11px;font-weight:700;padding:4px 10px;border-radius:0;cursor:pointer;"><i class=ic-trash></i> 삭제</button>` : ''}
     </div>`;
 }
 
