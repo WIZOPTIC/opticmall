@@ -38,7 +38,7 @@ header {
 .tb-link:hover { opacity: 0.6; }
 .tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
 .tb-welcome { color: var(--navy); font-weight: 600; font-size: 13px; white-space: nowrap; }
-.tb-badge { font-size: 10px; background: #F88A32; color: #1C3429; padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
+.tb-badge { font-size: 10px; background: #FF7A1A; color: #fff; padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 6px; }
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
 .icon-btn {
@@ -50,7 +50,7 @@ header {
 .icon-btn:hover { background: var(--g1); color: var(--navy); }
 .cart-count {
   position: absolute; top: 2px; right: 2px;
-  background: #F88A32; color: #1C3429;
+  background: #FF7A1A; color: #fff;
   font-size: 9px; font-weight: 700;
   border-radius: 100px; padding: 1px 4px;
   min-width: 15px; text-align: center;
@@ -132,8 +132,8 @@ header {
   font-size: 12.5px; color: var(--g4); cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
 }
 .stock-toggle .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--g3); flex-shrink: 0; transition: background 0.15s; }
-.stock-toggle.active { border-color: #F88A32; color: var(--navy); font-weight: 600; }
-.stock-toggle.active .dot { background: #F88A32; }
+.stock-toggle.active { border-color: #FF7A1A; color: var(--navy); font-weight: 600; }
+.stock-toggle.active .dot { background: #FF7A1A; }
 .sort-select {
   padding: 8px 30px 8px 15px; border: 1.5px solid var(--g2); border-radius: 100px;
   font-size: 12.5px; font-family: inherit; outline: none; cursor: pointer; background: var(--white); color: var(--g4);
@@ -146,14 +146,14 @@ header {
 .filter-dropdown { position: relative; }
 .filter-btn { display: flex; align-items: center; gap: 6px; padding: 8px 15px; border: 1.5px solid var(--g2); border-radius: 100px; font-size: 12.5px; font-family: inherit; cursor: pointer; background: var(--white); color: var(--g4); white-space: nowrap; transition: all 0.15s; }
 .filter-btn:hover { border-color: var(--navy); }
-.filter-btn.active { border-color: #F88A32; color: var(--navy); font-weight: 600; background: var(--white); }
-.filter-count { display: inline-flex; align-items: center; justify-content: center; background: #F88A32; color: #1C3429; font-size: 10px; font-weight: 700; border-radius: 100px; width: 16px; height: 16px; visibility: hidden; }
+.filter-btn.active { border-color: #FF7A1A; color: var(--navy); font-weight: 600; background: var(--white); }
+.filter-count { display: inline-flex; align-items: center; justify-content: center; background: #FF7A1A; color: #fff; font-size: 10px; font-weight: 700; border-radius: 100px; width: 16px; height: 16px; visibility: hidden; }
 .filter-count.show { visibility: visible; }
 .filter-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: #fff; border: 1px solid var(--g2); border-radius:0; box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 10px 0; min-width: 150px; z-index: 50; }
 .filter-panel.open { display: block; }
 .filter-check { display: flex; align-items: center; gap: 8px; padding: 8px 16px; font-size: 13.5px; color: var(--black); cursor: pointer; white-space: nowrap; }
 .filter-check:hover { background: var(--g1); }
-.filter-check input { width: 14px; height: 14px; accent-color: #F88A32; cursor: pointer; }
+.filter-check input { width: 14px; height: 14px; accent-color: #FF7A1A; cursor: pointer; }
 
 /* 상품 그리드 */
 .product-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
@@ -325,7 +325,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 @media (max-width:768px){.header-main,.header-inner{padding:12px 16px!important}.logo-img{height:40px!important}.mobile-menu-drawer .logo-img{height:36px!important}}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}
-.gnb-item:hover,.gnb-item.active{font-weight:500!important;color:#F88A32!important}
+.gnb-item:hover,.gnb-item.active{font-weight:500!important;color:#FF7A1A!important}
 .gnb-item.active .gnb-label::after{display:none!important}
 .tb-sep{color:#9aa39d!important}
 .icon-btn:hover{background:rgba(255,255,255,.1)!important}
