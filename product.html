@@ -541,6 +541,9 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 :root{--sky-lt:#F7F4EE}
 .filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
+.product-info.product-info-sticky{top:calc(var(--sticky-header-h,148px) + 24px)!important;max-height:calc(100vh - var(--sticky-header-h,148px) - 40px);overflow-y:auto;scrollbar-width:none}
+.product-info.product-info-sticky::-webkit-scrollbar{display:none}
+.tab-bar-wrap{top:var(--sticky-header-h,148px)!important}
 </style>
 </head>
 <body>
@@ -693,6 +696,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   }
   setStickyHeaderHeight();
   window.addEventListener('resize', setStickyHeaderHeight);
+  window.addEventListener('load', setStickyHeaderHeight);
+  (function(){var w=document.getElementById('stickyHeaderWrap');if(w&&window.ResizeObserver)new ResizeObserver(setStickyHeaderHeight).observe(w);})();
   window.addEventListener('load', setStickyHeaderHeight);
 </script>
 
