@@ -112,7 +112,7 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .order-item-price{font-family:"Inter",sans-serif;font-size:14px;font-weight:700;color:var(--navy);}
 
 /* 요약 */
-.summary-box{width:420px;flex-shrink:0;position:sticky;top:calc(var(--sticky-header-h,148px) + var(--sum-gap,24px));align-self:flex-start;max-height:calc(100vh - var(--sticky-header-h,148px) - 40px);overflow-y:auto;scrollbar-width:none}
+.summary-box{width:420px;flex-shrink:0;position:sticky;top:calc(var(--sticky-header-h,148px) + var(--sum-gap,24px));align-self:flex-start;}
 .summary-box::-webkit-scrollbar{display:none}
 .summary-card{background:var(--white);border-radius:0;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .summary-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;letter-spacing:0.01em;}
@@ -327,22 +327,10 @@ body{background:#FAF8F4!important}
 .filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
 
-/* 주문 단계 표시 */
-.co-steps{max-width:none;margin:0 0 14px;padding:0 2px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:#A8A196;letter-spacing:-0.01em}
-.co-steps .st{display:flex;align-items:center;gap:7px;font-weight:500}
-.co-steps .st i{font-style:normal;width:20px;height:20px;border:1px solid #CFC7BC;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
-.co-steps .st.on{color:#1C3429;font-weight:700}
-.co-steps .st.on i{background:#1C3429;border-color:#1C3429;color:#F4F3F0}
-.co-steps .st.done{color:#6E675C}
-.co-steps .sep{flex:1;min-width:10px;height:1px;background:#CFC7BC}
-@media(max-width:768px){.co-steps{padding:0;justify-content:flex-start;font-size:12px}.co-steps .sep{width:14px}}
 .agree-box{padding:8px 12px!important}
-.agree-item{font-size:13.5px!important;gap:10px!important;padding:9px 0;margin-bottom:0!important;user-select:none}
-.agree-item input{width:20px;height:20px;flex-shrink:0;margin:0;accent-color:#1C3429}
-.co-steps{position:sticky!important;top:var(--sticky-header-h,148px);z-index:20;background:#FAF8F4;margin:0!important;padding:0 2px!important;height:44px;box-sizing:border-box;justify-content:flex-start!important;gap:12px!important}
-.co-steps .sep{flex:none!important;width:28px!important;min-width:0!important}
-.summary-box{padding-top:44px}
-@media(max-width:768px){.co-steps{position:static!important;height:auto;padding:0 0 12px!important}.summary-box{padding-top:0}}
+.agree-item{font-size:13.5px!important;gap:10px!important;padding:7px 0;margin-bottom:0!important;user-select:none}
+.agree-item input{width:16px;height:16px;flex-shrink:0;margin:0;accent-color:#1C3429}
+@media(max-height:760px){.summary-box{position:static!important}}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -441,7 +429,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
 <div class="main" id="orderMain" style="display:none;">
   <div class="order-form">
-    <div class="co-steps"><span class="st done"><i>1</i>장바구니</span><span class="sep"></span><span class="st on"><i>2</i>주문/결제</span><span class="sep"></span><span class="st "><i>3</i>주문완료</span></div>
 
     <!-- 주문자 정보 -->
     <div class="card">
