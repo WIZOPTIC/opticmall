@@ -73,6 +73,8 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 
 /* 사이드 */
 .sidebar{width:220px;flex-shrink:0;}
+@media (min-width:769px){.sidebar{position:sticky;top:calc(var(--sticky-header-h,148px) + var(--sum-gap,24px));align-self:flex-start;max-height:calc(100vh - var(--sticky-header-h,148px) - 40px);overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}}
 .profile-card{background:var(--white);border-radius:0;padding:20px;text-align:center;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .profile-avatar{width:64px;height:64px;background:var(--footer-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--white);margin:0 auto 10px;}
 .profile-name{font-size:15px;font-weight:700;color:var(--navy);}
@@ -470,7 +472,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 </head>
 <body>
 <!-- TOPBAR + HEADER (함께 고정) -->
-<div style="position:sticky;top:0;z-index:200;">
+<div id="stickyHeaderWrap" style="position:sticky;top:0;z-index:200;">
 <header style="position:relative;">
   <div class="header-main">
     <div class="header-top-row">
@@ -2689,6 +2691,15 @@ function fit(){if(busy)return;busy=true;f.style.marginTop='0px';var b=document.b
 fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);
 if(window.ResizeObserver){var t=0;new ResizeObserver(function(){cancelAnimationFrame(t);t=requestAnimationFrame(fit)}).observe(document.body);}
 setTimeout(fit,300);setTimeout(fit,1200);})();
+</script>
+<script>/* 오른쪽/왼쪽 보조 패널: 처음 놓인 위치를 그대로 고정 위치로 사용 */
+(function(){function fit(){try{var w=document.getElementById('stickyHeaderWrap'),h=w?w.offsetHeight:148;
+document.documentElement.style.setProperty('--sticky-header-h',h+'px');
+var s=document.querySelector('.sidebar');if(!s)return;
+var p=s.parentElement;if(!p.offsetParent&&getComputedStyle(p).position!=='fixed')return;var top=p.getBoundingClientRect().top+window.pageYOffset+(parseFloat(getComputedStyle(p).paddingTop)||0);
+document.documentElement.style.setProperty('--sum-gap',Math.max(0,Math.round(top-h))+'px');}catch(e){}}
+fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);setTimeout(fit,500);setTimeout(fit,1500);
+if(window.ResizeObserver){var w=document.getElementById('stickyHeaderWrap');if(w)new ResizeObserver(fit).observe(w);var m=document.getElementById('mypageMain');if(m)new ResizeObserver(fit).observe(m);}})();
 </script>
 </body>
 </html>
