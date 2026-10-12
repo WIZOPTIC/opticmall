@@ -326,6 +326,16 @@ body{background:#FAF8F4!important}
 :root{--sky-lt:#F7F4EE}
 .filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
+
+/* 주문 단계 표시 */
+.co-steps{max-width:1360px;margin:0 auto;padding:28px 24px 0;display:flex;align-items:center;justify-content:flex-end;gap:10px;font-size:13px;color:#A8A196;letter-spacing:-0.01em}
+.co-steps .st{display:flex;align-items:center;gap:7px;font-weight:500}
+.co-steps .st i{font-style:normal;width:20px;height:20px;border:1px solid #CFC7BC;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.co-steps .st.on{color:#1C3429;font-weight:700}
+.co-steps .st.on i{background:#1C3429;border-color:#1C3429;color:#F4F3F0}
+.co-steps .st.done{color:#6E675C}
+.co-steps .sep{width:22px;height:1px;background:#CFC7BC}
+@media(max-width:768px){.co-steps{padding:18px 16px 0;justify-content:center;font-size:12px}.co-steps .sep{width:14px}}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -418,6 +428,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 </div>
 
+<div class="co-steps"><span class="st done"><i>1</i>장바구니</span><span class="sep"></span><span class="st on"><i>2</i>주문/결제</span><span class="sep"></span><span class="st "><i>3</i>주문완료</span></div>
 <div id="loadingArea" class="loading-box">
   <div class="spinner"></div>주문 정보를 불러오는 중...
 </div>
@@ -518,7 +529,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   <!-- 요약 -->
   <div class="summary-box">
     <div class="summary-card">
-      <div class="summary-title">결제 금액</div>
+      <div class="summary-title">최종 결제 금액</div>
       <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
       <div class="sum-row" id="sumDiscountRow" style="display:none;"><span class="lbl">할인 금액</span><span class="val" id="sumDiscount" style="color:var(--red);">-₩0</span></div>
       <div class="sum-row" id="couponRow">
@@ -538,7 +549,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       <div class="sum-row" id="pointsAppliedRow" style="display:none;"><span class="lbl">적립금 사용</span><span class="val" id="pointsAppliedVal" style="color:var(--red);">-₩0</span></div>
       <hr class="sum-divider">
       <div class="sum-total">
-        <span>최종 결제</span>
+        <span>총 결제금액</span>
         <span class="price" id="sumTotal">₩0</span>
       </div>
       <div class="sum-row" id="sumEarnPointsRow" style="display:none;padding-top:4px;"><span class="lbl" style="color:var(--g3);">적립 예정 적립금</span><span class="val" id="sumEarnPoints" style="color:var(--navy);font-weight:700;">+₩0</span></div>
