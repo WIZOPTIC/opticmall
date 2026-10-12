@@ -541,7 +541,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 :root{--sky-lt:#F7F4EE}
 .filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
-.product-info.product-info-sticky{top:calc(var(--sticky-header-h,148px) + 24px)!important;max-height:calc(100vh - var(--sticky-header-h,148px) - 40px);overflow-y:auto;scrollbar-width:none}
+.product-info.product-info-sticky{top:calc(var(--sticky-header-h,148px) + var(--info-gap,24px))!important;max-height:calc(100vh - var(--sticky-header-h,148px) - 40px);overflow-y:auto;scrollbar-width:none}
 .product-info.product-info-sticky::-webkit-scrollbar{display:none}
 .tab-bar-wrap{top:var(--sticky-header-h,148px)!important}
 .product-info.product-info-sticky .price-wrap{padding:16px 0;margin-bottom:16px}
@@ -1042,6 +1042,17 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   leftCol.appendChild(leftTabs);
 
   productInfo.classList.add('product-info-sticky');
+  // 오른쪽 구매 영역이 처음 놓인 위치(헤더 아래 간격)를 그대로 고정 위치로 사용 → 스크롤 시작할 때 위로 튀지 않음
+  function setInfoGap(){
+    try{
+      var hdr=document.getElementById('stickyHeaderWrap'); var hh=hdr?hdr.offsetHeight:0;
+      var top=wrap.getBoundingClientRect().top+window.pageYOffset;
+      var gap=Math.max(0,Math.round(top-hh));
+      document.documentElement.style.setProperty('--info-gap',gap+'px');
+    }catch(e){}
+  }
+  setInfoGap(); window.addEventListener('load',setInfoGap); window.addEventListener('resize',setInfoGap);
+  setTimeout(setInfoGap,500);
 })();
 </script>
 
