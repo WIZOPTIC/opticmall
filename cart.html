@@ -290,14 +290,14 @@ body{background:#FAF8F4!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
 
 /* 주문 단계 표시 */
-.co-steps{max-width:1360px;margin:0 auto;padding:28px 24px 0;display:flex;align-items:center;justify-content:flex-end;gap:10px;font-size:13px;color:#A8A196;letter-spacing:-0.01em}
+.co-steps{max-width:none;margin:0 0 14px;padding:0 2px;display:flex;align-items:center;justify-content:flex-start;gap:10px;font-size:13px;color:#A8A196;letter-spacing:-0.01em}
 .co-steps .st{display:flex;align-items:center;gap:7px;font-weight:500}
 .co-steps .st i{font-style:normal;width:20px;height:20px;border:1px solid #CFC7BC;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
 .co-steps .st.on{color:#1C3429;font-weight:700}
 .co-steps .st.on i{background:#1C3429;border-color:#1C3429;color:#F4F3F0}
 .co-steps .st.done{color:#6E675C}
 .co-steps .sep{width:22px;height:1px;background:#CFC7BC}
-@media(max-width:768px){.co-steps{padding:18px 16px 0;justify-content:center;font-size:12px}.co-steps .sep{width:14px}}
+@media(max-width:768px){.co-steps{padding:0;justify-content:flex-start;font-size:12px}.co-steps .sep{width:14px}}
 .sum-note{margin-top:10px;font-size:12px;color:#8A8377;text-align:center;letter-spacing:-0.01em}
 </style>
 </head>
@@ -390,13 +390,13 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 </div>
 
-<div class="co-steps"><span class="st on"><i>1</i>장바구니</span><span class="sep"></span><span class="st "><i>2</i>주문/결제</span><span class="sep"></span><span class="st "><i>3</i>주문완료</span></div>
 <div id="loadingArea" class="main">
   <div class="loading-box" style="flex:1;"><div class="spinner"></div>장바구니를 불러오는 중...</div>
 </div>
 
 <div class="main" id="cartMain" style="display:none;">
   <div class="cart-list">
+    <div class="co-steps"><span class="st on"><i>1</i>장바구니</span><span class="sep"></span><span class="st "><i>2</i>주문/결제</span><span class="sep"></span><span class="st "><i>3</i>주문완료</span></div>
     <div class="cart-header">
       <input type="checkbox" id="chk-all" onchange="toggleAll(this)" checked style="width:16px;height:16px;accent-color:var(--sky);cursor:pointer;">
       <label for="chk-all" id="chkAllLabel">전체선택 (0개)</label>
