@@ -544,6 +544,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.product-info-sticky{top:calc(var(--sticky-header-h,148px) + 24px)!important;max-height:calc(100vh - var(--sticky-header-h,148px) - 40px);overflow-y:auto;scrollbar-width:none}
 .product-info.product-info-sticky::-webkit-scrollbar{display:none}
 .tab-bar-wrap{top:var(--sticky-header-h,148px)!important}
+.product-info.product-info-sticky .price-wrap{padding:16px 0;margin-bottom:16px}
+.product-info.product-info-sticky .option-section{margin-bottom:16px}
+.delivery-info{padding-top:14px!important}
+.delivery-row{margin-bottom:6px!important}
+.delivery-value{font-size:13px!important}
 </style>
 </head>
 <body>
@@ -833,19 +838,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="delivery-info">
       <div class="delivery-row">
         <div class="delivery-label">배송</div>
-        <div class="delivery-value"><span class="highlight">10만원 이상 무료배송</span> (미만 시 3,500원) · 오후 1시 이전 주문 당일 발송</div>
-      </div>
-      <div class="delivery-row">
-        <div class="delivery-label">도착예정</div>
-        <div class="delivery-value">주문 후 <span class="highlight">1~2일 이내</span> 도착</div>
+        <div class="delivery-value"><span class="highlight">10만원 이상 무료배송</span> (미만 시 3,500원) · 오후 1시 이전 주문 당일 발송 · 1~2일 이내 도착</div>
       </div>
       <div class="delivery-row">
         <div class="delivery-label">반품/교환</div>
         <div class="delivery-value">수령 후 7일 이내 · 불량품 무상교환</div>
-      </div>
-      <div class="delivery-row">
-        <div class="delivery-label">최소 주문</div>
-        <div class="delivery-value">1개부터 주문 가능</div>
       </div>
     </div>
   </div>
