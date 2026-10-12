@@ -339,6 +339,10 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .agree-box{padding:8px 12px!important}
 .agree-item{font-size:13.5px!important;gap:10px!important;padding:9px 0;margin-bottom:0!important;user-select:none}
 .agree-item input{width:20px;height:20px;flex-shrink:0;margin:0;accent-color:#1C3429}
+.co-steps{position:sticky!important;top:var(--sticky-header-h,148px);z-index:20;background:#FAF8F4;margin:0!important;padding:0 2px!important;height:44px;box-sizing:border-box;justify-content:flex-start!important;gap:12px!important}
+.co-steps .sep{flex:none!important;width:28px!important;min-width:0!important}
+.summary-box{padding-top:44px}
+@media(max-width:768px){.co-steps{position:static!important;height:auto;padding:0 0 12px!important}.summary-box{padding-top:0}}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -437,6 +441,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
 <div class="main" id="orderMain" style="display:none;">
   <div class="order-form">
+    <div class="co-steps"><span class="st done"><i>1</i>장바구니</span><span class="sep"></span><span class="st on"><i>2</i>주문/결제</span><span class="sep"></span><span class="st "><i>3</i>주문완료</span></div>
 
     <!-- 주문자 정보 -->
     <div class="card">
@@ -530,7 +535,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
   <!-- 요약 -->
   <div class="summary-box">
-    <div class="co-steps"><span class="st done"><i>1</i>장바구니</span><span class="sep"></span><span class="st on"><i>2</i>주문/결제</span><span class="sep"></span><span class="st "><i>3</i>주문완료</span></div>
     <div class="summary-card">
       <div class="summary-title">최종 결제 금액</div>
       <div class="sum-row"><span class="lbl">상품 금액</span><span class="val" id="sumProducts">₩0</span></div>
