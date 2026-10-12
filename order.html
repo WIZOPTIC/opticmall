@@ -443,7 +443,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
     <!-- 주문자 정보 -->
     <div class="card">
-      <div class="card-title"><i class=ic-clipboard></i> 주문자 정보</div>
+      <div class="card-title">주문자 정보</div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">이름</label>
@@ -466,7 +466,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
     <!-- 배송지 -->
     <div class="card">
-      <div class="card-title"><i class=ic-truck></i> 배송지 정보</div>
+      <div class="card-title">배송지 정보</div>
       <div id="addressSelectArea"><!-- JS로 배송지 카드 목록 렌더링 --></div>
       <button class="btn-addr" id="addNewAddressBtn" onclick="openNewAddressForm()" style="width:100%;margin-top:4px;">+ 새 배송지 추가</button>
 
@@ -512,21 +512,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       </div>
     </div>
 
-    <!-- 결제 안내 -->
-    <div class="card">
-      <div class="card-title"><i class=ic-card></i> 결제 방법</div>
-      <div class="pay-info-box">
-        <div class="icon"><i class=ic-lock></i></div>
-        <div class="txt">
-          <strong>토스페이먼츠</strong>로 안전하게 결제됩니다.<br>
-          카드, 계좌이체, 간편결제 등 원하는 수단을 결제창에서 선택해주세요.
-        </div>
-      </div>
-    </div>
-
     <!-- 주문 상품 -->
     <div class="card">
-      <div class="card-title"><i class=ic-glasses></i> 주문 상품 (<span id="itemCount">0</span>건)</div>
+      <div class="card-title">주문 상품 (<span id="itemCount">0</span>건)</div>
       <div id="orderItemsList"><!-- JS로 생성 --></div>
     </div>
   </div>

@@ -768,7 +768,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="price-wrap" id="price-locked" style="display:none;">
       <div class="price-label">도매 공급가</div>
       <div class="price-locked">
-        <div class="price-locked-icon"><i class=ic-lock></i></div>
         <div class="price-locked-text">
           <strong>안경사 인증 회원 전용 가격입니다</strong>
           로그인 후 도매가를 확인하실 수 있습니다.
@@ -833,7 +832,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
     <!-- 재입고 알림 (품절시 표시) -->
     <button class="restock-btn" id="restock-btn" style="display:none;" onclick="requestRestock()">
-      <i class=ic-bell></i> 재입고 알림 신청
+      재입고 알림 신청
     </button>
 
     <!-- 배송 정보 -->
@@ -882,7 +881,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   <div id="tab-detail" style="display:none;">
     <div id="detailImagesWrap" class="detail-photos-grid">
       <div style="grid-column:1/-1;background:var(--g1);border-radius:0;padding:60px;text-align:center;color:var(--g3);">
-        <div style="font-size:48px;margin-bottom:16px;"><i class=ic-camera></i></div>
         <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
       </div>
     </div>
@@ -1712,7 +1710,6 @@ function renderDetailImageGrids(urls) {
   if(detailWrap) {
     detailWrap.innerHTML = html || `
       <div style="grid-column:1/-1;background:var(--g1);border-radius:0;padding:60px;text-align:center;color:var(--g3);">
-        <div style="font-size:48px;margin-bottom:16px;"><i class=ic-camera></i></div>
         <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
       </div>`;
   }
@@ -1884,7 +1881,7 @@ async function loadRelatedProducts(p) {
     grid.innerHTML = related.map(r => {
       const priceHtml = memberLevel >= 2
         ? `<span style="color:var(--sky);font-weight:700;">₩${Number(r.price||0).toLocaleString()}</span>`
-        : `<i class=ic-lock></i> 회원 전용 가격`;
+        : `회원 전용 가격`;
       const hasImg = !!r.mainImageUrl;
       const imgHtml = hasImg ? `<img src="${r.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<i class=ic-glasses></i>';
       return `
@@ -2066,12 +2063,12 @@ async function addCart() {
   const newCount = await updateCartCount();
 
   if(errors.length === 0) {
-    overlayIcon.innerHTML = '<i class=ic-check-circle></i>';
+    overlayIcon.innerHTML = '';
     overlayText.textContent = '장바구니에 담겼습니다';
     overlaySub.textContent = newCount ? `현재 장바구니 ${newCount}개` : '';
     setTimeout(() => { overlay.classList.remove('show'); }, 1200);
   } else {
-    overlayIcon.innerHTML = '<i class=ic-alert></i>️';
+    overlayIcon.innerHTML = '';
     overlayText.textContent = '일부 항목만 담겼습니다';
     overlaySub.textContent = errors.join(' / ');
     setTimeout(() => { overlay.classList.remove('show'); }, 2500);
@@ -2110,7 +2107,7 @@ async function requestRestock() {
     if (btn.classList.contains('requested')) {
       await alarmRef.delete();
       btn.classList.remove('requested');
-      btn.innerHTML = '<i class=ic-bell></i> 재입고 알림 신청';
+      btn.innerHTML = '재입고 알림 신청';
       showToast('재입고 알림이 취소되었습니다.');
     } else {
       await alarmRef.set({
@@ -2121,7 +2118,7 @@ async function requestRestock() {
       });
       btn.classList.add('requested');
       btn.innerHTML = '✓ 재입고 알림 신청완료 (취소하려면 클릭)';
-      showToast('<i class=ic-bell></i> 재입고 시 알려드릴게요!', 'success');
+      showToast('재입고 시 알려드릴게요!', 'success');
     }
   } catch(e) {
     console.error(e);
@@ -2341,7 +2338,6 @@ function renderQnaWriteArea() {
   if(!_auth.currentUser) {
     area.innerHTML = `
       <div style="text-align:center;padding:40px 0 20px;color:var(--g3);">
-        <div style="font-size:40px;margin-bottom:12px;"><i class=ic-chat></i></div>
         <div style="font-size:14px;margin-bottom:14px;">1:1 문의는 로그인 후 이용 가능합니다.</div>
         <button onclick="openLogin()" style="padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">로그인</button>
       </div>`;
@@ -2427,7 +2423,7 @@ function renderInquiryBody(q, canView, canDelete) {
     return `<div style="padding:0 0 16px;font-size:14px;color:var(--g3);">비밀글은 작성자와 관리자만 볼 수 있어요.</div>`;
   }
   const answerHtml = q.answer
-    ? `<div style="margin-top:10px;background:var(--g1);border-radius:0;padding:12px;font-size:14px;color:var(--navy);"><strong><i class=ic-chat></i> 답변</strong><div style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(q.answer)}</div></div>`
+    ? `<div style="margin-top:10px;background:var(--g1);border-radius:0;padding:12px;font-size:14px;color:var(--navy);"><strong>답변</strong><div style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(q.answer)}</div></div>`
     : (isMaster() ? `
         <div style="margin-top:10px;">
           <textarea id="answerInput-${q.id}" placeholder="답변을 입력해주세요." style="width:100%;min-height:60px;padding:10px;border:1.5px solid var(--g2);border-radius:0;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>

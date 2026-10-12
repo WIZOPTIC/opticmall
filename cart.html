@@ -661,7 +661,6 @@ function renderCart() {
   if(cartItems.length === 0) {
     listEl.innerHTML = `
       <div class="empty-cart">
-        <div class="icon"><i class=ic-cart></i></div>
         <div style="font-size:14px;font-weight:600;margin-bottom:4px;">장바구니가 비어있습니다</div>
         <div style="font-size:14px;">마음에 드는 상품을 담아보세요!</div>
       </div>`;
@@ -696,7 +695,7 @@ function renderCart() {
     const discountRate = Number(p.discountRate) || 0;
     const priceHtml = memberLevel >= 2
       ? `<div class="item-price" id="price-${item.cartItemId}"><div class="item-price-orig">${isDiscounted ? `₩${(originalUnitPrice*item.qty).toLocaleString()}` : '&nbsp;'}</div><div class="item-price-final">${isDiscounted ? `<span class="item-price-pct">${discountRate}%</span>` : ''}₩${(unitPrice*item.qty).toLocaleString()}</div></div>`
-      : `<div class="item-locked"><i class=ic-lock></i> 로그인 필요</div>`;
+      : `<div class="item-locked">로그인 필요</div>`;
 
     return `
       <div class="cart-item" id="item-${item.cartItemId}" data-cart-item-id="${item.cartItemId}">

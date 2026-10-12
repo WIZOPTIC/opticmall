@@ -582,7 +582,7 @@ function renderEvents(keyword) {
   const kw = (keyword || '').trim().toLowerCase();
 
   if(allPromos.length === 0) {
-    area.innerHTML = `<div class="empty-box"><div class="big"><i class=ic-party></i></div>지금 진행중인 이벤트가 없어요.<br><span style="font-size:14px;">조금만 기다려주세요, 곧 새로운 이벤트가 올라올 예정이에요!</span></div>`;
+    area.innerHTML = `<div class="empty-box">지금 진행중인 이벤트가 없어요.<br><span style="font-size:14px;">조금만 기다려주세요, 곧 새로운 이벤트가 올라올 예정이에요!</span></div>`;
     return;
   }
 
@@ -602,7 +602,7 @@ function renderEvents(keyword) {
   }).filter(block => !kw || block.shownProducts.length > 0); // 검색중일땐 매칭 상품 없는 이벤트는 통째로 숨김
 
   if(kw && blocks.length === 0) {
-    area.innerHTML = `<div class="empty-box"><div class="big"><i class=ic-search></i></div>'${escapeHtml(keyword.trim())}'에 해당하는 이벤트 상품이 없어요.</div>`;
+    area.innerHTML = `<div class="empty-box">'${escapeHtml(keyword.trim())}'에 해당하는 이벤트 상품이 없어요.</div>`;
     return;
   }
 
@@ -619,7 +619,7 @@ function renderEvents(keyword) {
           const salePrice = Math.round(basePrice * (1 - discountRate / 100));
           const priceHtml = memberLevel >= 2
             ? `<span class="orig">₩${basePrice.toLocaleString()}</span>₩${salePrice.toLocaleString()}`
-            : `<i class=ic-lock></i> 로그인 후 확인`;
+            : `로그인 후 확인`;
           return `
             <div class="event-product-card" onclick="location.href='product.html?id=${prod.id}'">
               <div class="event-product-img">${imgHtml}</div>

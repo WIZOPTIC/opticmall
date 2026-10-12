@@ -1087,7 +1087,7 @@ function renderProfile() {
       document.getElementById('purchaseProgressFill').style.width = progress + '%';
       progressEl.style.display = 'block';
     } else {
-      document.getElementById('purchaseProgressText').innerHTML = '최고 등급입니다 <i class=ic-party></i>';
+      document.getElementById('purchaseProgressText').innerHTML = '최고 등급입니다';
       document.getElementById('purchaseProgressFill').style.width = '100%';
       progressEl.style.display = 'block';
     }
@@ -1875,13 +1875,13 @@ function openCancelModal(orderId, type) {
     if(type === 'before_ship') {
       title.textContent = '주문 취소 신청';
       refundInfo.innerHTML = `
-        <div style="font-weight:700;color:var(--navy);margin-bottom:6px;"><i class=ic-money></i> 환불 예정 금액</div>
+        <div style="font-weight:700;color:var(--navy);margin-bottom:6px;">환불 예정 금액</div>
         <div style="display:flex;justify-content:space-between;"><span>결제 금액</span><span>₩${totalAmount.toLocaleString()}</span></div>
         <div style="display:flex;justify-content:space-between;"><span>배송비 공제</span><span style="color:var(--green);">없음 (발송 전 취소)</span></div>
         <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--sky);margin-top:6px;border-top:1px solid var(--g2);padding-top:6px;">
           <span>환불 예정액</span><span>₩${totalAmount.toLocaleString()}</span>
         </div>`;
-      notice.innerHTML = `<i class=ic-alert></i>️ 취소 신청 후 관리자 확인을 거쳐 환불 처리됩니다.<br>영업일 기준 1~3일 내 처리됩니다.`;
+      notice.innerHTML = `취소 신청 후 관리자 확인을 거쳐 환불 처리됩니다.<br>영업일 기준 1~3일 내 처리됩니다.`;
       submitBtn.textContent = '취소 신청';
       submitBtn.style.background = 'var(--red)';
     } else {
@@ -1903,7 +1903,7 @@ function openCancelModal(orderId, type) {
       const refundAmount = Math.max(0, totalAmount - returnFee);
 
       refundInfo.innerHTML = `
-        <div style="font-weight:700;color:var(--navy);margin-bottom:8px;"><i class=ic-money></i> 환불 예정 금액</div>
+        <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">환불 예정 금액</div>
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>결제 금액</span><span>₩${totalAmount.toLocaleString()}</span></div>
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--red);">
           <span>왕복 택배비 공제 <span style="font-size:11px;color:var(--g3);">(${regionLabel})</span></span>
@@ -1915,7 +1915,7 @@ function openCancelModal(orderId, type) {
         <div style="font-size:11px;color:var(--g3);margin-top:6px;">배송지: ${addr || '정보 없음'}</div>`;
 
       notice.innerHTML = `
-        <i class=ic-alert></i>️ 상품 불량/오배송의 경우 택배비가 공제되지 않습니다.<br>
+        상품 불량/오배송의 경우 택배비가 공제되지 않습니다.<br>
         해당 사유 선택 시 전액(₩${totalAmount.toLocaleString()}) 환불됩니다.<br>
         반품 주소는 관리자 확인 후 안내드립니다.`;
 
@@ -1950,7 +1950,7 @@ function onCancelReasonChange() {
     const refundInfo = document.getElementById('cancelRefundInfo');
     if(refundInfo) {
       refundInfo.innerHTML = `
-        <div style="font-weight:700;color:var(--navy);margin-bottom:8px;"><i class=ic-money></i> 환불 예정 금액</div>
+        <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">환불 예정 금액</div>
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>결제 금액</span><span>₩${totalAmount.toLocaleString()}</span></div>
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:${isFreeReturn ? 'var(--green)' : 'var(--red)'};">
           <span>왕복 택배비 공제 <span style="font-size:11px;color:var(--g3);">(${regionLabel})</span></span>
@@ -2092,7 +2092,7 @@ async function loadWishlist() {
       const inStock = it.stock > 0;
       const priceHtml = (currentUserData.member_level||0) >= 2
         ? `₩${it.price.toLocaleString()}`
-        : `<i class=ic-lock></i> 로그인 후 확인`;
+        : `로그인 후 확인`;
       return `
         <div class="wish-card" id="wishcard-${it.wishId}" onclick="location.href='product.html?id=${p.id}'">
           <input type="checkbox" class="wish-check" onclick="event.stopPropagation();toggleWishSelect('${it.wishId}',this.checked)">
@@ -2287,7 +2287,7 @@ async function loadRecentlyViewed() {
       const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : '<i class=ic-glasses></i>';
       const priceHtml = (currentUserData.member_level||0) >= 2
         ? `₩${Number(p.price||0).toLocaleString()}`
-        : `<i class=ic-lock></i> 로그인 후 확인`;
+        : `로그인 후 확인`;
       return `
         <div class="wish-card" onclick="location.href='product.html?id=${p.id}'">
           <button class="wish-del" onclick="event.stopPropagation();removeRecentlyViewed('${p.id}')">✕</button>
@@ -2346,8 +2346,8 @@ async function loadRestockAlerts() {
           <div class="restock-info">
             <div class="restock-name">${p?.modelName || a.productName || '-'}</div>
             ${isReady
-              ? `<div class="restock-status ready"><i class=ic-check-circle></i> 재입고 완료! 지금 바로 구매하세요</div>`
-              : `<div class="restock-status waiting"><i class=ic-bell></i> 재입고 대기중 · 신청일: ${formatDate(a.requestedAt)}</div>`
+              ? `<div class="restock-status ready">재입고 완료! 지금 바로 구매하세요</div>`
+              : `<div class="restock-status waiting">재입고 대기중 · 신청일: ${formatDate(a.requestedAt)}</div>`
             }
           </div>
           ${isReady

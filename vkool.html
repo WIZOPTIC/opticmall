@@ -791,7 +791,7 @@ function renderProducts(products) {
         priceHtml = `<div class="p-price"><span class="won">₩</span>${price.toLocaleString()}</div>`;
       }
     } else {
-      priceHtml = `<div class="p-locked"><i class=ic-lock></i> 로그인 후 가격확인</div>`;
+      priceHtml = `<div class="p-locked">로그인 후 가격확인</div>`;
     }
     const hasImg = !!p.mainImageUrl;
     const imgHtml = hasImg
