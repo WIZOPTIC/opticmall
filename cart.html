@@ -795,34 +795,53 @@ async function deleteSelected() {
 }
 
 // 장바구니 삭제 + 재고 복구 (트랜잭션)
+// 파이어스토어 규칙: 트랜잭션 안에서는 "읽기를 전부 먼저, 쓰기는 그 다음"이어야 함.
+// 같은 상품의 색상 여러 개를 한 번에 지울 때도 재고가 서로 덮어써지지 않게 상품별로 합산해서 한 번만 씀.
 async function restoreStockAndRemove(cartItemIds) {
   const uid = _auth.currentUser.uid;
+  const targets = cartItemIds.map(getItem).filter(Boolean);
+  if(targets.length === 0) return;
   try {
     await _db.runTransaction(async (tx) => {
-      for(const cartItemId of cartItemIds) {
-        const item = getItem(cartItemId);
-        if(!item) continue;
+      // 1) 읽기: 관련 상품을 한 번씩만 전부 읽기
+      const pids = [...new Set(targets.map(i => i.product.id))];
+      const snaps = {};
+      for(const pid of pids) {
+        snaps[pid] = await tx.get(_db.collection('products').doc(pid));
+      }
 
-        const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
-        const productRef = _db.collection('products').doc(item.product.id);
+      // 2) 계산: 상품별로 복구할 재고 합산
+      const updates = {};
+      for(const item of targets) {
+        const snap = snaps[item.product.id];
+        if(!snap.exists) continue;
+        const pData = snap.data();
         const colorIdx = Number(item.selectedColorIdx) || 0;
-        const qtyToRestore = item.qty;
-
-        const productSnap = await tx.get(productRef);
-        if(productSnap.exists) {
-          const pData = productSnap.data();
-          if(pData.colors && pData.colors.length > colorIdx) {
-            const colors = [...pData.colors];
-            colors[colorIdx] = {
-              ...colors[colorIdx],
-              stock: Number(colors[colorIdx].stock || 0) + qtyToRestore
-            };
-            tx.update(productRef, { colors });
-          } else {
-            tx.update(productRef, { stock: Number(pData.stock || 0) + qtyToRestore });
-          }
+        const u = updates[item.product.id] || (updates[item.product.id] = {
+          colors: pData.colors ? [...pData.colors] : null,
+          stock: Number(pData.stock || 0),
+          useColors: false,
+          useStock: false
+        });
+        if(pData.colors && pData.colors.length > colorIdx) {
+          u.colors[colorIdx] = { ...u.colors[colorIdx], stock: Number(u.colors[colorIdx].stock || 0) + item.qty };
+          u.useColors = true;
+        } else {
+          u.stock += item.qty;
+          u.useStock = true;
         }
-        tx.delete(cartItemRef);
+      }
+
+      // 3) 쓰기: 재고 복구 + 장바구니 삭제
+      for(const pid of Object.keys(updates)) {
+        const u = updates[pid];
+        const payload = {};
+        if(u.useColors) payload.colors = u.colors;
+        if(u.useStock) payload.stock = u.stock;
+        tx.update(_db.collection('products').doc(pid), payload);
+      }
+      for(const item of targets) {
+        tx.delete(_db.collection('carts').doc(uid).collection('items').doc(item.cartItemId));
       }
     });
 
