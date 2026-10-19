@@ -1594,15 +1594,25 @@ fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);
 if(window.ResizeObserver){var w=document.getElementById('stickyHeaderWrap');if(w)new ResizeObserver(fit).observe(w);var m=document.getElementById('orderMain');if(m)new ResizeObserver(fit).observe(m);}})();
 </script>
 <script>
-/* 결제창을 다녀온 뒤에는 뒤로가기를 누르면 장바구니로 바로 이동 (토스 결제 기록에 걸려 안 넘어가는 문제 방지) */
+/* 결제창을 다녀온 뒤에는 뒤로가기를 누르면 장바구니로 바로 이동 (토스 결제 기록에 걸려 여러 번 눌러야 하는 문제 방지)
+   - 처음 열린 경우와 "뒤로/앞으로"로 복원된 경우(pageshow) 모두 처리 */
 (function(){
-  var tried=null;try{tried=sessionStorage.getItem('om_payTried');}catch(e){}
-  if(!tried||tried!==location.href)return;
-  try{history.pushState({omGuard:1},'',location.href);}catch(e){return;}
-  window.addEventListener('popstate',function(){
-    try{sessionStorage.removeItem('om_payTried');}catch(e){}
-    location.replace('cart.html');
-  });
+  var installed=false;
+  function install(){
+    if(installed)return;
+    var tried=null;try{tried=sessionStorage.getItem('om_payTried');}catch(e){}
+    if(!tried)return;
+    var base=tried.split('#')[0];
+    if(location.href.split('#')[0]!==base)return;
+    installed=true;
+    try{history.pushState({omGuard:1},'',location.href);}catch(e){installed=false;return;}
+    window.addEventListener('popstate',function(){
+      try{sessionStorage.removeItem('om_payTried');}catch(e){}
+      location.replace('cart.html');
+    });
+  }
+  install();
+  window.addEventListener('pageshow',function(e){ if(e.persisted) install(); });
 })();
 </script>
 </body>
