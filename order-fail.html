@@ -347,8 +347,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   </div>
 
   <div class="btn-group">
-    <button class="btn btn-ghost" onclick="location.href='list.html'">목록으로</button>
-    <button class="btn btn-primary" onclick="history.back()">다시 시도하기</button>
+    <button class="btn btn-ghost" onclick="location.replace('cart.html')">장바구니로</button>
+    <button class="btn btn-primary" onclick="retryOrder()">다시 시도하기</button>
   </div>
 </div>
 
@@ -356,6 +356,10 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 const params = new URLSearchParams(location.search);
 document.getElementById('errCode').textContent = params.get('code') || '알 수 없음';
 document.getElementById('errMsg').textContent = params.get('message') || '결제가 취소되었거나 오류가 발생했습니다.';
+function retryOrder(){
+  var u=null;try{u=sessionStorage.getItem('om_payTried');}catch(e){}
+  location.replace(u||'cart.html');
+}
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>

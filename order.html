@@ -1279,6 +1279,8 @@ async function startPayment(easyPayProvider) {
     return;
   }
 
+  // 결제창 진입 기록: 취소/실패 후 돌아왔을 때 뒤로가기가 꼬이지 않게 사용
+  try { sessionStorage.setItem('om_payTried', location.href); } catch(e) {}
   // 토스페이먼츠 결제창 호출
   try {
     const tossPayments = TossPayments(TOSS_CLIENT_KEY);
@@ -1590,6 +1592,18 @@ var p=s.parentElement;if(!p.offsetParent&&getComputedStyle(p).position!=='fixed'
 document.documentElement.style.setProperty('--sum-gap',Math.max(0,Math.round(top-h))+'px');}catch(e){}}
 fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);setTimeout(fit,500);setTimeout(fit,1500);
 if(window.ResizeObserver){var w=document.getElementById('stickyHeaderWrap');if(w)new ResizeObserver(fit).observe(w);var m=document.getElementById('orderMain');if(m)new ResizeObserver(fit).observe(m);}})();
+</script>
+<script>
+/* 결제창을 다녀온 뒤에는 뒤로가기를 누르면 장바구니로 바로 이동 (토스 결제 기록에 걸려 안 넘어가는 문제 방지) */
+(function(){
+  var tried=null;try{tried=sessionStorage.getItem('om_payTried');}catch(e){}
+  if(!tried||tried!==location.href)return;
+  try{history.pushState({omGuard:1},'',location.href);}catch(e){return;}
+  window.addEventListener('popstate',function(){
+    try{sessionStorage.removeItem('om_payTried');}catch(e){}
+    location.replace('cart.html');
+  });
+})();
 </script>
 </body>
 </html>
