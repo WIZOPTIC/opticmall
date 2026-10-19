@@ -541,22 +541,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 :root{--sky-lt:#F7F4EE}
 .filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
-.product-info.product-info-sticky{top:calc(var(--sticky-header-h,148px) + var(--info-gap,24px))!important;display:flex;flex-direction:column;max-height:calc(100vh - var(--sticky-header-h,148px) - var(--info-gap,24px) - 16px)}
-.product-info.product-info-sticky>*{flex:0 0 auto}
-#selectionListWrap{flex-direction:column}
-.product-info.product-info-sticky>#selectionListWrap{flex:1 1 auto;min-height:150px}
-.product-info.product-info-sticky>#selectionListWrap #selectionList{flex:1 1 auto;min-height:0}
-.product-info.product-info-sticky>#selectionListWrap #selectionSummary{flex:0 0 auto}
-@media (max-height:900px){.product-info.product-info-sticky .delivery-info{display:none}}
-.product-info.product-info-sticky .quickpay-btns{margin-bottom:0}
-@media (max-height:820px){
-.product-info.product-info-sticky>#selectionListWrap{min-height:104px;margin-bottom:12px!important}
-.product-info.product-info-sticky #selectionSummary{padding:6px 4px!important;margin-top:8px!important}
-.product-info.product-info-sticky .price-wrap{padding:10px 0;margin-bottom:10px}
-.product-info.product-info-sticky .option-section{margin-bottom:10px}
-.product-info.product-info-sticky #productSize{margin-bottom:10px!important}
-.product-info.product-info-sticky .quickpay-divider{margin:10px 0 8px}
-}
+.product-info.product-info-sticky{top:calc(var(--sticky-header-h,148px) + var(--info-gap,24px))!important}
 .tab-bar-wrap{top:var(--sticky-header-h,148px)!important}
 .product-info.product-info-sticky .price-wrap{padding:16px 0;margin-bottom:16px}
 .product-info.product-info-sticky .option-section{margin-bottom:16px}
@@ -1067,6 +1052,21 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   }
   setInfoGap(); window.addEventListener('load',setInfoGap); window.addEventListener('resize',setInfoGap);
   setTimeout(setInfoGap,500);
+  // 옵션을 골라 패널이 화면보다 길어지면: 페이지와 같이 스크롤되다가 패널 아래쪽(결제 버튼)이 화면 아래에 닿으면 멈춤.
+  // 패널이 짧으면 기존처럼 헤더 아래에 고정.
+  function fitInfoSticky(){
+    try{
+      var cs=getComputedStyle(document.documentElement);
+      var hh=parseInt(cs.getPropertyValue('--sticky-header-h'))||0;
+      var gap=parseInt(cs.getPropertyValue('--info-gap'))||24;
+      var normalTop=hh+gap, bottomGap=16, h=productInfo.offsetHeight;
+      var top=(h+normalTop+bottomGap>window.innerHeight)?(window.innerHeight-h-bottomGap):normalTop;
+      productInfo.style.setProperty('top',top+'px','important');
+    }catch(e){}
+  }
+  fitInfoSticky(); window.addEventListener('load',fitInfoSticky); window.addEventListener('resize',fitInfoSticky);
+  setTimeout(fitInfoSticky,600);
+  if(window.ResizeObserver){ new ResizeObserver(fitInfoSticky).observe(productInfo); }
 })();
 </script>
 
@@ -1636,7 +1636,7 @@ function renderSelectionList() {
     emptyHint.style.display = 'block';
     return;
   }
-  wrap.style.display = 'flex';
+  wrap.style.display = 'block';
   emptyHint.style.display = 'none';
 
   listEl.innerHTML = selectedItems.map((item, i) => {
