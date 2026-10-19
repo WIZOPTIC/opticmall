@@ -1282,6 +1282,7 @@ async function startPayment(easyPayProvider) {
   // 결제창 진입 기록: 취소/실패 후 돌아왔을 때 뒤로가기가 꼬이지 않게 사용
   try { sessionStorage.setItem('om_payTried', location.href); } catch(e) {}
   // 토스페이먼츠 결제창 호출
+  const _omHistLen0 = history.length; // 결제창이 추가한 방문기록 개수를 계산하기 위해 기록
   try {
     const tossPayments = TossPayments(TOSS_CLIENT_KEY);
     const payment = tossPayments.payment({ customerKey: currentUser.uid });
@@ -1303,6 +1304,15 @@ async function startPayment(easyPayProvider) {
     });
   } catch(e) {
     console.error(e);
+    // 결제창이 열리면서 방문기록이 몇 칸 추가되는데, 취소해도 남아서 뒤로가기가 여러 번 필요했음 → 추가된 만큼 되돌려서 정리
+    try {
+      const extra = history.length - _omHistLen0;
+      if(extra > 0 && extra <= 5) {
+        window.__omCleaning = true;
+        history.go(-extra);
+        setTimeout(() => { window.__omCleaning = false; }, 800);
+      }
+    } catch(_) {}
     if(e.code !== 'USER_CANCEL') {
       alert('결제 요청 중 오류가 발생했습니다: ' + (e.message || e.code));
     }
@@ -1607,6 +1617,7 @@ if(window.ResizeObserver){var w=document.getElementById('stickyHeaderWrap');if(w
     installed=true;
     try{history.pushState({omGuard:1},'',location.href);}catch(e){installed=false;return;}
     window.addEventListener('popstate',function(){
+      if(window.__omCleaning)return;
       try{sessionStorage.removeItem('om_payTried');}catch(e){}
       location.replace('cart.html');
     });
