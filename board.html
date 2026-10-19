@@ -354,6 +354,58 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 :root{--sky-lt:#F7F4EE}
 .filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
+
+/* ===== 게시판 구조 정리 (목록 바 / 표 / 페이지 이동 / 빈 상태) ===== */
+.cs-wrap{padding-bottom:80px}
+.status-badge{white-space:nowrap}
+#csListArea{min-height:380px}
+.cs-toolbar{justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;min-height:40px}
+.bd-count{font-size:13.5px;color:var(--g4);letter-spacing:.01em}
+.bd-count b{color:var(--navy);font-weight:700;margin:0 1px}
+.bd-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
+.bd-search{display:flex;height:40px}
+.bd-search input{width:230px;padding:0 14px;border:1px solid var(--g2);border-right:none;font-size:13.5px;font-family:inherit;outline:none;background:#fff;color:var(--black)}
+.bd-search input:focus{border-color:var(--footer-bg)}
+.bd-search button{width:42px;border:1px solid var(--footer-bg);background:var(--footer-bg);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.bd-search button:hover{background:#463D36;border-color:#463D36}
+.cs-write-btn{height:40px;padding:0 20px;white-space:nowrap}
+.board-table{border-top:2px solid var(--footer-bg);border-bottom:1px solid var(--g2);table-layout:fixed}
+.board-table thead th{background:var(--sky-lt);padding:14px 10px;color:var(--g4);font-weight:600;letter-spacing:.02em}
+.board-table .col-num{width:72px}
+.board-table .col-author{width:120px}
+.board-table .col-date{width:116px}
+.board-table .col-last{width:96px}
+.board-row td{padding:18px 10px;border-bottom:1px solid var(--g1)}
+.board-row td.col-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board-row td.cell-sub{color:var(--g4);font-size:13px}
+.board-row td.col-num{color:var(--g3);font-size:13px}
+.board-row.pinned td.col-title{font-weight:700}
+.board-row.pinned{background:var(--sky-lt)}
+.board-row:hover{background:var(--sky-lt)}
+.new-badge{display:inline-block;margin-left:8px;padding:2px 6px;background:#EADFD1;color:#5A4A3A;font-family:'Montserrat','Pretendard Variable',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.08em;vertical-align:middle;border-radius:0}
+.faq-list{border-top:2px solid var(--footer-bg);border-bottom:1px solid var(--g2)}
+.empty-box,.loading-box,.login-required-box{border-top:2px solid var(--footer-bg);border-bottom:1px solid var(--g2);min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
+.loading-box{color:var(--g3)}
+.bd-pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:36px}
+.bd-pg{min-width:38px;height:38px;padding:0 6px;border:1px solid var(--g2);background:#fff;color:var(--g4);font-size:13.5px;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:0;transition:all .15s}
+.bd-pg:hover:not(:disabled):not(.on){border-color:var(--footer-bg);color:var(--footer-bg)}
+.bd-pg.on{background:var(--footer-bg);border-color:var(--footer-bg);color:#fff;font-weight:700;cursor:default}
+.bd-pg:disabled{color:var(--g2);cursor:default}
+@media (max-width:768px){
+  .cs-toolbar{flex-wrap:wrap}
+  .bd-count{width:100%}
+  .bd-tools{width:100%;margin-left:0}
+  .bd-search{flex:1}
+  .bd-search input{width:100%}
+  .cs-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 16px}
+  .cs-tab{padding:12px 8px;font-size:13px}
+  .status-badge{padding:3px 6px}
+  .board-table .col-num,.board-table .col-author{display:none}
+  .board-table .col-date{width:92px}
+  .board-table .col-last{width:80px}
+  .board-row td{padding:16px 8px}
+  .cs-wrap{padding-bottom:120px}
+}
 </style>
 </head>
 <body>
@@ -606,6 +658,8 @@ async function updateCartCount(uid) {
 }
 
 let currentBoardKeyword = '';
+let currentPage = 1;
+const PAGE_SIZE = 10;
 
 function toggleSearchOverlay() {
   const overlay = document.getElementById('searchOverlay');
@@ -629,7 +683,16 @@ function toggleSearchOverlay() {
 
 function doSearch() {
   currentBoardKeyword = document.getElementById('searchInput').value.trim();
+  currentPage = 1;
+  const bi = document.getElementById('bdSearchInput'); if(bi) bi.value = currentBoardKeyword;
   loadBoardList();
+}
+function boardSearch(e) {
+  if(e) e.preventDefault();
+  currentBoardKeyword = document.getElementById('bdSearchInput').value.trim();
+  currentPage = 1;
+  loadBoardList();
+  return false;
 }
 
 // ===================== 탭 =====================
@@ -638,6 +701,7 @@ function initTabs() {
     btn.classList.toggle('active', btn.dataset.tab === currentTab);
     btn.onclick = () => {
       currentTab = btn.dataset.tab;
+      currentPage = 1;
       openedRowId = null;
       currentBoardKeyword = '';
       document.getElementById('searchInput').value = ''; // 탭 전환 시 이전 검색어가 몰래 남아있지 않도록 초기화
@@ -657,22 +721,31 @@ function renderToolbar() {
   toolbar.innerHTML = '';
   catRow.innerHTML = '';
 
+  let writeBtn = '';
+  let canSearch = true;
   if(currentTab === 'notice') {
-    if(isMaster()) toolbar.innerHTML = `<button class="cs-write-btn" onclick="openWriteModal()">+ 공지 등록</button>`;
+    if(isMaster()) writeBtn = `<button class="cs-write-btn" onclick="openWriteModal()">+ 공지 등록</button>`;
   } else if(currentTab === 'qna') {
-    toolbar.innerHTML = `<button class="cs-write-btn" onclick="openWriteModal()">+ 상품문의 작성</button>`;
+    writeBtn = `<button class="cs-write-btn" onclick="openWriteModal()">+ 상품문의 작성</button>`;
   } else if(currentTab === 'faq') {
-    if(isMaster()) toolbar.innerHTML = `<button class="cs-write-btn" onclick="openWriteModal()">+ FAQ 등록</button>`;
+    if(isMaster()) writeBtn = `<button class="cs-write-btn" onclick="openWriteModal()">+ FAQ 등록</button>`;
     catRow.innerHTML = `<div class="cs-cat-row">${FAQ_CATS.map(c =>
       `<button class="cs-cat-chip${c===currentFaqCat?' active':''}" onclick="filterFaqCat('${c}')">${c}</button>`
     ).join('')}</div>`;
   } else if(currentTab === 'inquiry') {
-    if(currentUser) toolbar.innerHTML = `<button class="cs-write-btn" onclick="openWriteModal()">+ 1:1 상담 작성</button>`;
+    if(currentUser) writeBtn = `<button class="cs-write-btn" onclick="openWriteModal()">+ 1:1 상담 작성</button>`;
+    else canSearch = false;
   }
+  const searchHtml = canSearch ? `<form class="bd-search" onsubmit="return boardSearch(event)">
+      <input type="text" id="bdSearchInput" placeholder="제목, 내용 검색" autocomplete="off" value="${escapeHtml(currentBoardKeyword)}">
+      <button type="submit" aria-label="검색"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+    </form>` : '';
+  toolbar.innerHTML = `<div class="bd-count" id="bdCount"></div><div class="bd-tools">${searchHtml}${writeBtn}</div>`;
 }
 
 function filterFaqCat(cat) {
   currentFaqCat = cat;
+  currentPage = 1;
   document.querySelectorAll('.cs-cat-chip').forEach(chip => chip.classList.toggle('active', chip.textContent === cat));
   loadBoardList();
 }
@@ -729,11 +802,8 @@ async function loadBoardList() {
       return dbb - da;
     });
 
-    if(currentTab === 'faq') {
-      renderFaqList(posts);
-    } else {
-      renderBoardTable(posts);
-    }
+    window._boardAll = posts;
+    renderBoardPage();
   } catch(e) {
     console.error(e);
     area.innerHTML = `<div class="empty-box" style="color:var(--red);">목록을 불러오지 못했습니다.</div>`;
@@ -747,7 +817,45 @@ function fmtDate(ts) {
 }
 
 // ===================== 테이블형 (공지/상품문의/1:1상담) =====================
-function renderBoardTable(posts) {
+function isNewPost(p) {
+  return !!(p.createdAt && p.createdAt.toDate) && (Date.now() - p.createdAt.toDate().getTime()) < 7 * 86400000;
+}
+
+function renderBoardPage() {
+  const all = window._boardAll || [];
+  const total = all.length;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if(currentPage > pages) currentPage = pages;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const slice = all.slice(start, start + PAGE_SIZE);
+  const countEl = document.getElementById('bdCount');
+  if(countEl) countEl.innerHTML = (currentBoardKeyword ? '검색결과' : '전체') + ' <b>' + total + '</b>건';
+  if(currentTab === 'faq') renderFaqList(slice); else renderBoardTable(slice, total, start);
+  if(total > 0) document.getElementById('csListArea').insertAdjacentHTML('beforeend', renderPager(pages));
+}
+
+function renderPager(pages) {
+  const span = 5;
+  let s = Math.max(1, currentPage - 2);
+  let e = Math.min(pages, s + span - 1);
+  s = Math.max(1, e - span + 1);
+  const chev = (pts) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="${pts}"/></svg>`;
+  let h = '<div class="bd-pager">';
+  h += `<button class="bd-pg" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})" aria-label="이전">${chev('15 6 9 12 15 18')}</button>`;
+  for(let i = s; i <= e; i++) h += `<button class="bd-pg${i === currentPage ? ' on' : ''}" onclick="goPage(${i})">${i}</button>`;
+  h += `<button class="bd-pg" ${currentPage === pages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})" aria-label="다음">${chev('9 6 15 12 9 18')}</button>`;
+  return h + '</div>';
+}
+
+function goPage(n) {
+  currentPage = n;
+  openedRowId = null;
+  renderBoardPage();
+  const t = document.getElementById('csToolbar');
+  if(t) window.scrollTo({ top: Math.max(0, t.getBoundingClientRect().top + window.pageYOffset - 210), behavior: 'smooth' });
+}
+
+function renderBoardTable(posts, total, start) {
   const area = document.getElementById('csListArea');
   if(posts.length === 0) {
     area.innerHTML = currentBoardKeyword
@@ -760,20 +868,20 @@ function renderBoardTable(posts) {
   const showStatusCol = currentTab === 'qna' || currentTab === 'inquiry';
 
   const rowsHtml = posts.map((p, idx) => {
-    const num = p.pinned ? '공지' : (posts.length - idx);
+    const num = p.pinned ? '공지' : ((total || posts.length) - (start || 0) - idx);
     const isSecretHidden = p.secret && !isMaster() && (!currentUser || p.authorUid !== currentUser.uid);
     const titleText = isSecretHidden ? '비공개 게시글입니다' : p.title;
     const lockIcon = p.secret ? `<span class="lock-ic"><i class=ic-lock></i></span>` : '';
     const statusHtml = showStatusCol ? `<td>${p.status === 'answered' ? '<span class="status-badge answered">답변완료</span>' : '<span class="status-badge waiting">답변대기</span>'}</td>` : '';
-    const authorHtml = showAuthorCol ? `<td>${p.authorName || '-'}</td>` : '';
+    const authorHtml = showAuthorCol ? `<td class="cell-sub col-author">${p.authorName || '-'}</td>` : '';
 
     return `
     <tr class="board-row${p.pinned?' pinned':''}" onclick="toggleDetail('${p.id}')">
-      <td>${p.pinned?'<span class="pin-badge">공지</span>':num}</td>
-      <td class="col-title">${lockIcon}${titleText}</td>
+      <td class="col-num">${p.pinned?'<span class="pin-badge">공지</span>':num}</td>
+      <td class="col-title">${lockIcon}${titleText}${isNewPost(p) ? '<span class="new-badge">NEW</span>' : ''}</td>
       ${authorHtml}
-      <td>${fmtDate(p.createdAt)}</td>
-      ${showStatusCol ? statusHtml : `<td>${p.viewCount || 0}</td>`}
+      <td class="cell-sub">${fmtDate(p.createdAt)}</td>
+      ${showStatusCol ? statusHtml : `<td class="cell-sub">${p.viewCount || 0}</td>`}
     </tr>
     <tr class="board-detail" id="detail-${p.id}" style="display:none;"><td colspan="5"></td></tr>`;
   }).join('');
@@ -781,11 +889,11 @@ function renderBoardTable(posts) {
   area.innerHTML = `
     <table class="board-table">
       <thead><tr>
-        <th style="width:70px;">번호</th>
+        <th class="col-num">번호</th>
         <th class="col-title">제목</th>
-        ${showAuthorCol ? '<th style="width:110px;">작성자</th>' : ''}
-        <th style="width:110px;">작성일</th>
-        <th style="width:90px;">${showStatusCol ? '상태' : '조회'}</th>
+        ${showAuthorCol ? '<th class="col-author">작성자</th>' : ''}
+        <th class="col-date">작성일</th>
+        <th class="col-last">${showStatusCol ? '상태' : '조회'}</th>
       </tr></thead>
       <tbody>${rowsHtml}</tbody>
     </table>`;
