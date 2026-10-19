@@ -690,6 +690,10 @@ async function loadBoardList() {
 
   try {
     let query = _db.collection('board').where('type', '==', currentTab);
+    // 1:1 상담은 일반 회원이 본인 글만 요청하도록 서버 쿼리 단계에서 제한 (전체를 받아서 화면에서 거르면 보안 규칙에 막힘)
+    if(currentTab === 'inquiry' && !isMaster()) {
+      query = query.where('authorUid', '==', currentUser.uid);
+    }
     const snap = await query.get();
     let posts = [];
     snap.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
