@@ -773,6 +773,21 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.product-info-sticky .quickpay-box .btn-easypay{font-size:14px!important}
 .product-info .delivery-label{font-size:12px!important}
 .product-info .delivery-value{font-size:12.5px!important}
+
+/* 구매 영역 정리: 간편결제 제거, 묶음(헤더/가격/옵션/구매/안내) 사이는 넓게, 묶음 안은 촘촘하게 */
+.product-head{margin-bottom:14px!important}
+.product-meta{margin-bottom:10px!important}
+.spec-line{margin-bottom:28px!important}
+.product-info.product-info-sticky .price-wrap{padding-bottom:22px!important;margin-bottom:24px!important}
+.earn-line{margin-top:10px!important}
+.product-info.product-info-sticky .option-label{margin-bottom:12px!important}
+.product-info.product-info-sticky #colorDotsPreview{margin-bottom:12px!important}
+.product-info.product-info-sticky .option-section{margin-bottom:24px!important}
+.product-info.product-info-sticky .btn-cart,.product-info.product-info-sticky .btn-buy,.product-info.product-info-sticky .btn-wish{height:50px!important}
+.product-info .buy-btns{margin-bottom:0!important}
+.product-info .restock-btn{margin-top:12px!important}
+.product-info .delivery-info{margin-top:28px!important;padding-top:20px!important}
+.product-info .delivery-row{margin-bottom:8px!important}
 </style>
 </head>
 <body>
@@ -1091,19 +1106,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       <button class="btn-wish" id="wish-btn" onclick="toggleWish()"><i class=ic-wish></i></button>
       <button class="btn-cart" onclick="addCart()">장바구니 담기</button>
       <button class="btn-buy" onclick="buyNow()">바로구매</button>
-    </div>
-
-    <div class="quickpay-box">
-    <!-- 구분 -->
-    <div class="quickpay-divider" id="quickpay-divider">
-      <span></span><em>간편결제</em><span></span>
-    </div>
-
-    <!-- 간편결제 바로가기 (주문서로 이동 후 해당 결제수단이 바로 선택되도록) -->
-    <div class="quickpay-btns" id="quickpay-btns">
-      <button class="btn-easypay btn-naverpay" onclick="quickPay('naver')"><span class="npay-mark">N</span>pay</button>
-      <button class="btn-easypay btn-kakaopay" onclick="quickPay('kakao')"><svg class="kakao-bubble" width="17" height="17" viewBox="0 0 16 16" aria-hidden="true"><path fill="#000" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>pay</button>
-    </div>
     </div>
 
     <!-- 재입고 알림 (품절시 표시) -->
