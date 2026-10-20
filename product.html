@@ -801,6 +801,14 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.product-info-sticky .price-wrap{padding-bottom:24px!important;margin-bottom:26px!important}
 .product-info .delivery-info{margin-top:30px!important}
 .product-info.product-info-sticky .btn-cart,.product-info.product-info-sticky .btn-buy,.product-info.product-info-sticky .btn-wish{height:52px!important}
+
+/* 사이즈 · 소재 · 원산지 간격 / 가격 줄 기준선 정렬 */
+.spec-line{gap:6px 30px!important}
+.spec-item{gap:9px!important}
+.price-value{align-items:baseline!important}
+.price-value .won,#priceValue,#priceOriginal,#priceDiscountBadge{align-self:baseline!important}
+#priceDiscountBadge span{line-height:1.3!important}
+#priceDiscountBadge{position:relative;top:-6px}
 </style>
 </head>
 <body>
