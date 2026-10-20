@@ -829,7 +829,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .info-card .product-head{margin-bottom:6px!important}
 .info-body{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .info-card .product-meta{display:block!important;margin:0!important;padding-left:26px}
-.info-card .head-code{display:none!important}
 .info-card .spec-line{display:flex!important;flex-direction:column!important;gap:6px!important;border:0!important;padding:0!important;margin:0 36px 0 0!important}
 .info-card .spec-item{display:flex!important;align-items:baseline;gap:10px}
 .info-card .spec-item .info-k{flex:0 0 44px!important;font-size:12px!important}
@@ -880,6 +879,10 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.info-compact .info-card{margin-bottom:4px!important}
 .spec-line .spec-item{border-radius:4px!important}
 #priceDiscountBadge span{border-radius:4px!important}
+.info-card .product-meta{display:flex!important;justify-content:space-between!important;align-items:flex-start!important}
+.info-card .product-meta .head-code{display:flex!important;margin:6px 0 0 auto!important;font-size:12.5px}
+.info-body{display:block!important}
+.info-card .product-meta{width:100%!important}
 </style>
 </head>
 <body>
@@ -1242,7 +1245,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       <tr><td>브랜드</td><td id="spec-brand">-</td></tr>
       <tr><td>상품코드</td><td id="spec-barcode">-</td></tr>
       <tr><td>사이즈</td><td id="spec-size">-</td></tr>
-      <tr><td>프레임 종류</td><td id="spec-type">-</td></tr>
       <tr><td>색상</td><td id="spec-color">-</td></tr>
       <tr><td>원산지</td><td id="spec-origin">-</td></tr>
       <tr id="spec-material-row" style="display:none"><td>소재</td><td id="spec-material">-</td></tr>
@@ -2021,7 +2023,7 @@ function renderProduct(p) {
   document.getElementById('spec-brand').textContent = p.brandName || '-';
   document.getElementById('spec-barcode').textContent = p.barcode || '-';
   document.getElementById('spec-size').textContent = p.size || '-';
-  document.getElementById('spec-type').textContent = p.type || '-';
+  
   document.getElementById('spec-color').textContent =
     (Array.isArray(p.colors) && p.colors.length)
       ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
