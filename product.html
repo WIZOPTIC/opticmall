@@ -819,6 +819,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-head .product-category{font-size:14px!important;font-weight:600!important;letter-spacing:.24em!important;color:#14110f!important}
 .product-meta{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:12px!important}
 .product-meta .head-code{margin-left:auto}
+#colorDotsPreview{gap:18px!important;margin-bottom:12px!important}
+#colorDotsPreview button{border:none!important;background:transparent!important;padding:2px 0!important;border-radius:0!important}
+#colorDotsPreview button span:last-child{font-size:13px!important;color:#14110f!important}
 </style>
 </head>
 <body>
@@ -1109,11 +1112,10 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
-      <div class="option-label">색상</div>
       <div id="colorDotsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
       <div class="color-dropdown-wrap" id="colorDropdownWrap" style="position:relative;">
         <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
-          <span>선택</span>
+          <span>색상 선택</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="color-dropdown-panel" id="colorDropdownPanel" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--g2);border-radius:0;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:260px;overflow-y:auto;z-index:20;">
