@@ -589,6 +589,21 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info .delivery-label{width:76px!important;font-size:12.5px!important;font-weight:500!important;color:var(--g3)!important}
 .product-info .delivery-value{font-size:13px!important;line-height:1.6!important;color:#1b1b1b}
 .product-info .delivery-value .highlight{color:#000!important;font-weight:700!important}
+/* ===== 우측 패널 간격 압축: 한 화면에 다 들어와서 스크롤해도 안 움직이게 ===== */
+.product-head{padding-bottom:10px!important;margin-bottom:12px!important}
+.product-meta{margin-bottom:12px!important}
+.product-info.product-info-sticky .price-wrap{padding:0 0 12px!important;margin-bottom:12px!important}
+.origin-row{padding-bottom:12px!important;margin-top:-4px!important}
+.product-info.product-info-sticky .option-label{margin-bottom:8px!important}
+.product-info.product-info-sticky #colorDotsPreview{margin-bottom:8px!important}
+.product-info.product-info-sticky .option-section{margin-bottom:12px!important}
+#colorDropdownTrigger{height:44px!important}
+.product-info.product-info-sticky .btn-cart,.product-info.product-info-sticky .btn-buy,.product-info.product-info-sticky .btn-wish,.product-info.product-info-sticky .btn-easypay{height:46px!important}
+.product-info.product-info-sticky .quickpay-divider{margin:10px 0 8px!important}
+.product-info.product-info-sticky .quickpay-btns{margin-bottom:12px!important}
+.product-info .delivery-info{padding-top:12px!important}
+.product-info .delivery-row{margin-bottom:4px!important}
+
 </style>
 </head>
 <body>
@@ -1162,7 +1177,12 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       var hh=parseInt(cs.getPropertyValue('--sticky-header-h'))||0;
       var gap=parseInt(cs.getPropertyValue('--info-gap'))||24;
       var normalTop=hh+gap, bottomGap=16, h=productInfo.offsetHeight;
-      var top=(h+normalTop+bottomGap>window.innerHeight)?(window.innerHeight-h-bottomGap):normalTop;
+      // 처음 놓인 자리(스크롤 0일 때 위치)를 그대로 고정 위치로 써서, 스크롤 시작할 때 패널이 움찔하며 올라가지 않게 함
+      var par=productInfo.parentElement, natural=0;
+      if(par){ var pcs=getComputedStyle(par), pr=par.getBoundingClientRect();
+        natural=pr.top+(window.pageYOffset||0)+(parseFloat(pcs.paddingTop)||0)+(parseFloat(pcs.borderTopWidth)||0); }
+      var base=Math.max(normalTop,Math.round(natural));
+      var top=(h+base+bottomGap>window.innerHeight)?(window.innerHeight-h-bottomGap):base;
       productInfo.style.setProperty('top',top+'px','important');
     }catch(e){}
   }
