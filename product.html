@@ -822,6 +822,14 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 #colorDotsPreview{gap:18px!important;margin-bottom:12px!important}
 #colorDotsPreview button{border:none!important;background:transparent!important;padding:2px 0!important;border-radius:0!important}
 #colorDotsPreview button span:last-child{font-size:13px!important;color:#14110f!important}
+.info-card{background:#F4F0E8;padding:14px 20px 13px;margin:0 -20px 26px}
+.info-card .product-head{margin-bottom:8px!important}
+.info-card .product-meta{display:flex!important;align-items:baseline!important;flex-wrap:wrap!important;justify-content:flex-start!important;gap:4px 22px!important;margin-bottom:0!important}
+.info-card .product-meta .product-name{margin:0!important}
+.info-card .spec-line{display:flex!important;flex-wrap:wrap!important;gap:2px 16px!important;margin:0!important}
+.info-card .head-code{margin-left:0}
+.info-card .info-v{font-size:13px!important;font-family:inherit!important;font-weight:500!important}
+.product-info.info-compact .info-card{padding:11px 20px 10px;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -1061,18 +1069,20 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
   <!-- 정보 -->
   <div class="product-info">
+    <div class="info-card">
     <div class="product-head">
       <div class="product-category" id="productCategory">-</div>
       <div class="head-rule"></div>
+      <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
     </div>
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
-      <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
-    </div>
     <div class="spec-line">
       <span class="spec-item"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></span>
       <span class="spec-item" id="extraInfoRow" style="display:none;"><span class="info-k">소재</span><span class="info-v" id="extraInfoValue"></span></span>
-      <span class="spec-item" style="display:none"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
+      <span class="spec-item"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
+    </div>
+    </div>
     </div>
 
 
@@ -1963,8 +1973,8 @@ function renderProduct(p) {
     (Array.isArray(p.colors) && p.colors.length)
       ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
       : (p.color || '-');
-  document.getElementById('spec-origin').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
-  document.getElementById('originInline').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
+  document.getElementById('spec-origin').textContent = p.origin === 'korea' ? '한국' : '중국';
+  document.getElementById('originInline').textContent = p.origin === 'korea' ? '한국' : '중국';
   (function(){ var ex = p.material || p.extraInfo || ''; var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
