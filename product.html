@@ -733,6 +733,24 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.product-info-sticky .quickpay-box{margin-bottom:12px!important;padding:8px 12px!important}
 .product-info .delivery-info{padding-top:14px!important}
 .product-info .delivery-row{margin-bottom:5px!important}
+
+/* 사이즈 · 소재 · 원산지 (모델명 바로 아래) / 적립예정 (가격 바로 아래) */
+.info-rows{display:none!important}
+.spec-line{display:flex;flex-wrap:wrap;gap:4px 20px;margin:0 0 16px}
+.spec-item{display:inline-flex;align-items:baseline;gap:7px}
+.spec-line .info-k{flex:0 0 auto}
+.earn-line{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+.earn-line .info-k{flex:0 0 auto}
+.product-meta{margin-bottom:8px!important}
+
+/* 정리된 구성에 맞춘 여유 간격 */
+.spec-line{margin-bottom:22px!important}
+.product-head{margin-bottom:14px!important}
+.product-info.product-info-sticky .price-wrap{padding-bottom:16px!important;margin-bottom:16px!important}
+.product-info.product-info-sticky .option-section{margin-bottom:14px!important}
+.product-info .buy-btns{margin-bottom:10px!important}
+.product-info.product-info-sticky .quickpay-box{margin-bottom:14px!important}
+.product-info .delivery-info{padding-top:16px!important}
 </style>
 </head>
 <body>
@@ -980,6 +998,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
     </div>
+    <div class="spec-line">
+      <span class="spec-item"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></span>
+      <span class="spec-item" id="extraInfoRow" style="display:none;"><span class="info-k">소재</span><span class="info-v" id="extraInfoValue"></span></span>
+      <span class="spec-item"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
+    </div>
 
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
@@ -1013,13 +1036,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
           <span style="color:var(--green);font-weight:600;">재고 있음</span>
         </div>
       </div>
-    </div>
-
-    <div class="info-rows" id="infoRows">
-      <div class="info-row"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></div>
-      <div class="info-row"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></div>
-      <div class="info-row info-wide" id="earnRow" style="display:none;"><span class="info-k">적립예정</span><span class="info-v" id="earnValue">-</span></div>
-      <div class="info-row info-wide" id="extraInfoRow" style="display:none;"><span class="info-k">부가정보</span><span class="info-v" id="extraInfoValue"></span></div>
+      <div class="earn-line" id="earnRow" style="display:none;"><span class="info-k">적립예정</span><span id="earnValue">-</span></div>
     </div>
 
     <!-- 색상/타입 정보 -->
@@ -1861,7 +1878,7 @@ function renderProduct(p) {
       : (p.color || '-');
   document.getElementById('spec-origin').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
   document.getElementById('originInline').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
-  (function(){ var ex = p.material ? ('Material : ' + p.material) : (p.extraInfo || ''); var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
+  (function(){ var ex = p.material || p.extraInfo || ''; var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
   const firstColor = (p.colors && p.colors.length > 0) ? p.colors[0] : null;
