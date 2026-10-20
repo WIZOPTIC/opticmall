@@ -827,7 +827,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .info-card .product-meta{display:flex!important;align-items:baseline!important;flex-wrap:wrap!important;justify-content:flex-start!important;gap:4px 22px!important;margin-bottom:0!important}
 .info-card .product-meta .product-name{margin:0!important}
 .info-card .spec-line{display:flex!important;flex-wrap:wrap!important;gap:2px 16px!important;margin:0!important}
-.info-card .head-code{margin-left:0}
+.info-card .head-code{display:none!important}
+.info-card .head-rule{margin-right:0}
+.info-card .spec-line{margin-left:auto!important;justify-content:flex-end!important}
 .info-card .info-v{font-size:13px!important;font-family:inherit!important;font-weight:500!important}
 .product-info.info-compact .info-card{padding:11px 20px 10px;margin-bottom:16px}
 </style>
@@ -1973,8 +1975,8 @@ function renderProduct(p) {
     (Array.isArray(p.colors) && p.colors.length)
       ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
       : (p.color || '-');
-  document.getElementById('spec-origin').textContent = p.origin === 'korea' ? '한국' : '중국';
-  document.getElementById('originInline').textContent = p.origin === 'korea' ? '한국' : '중국';
+  document.getElementById('spec-origin').textContent = p.origin === 'korea' ? 'KOREA' : 'CHINA';
+  document.getElementById('originInline').textContent = p.origin === 'korea' ? 'KOREA' : 'CHINA';
   (function(){ var ex = p.material || p.extraInfo || ''; var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
