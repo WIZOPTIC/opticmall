@@ -822,31 +822,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 #colorDotsPreview{gap:18px!important;margin-bottom:12px!important}
 #colorDotsPreview button{border:none!important;background:transparent!important;padding:2px 0!important;border-radius:0!important}
 #colorDotsPreview button span:last-child{font-size:13px!important;color:#14110f!important}
-.info-card{background:#F4F0E8;padding:14px 20px 13px;margin:0 -20px 26px}
-.info-card .product-head{margin-bottom:8px!important}
-.info-card .product-meta{display:flex!important;align-items:baseline!important;flex-wrap:wrap!important;justify-content:flex-start!important;gap:4px 22px!important;margin-bottom:0!important}
-.info-card .product-meta .product-name{margin:0!important}
-.info-card .spec-line{display:flex!important;flex-wrap:wrap!important;gap:2px 16px!important;margin:0!important}
-.info-card .head-code{display:none!important}
-.info-card .product-meta{align-items:center!important}
-.info-card .spec-line{align-items:center!important}
-.info-card .spec-item{align-items:center!important}
-.info-card .head-rule{margin-right:0}
-.info-card .spec-line{margin-left:auto!important;justify-content:flex-end!important}
-.info-card .info-v{font-size:13px!important;font-family:inherit!important;font-weight:500!important}
-.product-info.info-compact .info-card{padding:11px 20px 10px;margin-bottom:16px}
 #stock-status{display:none!important}
-.spec-line{margin:0 0 22px!important;gap:4px 24px!important;justify-content:flex-start!important}
-.product-info.info-compact .spec-line{margin-bottom:14px!important}
-.info-card{margin-bottom:14px!important}
-.product-info.info-compact .info-card{margin-bottom:10px!important}
-.info-card .product-meta{justify-content:flex-start!important;gap:4px 24px!important}
-.meta-size{display:inline-flex;align-items:baseline;gap:8px}
-.meta-size .info-k{font-size:12px;color:var(--g3)}
-.meta-size .info-v{font-size:14px!important;font-weight:500;color:#1b1b1b!important}
-.info-card{margin-bottom:26px!important}
-.product-info.info-compact .info-card{margin-bottom:16px!important}
-#extraInfoRow,#originInline{display:none!important}
 </style>
 </head>
 <body>
@@ -1086,18 +1062,19 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
   <!-- 정보 -->
   <div class="product-info">
-    <div class="info-card">
     <div class="product-head">
       <div class="product-category" id="productCategory">-</div>
       <div class="head-rule"></div>
-      <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
     </div>
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
-      <span class="meta-size"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></span>
+      <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
     </div>
+    <div class="spec-line">
+      <span class="spec-item"><span class="info-k">사이즈</span><span class="info-v" id="specSizeInline">-</span></span>
+      <span class="spec-item" id="extraInfoRow" style="display:none;"><span class="info-k">소재</span><span class="info-v" id="extraInfoValue"></span></span>
+      <span class="spec-item" style="display:none"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
     </div>
-    <span id="extraInfoRow" style="display:none"><span id="extraInfoValue"></span></span><span id="originInline" style="display:none"></span>
 
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
@@ -1976,7 +1953,7 @@ function renderProduct(p) {
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
   document.getElementById('productCategory').textContent = p.brandName || '';
   document.getElementById('productName').textContent = p.modelName || '-';
-  document.getElementById('productSize').textContent = p.size || '-';
+  document.getElementById('specSizeInline').textContent = p.size || '-';
   document.getElementById('productCode').textContent = (p.barcode || '-');
 
   // 스펙 테이블
