@@ -1377,6 +1377,13 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
         natural=pr.top+(window.pageYOffset||0)+(parseFloat(pcs.paddingTop)||0)+(parseFloat(pcs.borderTopWidth)||0); }
       var base=Math.max(normalTop,Math.round(natural));
       if(h+base+bottomGap>window.innerHeight){ productInfo.classList.add('info-compact'); h=productInfo.offsetHeight; }
+      // 그래도 넘치면 '구매 버튼까지'는 항상 한 화면에 보이게 하고, 배송/반품 안내는 아래로 넘김
+      var bb=productInfo.querySelector('.buy-btns');
+      if(h+base+bottomGap>window.innerHeight && bb){
+        var ir=productInfo.getBoundingClientRect(), br=bb.getBoundingClientRect();
+        var hb=Math.round(br.bottom-ir.top);
+        if(hb>0 && hb<h) h=hb;
+      }
       var top=(h+base+bottomGap>window.innerHeight)?(window.innerHeight-h-bottomGap):base;
       productInfo.style.setProperty('top',top+'px','important');
     }catch(e){}
