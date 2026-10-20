@@ -679,6 +679,22 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.product-info-sticky .btn-cart,.product-info.product-info-sticky .btn-buy{flex:1 1 0!important;min-width:0;padding-left:6px!important;padding-right:6px!important;white-space:nowrap}
 
 #priceDiscountBadge:empty{display:none!important}
+
+/* 사양: 박스 없이 한 줄 (라벨 회색 + 값) */
+.spec-grid{display:flex!important;flex-wrap:wrap;gap:4px 22px;border:0!important;padding:0!important;margin:0 0 14px!important}
+.spec-cell,.spec-cell:first-child,.spec-cell:nth-child(2),.spec-cell:last-child{flex:0 0 auto!important;flex-direction:row!important;align-items:baseline;gap:7px!important;padding:0!important;border:0!important}
+.spec-cell+.spec-cell{border-left:0!important}
+.spec-k{font-size:12px!important;color:var(--g3)!important}
+.spec-v{font-size:13.5px!important;font-weight:500!important;color:#1b1b1b!important}
+.product-meta{margin-bottom:8px!important}
+
+.product-head{margin-bottom:14px!important}
+.product-meta{margin-bottom:10px!important}
+.spec-grid{margin-bottom:20px!important}
+.product-info.product-info-sticky .price-wrap{padding-bottom:16px!important;margin-bottom:16px!important}
+.product-info.product-info-sticky .option-section{margin-bottom:14px!important}
+.product-info.product-info-sticky .quickpay-box{margin-bottom:12px!important}
+.product-info .delivery-info{padding-top:16px!important}
 </style>
 </head>
 <body>
@@ -921,29 +937,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="product-head">
       <div class="product-category" id="productCategory">-</div>
       <div class="head-rule"></div>
-      <div style="display:flex;align-items:center;flex-shrink:0;position:relative;">
-        <button class="share-btn" id="shareBtn" onclick="toggleSharePanel(event)" title="공유하기">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 15V3"/><path d="M7.5 7.5L12 3l4.5 4.5"/><path d="M8 10H5v11h14V10h-3"/></svg>
-        </button>
-        <div class="share-panel" id="sharePanel">
-          <div class="share-panel-title">상품 공유하기</div>
-          <div class="share-link-row">
-            <input type="text" id="shareLinkInput" readonly>
-            <button class="share-copy-btn" onclick="copyShareLink()">복사</button>
-          </div>
-          <button class="share-kakao-btn" onclick="shareProduct()">
-            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>
-            카카오톡으로 공유
-          </button>
-        </div>
-      </div>
     </div>
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
     </div>
     <div class="spec-grid">
-      <div class="spec-cell"><span class="spec-k">브랜드</span><span class="spec-v" id="specHeadBrand">-</span></div>
-      <div class="spec-cell"><span class="spec-k">모델명</span><span class="spec-v" id="specHeadModel">-</span></div>
       <div class="spec-cell"><span class="spec-k">사이즈</span><span class="spec-v" id="productSize">-</span></div>
       <div class="spec-cell"><span class="spec-k">상품코드</span><span class="spec-v" id="productCode">-</span></div>
       <div class="spec-cell"><span class="spec-k">원산지</span><span class="spec-v" id="originInline">-</span></div>
@@ -984,7 +982,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
-      <div class="option-label">색상<span id="colorCountLabel"></span></div>
+      <div class="option-label">색상</div>
       <div id="colorDotsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
       <div class="color-dropdown-wrap" id="colorDropdownWrap" style="position:relative;">
         <div class="color-dropdown-trigger" id="colorDropdownTrigger" onclick="toggleColorDropdown()" style="width:100%;box-sizing:border-box;padding:12px 16px;border:1.5px solid var(--g2);border-radius:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--g4);background:#fff;">
@@ -1800,8 +1798,6 @@ function renderProduct(p) {
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
   document.getElementById('productCategory').textContent = p.brandName || '';
   document.getElementById('productName').textContent = p.modelName || '-';
-  document.getElementById('specHeadBrand').textContent = p.brandName || '-';
-  document.getElementById('specHeadModel').textContent = p.modelName || '-';
   document.getElementById('productSize').textContent = p.size || '-';
   document.getElementById('productCode').textContent = (p.barcode || '-');
 
@@ -1878,7 +1874,6 @@ function renderColorButtons(p, previewIdx) {
 
   // 한눈에 보는 색상 도트 미리보기 (클릭하면 사진만 바뀜, 장바구니에 담기지 않음)
   const dotsWrap = document.getElementById('colorDotsPreview');
-  const ccl = document.getElementById('colorCountLabel'); if(ccl) ccl.textContent = '총 ' + colors.length + '가지 컬러';
   dotsWrap.innerHTML = colors.map((c, i) => {
     const stock = Number(c.stock || 0);
     const outOfStock = stock <= 0;
