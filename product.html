@@ -822,6 +822,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 #colorDotsPreview{gap:18px!important;margin-bottom:12px!important}
 #colorDotsPreview button{border:none!important;background:transparent!important;padding:2px 0!important;border-radius:0!important}
 #colorDotsPreview button span:last-child{font-size:13px!important;color:#14110f!important}
+.info-card{background:#F4F0E8;padding:16px 20px 14px;margin-bottom:22px}
+.info-card .spec-line{margin-bottom:0!important}
+.info-card .product-head{margin-bottom:10px!important}
+.info-card .product-meta{margin-bottom:10px!important}
+.product-info.info-compact .info-card{padding:12px 18px 10px;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -1061,6 +1066,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
   <!-- 정보 -->
   <div class="product-info">
+    <div class="info-card">
     <div class="product-head">
       <div class="product-category" id="productCategory">-</div>
       <div class="head-rule"></div>
@@ -1073,6 +1079,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       <span class="spec-item"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></span>
       <span class="spec-item" id="extraInfoRow" style="display:none;"><span class="info-k">소재</span><span class="info-v" id="extraInfoValue"></span></span>
       <span class="spec-item" style="display:none"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
+    </div>
     </div>
 
 
