@@ -2021,7 +2021,7 @@ function renderProduct(p) {
 
   // 스펙 테이블
   document.getElementById('spec-brand').textContent = p.brandName || '-';
-  document.getElementById('spec-barcode').textContent = p.barcode || '-';
+  document.getElementById('spec-barcode').textContent = p.barcode || ((Array.isArray(p.colors) ? p.colors.map(c => c.barcode).filter(Boolean).join(', ') : '') || '-');
   document.getElementById('spec-size').textContent = p.size || '-';
   
   document.getElementById('spec-color').textContent =
