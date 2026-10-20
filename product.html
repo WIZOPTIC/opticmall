@@ -840,6 +840,12 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.info-compact .spec-line{margin-bottom:14px!important}
 .info-card{margin-bottom:14px!important}
 .product-info.info-compact .info-card{margin-bottom:10px!important}
+.info-card .product-meta{justify-content:flex-start!important;gap:4px 24px!important}
+.meta-size{display:inline-flex;align-items:baseline;gap:8px}
+.meta-size .info-k{font-size:12px;color:var(--g3)}
+.meta-size .info-v{font-size:14px!important;font-weight:500;color:#1b1b1b!important}
+.info-card{margin-bottom:26px!important}
+.product-info.info-compact .info-card{margin-bottom:16px!important}
 </style>
 </head>
 <body>
@@ -1087,13 +1093,10 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     </div>
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
+      <span class="meta-size"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></span>
     </div>
     </div>
-    <div class="spec-line">
-      <span class="spec-item"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></span>
-      <span class="spec-item" id="extraInfoRow" style="display:none;"><span class="info-k">소재</span><span class="info-v" id="extraInfoValue"></span></span>
-      <span class="spec-item"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
-    </div>
+    <span id="extraInfoRow" style="display:none"><span id="extraInfoValue"></span></span><span id="originInline" style="display:none"></span>
 
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
@@ -1203,6 +1206,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       <tr><td>프레임 종류</td><td id="spec-type">-</td></tr>
       <tr><td>색상</td><td id="spec-color">-</td></tr>
       <tr><td>원산지</td><td id="spec-origin">-</td></tr>
+      <tr id="spec-material-row" style="display:none"><td>소재</td><td id="spec-material">-</td></tr>
     </table>
     <!-- 상품정보 바로 아래로 상세 이미지가 탭 클릭 없이 바로 이어서 보이도록 -->
     <div id="specDetailPhotosGrid" class="detail-photos-grid" style="margin-top:32px;"></div>
@@ -1984,6 +1988,7 @@ function renderProduct(p) {
       ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
       : (p.color || '-');
   document.getElementById('spec-origin').textContent = p.origin === 'korea' ? 'KOREA' : 'CHINA';
+  (function(){ var m = p.material || p.extraInfo || ''; var r = document.getElementById('spec-material-row'); if(r){ document.getElementById('spec-material').textContent = m; r.style.display = m ? '' : 'none'; } })();
   document.getElementById('originInline').textContent = p.origin === 'korea' ? 'KOREA' : 'CHINA';
   (function(){ var ex = p.material || p.extraInfo || ''; var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
 
