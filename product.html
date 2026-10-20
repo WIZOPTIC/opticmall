@@ -825,6 +825,18 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 #stock-status{display:none!important}
 .spec-line{border-bottom:1px solid #E4DCCF!important;padding-bottom:16px!important;margin-bottom:20px!important}
 .product-info.info-compact .spec-line{padding-bottom:12px!important;margin-bottom:14px!important}
+.info-card{background:#F4F0E8;padding:16px 20px 20px;margin:0 -20px 24px}
+.info-card .product-head{margin-bottom:6px!important}
+.info-body{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.info-card .product-meta{display:block!important;margin:0!important;padding-left:26px}
+.info-card .head-code{display:none!important}
+.info-card .spec-line{display:flex!important;flex-direction:column!important;gap:6px!important;border:0!important;padding:0!important;margin:0 36px 0 0!important}
+.info-card .spec-item{display:flex!important;align-items:baseline;gap:10px}
+.info-card .spec-item .info-k{flex:0 0 44px!important;font-size:12px!important}
+.info-card .spec-item .info-v{font-size:13.5px!important;color:#1b1b1b!important}
+#price-visible,#price-locked,#price-checking{padding-left:26px!important}
+.product-info.info-compact .info-card{padding:12px 20px 14px;margin-bottom:14px}
+.product-info.info-compact .info-card .spec-line{gap:3px!important}
 </style>
 </head>
 <body>
@@ -1064,10 +1076,12 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
   <!-- 정보 -->
   <div class="product-info">
+    <div class="info-card">
     <div class="product-head">
       <div class="product-category" id="productCategory">-</div>
       <div class="head-rule"></div>
     </div>
+    <div class="info-body">
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
       <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
@@ -1075,7 +1089,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="spec-line">
       <span class="spec-item"><span class="info-k">사이즈</span><span class="info-v" id="specSizeInline">-</span></span>
       <span class="spec-item" id="extraInfoRow" style="display:none;"><span class="info-k">소재</span><span class="info-v" id="extraInfoValue"></span></span>
-      <span class="spec-item" style="display:none"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
+      <span class="spec-item"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
+    </div>
+    </div>
     </div>
 
 
