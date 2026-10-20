@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>옵틱몰 - 프리미엄 도매몰</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF7A1A'/><text x='50' y='68' font-family='Arial, sans-serif' font-weight='800' font-size='48' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;600;700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&family=Noto+Serif:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;600;700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 <style>
@@ -605,9 +605,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info .delivery-row{margin-bottom:4px!important}
 /* ===== 상품 정보 상단 재구성 (브랜드 / 큰 모델명 / 사양 3칸 / 가격) ===== */
 .product-head{padding-bottom:0!important;margin-bottom:6px!important;border-bottom:0!important}
-.product-head .product-category{font-family:"Noto Serif",serif!important;font-size:13px!important;font-weight:400!important;letter-spacing:.24em!important;color:#3a332d!important}
+.product-head .product-category{font-family:"Inter","Pretendard Variable",Pretendard,sans-serif!important;font-size:13px!important;font-weight:600!important;letter-spacing:.24em!important;color:#3a332d!important}
 .product-meta{display:block!important;margin-bottom:14px!important}
-.product-meta .product-name{font-family:"Noto Serif",serif!important;font-size:34px!important;font-weight:500!important;letter-spacing:-.02em!important;line-height:1.15!important;color:#14110f}
+.product-meta .product-name{font-family:"Inter","Pretendard Variable",Pretendard,sans-serif!important;font-size:34px!important;font-weight:500!important;letter-spacing:-.02em!important;line-height:1.15!important;color:#14110f}
 .spec-grid{display:flex;border-top:1px solid var(--g2);border-bottom:1px solid var(--g2);margin-bottom:14px}
 .spec-cell{display:flex;flex-direction:column;gap:3px;padding:10px 0 10px 16px;min-width:0}
 .spec-cell:first-child{padding-left:0;flex:0 0 26%}
@@ -617,8 +617,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .spec-k{font-size:11.5px;color:var(--g3);letter-spacing:.02em}
 .spec-v{font-size:13.5px;font-weight:500;color:#1b1b1b;word-break:break-all;line-height:1.35}
 .product-info.product-info-sticky .price-wrap{padding:0 0 12px!important;margin-bottom:12px!important}
-.price-value{font-family:"Noto Serif",serif!important;font-size:30px!important;font-weight:500!important;letter-spacing:-.01em!important;align-items:center!important;gap:0!important}
-.price-value .won{font-family:"Noto Serif",serif!important;font-size:20px!important;font-weight:500!important;margin-right:6px!important}
+.price-value{font-family:"Inter","Pretendard Variable",Pretendard,sans-serif!important;font-size:30px!important;font-weight:500!important;letter-spacing:-.01em!important;align-items:center!important;gap:0!important}
+.price-value .won{font-family:"Inter","Pretendard Variable",Pretendard,sans-serif!important;font-size:20px!important;font-weight:500!important;margin-right:6px!important}
 #priceValue{order:1}
 #priceOriginal{order:2;font-family:var(--font-body,inherit)!important;font-size:14px!important;margin-left:12px!important;color:var(--g3)!important}
 #priceDiscountBadge{order:3;margin-left:12px}
@@ -647,7 +647,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-head{margin-bottom:8px!important;gap:14px!important}
 .head-rule{flex:1;height:1px;background:#D9D0C1}
 .product-head .product-category{font-size:13px!important}
-.product-meta .product-name{font-size:32px!important;margin-bottom:0!important}
+.product-meta .product-name{font-size:30px!important;font-weight:600!important;margin-bottom:0!important}
 .product-meta{margin-bottom:12px!important}
 .spec-grid{border-color:#E4DCCF!important}
 .spec-cell,.spec-cell:first-child,.spec-cell:nth-child(2),.spec-cell:last-child{flex:1 1 auto!important;padding:7px 0 7px 10px!important}
@@ -656,7 +656,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .spec-k{font-size:11px!important}
 .spec-v{font-size:12.5px!important;line-height:1.3!important}
 .price-wrap{border-bottom-color:#E4DCCF!important}
-.price-value{font-size:27px!important;font-weight:500!important}
+.price-value{font-size:27px!important;font-weight:700!important}
 .product-info.product-info-sticky .price-wrap{padding-bottom:8px!important;margin-bottom:8px!important}
 /* 순서: 1 할인가 → 2 원래가격(취소선) → 3 할인율 배지 */
 .price-value .won{order:0!important;margin-right:4px!important;font-size:20px!important}
