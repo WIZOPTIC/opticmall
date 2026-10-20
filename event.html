@@ -307,6 +307,10 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 :root{--sky-lt:#F7F4EE}
 .filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
 input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
+/* 헤더 정돈: 로고-메뉴 왼쪽선 맞춤, 메뉴 가볍게 */
+@media (min-width:1001px){.header-top-row .logo{margin-left:-8px}}
+.gnb-item{font-weight:450!important;letter-spacing:.08em!important}
+.gnb-item:hover,.gnb-item.active{font-weight:450!important}
 </style>
 </head>
 <body>
