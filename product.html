@@ -1795,7 +1795,7 @@ function updatePriceDisplay() {
       const salePrice = Math.round(price * (1 - discountRate/100));
       document.getElementById('priceOriginal').textContent = `₩${price.toLocaleString()}`;
       document.getElementById('priceOriginal').style.display = 'inline';
-      document.getElementById('priceDiscountBadge').innerHTML = `<span style="font-size:14px;color:var(--red);font-weight:700;margin-right:8px;">${discountRate}%</span>`;
+      document.getElementById('priceDiscountBadge').innerHTML = `<span style="font-size:14px;color:var(--red);font-weight:700;margin-right:8px;">${(currentProduct && currentProduct.isTimesale) ? '타임세일 ' : ''}${discountRate}%</span>`;
       document.getElementById('priceValue').textContent = salePrice.toLocaleString();
     } else {
       document.getElementById('priceOriginal').style.display = 'none';
@@ -1890,6 +1890,25 @@ async function loadProduct() {
         }
       });
     } catch(e) { console.error('이벤트 조회 실패:', e); }
+
+    // 진행중 타임세일 확인 (관리자가 지정한 상품만, 종료시각 전까지)
+    try {
+      const tsSet = await _db.collection('settings').doc('timesale').get();
+      const endRaw = tsSet.exists ? tsSet.data().endAt : null;
+      const endDate = endRaw && endRaw.toDate ? endRaw.toDate() : null;
+      if(endDate && endDate > new Date()) {
+        const tsSnap = await _db.collection('timesaleItems').where('productId', '==', p.id).where('status', '==', 'approved').get();
+        tsSnap.forEach(doc => {
+          const rate = Number(doc.data().discountRate) || 0;
+          if(rate > 0 && rate > (Number(p.discountRate) || 0)) {
+            p.discountRate = rate;
+            p.originalPrice = Number(p.price || 0);
+            p.salePrice = Math.round(p.originalPrice * (1 - rate/100));
+            p.isTimesale = true;
+          }
+        });
+      }
+    } catch(e) { console.error('타임세일 조회 실패:', e); }
 
     currentProduct = p;
     renderProduct(p);

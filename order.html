@@ -907,6 +907,20 @@ async function loadOrderProduct() {
           if(!discountMap[pid] || promo.discountRate > discountMap[pid]) discountMap[pid] = promo.discountRate;
         });
       });
+      // 타임세일 (종료 전이고 승인된 상품만)
+      try {
+        const tsSet = await _db.collection('settings').doc('timesale').get();
+        const endRaw = tsSet.exists ? tsSet.data().endAt : null;
+        const endDate = endRaw && endRaw.toDate ? endRaw.toDate() : null;
+        if(endDate && endDate > new Date()) {
+          const tsSnap = await _db.collection('timesaleItems').where('status', '==', 'approved').get();
+          tsSnap.forEach(doc => {
+            const t = doc.data();
+            const r = Number(t.discountRate) || 0;
+            if(t.productId && r > (discountMap[t.productId] || 0)) discountMap[t.productId] = r;
+          });
+        }
+      } catch(e) { console.error('타임세일 조회 실패:', e); }
       orderItems.forEach(item => {
         const p = item.product;
         const eventRate = discountMap[p.id] || 0;
