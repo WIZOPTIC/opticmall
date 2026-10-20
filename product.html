@@ -817,6 +817,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.info-compact .restock-btn{margin-top:8px!important;margin-bottom:6px!important}
 .product-info.info-compact .delivery-info{margin-top:14px!important;padding-top:12px!important}
 .product-head .product-category{font-size:14px!important;font-weight:600!important;letter-spacing:.24em!important;color:#14110f!important}
+.product-meta{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:12px!important}
+.product-meta .head-code{margin-left:auto}
 </style>
 </head>
 <body>
@@ -1059,15 +1061,15 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="product-head">
       <div class="product-category" id="productCategory">-</div>
       <div class="head-rule"></div>
-      <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
     </div>
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
+      <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
     </div>
     <div class="spec-line">
       <span class="spec-item"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></span>
       <span class="spec-item" id="extraInfoRow" style="display:none;"><span class="info-k">소재</span><span class="info-v" id="extraInfoValue"></span></span>
-      <span class="spec-item"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
+      <span class="spec-item" style="display:none"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></span>
     </div>
 
 
