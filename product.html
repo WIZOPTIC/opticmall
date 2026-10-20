@@ -855,6 +855,17 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .info-card .product-meta{padding-left:0!important}
 .spec-line{padding-left:0!important}
 #price-visible,#price-locked,#price-checking{padding-left:0!important}
+.info-card{background:transparent!important;padding:0!important;margin:0 0 14px!important}
+.product-info.info-compact .info-card{padding:0!important;margin-bottom:8px!important}
+.spec-line{flex-direction:row!important;flex-wrap:wrap!important;gap:8px!important;align-items:center!important;padding:0 0 16px!important;margin:0 0 20px!important}
+.spec-line .spec-item{display:inline-flex!important;padding:6px 14px!important;background:#EFEBE4!important;gap:0!important}
+.spec-line .spec-item .info-k{display:none!important}
+.spec-line .spec-item .info-v{font-size:13.5px!important;color:#2a2420!important;font-weight:500!important}
+.product-info.info-compact .spec-line{gap:6px!important;padding-bottom:12px!important;margin-bottom:12px!important}
+.info-card .product-head{margin-bottom:10px!important}
+.info-card .product-meta{margin-bottom:14px!important}
+.product-info.info-compact .info-card .product-head{margin-bottom:8px!important}
+.product-info.info-compact .info-card .product-meta{margin-bottom:10px!important}
 </style>
 </head>
 <body>
@@ -2001,9 +2012,9 @@ function renderProduct(p) {
     (Array.isArray(p.colors) && p.colors.length)
       ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
       : (p.color || '-');
-  document.getElementById('spec-origin').textContent = p.origin === 'korea' ? 'KOREA' : 'CHINA';
+  document.getElementById('spec-origin').textContent = p.origin === 'korea' ? 'Korea' : 'China';
   (function(){ var m = p.material || p.extraInfo || ''; var r = document.getElementById('spec-material-row'); if(r){ document.getElementById('spec-material').textContent = m; r.style.display = m ? '' : 'none'; } })();
-  document.getElementById('originInline').textContent = p.origin === 'korea' ? 'KOREA' : 'CHINA';
+  document.getElementById('originInline').textContent = p.origin === 'korea' ? 'Korea' : 'China';
   (function(){ var ex = p.material || p.extraInfo || ''; var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
