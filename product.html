@@ -565,6 +565,28 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .delivery-value{font-size:13px!important}
 .btn-naverpay,.btn-kakaopay{font-weight:500!important;letter-spacing:-0.01em!important}
 .npay-mark{font-weight:700!important}
+/* ===== 상품 우측 패널 정돈 ===== */
+.product-head{padding-bottom:14px!important;margin-bottom:18px!important;border-bottom:1px solid var(--g2)}
+.product-head .product-category{font-size:17px;letter-spacing:.1em}
+.share-btn{width:32px!important;height:32px!important;border:0!important;background:transparent!important;border-radius:0!important;color:#000!important;margin-right:-4px}
+.share-btn:hover{color:var(--gold)!important}
+.product-meta{margin-bottom:20px!important}
+.product-meta .product-name{font-size:22px!important;font-weight:600!important}
+.product-info.product-info-sticky .price-wrap{padding:0 0 18px!important;margin-bottom:18px!important;border:0!important;border-bottom:1px solid var(--g2)!important}
+.price-value{font-size:32px!important;font-weight:700!important;letter-spacing:-.02em}
+.price-value .won{font-size:20px!important;font-weight:600!important;margin-right:2px}
+#price-visible .stock-info{font-size:13px}
+.product-info .option-label{font-size:13px;font-weight:700;margin-bottom:10px}
+#colorDropdownTrigger{border:1px solid #BFC5CC!important;padding:0 14px!important;height:48px;box-sizing:border-box}
+.product-info.product-info-sticky .btn-cart,.product-info.product-info-sticky .btn-buy,.product-info.product-info-sticky .btn-wish,.product-info.product-info-sticky .btn-easypay{height:50px;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box;display:flex;align-items:center;justify-content:center}
+.btn-cart,.btn-wish{border-width:1px!important;border-color:#000!important}
+.btn-wish{border-color:var(--g2)!important}
+.quickpay-divider em{font-weight:500;color:var(--g3)}
+.product-info .delivery-info{border-top:1px solid var(--g2)!important;padding-top:16px!important}
+.product-info .delivery-row{gap:0!important;margin-bottom:8px!important}
+.product-info .delivery-label{width:76px!important;font-size:12.5px!important;font-weight:500!important;color:var(--g3)!important}
+.product-info .delivery-value{font-size:13px!important;line-height:1.6!important;color:#1b1b1b}
+.product-info .delivery-value .highlight{color:#000!important;font-weight:700!important}
 </style>
 </head>
 <body>
@@ -749,7 +771,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       <div class="product-category" id="productCategory">-</div>
       <div style="display:flex;align-items:center;flex-shrink:0;position:relative;">
         <button class="share-btn" id="shareBtn" onclick="toggleSharePanel(event)" title="공유하기">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 15V3"/><path d="M7.5 7.5L12 3l4.5 4.5"/><path d="M8 10H5v11h14V10h-3"/></svg>
         </button>
         <div class="share-panel" id="sharePanel">
           <div class="share-panel-title">상품 공유하기</div>
