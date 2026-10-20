@@ -658,10 +658,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .price-wrap{border-bottom-color:#E4DCCF!important}
 .price-value{font-size:27px!important;font-weight:500!important}
 .product-info.product-info-sticky .price-wrap{padding-bottom:8px!important;margin-bottom:8px!important}
-#priceDiscountBadge{order:0!important;margin:0 10px 0 0!important}
-#priceOriginal{order:1!important;margin:0 14px 0 0!important}
-.price-value .won{order:2!important;margin-right:4px!important;font-size:20px!important}
-#priceValue{order:3!important}
+/* 순서: 1 할인가 → 2 원래가격(취소선) → 3 할인율 배지 */
+.price-value .won{order:0!important;margin-right:4px!important;font-size:20px!important}
+#priceValue{order:1!important;margin-right:12px!important}
+#priceOriginal{order:2!important;margin:0 10px 0 0!important}
+#priceDiscountBadge{order:3!important;margin:0!important}
 .product-info .option-label span{font-size:12px}
 #colorDotsPreview button{background:#fff!important;padding:6px 16px 6px 8px!important;min-height:38px}
 .product-info.product-info-sticky .btn-cart{background:#14110f!important;color:#fff!important;border:0!important}
@@ -677,9 +678,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info .delivery-info{border-top-color:#E4DCCF!important}
 .product-info.product-info-sticky .btn-cart,.product-info.product-info-sticky .btn-buy{flex:1 1 0!important;min-width:0;padding-left:6px!important;padding-right:6px!important;white-space:nowrap}
 
-/* 상단 영역(브레드크럼 ~ 사진/썸네일/상품정보)만 크림 배경, 상품상세 탭 아래는 흰색 */
 #priceDiscountBadge:empty{display:none!important}
-#topBand{position:absolute;left:0;right:0;top:0;height:0;background:#FAF8F4;z-index:-1;pointer-events:none}
 </style>
 </head>
 <body>
@@ -3136,35 +3135,6 @@ function fit(){if(busy)return;busy=true;f.style.marginTop='0px';var b=document.b
 fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);
 if(window.ResizeObserver){var t=0;new ResizeObserver(function(){cancelAnimationFrame(t);t=requestAnimationFrame(fit)}).observe(document.body);}
 setTimeout(fit,300);setTimeout(fit,1200);})();
-</script>
-
-<script>
-(function topBandInit(){
-  var band=document.createElement('div'); band.id='topBand'; document.body.appendChild(band);
-  function place(){
-    try{
-      var bc=document.getElementById('breadcrumb'), img=document.querySelector('.product-images'), info=document.querySelector('.product-info');
-      if(!bc||!img) return;
-      var sy=window.pageYOffset||0;
-      var top=bc.getBoundingClientRect().top+sy, imgB=img.getBoundingClientRect().bottom+sy, infoB=0;
-      if(info){
-        if(window.innerWidth>768){
-          var par=info.parentElement, pcs=getComputedStyle(par);
-          infoB=par.getBoundingClientRect().top+sy+(parseFloat(pcs.paddingTop)||0)+info.offsetHeight;
-        } else {
-          infoB=info.getBoundingClientRect().bottom+sy;
-        }
-      }
-      band.style.top=top+'px';
-      band.style.height=Math.max(0,Math.max(imgB,infoB)+28-top)+'px';
-    }catch(e){}
-  }
-  place();
-  window.addEventListener('load',place); window.addEventListener('resize',place);
-  document.addEventListener('load',place,true);
-  setTimeout(place,500); setTimeout(place,1500);
-  if(window.ResizeObserver){ var ro=new ResizeObserver(place); var a=document.querySelector('.product-images'), b=document.querySelector('.product-info'); if(a)ro.observe(a); if(b)ro.observe(b); }
-})();
 </script>
 </body>
 </html>
