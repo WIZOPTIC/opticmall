@@ -695,6 +695,44 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.product-info-sticky .option-section{margin-bottom:14px!important}
 .product-info.product-info-sticky .quickpay-box{margin-bottom:12px!important}
 .product-info .delivery-info{padding-top:16px!important}
+
+/* 간격 여유 확대 */
+.product-head{margin-bottom:16px!important}
+.product-meta{margin-bottom:12px!important}
+.spec-grid{margin-bottom:22px!important}
+.product-info.product-info-sticky .price-wrap{padding-bottom:18px!important;margin-bottom:18px!important}
+.product-info.product-info-sticky .option-label{margin-bottom:10px!important}
+.product-info.product-info-sticky #colorDotsPreview{margin-bottom:12px!important}
+.product-info.product-info-sticky .option-section{margin-bottom:16px!important}
+.product-info .buy-btns{margin-bottom:12px!important}
+.product-info.product-info-sticky .quickpay-box{margin-bottom:18px!important}
+.product-info .delivery-info{padding-top:20px!important}
+.product-info .delivery-row{margin-bottom:8px!important}
+
+/* 상품코드(우상단) + 정보 행(사이즈/원산지/적립예정/부가정보) */
+.head-code{display:flex;align-items:baseline;gap:7px;flex:0 0 auto;font-size:12.5px;color:#1b1b1b}
+.head-code-k{font-size:12px;color:var(--g3)}
+.info-rows{display:grid;grid-template-columns:1fr 1fr;gap:7px 16px;margin:0 0 20px!important}
+.info-row{display:flex;align-items:baseline;gap:10px;min-width:0}
+.info-wide{grid-column:1/-1}
+.info-k{flex:0 0 52px;font-size:12px;color:var(--g3)}
+.info-v{font-size:13.5px;font-weight:500;color:#1b1b1b;line-height:1.4;min-width:0}
+#earnValue{color:#8C7240;font-weight:600}
+.spec-grid{display:none!important}
+
+/* 정보 행 추가에 맞춘 간격 재조정 (한 화면 유지) */
+.breadcrumb{padding-top:6px!important;padding-bottom:6px!important}
+.product-head{margin-bottom:12px!important}
+.product-meta{margin-bottom:16px!important}
+.info-rows{margin:0 0 14px!important;gap:6px 16px!important}
+.product-info.product-info-sticky .price-wrap{padding-bottom:12px!important;margin-bottom:12px!important}
+.product-info.product-info-sticky .option-section{margin-bottom:12px!important}
+.product-info.product-info-sticky #colorDotsPreview{margin-bottom:8px!important}
+.product-info.product-info-sticky .option-label{margin-bottom:8px!important}
+.product-info .buy-btns{margin-bottom:8px!important}
+.product-info.product-info-sticky .quickpay-box{margin-bottom:12px!important;padding:8px 12px!important}
+.product-info .delivery-info{padding-top:14px!important}
+.product-info .delivery-row{margin-bottom:5px!important}
 </style>
 </head>
 <body>
@@ -937,15 +975,12 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="product-head">
       <div class="product-category" id="productCategory">-</div>
       <div class="head-rule"></div>
+      <div class="head-code"><span class="head-code-k">상품코드</span><span id="productCode">-</span></div>
     </div>
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
     </div>
-    <div class="spec-grid">
-      <div class="spec-cell"><span class="spec-k">사이즈</span><span class="spec-v" id="productSize">-</span></div>
-      <div class="spec-cell"><span class="spec-k">상품코드</span><span class="spec-v" id="productCode">-</span></div>
-      <div class="spec-cell"><span class="spec-k">원산지</span><span class="spec-v" id="originInline">-</span></div>
-    </div>
+
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
     <div class="price-wrap" id="price-checking">
@@ -978,6 +1013,13 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
           <span style="color:var(--green);font-weight:600;">재고 있음</span>
         </div>
       </div>
+    </div>
+
+    <div class="info-rows" id="infoRows">
+      <div class="info-row"><span class="info-k">사이즈</span><span class="info-v" id="productSize">-</span></div>
+      <div class="info-row"><span class="info-k">원산지</span><span class="info-v" id="originInline">-</span></div>
+      <div class="info-row info-wide" id="earnRow" style="display:none;"><span class="info-k">적립예정</span><span class="info-v" id="earnValue">-</span></div>
+      <div class="info-row info-wide" id="extraInfoRow" style="display:none;"><span class="info-k">부가정보</span><span class="info-v" id="extraInfoValue"></span></div>
     </div>
 
     <!-- 색상/타입 정보 -->
@@ -1255,7 +1297,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       var cs=getComputedStyle(document.documentElement);
       var hh=parseInt(cs.getPropertyValue('--sticky-header-h'))||0;
       var gap=parseInt(cs.getPropertyValue('--info-gap'))||24;
-      var normalTop=hh+gap, bottomGap=12, h=productInfo.offsetHeight;
+      var normalTop=hh+gap, bottomGap=8, h=productInfo.offsetHeight;
       // 처음 놓인 자리(스크롤 0일 때 위치)를 그대로 고정 위치로 써서, 스크롤 시작할 때 패널이 움찔하며 올라가지 않게 함
       var par=productInfo.parentElement, natural=0;
       if(par){ var pcs=getComputedStyle(par), pr=par.getBoundingClientRect();
@@ -1698,10 +1740,17 @@ function updatePriceDisplay() {
       document.getElementById('priceDiscountBadge').innerHTML = '';
       document.getElementById('priceValue').textContent = price.toLocaleString();
     }
+    // 적립예정: 판매가(할인가) 기준 1% (주문서와 동일하게 소수점 버림)
+    (function(){
+      var shown = Number(String(document.getElementById('priceValue').textContent).replace(/,/g,'')) || 0;
+      var earn = Math.floor(shown * 0.01), row = document.getElementById('earnRow');
+      if(row){ if(earn > 0){ document.getElementById('earnValue').textContent = '₩' + earn.toLocaleString() + ' (1%)'; row.style.display = ''; } else { row.style.display = 'none'; } }
+    })();
     renderSelectionList();
   } else {
     document.getElementById('price-locked').style.display = 'block';
     document.getElementById('price-visible').style.display = 'none';
+    var _er = document.getElementById('earnRow'); if(_er) _er.style.display = 'none';
   }
 }
 
@@ -1811,7 +1860,8 @@ function renderProduct(p) {
       ? p.colors.map(c => c.colorName).filter(Boolean).join(', ')
       : (p.color || '-');
   document.getElementById('spec-origin').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
-  document.getElementById('originInline').textContent = p.origin === 'korea' ? '한국' : '중국';
+  document.getElementById('originInline').textContent = p.origin === 'korea' ? '한국 (Korea)' : '중국 (China)';
+  (function(){ var ex = p.material ? ('Material : ' + p.material) : (p.extraInfo || ''); var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
   const firstColor = (p.colors && p.colors.length > 0) ? p.colors[0] : null;
