@@ -603,6 +603,43 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-info.product-info-sticky .quickpay-btns{margin-bottom:12px!important}
 .product-info .delivery-info{padding-top:12px!important}
 .product-info .delivery-row{margin-bottom:4px!important}
+/* ===== 상품 정보 상단 재구성 (브랜드 / 큰 모델명 / 사양 3칸 / 가격) ===== */
+.product-head{padding-bottom:0!important;margin-bottom:6px!important;border-bottom:0!important}
+.product-head .product-category{font-family:var(--font-serif)!important;font-size:13px!important;font-weight:500!important;letter-spacing:.24em!important;color:#3a332d!important}
+.product-meta{display:block!important;margin-bottom:14px!important}
+.product-meta .product-name{font-family:var(--font-serif)!important;font-size:34px!important;font-weight:500!important;letter-spacing:-.01em!important;line-height:1.15!important;color:#14110f}
+.spec-grid{display:flex;border-top:1px solid var(--g2);border-bottom:1px solid var(--g2);margin-bottom:14px}
+.spec-cell{display:flex;flex-direction:column;gap:3px;padding:10px 0 10px 16px;min-width:0}
+.spec-cell:first-child{padding-left:0;flex:0 0 26%}
+.spec-cell+.spec-cell{border-left:1px solid var(--g2)}
+.spec-cell:nth-child(2){flex:1 1 auto}
+.spec-cell:last-child{flex:0 0 28%}
+.spec-k{font-size:11.5px;color:var(--g3);letter-spacing:.02em}
+.spec-v{font-size:13.5px;font-weight:500;color:#1b1b1b;word-break:break-all;line-height:1.35}
+.product-info.product-info-sticky .price-wrap{padding:0 0 12px!important;margin-bottom:12px!important}
+.price-value{font-family:var(--font-serif)!important;font-size:30px!important;font-weight:500!important;letter-spacing:-.01em!important;align-items:center!important;gap:0!important}
+.price-value .won{font-family:var(--font-serif)!important;font-size:20px!important;font-weight:500!important;margin-right:6px!important}
+#priceValue{order:1}
+#priceOriginal{order:2;font-family:var(--font-body,inherit)!important;font-size:14px!important;margin-left:12px!important;color:var(--g3)!important}
+#priceDiscountBadge{order:3;margin-left:12px}
+#priceDiscountBadge span{display:inline-block;font-family:var(--font-body,inherit)!important;background:#A98C52;color:#fff!important;font-size:12px!important;font-weight:700!important;padding:3px 9px!important;margin:0!important;letter-spacing:.02em}
+
+.breadcrumb{padding-top:10px!important;padding-bottom:10px!important}
+.product-meta .product-name{font-size:30px!important}
+.product-meta{margin-bottom:12px!important}
+.spec-cell{padding-top:8px!important;padding-bottom:8px!important}
+.spec-grid{margin-bottom:12px!important}
+.price-value{font-size:28px!important}
+.product-info.product-info-sticky .price-wrap{padding-bottom:10px!important;margin-bottom:10px!important}
+.product-info.product-info-sticky .btn-cart,.product-info.product-info-sticky .btn-buy,.product-info.product-info-sticky .btn-wish,.product-info.product-info-sticky .btn-easypay{height:44px!important}
+.spec-v{font-size:13.5px!important;color:#1b1b1b!important;font-weight:500!important}
+
+#colorDropdownTrigger{height:40px!important}
+.product-info.product-info-sticky .quickpay-divider{margin:8px 0 6px!important}
+.product-info.product-info-sticky .quickpay-btns{margin-bottom:10px!important}
+.product-info.product-info-sticky .option-section{margin-bottom:10px!important}
+.spec-cell{padding-top:7px!important;padding-bottom:7px!important}
+
 
 </style>
 </head>
@@ -864,8 +901,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     </div>
     <div class="product-meta">
       <div class="product-name" id="productName">불러오는 중...</div>
-      <div class="product-code" id="productSize">사이즈: -</div>
-      <div class="product-code" id="productCode">상품코드: -</div>
+    </div>
+    <div class="spec-grid">
+      <div class="spec-cell"><span class="spec-k">사이즈</span><span class="spec-v" id="productSize">-</span></div>
+      <div class="spec-cell"><span class="spec-k">상품코드</span><span class="spec-v" id="productCode">-</span></div>
+      <div class="spec-cell"><span class="spec-k">원산지</span><span class="spec-v" id="originInline">-</span></div>
     </div>
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
@@ -900,8 +940,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
         </div>
       </div>
     </div>
-
-    <div class="origin-row"><span class="origin-label">원산지</span><span id="originInline">-</span></div>
 
     <!-- 색상/타입 정보 -->
     <div class="option-section" id="colorSection">
@@ -955,7 +993,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     <div class="delivery-info">
       <div class="delivery-row">
         <div class="delivery-label">배송</div>
-        <div class="delivery-value"><span class="highlight">10만원 이상 무료배송</span> (미만 시 3,500원) · 오후 1시 이전 주문 당일 발송 · 1~2일 이내 도착</div>
+        <div class="delivery-value"><span class="highlight">10만원 이상 무료배송</span> · 오후 1시 이전 당일발송</div>
       </div>
       <div class="delivery-row">
         <div class="delivery-label">반품/교환</div>
@@ -1176,7 +1214,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       var cs=getComputedStyle(document.documentElement);
       var hh=parseInt(cs.getPropertyValue('--sticky-header-h'))||0;
       var gap=parseInt(cs.getPropertyValue('--info-gap'))||24;
-      var normalTop=hh+gap, bottomGap=16, h=productInfo.offsetHeight;
+      var normalTop=hh+gap, bottomGap=12, h=productInfo.offsetHeight;
       // 처음 놓인 자리(스크롤 0일 때 위치)를 그대로 고정 위치로 써서, 스크롤 시작할 때 패널이 움찔하며 올라가지 않게 함
       var par=productInfo.parentElement, natural=0;
       if(par){ var pcs=getComputedStyle(par), pr=par.getBoundingClientRect();
@@ -1719,8 +1757,8 @@ function renderProduct(p) {
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
   document.getElementById('productCategory').textContent = p.brandName || '';
   document.getElementById('productName').textContent = p.modelName || '-';
-  document.getElementById('productSize').textContent = p.size ? ('사이즈: ' + p.size) : '';
-  document.getElementById('productCode').textContent = '상품코드: ' + (p.barcode || '-');
+  document.getElementById('productSize').textContent = p.size || '-';
+  document.getElementById('productCode').textContent = (p.barcode || '-');
 
   // 스펙 테이블
   document.getElementById('spec-brand').textContent = p.brandName || '-';
@@ -1829,7 +1867,7 @@ function renderColorButtons(p, previewIdx) {
   // 선택한 색상의 바코드로 상품코드 영역도 갱신
   const codeEl = document.getElementById('productCode');
   if(codeEl) {
-    codeEl.textContent = `상품코드: ${selected.barcode || p.barcode || '-'}`;
+    codeEl.textContent = `${selected.barcode || p.barcode || '-'}`;
   }
 
   // 선택한 색상의 이미지로 교체
