@@ -734,7 +734,10 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
           <label>할인율 (%)</label>
           <input type="number" id="aEditDiscountRate" placeholder="0 (할인 없음)" min="0" max="99" onchange="updateAdminSalePricePreview()">
         </div>
-        <div></div>
+        <div class="edit-form-group">
+          <label>소재</label>
+          <input type="text" id="aEditMaterial" placeholder="예) Acetate+Titanium">
+        </div>
       </div>
       <div class="edit-form-group" style="margin-bottom:14px;">
         <label>소속 브랜드</label>
@@ -2697,6 +2700,7 @@ async function openProductModal(pid) {
       <div class="info-row"><div class="info-label">모델명</div><div class="info-value"><strong>${p.modelName||'-'}</strong></div></div>
       <div class="info-row"><div class="info-label">바코드</div><div class="info-value">${barcodeDisplay}</div></div>
       <div class="info-row"><div class="info-label">사이즈</div><div class="info-value">${p.size||'-'}</div></div>
+      <div class="info-row"><div class="info-label">소재</div><div class="info-value">${p.material||'-'}</div></div>
       <div class="info-row"><div class="info-label">브랜드</div><div class="info-value">${p.brandName||'-'}</div></div>
       <div class="info-row"><div class="info-label">색상</div><div class="info-value">${p.colorNames ? p.colorNames.join(', ') : (p.color||'-')}</div></div>
       <div class="info-row"><div class="info-label">타입</div><div class="info-value">${p.type||'-'}</div></div>
@@ -2807,6 +2811,7 @@ function startAdminEditRow(pid) {
 
   document.getElementById('aEditModelName').value = product.modelName || '';
   document.getElementById('aEditSize').value = product.size || '';
+  document.getElementById('aEditMaterial').value = product.material || '';
   document.getElementById('aEditCategory').value = product.category || '';
   document.getElementById('aEditType').value = product.type || '';
   document.getElementById('aEditPhotochromic').checked = !!product.photochromic;
@@ -3078,6 +3083,7 @@ async function saveAdminProductEdit() {
     await window._updateDoc(window._doc(window._db, 'products', adminEditingProductId), {
       modelName,
       size: document.getElementById('aEditSize').value.trim(),
+      material: document.getElementById('aEditMaterial').value.trim(),
       category: document.getElementById('aEditCategory').value,
       type: document.getElementById('aEditType').value,
       photochromic: document.getElementById('aEditPhotochromic').checked,

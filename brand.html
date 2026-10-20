@@ -685,7 +685,10 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
           <label>할인율 (%)</label>
           <input type="number" id="editDiscountRate" placeholder="0 (할인 없음)" min="0" max="99" onchange="updateEditSalePricePreview()">
         </div>
-        <div></div>
+        <div class="edit-form-group">
+          <label>소재</label>
+          <input type="text" id="editMaterial" placeholder="예) Acetate+Titanium">
+        </div>
       </div>
 
       <div class="color-section-label" style="margin-top:8px;">
@@ -1548,6 +1551,7 @@ function startEditRow(pid) {
 
   document.getElementById('editModelName').value = product.modelName || '';
   document.getElementById('editSize').value = product.size || '';
+  document.getElementById('editMaterial').value = product.material || '';
   document.getElementById('editCategory').value = product.category || '';
   document.getElementById('editType').value = product.type || '';
   document.getElementById('editPhotochromic').checked = !!product.photochromic;
@@ -1800,6 +1804,7 @@ async function saveProductEdit() {
     await window._updateDoc(window._doc(window._db, 'products', editingProductId), {
       modelName,
       size: document.getElementById('editSize').value.trim(),
+      material: document.getElementById('editMaterial').value.trim(),
       category: document.getElementById('editCategory').value,
       type: document.getElementById('editType').value,
       photochromic: document.getElementById('editPhotochromic').checked,
@@ -1927,7 +1932,7 @@ function initRegisterTable() {
 function addProductCard() {
   const cardId = ++cardIdCounter;
   productCards.push({
-    cardId, modelName:'', size:'', category:'', type:'',
+    cardId, modelName:'', size:'', material:'', category:'', type:'',
     price:'', discountRate:'', origin:'china', colors:[]
   });
   const card = productCards[productCards.length - 1];
@@ -2093,6 +2098,11 @@ function renderProductCards() {
             <input type="checkbox" ${card.photochromic?'checked':''} onchange="updateCardField(${card.cardId},'photochromic',this.checked)" style="width:16px;height:16px;cursor:pointer;">
             변색렌즈
           </label>
+        </div>
+        <div class="reg-field">
+          <label>소재</label>
+          <input type="text" placeholder="예) Acetate+Titanium" value="${card.material||''}"
+            onchange="updateCardField(${card.cardId},'material',this.value)">
         </div>
         <div class="reg-field">
           <label>원산지</label>
@@ -2282,6 +2292,7 @@ async function submitBulkRegister() {
         brandOwnerUid: uid,
         modelName: card.modelName.trim(),
         size: card.size || '',
+        material: (card.material || '').trim(),
         category: card.category || '',
         type: card.type || '',
         origin: card.origin || 'china',
