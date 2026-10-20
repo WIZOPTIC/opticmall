@@ -545,14 +545,12 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .tab-bar-wrap{top:var(--sticky-header-h,148px)!important}
 .product-info.product-info-sticky .price-wrap{padding:16px 0;margin-bottom:16px}
 .product-info.product-info-sticky .option-section{margin-bottom:16px}
-.product-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
-.product-headline{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-width:0}
-.product-headline .product-category{margin-bottom:0;white-space:nowrap}
-.product-headline .product-name{margin-bottom:0}
-.product-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.product-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
+.product-head .product-category{margin-bottom:0;font-size:16px;font-weight:800;color:var(--navy);letter-spacing:.08em;white-space:nowrap}
+.product-meta{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 14px;margin-bottom:14px}
+.product-meta .product-name{margin-bottom:0;font-size:24px;font-weight:600;line-height:1.3}
 .product-meta .product-code{margin:0!important}
-.product-meta .meta-sep{width:1px;height:10px;background:var(--g2);flex-shrink:0}
-#productSize:empty,#productSize:empty+.meta-sep{display:none}
+.product-meta #productCode{margin-left:auto!important}
 .product-info.product-info-sticky .price-wrap{padding:12px 0;margin-bottom:12px}
 .product-info.product-info-sticky .option-section{margin-bottom:12px}
 .product-info.product-info-sticky .option-label{margin-bottom:8px}
@@ -748,10 +746,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   <!-- 정보 -->
   <div class="product-info">
     <div class="product-head">
-      <div class="product-headline">
-        <div class="product-category" id="productCategory">-</div>
-        <div class="product-name" id="productName">불러오는 중...</div>
-      </div>
+      <div class="product-category" id="productCategory">-</div>
       <div style="display:flex;align-items:center;flex-shrink:0;position:relative;">
         <button class="share-btn" id="shareBtn" onclick="toggleSharePanel(event)" title="공유하기">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
@@ -770,7 +765,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       </div>
     </div>
     <div class="product-meta">
-      <div class="product-code" id="productSize">사이즈: -</div><span class="meta-sep"></span><div class="product-code" id="productCode">상품코드: -</div>
+      <div class="product-name" id="productName">불러오는 중...</div>
+      <div class="product-code" id="productSize">사이즈: -</div>
+      <div class="product-code" id="productCode">상품코드: -</div>
     </div>
 
     <!-- 가격 (로그인 상태 확인 중 - 기본 표시) -->
