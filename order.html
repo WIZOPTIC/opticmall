@@ -363,6 +363,9 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 #orderMain .card .form-label{font-size:12px;color:#8a8279;font-weight:500;margin-bottom:2px}
 #addNewAddressBtn{background:#fff!important;color:#14110f!important;border:1px solid #14110f!important;font-weight:600}
 #receiverMemoSel{width:100%;height:48px;background:#fff;appearance:auto}
+.addr-select-default{background:#EFEBE4!important;color:#8a8279!important}
+.addr-select-on{margin-left:auto;font-size:11px;font-weight:700;background:#14110f;color:#fff;padding:2px 9px;border-radius:2px}
+.addr-select-card:not(.selected) .addr-select-label{color:#4a443d!important}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -805,6 +808,7 @@ function renderAddressSelectArea() {
       <div class="addr-select-top">
         <span class="addr-select-label">${a.recipientName||'-'}<span class="addr-select-sub">(${a.label||'배송지'})</span></span>
         ${a.isDefault ? `<span class="addr-select-default">기본</span>` : ''}
+        ${a.id===selectedAddressId ? `<span class="addr-select-on">선택</span>` : ''}
       </div>
       <div class="addr-select-phone">${a.recipientPhone||'-'}</div>
       <div class="addr-select-info">${a.addr1||''} ${a.addr2||''}</div>
