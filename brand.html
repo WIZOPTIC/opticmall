@@ -281,7 +281,6 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 
 <!-- 권한없음 화면 -->
 <div class="denied-screen" id="deniedScreen">
-  <div class="icon"><i class=ic-lock></i></div>
   <div class="msg" id="deniedMsg">브랜드사 권한이 없는 계정입니다.<br>관리자에게 문의해주세요.</div>
   <button class="btn-home" onclick="brandLogout()">로그아웃</button>
 </div>
@@ -293,22 +292,22 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="admin-badge">BRAND PARTNER</div>
   </div>
   <nav class="sidebar-menu">
-    <div class="menu-section">메인</div>
-    <button class="menu-item active" onclick="showPage('dashboard',this)"><span><i class=ic-chart-bar></i></span> 대시보드</button>
-    <div class="menu-section">브랜드 관리</div>
-    <button class="menu-item" onclick="showPage('brandManage',this)"><span><i class=ic-store></i></span> 내 브랜드 관리</button>
+    <div class="menu-section">주문 관리</div>
+    <button class="menu-item" onclick="showPage('shipManage',this)">주문/배송 관리 <span class="menu-badge" id="brandPendingShipBadge"></span></button>
+    <button class="menu-item" onclick="showPage('cancelManage',this)">취소/반품 관리 <span class="menu-badge" id="brandPendingCancelBadge"></span></button>
     <div class="menu-section">상품 관리</div>
-    <button class="menu-item" onclick="showPage('register',this)"><span>➕</span> 상품 등록</button>
-    <button class="menu-item" onclick="showPage('products',this)"><span><i class=ic-glasses></i></span> 내 상품 목록</button>
+    <button class="menu-item" onclick="showPage('register',this)">상품 등록</button>
+    <button class="menu-item" onclick="showPage('products',this)">내 상품 목록</button>
     <div class="menu-section">프로모션</div>
-    <button class="menu-item" onclick="showPage('promoCreate',this)"><span><i class=ic-party></i></span> 이벤트/할인 등록</button>
-    <button class="menu-item" onclick="showPage('myPromos',this)"><span><i class=ic-tag></i>️</span> 내 이벤트 목록</button>
-    <button class="menu-item" onclick="showPage('timesaleApply',this)"><span><i class=ic-fire></i></span> 타임세일 신청</button>
-    <button class="menu-item" onclick="showPage('myTimesale',this)"><span><i class=ic-refresh></i></span> 내 타임세일 신청내역</button>
-    <div class="menu-section">운영</div>
-    <button class="menu-item" onclick="showPage('shipManage',this)"><span><i class=ic-truck></i></span> 주문/배송 관리 <span class="menu-badge" id="brandPendingShipBadge"></span></button>
-    <button class="menu-item" onclick="showPage('cancelManage',this)"><span><i class=ic-refresh></i></span> 취소/반품 관리 <span class="menu-badge" id="brandPendingCancelBadge"></span></button>
-    <button class="menu-item" onclick="showPage('dashboard',this)"><span><i class=ic-trend-up></i></span> 판매 통계</button>
+    <button class="menu-item" onclick="showPage('promoCreate',this)">이벤트/할인 등록</button>
+    <button class="menu-item" onclick="showPage('myPromos',this)">내 이벤트 목록</button>
+    <button class="menu-item" onclick="showPage('timesaleApply',this)">타임세일 신청</button>
+    <button class="menu-item" onclick="showPage('myTimesale',this)">내 타임세일 신청내역</button>
+    <div class="menu-section">브랜드 관리</div>
+    <button class="menu-item" onclick="showPage('brandManage',this)">내 브랜드 관리</button>
+    <div class="menu-section">현황</div>
+    <button class="menu-item active" onclick="showPage('dashboard',this)">대시보드</button>
+    <button class="menu-item" onclick="showPage('dashboard',this)">판매 통계</button>
   </nav>
   <div class="sidebar-user">
     <div class="user-avatar">B</div>
@@ -333,30 +332,26 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="page active" id="page-dashboard">
       <div class="dash-grid">
         <div class="dash-card">
-          <div class="icon"><i class=ic-glasses></i></div>
           <div class="label">전체 등록 상품</div>
           <div class="value" id="totalProducts">-<span>건</span></div>
         </div>
         <div class="dash-card">
-          <div class="icon">⏳</div>
           <div class="label">승인 대기</div>
           <div class="value" id="pendingProducts" style="color:var(--orange);">-<span>건</span></div>
         </div>
         <div class="dash-card">
-          <div class="icon"><i class=ic-check-circle></i></div>
           <div class="label">판매중</div>
           <div class="value" id="approvedProducts" style="color:var(--green);">-<span>건</span></div>
         </div>
         <div class="dash-card">
-          <div class="icon"><i class=ic-x-circle></i></div>
           <div class="label">반려</div>
           <div class="value" id="rejectedProducts" style="color:var(--red);">-<span>건</span></div>
         </div>
       </div>
 
       <div class="section-header">
-        <div class="section-title"><i class=ic-clipboard></i> 최근 등록 상품</div>
-        <button class="btn-sm btn-primary" onclick="showPage('register', document.querySelectorAll('.menu-item')[1])">+ 상품 등록하기</button>
+        <div class="section-title">최근 등록 상품</div>
+        <button class="btn-sm btn-primary" onclick="showPage('register', document.querySelector('.menu-item[onclick*=register]'))">+ 상품 등록하기</button>
       </div>
       <div class="table-wrap" id="dashRecentTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
@@ -396,7 +391,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="page" id="page-products">
       <div class="section-header">
         <div class="section-title">내 상품 목록</div>
-        <button class="btn-sm btn-primary" onclick="loadProducts()"><i class=ic-refresh></i> 새로고침</button>
+        <button class="btn-sm btn-primary" onclick="loadProducts()">새로고침</button>
       </div>
       <div class="product-search-bar">
         <input type="text" id="myProductSearchInput" placeholder="모델명, 바코드, 색상으로 검색" onkeyup="applyMyProductSearch()">
@@ -482,7 +477,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="page" id="page-myPromos">
       <div class="section-header">
         <div class="section-title">내 이벤트 목록</div>
-        <button class="btn-sm btn-primary" onclick="loadMyPromos()"><i class=ic-refresh></i> 새로고침</button>
+        <button class="btn-sm btn-primary" onclick="loadMyPromos()">새로고침</button>
       </div>
       <div class="table-wrap" id="myPromosTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
@@ -492,7 +487,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <!-- 타임세일 신청 -->
     <div class="page" id="page-timesaleApply">
       <div class="section-header">
-        <div class="section-title"><i class=ic-fire></i> 타임세일 신청</div>
+        <div class="section-title">타임세일 신청</div>
         <div style="font-size:12px;color:var(--g3);">본 상품 중 지금 바로 기습 세일할 상품을 신청해요. 관리자 승인 후, 관리자가 정한 종료 시각까지 메인/타임세일 페이지에 노출됩니다.</div>
       </div>
       <div class="reg-card">
@@ -516,7 +511,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="page" id="page-myTimesale">
       <div class="section-header">
         <div class="section-title">내 타임세일 신청내역</div>
-        <button class="btn-sm btn-primary" onclick="loadMyTimesale()"><i class=ic-refresh></i> 새로고침</button>
+        <button class="btn-sm btn-primary" onclick="loadMyTimesale()">새로고침</button>
       </div>
       <div class="table-wrap" id="myTimesaleTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
@@ -527,7 +522,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="page" id="page-shipManage">
       <div class="section-header">
         <div class="section-title">주문/배송 관리</div>
-        <button class="btn-sm btn-primary" onclick="loadShipManage()"><i class=ic-refresh></i> 새로고침</button>
+        <button class="btn-sm btn-primary" onclick="loadShipManage()">새로고침</button>
       </div>
       <p style="font-size:12px;color:var(--g3);margin-bottom:16px;">우리 브랜드 상품이 포함된 주문만 표시돼요. 다른 브랜드 상품이 함께 주문된 경우, 그 브랜드 상품 정보는 보이지 않아요.</p>
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;" id="shipManageFilters">
@@ -546,7 +541,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="page" id="page-cancelManage">
       <div class="section-header">
         <div class="section-title">취소/반품 관리</div>
-        <button class="btn-sm btn-primary" onclick="loadBrandCancelManage()"><i class=ic-refresh></i> 새로고침</button>
+        <button class="btn-sm btn-primary" onclick="loadBrandCancelManage()">새로고침</button>
       </div>
       <p style="font-size:12px;color:var(--g3);margin-bottom:16px;">구매자가 취소/반품을 신청한 주문 중 우리 브랜드 상품이 포함된 건이에요. 승인하시면 마스터가 최종 환불을 처리해요.</p>
       <div class="table-wrap" id="brandCancelManageTable">
@@ -565,9 +560,9 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 <div class="edit-modal-overlay" id="brandOrderDetailOverlay">
   <div class="edit-modal-box" style="width:520px;">
     <div class="edit-modal-header">
-      <div class="edit-modal-title"><i class=ic-clipboard></i> 주문 상세</div>
+      <div class="edit-modal-title">주문 상세</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="btn-sm btn-ghost" onclick="printBrandOrderDetail()"><i class=ic-printer></i>️ 인쇄하기</button>
+        <button class="btn-sm btn-ghost" onclick="printBrandOrderDetail()">인쇄하기</button>
         <button class="edit-modal-close" onclick="closeBrandOrderDetail()">✕</button>
       </div>
     </div>
@@ -588,7 +583,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 <div class="edit-modal-overlay" id="shipStartModalOverlay">
   <div class="edit-modal-box" style="width:420px;">
     <div class="edit-modal-header">
-      <div class="edit-modal-title"><i class=ic-truck></i> 배송 시작 처리</div>
+      <div class="edit-modal-title">배송 시작 처리</div>
       <button class="edit-modal-close" onclick="closeShipStartModal()">✕</button>
     </div>
     <div class="edit-modal-body">
@@ -692,7 +687,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       </div>
 
       <div class="color-section-label" style="margin-top:8px;">
-        <i class=ic-palette></i> 색상별 정보
+        색상별 정보
         <span id="editColorCountLabel" style="font-size:11px;color:var(--g3);font-weight:400;"></span>
       </div>
       <div id="editColorCardsWrap"></div>
@@ -888,7 +883,7 @@ async function loadDashboard() {
 
     const tableEl = document.getElementById('dashRecentTable');
     if(products.length === 0) {
-      tableEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--g3);">등록된 상품이 없습니다. 상품을 등록해보세요! <i class=ic-smile></i></div>';
+      tableEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--g3);">등록된 상품이 없습니다. 상품을 등록해보세요! </div>';
       return;
     }
     tableEl.innerHTML = renderProductTable(products.slice(0,5), false);
@@ -957,7 +952,7 @@ function openBrandOrderDetail(orderDocId) {
     </div>
 
     <div style="margin-bottom:18px;">
-      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;"><i class=ic-package></i> 배송지 정보</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">배송지 정보</div>
       <div style="background:var(--g1);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.9;">
         <div><strong>받는분</strong> ${rcv.name || r.userName || '-'}</div>
         <div><strong>연락처</strong> ${rcv.phone || '-'}</div>
@@ -967,7 +962,7 @@ function openBrandOrderDetail(orderDocId) {
     </div>
 
     <div>
-      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;"><i class=ic-bag></i>️ 주문 상품</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">주문 상품</div>
       <div style="border:1px solid var(--g2);border-radius:8px;overflow:hidden;">
         ${r.myItems.map((it, i) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;${i>0?'border-top:1px solid var(--g1);':''}">
@@ -1031,7 +1026,7 @@ function printBrandOrderDetail() {
       <h1>주문 상세 - ${r.orderId}</h1>
       <div class="meta">${formatDate(r.createdAt)} 주문 · 상태: ${statusInfo.label}</div>
 
-      <div class="section-title"><i class=ic-package></i> 배송지 정보</div>
+      <div class="section-title">배송지 정보</div>
       <div class="addr-box">
         <div><strong>받는분</strong> ${rcv.name || r.userName || '-'}</div>
         <div><strong>연락처</strong> ${rcv.phone || '-'}</div>
@@ -1039,13 +1034,13 @@ function printBrandOrderDetail() {
         ${rcv.memo ? `<div><strong>배송 메모</strong> ${rcv.memo}</div>` : ''}
       </div>
 
-      <div class="section-title"><i class=ic-bag></i>️ 주문 상품</div>
+      <div class="section-title">주문 상품</div>
       <table>
         <thead><tr><th>상품명</th><th style="text-align:center;">색상</th><th style="text-align:center;">컬러번호</th><th style="text-align:center;">수량</th><th style="text-align:right;">금액</th></tr></thead>
         <tbody>${itemRows}</tbody>
       </table>
 
-      <button onclick="window.print()" style="margin-top:24px;padding:10px 20px;font-size:13px;cursor:pointer;"><i class=ic-printer></i>️ 인쇄</button>
+      <button onclick="window.print()" style="margin-top:24px;padding:10px 20px;font-size:13px;cursor:pointer;">인쇄</button>
     </body>
     </html>
   `);
@@ -1131,16 +1126,16 @@ function renderShipManageTable() {
           const statusInfo = BRAND_SHIP_STATUS_LABEL[s.status] || { label: s.status, cls: 'pending' };
           const shipInfo = s.trackingNumber ? `${s.trackingCompany||''} ${s.trackingNumber}` : '-';
 
-          let actionBtn = `<button class="btn-view" onclick="openBrandOrderDetail('${r.orderDocId}')"><i class=ic-clipboard></i> 상세</button>`;
+          let actionBtn = `<button class="btn-view" onclick="openBrandOrderDetail('${r.orderDocId}')">상세</button>`;
           if(s.status === 'payment_window_passed' || s.status === 'paid') {
-            actionBtn += `<button class="btn-ship" onclick="brandAdvanceToPreparing('${r.orderDocId}')"><i class=ic-package></i> 출고준비</button>`;
+            actionBtn += `<button class="btn-ship" onclick="brandAdvanceToPreparing('${r.orderDocId}')">출고준비</button>`;
           } else if(s.status === 'preparing') {
             actionBtn += `
-              <button class="btn-ship" onclick="openShipStartModal('${r.orderDocId}')"><i class=ic-truck></i> 배송시작</button>
+              <button class="btn-ship" onclick="openShipStartModal('${r.orderDocId}')">배송시작</button>
               <button class="btn-view" onclick="brandRevertShipment('${r.orderDocId}','paid','결제완료')">↩</button>`;
           } else if(s.status === 'shipping') {
             actionBtn += `
-              <button class="btn-ship" onclick="brandAdvanceToDelivered('${r.orderDocId}')"><i class=ic-check-circle></i> 배송완료</button>
+              <button class="btn-ship" onclick="brandAdvanceToDelivered('${r.orderDocId}')">배송완료</button>
               <button class="btn-view" onclick="brandRevertShipment('${r.orderDocId}','preparing','출고준비중')">↩</button>`;
           } else if(s.status === 'delivered') {
             actionBtn += `<span style="font-size:11px;color:var(--g3);">처리 완료</span>`;
@@ -1199,7 +1194,7 @@ async function brandAdvanceToPreparing(orderDocId) {
   if(!confirm('이 배송건을 출고준비중 상태로 변경하시겠습니까?')) return;
   try {
     await updateMyShipment(orderDocId, { status: 'preparing', preparingAt: new Date() });
-    showToast('<i class=ic-check-circle></i> 출고준비중으로 변경되었습니다.', 'success');
+    showToast('출고준비중으로 변경되었습니다.', 'success');
     loadShipManage();
   } catch(e) {
     showToast('처리 중 오류: ' + e.message, 'error');
@@ -1248,7 +1243,7 @@ async function confirmBrandShipStart() {
       shippingStartedAt: new Date()
     });
     closeShipStartModal();
-    showToast('<i class=ic-check-circle></i> 배송중 상태로 변경되었습니다.', 'success');
+    showToast('배송중 상태로 변경되었습니다.', 'success');
     loadShipManage();
   } catch(e) {
     showToast('처리 중 오류: ' + e.message, 'error');
@@ -1259,7 +1254,7 @@ async function brandAdvanceToDelivered(orderDocId) {
   if(!confirm('이 배송건을 배송완료 상태로 변경하시겠습니까?')) return;
   try {
     await updateMyShipment(orderDocId, { status: 'delivered', deliveredAt: new Date() });
-    showToast('<i class=ic-check-circle></i> 배송완료로 변경되었습니다.', 'success');
+    showToast('배송완료로 변경되었습니다.', 'success');
     loadShipManage();
   } catch(e) {
     showToast('처리 중 오류: ' + e.message, 'error');
@@ -1350,8 +1345,8 @@ function renderBrandCancelTable() {
           let actionCell = '';
           if(r.approvalStatus === 'pending') {
             actionCell = `
-              <button class="btn-approve" onclick="brandApproveCancel('${r.orderDocId}')"><i class=ic-check-circle></i> 승인</button>
-              <button class="btn-reject" onclick="brandRejectCancel('${r.orderDocId}')"><i class=ic-x-circle></i> 반려</button>`;
+              <button class="btn-approve" onclick="brandApproveCancel('${r.orderDocId}')">승인</button>
+              <button class="btn-reject" onclick="brandRejectCancel('${r.orderDocId}')">반려</button>`;
           } else {
             actionCell = `<span style="font-size:11px;color:var(--g3);">처리 완료 (마스터 환불 대기 중)</span>`;
           }
@@ -1392,7 +1387,7 @@ async function brandApproveCancel(orderDocId) {
   if(!confirm('이 취소/반품 신청을 승인하시겠습니까?\n승인 후 마스터가 최종 환불을 처리해요.')) return;
   try {
     await updateMyCancelApproval(orderDocId, 'approved', '');
-    showToast('<i class=ic-check-circle></i> 취소/반품 신청을 승인했습니다.', 'success');
+    showToast('취소/반품 신청을 승인했습니다.', 'success');
     loadBrandCancelManage();
   } catch(e) {
     showToast('처리 중 오류: ' + e.message, 'error');
@@ -1404,7 +1399,7 @@ async function brandRejectCancel(orderDocId) {
   if(reason === null) return;
   try {
     await updateMyCancelApproval(orderDocId, 'rejected', reason);
-    showToast('<i class=ic-x-circle></i> 취소/반품 신청을 반려했습니다.', 'success');
+    showToast('취소/반품 신청을 반려했습니다.', 'success');
     loadBrandCancelManage();
   } catch(e) {
     showToast('처리 중 오류: ' + e.message, 'error');
@@ -1454,7 +1449,7 @@ function renderProductRowHtml(p, withActions) {
       ${withActions ? `
       <td class="cell-action">
         <div class="action-btns">
-          <button class="btn-edit-tbl" onclick="startEditRow('${p.id}')"><i class=ic-edit></i>️ 수정</button>
+          <button class="btn-edit-tbl" onclick="startEditRow('${p.id}')">수정</button>
           <button class="btn-del-tbl" onclick="deleteProduct('${p.id}')">삭제</button>
         </div>
       </td>` : ''}
@@ -1816,7 +1811,7 @@ async function saveProductEdit() {
       colorNames: savedColors.map(c => c.colorName)
     });
 
-    showToast('<i class=ic-check-circle></i> 상품 정보가 수정되었습니다.', 'success');
+    showToast('상품 정보가 수정되었습니다.', 'success');
     closeEditModal();
     loadProducts();
     loadDashboard();
@@ -2130,7 +2125,7 @@ function renderProductCards() {
 
       <!-- 색상별 정보 -->
       <div class="color-section-label">
-        <i class=ic-palette></i> 색상별 등록
+        색상별 등록
         <span style="font-size:11px;color:var(--g3);font-weight:400;">${card.colors.length}개 / 최대 10개</span>
       </div>
 
@@ -2312,7 +2307,7 @@ async function submitBulkRegister() {
     }
 
     progressEl.textContent = `${successCount}/${validCards.length}건 등록 완료!`;
-    showToast(`<i class=ic-check-circle></i> [${brandInfo?.brandName}] 브랜드로 ${successCount}건 등록 완료! 관리자 승인 후 노출됩니다.`, 'success');
+    showToast(`[${brandInfo?.brandName}] 브랜드로 ${successCount}건 등록 완료! 관리자 승인 후 노출됩니다.`, 'success');
     productCards = [];
     cardIdCounter = 0;
     colorIdCounter = 0;
@@ -2399,7 +2394,7 @@ async function submitPromo() {
       createdAt: window._serverTimestamp(),
       approvedAt: null
     });
-    showToast('<i class=ic-check-circle></i> 이벤트가 등록 신청되었습니다. 관리자 승인 후 노출됩니다.', 'success');
+    showToast('이벤트가 등록 신청되었습니다. 관리자 승인 후 노출됩니다.', 'success');
     document.getElementById('promoTitle').value = '';
     document.getElementById('promoDiscountRate').value = '';
     document.getElementById('promoStartDate').value = '';
@@ -2458,7 +2453,7 @@ async function submitTimesaleApply() {
       submittedBy: uid,
       requestedAt: window._serverTimestamp()
     });
-    showToast('<i class=ic-check-circle></i> 타임세일이 신청되었습니다. 관리자 승인 후 노출됩니다.', 'success');
+    showToast('타임세일이 신청되었습니다. 관리자 승인 후 노출됩니다.', 'success');
     document.getElementById('timesaleProductSelect').value = '';
     document.getElementById('timesaleDiscountRate').value = '';
   } catch(e) {
@@ -2610,7 +2605,7 @@ async function loadMyBrands() {
           <div class="my-brand-count">등록 상품 ${countMap[b.id] || 0}개</div>
         </div>
         <div class="action-btns">
-          <button class="btn-edit-tbl" onclick="openEditBrandForm('${b.id}')"><i class=ic-edit></i>️ 수정</button>
+          <button class="btn-edit-tbl" onclick="openEditBrandForm('${b.id}')">수정</button>
           <button class="btn-del-tbl" onclick="deleteBrand('${b.id}')">삭제</button>
         </div>
       </div>
@@ -2703,7 +2698,7 @@ async function saveBrand() {
       await Promise.all(prodSnap.docs.map(d =>
         window._updateDoc(window._doc(window._db, 'products', d.id), { brandName })
       ));
-      showToast('<i class=ic-check-circle></i> 브랜드 정보가 수정되었습니다.', 'success');
+      showToast('브랜드 정보가 수정되었습니다.', 'success');
     } else {
       // 신규 등록
       await window._addDoc(window._collection(window._db, 'brands'), {
@@ -2712,7 +2707,7 @@ async function saveBrand() {
         logoUrl,
         createdAt: window._serverTimestamp()
       });
-      showToast('<i class=ic-check-circle></i> 새 브랜드가 등록되었습니다.', 'success');
+      showToast('새 브랜드가 등록되었습니다.', 'success');
     }
 
     closeAddBrandForm();
