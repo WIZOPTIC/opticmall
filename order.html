@@ -462,29 +462,6 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 <div class="main" id="orderMain" style="display:none;">
   <div class="order-form">
 
-    <!-- 주문자 정보 -->
-    <div class="sec-title">주문자 정보</div>
-    <div class="card">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">이름</label>
-          <input class="form-input" id="ordererName" readonly>
-        </div>
-        <div class="form-group">
-          <label class="form-label">휴대폰</label>
-          <input class="form-input" id="ordererPhone" readonly>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">이메일</label>
-        <input class="form-input" id="ordererEmail" readonly>
-      </div>
-      <div class="form-group">
-        <label class="form-label">안경원명</label>
-        <input class="form-input" id="ordererStore" readonly>
-      </div>
-    </div>
-
     <!-- 배송지 -->
     <div class="sec-title">배송지 정보</div>
     <div class="card">
@@ -542,6 +519,29 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     </div>
 
     <!-- 주문 상품 -->
+    <!-- 주문자 정보 -->
+    <div class="sec-title">주문자 정보</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">이름</label>
+          <input class="form-input" id="ordererName" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">휴대폰</label>
+          <input class="form-input" id="ordererPhone" readonly>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">이메일</label>
+        <input class="form-input" id="ordererEmail" readonly>
+      </div>
+      <div class="form-group">
+        <label class="form-label">안경원명</label>
+        <input class="form-input" id="ordererStore" readonly>
+      </div>
+    </div>
+
     <div class="sec-title">주문 상품 (<span id="itemCount">0</span>건)</div>
     <div class="card">
       <div id="orderItemsList"><!-- JS로 생성 --></div>

@@ -471,6 +471,17 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 @media (min-width:1001px){.header-top-row .logo{margin-left:-8px}}
 .gnb-item{font-weight:450!important;letter-spacing:.08em!important}
 .gnb-item:hover,.gnb-item.active{font-weight:450!important}
+/* 배송지 관리: 주문서 배송지 카드와 동일 형태 */
+.addr-card{border:1px solid #ECE7DE!important;box-shadow:none!important;padding:20px 22px!important;margin-bottom:10px!important}
+.addr-card.is-default{border:1.5px solid #14110f!important;background:#FBF8F3}
+.addr-card-top{gap:10px!important;margin-bottom:6px!important}
+.addr-label{font-size:18px!important;font-weight:700!important;color:#14110f!important}
+.addr-sub{font-weight:600}
+.addr-default-badge{background:#14110f!important;color:#fff!important;font-size:11px!important;padding:2px 9px!important}
+.addr-recipient{font-size:14px!important;color:#8a8279!important;margin-bottom:8px!important}
+.addr-text{font-size:17px!important;line-height:1.5!important;color:#14110f!important;font-weight:500!important;margin-bottom:14px!important}
+.addr-actions{justify-content:flex-end}
+.addr-actions .btn-track{background:#fff!important;color:#14110f!important;border:1px solid #14110f!important}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -1223,13 +1234,13 @@ async function loadAddresses() {
     }
 
     listEl.innerHTML = myAddresses.map(a => `
-      <div class="addr-card">
+      <div class="addr-card ${a.isDefault?'is-default':''}">
         <div class="addr-card-top">
-          <span class="addr-label">${a.label || '배송지'}</span>
-          ${a.isDefault ? `<span class="addr-default-badge">기본 배송지</span>` : ''}
+          <span class="addr-label">${a.recipientName||'-'}<span class="addr-sub">(${a.label||'배송지'})</span></span>
+          ${a.isDefault ? `<span class="addr-default-badge">기본</span>` : ''}
         </div>
-        <div class="addr-recipient">${a.recipientName||'-'} · ${a.recipientPhone||'-'}</div>
-        <div class="addr-text">${a.addr1||''} ${a.addr2||''} ${a.zipcode ? `(${a.zipcode})` : ''}</div>
+        <div class="addr-recipient">${a.recipientPhone||'-'}</div>
+        <div class="addr-text">${a.addr1||''} ${a.addr2||''}</div>
         <div class="addr-actions">
           ${!a.isDefault ? `<button class="btn-sm btn-track" onclick="setDefaultAddress('${a.id}')">기본으로 설정</button>` : ''}
           <button class="btn-sm btn-cancel" onclick="openEditAddressForm('${a.id}')">수정</button>
