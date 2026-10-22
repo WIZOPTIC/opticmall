@@ -254,27 +254,27 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="admin-badge">ADMIN PANEL</div>
   </div>
   <nav class="sidebar-menu">
-    <div class="menu-section">메인</div>
-    <button class="menu-item active" onclick="showPage('dashboard',this)"><span><i class=ic-chart-bar></i></span> 대시보드</button>
+    <div class="menu-section">주문 관리</div>
+    <button class="menu-item" onclick="showPage('orderManage',this)">주문/배송 관리 <span class="menu-badge" id="pendingShipBadge"></span></button>
+    <button class="menu-item" onclick="showPage('cancelManage',this)">취소/반품 관리 <span class="menu-badge" id="pendingCancelBadge"></span></button>
+    <button class="menu-item" id="settlementMenuItem" onclick="showPage('settlement',this)">정산 관리</button>
     <div class="menu-section">회원 관리</div>
-    <button class="menu-item" onclick="showPage('approval',this)"><span><i class=ic-check-circle></i></span> 가입 승인 관리 <span class="menu-badge" id="pendingBadge"></span></button>
-    <button class="menu-item" onclick="showPage('members',this)"><span><i class=ic-users></i></span> 회원 목록</button>
+    <button class="menu-item" onclick="showPage('approval',this)">가입 승인 관리 <span class="menu-badge" id="pendingBadge"></span></button>
+    <button class="menu-item" onclick="showPage('members',this)">회원 목록</button>
     <div class="menu-section">상품 관리</div>
-    <button class="menu-item" onclick="showPage('productApproval',this)"><span><i class=ic-package></i></span> 상품 승인 관리 <span class="menu-badge" id="pendingProductBadge"></span></button>
-    <button class="menu-item" onclick="showPage('allProducts',this)"><span><i class=ic-glasses></i></span> 전체 상품 목록</button>
-    <button class="menu-item" onclick="showPage('featuredPicks',this)"><span><i class=ic-fire></i></span> 신상품·베스트 선정</button>
+    <button class="menu-item" onclick="showPage('productApproval',this)">상품 승인 관리 <span class="menu-badge" id="pendingProductBadge"></span></button>
+    <button class="menu-item" onclick="showPage('allProducts',this)">전체 상품 목록</button>
+    <button class="menu-item" onclick="showPage('featuredPicks',this)">신상품·베스트 선정</button>
     <div class="menu-section">프로모션</div>
-    <button class="menu-item" onclick="showPage('promoApproval',this)"><span><i class=ic-party></i></span> 이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge"></span></button>
-    <button class="menu-item" onclick="showPage('allPromos',this)"><span><i class=ic-tag></i>️</span> 전체 이벤트 목록</button>
-    <button class="menu-item" onclick="showPage('timesaleManage',this)"><span><i class=ic-fire></i></span> 타임세일 관리 <span class="menu-badge" id="pendingTimesaleBadge"></span></button>
+    <button class="menu-item" onclick="showPage('promoApproval',this)">이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge"></span></button>
+    <button class="menu-item" onclick="showPage('allPromos',this)">전체 이벤트 목록</button>
+    <button class="menu-item" onclick="showPage('timesaleManage',this)">타임세일 관리 <span class="menu-badge" id="pendingTimesaleBadge"></span></button>
     <div class="menu-section">메인 화면 관리</div>
-    <button class="menu-item" onclick="showPage('heroPhotos',this)"><span><i class=ic-glasses></i></span> 메인 대표사진 관리</button>
-    <button class="menu-item" onclick="showPage('editorial',this)"><span><i class=ic-image></i></span> 롤링 배너 관리</button>
-    <div class="menu-section">운영</div>
-    <button class="menu-item" onclick="showPage('orderManage',this)"><span><i class=ic-truck></i></span> 주문/배송 관리 <span class="menu-badge" id="pendingShipBadge"></span></button>
-    <button class="menu-item" onclick="showPage('cancelManage',this)"><span><i class=ic-refresh></i></span> 취소/반품 관리 <span class="menu-badge" id="pendingCancelBadge"></span></button>
-    <button class="menu-item" id="settlementMenuItem" onclick="showPage('settlement',this)"><span><i class=ic-money></i></span> 정산 관리</button>
-    <button class="menu-item" onclick="showPage('adminSettings',this)"><span><i class=ic-settings></i>️</span> 설정</button>
+    <button class="menu-item" onclick="showPage('heroPhotos',this)">메인 대표사진 관리</button>
+    <button class="menu-item" onclick="showPage('editorial',this)">롤링 배너 관리</button>
+    <div class="menu-section">현황 · 설정</div>
+    <button class="menu-item active" onclick="showPage('dashboard',this)">대시보드</button>
+    <button class="menu-item" onclick="showPage('adminSettings',this)">설정</button>
   </nav>
   <div class="sidebar-user">
     <div class="user-avatar">관</div>
@@ -328,7 +328,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 
       <div class="section-header">
         <div class="section-title"><i class=ic-bell></i> 최근 승인 대기</div>
-        <button class="btn-sm btn-primary" onclick="showPage('approval', document.querySelector('.menu-item:nth-child(4)'))">전체보기</button>
+        <button class="btn-sm btn-primary" onclick="showPage('approval', document.querySelector('.menu-item[onclick*=approval]'))">전체보기</button>
       </div>
       <div class="table-wrap" id="dashPendingTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
