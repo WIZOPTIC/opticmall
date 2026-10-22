@@ -720,15 +720,6 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
           </select>
         </div>
         <div class="edit-form-group">
-          <label>타입</label>
-          <select id="aEditType">
-            <option value="">선택</option>
-            <option value="하프">하프</option>
-            <option value="온">온</option>
-            <option value="림리스">림리스</option>
-          </select>
-        </div>
-        <div class="edit-form-group">
           <label>렌즈 옵션</label>
           <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;color:var(--g4);cursor:pointer;height:38px;">
             <input type="checkbox" id="aEditPhotochromic" style="width:16px;height:16px;cursor:pointer;">
@@ -750,7 +741,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         </div>
         <div class="edit-form-group">
           <label>소재</label>
-          <input type="text" id="aEditMaterial" placeholder="예) Acetate+Titanium">
+          <select id="aEditMaterial"><option value="">선택</option><option value="Metal">Metal</option><option value="Metal+Titanium">Metal+Titanium</option><option value="Metal+TR">Metal+TR</option><option value="TR">TR</option><option value="TR+Acetate">TR+Acetate</option><option value="Acetate">Acetate</option><option value="Ultem+Metal">Ultem+Metal</option></select>
         </div>
       </div>
       <div class="edit-form-group" style="margin-bottom:14px;">
@@ -1041,6 +1032,21 @@ function startNewOrderWatcher() {
 }
 
 // 날짜 포맷
+const MATERIAL_OPTIONS = ['Metal', 'Metal+Titanium', 'Metal+TR', 'TR', 'TR+Acetate', 'Acetate', 'Ultem+Metal'];
+// 소재 드롭다운 값 세팅: 목록에 없는 기존 값(자유 입력으로 저장된 값)은 임시 항목으로 추가해 값이 사라지지 않게 함
+function setMaterialSelect(selectId, value) {
+  const el = document.getElementById(selectId);
+  if(!el) return;
+  const v = (value || '').trim();
+  [...el.querySelectorAll('option[data-legacy]')].forEach(o => o.remove());
+  if(v && !MATERIAL_OPTIONS.includes(v)) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v; o.setAttribute('data-legacy', '1');
+    el.appendChild(o);
+  }
+  el.value = v;
+}
+
 function formatDate(ts) {
   if(!ts) return '-';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -1508,7 +1514,7 @@ function renderProductRow(p, isApprovalView) {
       <td>${p.brandName||'-'}</td>
       <td style="font-size:12px;">${colorDisplay}</td>
       <td>${p.category||'-'}</td>
-      <td>${p.type||'-'}</td>
+      <td>${p.material||'-'}</td>
       <td>${priceDisplay}</td>
       <td>${stockDisplay}</td>
       <td>${formatDate(p.createdAt)}</td>
@@ -1544,7 +1550,7 @@ async function loadProductApproval() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
+          <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
           <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>처리</th>
         </tr></thead>
         <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
@@ -1592,7 +1598,7 @@ function applyAdminProductSearch() {
   tableEl.innerHTML = `
     <table>
       <thead><tr>
-        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>타입</th>
+        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
         <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>관리</th>
       </tr></thead>
       <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
@@ -2717,7 +2723,6 @@ async function openProductModal(pid) {
       <div class="info-row"><div class="info-label">소재</div><div class="info-value">${p.material||'-'}</div></div>
       <div class="info-row"><div class="info-label">브랜드</div><div class="info-value">${p.brandName||'-'}</div></div>
       <div class="info-row"><div class="info-label">색상</div><div class="info-value">${p.colorNames ? p.colorNames.join(', ') : (p.color||'-')}</div></div>
-      <div class="info-row"><div class="info-label">타입</div><div class="info-value">${p.type||'-'}</div></div>
       <div class="info-row"><div class="info-label">기본 정가</div><div class="info-value">${priceRowDisplay}${p.discountRate ? ` <span style="color:var(--red);font-size:11px;">${p.discountRate}% 할인</span>` : ''}</div></div>
       <div class="info-row"><div class="info-label">등록일</div><div class="info-value">${formatDate(p.createdAt)}</div></div>
       <div class="info-row"><div class="info-label">상태</div><div class="info-value"><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></div></div>
@@ -2825,9 +2830,8 @@ function startAdminEditRow(pid) {
 
   document.getElementById('aEditModelName').value = product.modelName || '';
   document.getElementById('aEditSize').value = product.size || '';
-  document.getElementById('aEditMaterial').value = product.material || '';
+  setMaterialSelect('aEditMaterial', product.material);
   document.getElementById('aEditCategory').value = product.category || '';
-  document.getElementById('aEditType').value = product.type || '';
   document.getElementById('aEditPhotochromic').checked = !!product.photochromic;
   document.getElementById('aEditOrigin').value = product.origin || 'china';
   document.getElementById('aEditPrice').value = product.price || 0;
@@ -3099,7 +3103,6 @@ async function saveAdminProductEdit() {
       size: document.getElementById('aEditSize').value.trim(),
       material: document.getElementById('aEditMaterial').value.trim(),
       category: document.getElementById('aEditCategory').value,
-      type: document.getElementById('aEditType').value,
       photochromic: document.getElementById('aEditPhotochromic').checked,
       origin: document.getElementById('aEditOrigin').value,
       price,

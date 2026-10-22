@@ -659,15 +659,6 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
           </select>
         </div>
         <div class="edit-form-group">
-          <label>타입</label>
-          <select id="editType">
-            <option value="">선택</option>
-            <option value="하프">하프</option>
-            <option value="온">온</option>
-            <option value="림리스">림리스</option>
-          </select>
-        </div>
-        <div class="edit-form-group">
           <label>렌즈 옵션</label>
           <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;color:var(--g4);cursor:pointer;height:38px;">
             <input type="checkbox" id="editPhotochromic" style="width:16px;height:16px;cursor:pointer;">
@@ -682,7 +673,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         </div>
         <div class="edit-form-group">
           <label>소재</label>
-          <input type="text" id="editMaterial" placeholder="예) Acetate+Titanium">
+          <select id="editMaterial"><option value="">선택</option><option value="Metal">Metal</option><option value="Metal+Titanium">Metal+Titanium</option><option value="Metal+TR">Metal+TR</option><option value="TR">TR</option><option value="TR+Acetate">TR+Acetate</option><option value="Acetate">Acetate</option><option value="Ultem+Metal">Ultem+Metal</option></select>
         </div>
       </div>
 
@@ -801,6 +792,21 @@ window._getCurrentBrandData = () => currentBrandData;
 <script>
 // ===================== 공통 =====================
 document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'short'});
+
+const MATERIAL_OPTIONS = ['Metal', 'Metal+Titanium', 'Metal+TR', 'TR', 'TR+Acetate', 'Acetate', 'Ultem+Metal'];
+// 소재 드롭다운 값 세팅: 목록에 없는 기존 값(자유 입력으로 저장된 값)은 임시 항목으로 추가해 값이 사라지지 않게 함
+function setMaterialSelect(selectId, value) {
+  const el = document.getElementById(selectId);
+  if(!el) return;
+  const v = (value || '').trim();
+  [...el.querySelectorAll('option[data-legacy]')].forEach(o => o.remove());
+  if(v && !MATERIAL_OPTIONS.includes(v)) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v; o.setAttribute('data-legacy', '1');
+    el.appendChild(o);
+  }
+  el.value = v;
+}
 
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
@@ -1414,7 +1420,7 @@ function renderProductTable(products, withActions=true) {
   return `
     <table>
       <thead><tr>
-        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>색상</th><th>카테고리</th><th>타입</th>
+        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>색상</th><th>카테고리</th><th>소재</th>
         <th>도매가</th><th>재고</th><th>상태</th>${withActions ? '<th>관리</th>' : ''}
       </tr></thead>
       <tbody>
@@ -1442,7 +1448,7 @@ function renderProductRowHtml(p, withActions) {
       <td style="font-size:12px;">${p.size||'-'}</td>
       <td style="font-size:12px;">${colorDisplay}</td>
       <td>${p.category||'-'}</td>
-      <td>${p.type||'-'}</td>
+      <td>${p.material||'-'}</td>
       <td class="cell-price">${priceDisplay}</td>
       <td class="cell-stock">${stockDisplay}</td>
       <td><span class="badge ${statusClassMap[p.status]||'pending'}">${statusLabelMap[p.status]||'대기'}</span></td>
@@ -1546,9 +1552,8 @@ function startEditRow(pid) {
 
   document.getElementById('editModelName').value = product.modelName || '';
   document.getElementById('editSize').value = product.size || '';
-  document.getElementById('editMaterial').value = product.material || '';
+  setMaterialSelect('editMaterial', product.material);
   document.getElementById('editCategory').value = product.category || '';
-  document.getElementById('editType').value = product.type || '';
   document.getElementById('editPhotochromic').checked = !!product.photochromic;
   document.getElementById('editPrice').value = product.price || 0;
   document.getElementById('editDiscountRate').value = product.discountRate || 0;
@@ -1801,7 +1806,6 @@ async function saveProductEdit() {
       size: document.getElementById('editSize').value.trim(),
       material: document.getElementById('editMaterial').value.trim(),
       category: document.getElementById('editCategory').value,
-      type: document.getElementById('editType').value,
       photochromic: document.getElementById('editPhotochromic').checked,
       price,
       discountRate,
@@ -2079,15 +2083,6 @@ function renderProductCards() {
           </select>
         </div>
         <div class="reg-field">
-          <label>타입</label>
-          <select onchange="updateCardField(${card.cardId},'type',this.value)">
-            <option value="" ${!card.type?'selected':''}>선택</option>
-            <option value="하프" ${card.type==='하프'?'selected':''}>하프</option>
-            <option value="온" ${card.type==='온'?'selected':''}>온</option>
-            <option value="림리스" ${card.type==='림리스'?'selected':''}>림리스</option>
-          </select>
-        </div>
-        <div class="reg-field">
           <label>렌즈 옵션</label>
           <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;color:var(--g4);cursor:pointer;height:38px;">
             <input type="checkbox" ${card.photochromic?'checked':''} onchange="updateCardField(${card.cardId},'photochromic',this.checked)" style="width:16px;height:16px;cursor:pointer;">
@@ -2096,8 +2091,10 @@ function renderProductCards() {
         </div>
         <div class="reg-field">
           <label>소재</label>
-          <input type="text" placeholder="예) Acetate+Titanium" value="${card.material||''}"
-            onchange="updateCardField(${card.cardId},'material',this.value)">
+          <select onchange="updateCardField(${card.cardId},'material',this.value)">
+            <option value="">선택</option>
+            ${MATERIAL_OPTIONS.map(m => `<option value="${m}" ${card.material===m?'selected':''}>${m}</option>`).join('')}
+          </select>
         </div>
         <div class="reg-field">
           <label>원산지</label>
@@ -2289,7 +2286,6 @@ async function submitBulkRegister() {
         size: card.size || '',
         material: (card.material || '').trim(),
         category: card.category || '',
-        type: card.type || '',
         origin: card.origin || 'china',
         photochromic: !!card.photochromic,
         price,
