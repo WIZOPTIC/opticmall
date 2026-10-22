@@ -354,6 +354,15 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .addr-select-default{font-size:11px!important;padding:2px 9px!important}
 .addr-select-phone{font-size:14px;color:#8a8279;margin-bottom:8px}
 .addr-select-info{font-size:17px!important;line-height:1.5!important;color:#14110f!important;font-weight:500!important}
+/* 주문서 정돈: 소제목은 카드 밖, 카드는 흰색 */
+.sec-title{font-size:20px;font-weight:700;color:#14110f;margin:34px 0 14px;letter-spacing:-.01em}
+.order-form>.sec-title:first-child{margin-top:0}
+.card{padding:26px 28px!important;margin-bottom:0!important;box-shadow:none!important;border:1px solid #ECE7DE}
+.card-title{display:none}
+#ordererName,#ordererPhone,#ordererEmail,#ordererStore{border:none!important;background:transparent!important;padding:2px 0!important;font-size:15px;color:#14110f;font-weight:500}
+#orderMain .card .form-label{font-size:12px;color:#8a8279;font-weight:500;margin-bottom:2px}
+#addNewAddressBtn{background:#fff!important;color:#14110f!important;border:1px solid #14110f!important;font-weight:600}
+#receiverMemoSel{width:100%;height:48px;background:#fff;appearance:auto}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -454,8 +463,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   <div class="order-form">
 
     <!-- 주문자 정보 -->
+    <div class="sec-title">주문자 정보</div>
     <div class="card">
-      <div class="card-title">주문자 정보</div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">이름</label>
@@ -477,8 +486,8 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     </div>
 
     <!-- 배송지 -->
+    <div class="sec-title">배송지 정보</div>
     <div class="card">
-      <div class="card-title">배송지 정보</div>
       <div id="addressSelectArea"><!-- JS로 배송지 카드 목록 렌더링 --></div>
       <button class="btn-addr" id="addNewAddressBtn" onclick="openNewAddressForm()" style="width:100%;margin-top:4px;">+ 새 배송지 추가</button>
 
@@ -520,13 +529,21 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 
       <div class="form-group" style="margin-top:14px;">
         <label class="form-label">배송 요청사항</label>
-        <textarea class="form-textarea" id="receiverMemo" placeholder="배송 시 요청사항을 입력해주세요"></textarea>
+        <select class="form-input" id="receiverMemoSel" onchange="onMemoSelect(this.value)">
+          <option value="">배송 요청사항을 선택해주세요</option>
+          <option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
+          <option value="경비실에 맡겨주세요">경비실에 맡겨주세요</option>
+          <option value="배송 전에 연락 부탁드립니다">배송 전에 연락 부탁드립니다</option>
+          <option value="부재 시 연락 부탁드립니다">부재 시 연락 부탁드립니다</option>
+          <option value="__custom">직접 입력</option>
+        </select>
+        <textarea class="form-textarea" id="receiverMemo" placeholder="배송 시 요청사항을 입력해주세요" style="display:none;margin-top:8px;"></textarea>
       </div>
     </div>
 
     <!-- 주문 상품 -->
+    <div class="sec-title">주문 상품 (<span id="itemCount">0</span>건)</div>
     <div class="card">
-      <div class="card-title">주문 상품 (<span id="itemCount">0</span>건)</div>
       <div id="orderItemsList"><!-- JS로 생성 --></div>
     </div>
   </div>
@@ -793,6 +810,12 @@ function renderAddressSelectArea() {
       <div class="addr-select-info">${a.addr1||''} ${a.addr2||''}</div>
     </div>
   `).join('');
+}
+
+function onMemoSelect(v) {
+  const t = document.getElementById('receiverMemo');
+  if(v === '__custom') { t.style.display = 'block'; t.value = ''; t.focus(); }
+  else { t.style.display = 'none'; t.value = v; }
 }
 
 function selectAddress(addressId) {
