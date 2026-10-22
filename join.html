@@ -383,6 +383,38 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 @media (min-width:1001px){.header-top-row .logo{margin-left:-8px}}
 .gnb-item{font-weight:450!important;letter-spacing:.08em!important}
 .gnb-item:hover,.gnb-item.active{font-weight:450!important}
+/* 회원가입 폼 정렬/디자인 정돈: 라벨 글자와 입력칸 중앙을 맞추고, 버튼은 입력칸과 같은 높이로 한 줄에 정렬 */
+.section-title{font-size:18px!important;font-weight:700!important;letter-spacing:-.01em}
+.section-sub{margin-bottom:14px!important}
+.field-list{border-top:2px solid #14110f!important}
+.field-row{align-items:stretch}
+.field-label{width:168px!important;padding:14px 18px!important;font-size:14px!important;font-weight:600!important;color:#3a352f!important;background:#F7F4EE!important;line-height:46px!important;align-items:flex-start!important;height:auto}
+.field-label .dot{line-height:46px!important;margin-right:6px!important}
+.field-body{padding:14px 18px!important}
+.field-body .form-input,.btn-check{height:46px!important;box-sizing:border-box!important}
+.field-body .form-input{padding:0 14px!important;max-width:400px!important;border-width:1px!important;border-color:#D9D3C7!important;background:#fff}
+.field-body .form-input:focus{border-color:#14110f!important}
+.field-body .form-input[readonly]{background:#FAF8F4}
+select.form-input{padding-right:8px!important}
+.btn-check{padding:0 18px!important;min-width:92px;font-size:13px!important}
+.field-body .input-btn-row{max-width:560px!important;align-items:stretch;gap:8px!important}
+.field-body .input-btn-row>div{flex-wrap:nowrap!important;min-width:0}
+.field-body .input-btn-row>div>input,.field-body .input-btn-row>div>select{min-width:0!important}
+#emailLocal{flex:1 1 150px!important}
+#emailDomainSelect,#emailDomainCustom{flex:0 0 140px!important;min-width:0!important}
+.form-hint{margin-top:7px!important;font-size:12px!important}
+@media (max-width:600px){
+  .field-row{flex-direction:column}
+  .field-label{width:auto!important;line-height:20px!important;padding:12px 16px 4px!important;background:#fff!important}
+  .field-label .dot{line-height:20px!important}
+  .field-body{padding:4px 16px 14px!important}
+  .field-body .form-input{max-width:none!important}
+  #emailCheckBtn{flex:1 1 100%}
+  .field-body .input-btn-row:has(#emailCheckBtn){flex-wrap:wrap!important}
+  .field-body .input-btn-row:has(#emailCheckBtn)>div{flex:1 1 100%}
+  #emailLocal{flex:1 1 90px!important}
+  #emailDomainSelect,#emailDomainCustom{flex:1 1 120px!important}
+}
 </style>
 </head>
 <body>
