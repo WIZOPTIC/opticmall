@@ -480,6 +480,17 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       </div>
     </div>
 
+    <!-- 주문 상세 모달 -->
+    <div class="modal-bg" id="orderDetailModal" style="display:none;" onclick="if(event.target===this)closeOrderDetail()">
+      <div class="modal" style="max-width:760px;width:94vw;border-radius:0;">
+        <div class="modal-header">
+          <div class="modal-title" id="orderDetailTitle">주문 상세</div>
+          <button class="modal-close" onclick="closeOrderDetail()">✕</button>
+        </div>
+        <div class="modal-body" id="orderDetailBody" style="flex:1;overflow-y:auto;padding:20px;"></div>
+      </div>
+    </div>
+
     <!-- 취소/반품 상세 모달 -->
     <div class="modal-bg" id="cancelDetailModal" style="display:none;">
       <div class="modal" style="max-width:560px;width:92vw;">
@@ -3191,6 +3202,8 @@ async function loadOrderManage() {
       const db2 = b.createdAt?.toDate?.() || new Date(0);
       return db2 - da;
     });
+    window._orderDocMap = {};
+    allOrderDocs.forEach(o => { window._orderDocMap[o.id] = o; });
     orderManageCache = rows;
     renderOrderManageTable();
     sweepPendingPointsAward(allOrderDocs); // 배송완료됐지만 아직 적립금 미지급인 건 백그라운드에서 자동 보정
@@ -3254,9 +3267,9 @@ function renderOrderManageTable() {
           }
 
           return `
-            <tr>
+            <tr style="cursor:pointer;" onclick="openOrderDetail('${r.orderDocId}')" title="클릭하면 주문 상세를 볼 수 있습니다">
               <td style="font-size:11px;white-space:nowrap;">${formatDate(r.createdAt)}</td>
-              <td style="font-size:11px;color:var(--sky);">${r.orderId}</td>
+              <td style="font-size:11px;color:var(--sky);text-decoration:underline;">${r.orderId}</td>
               <td>${r.userName}</td>
               <td style="font-size:12px;font-weight:600;">${r.brandName}</td>
               <td style="font-size:12px;">${itemSummary}</td>
@@ -3267,11 +3280,80 @@ function renderOrderManageTable() {
               </td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>
-              <td><div class="action-btns">${actionBtn}</div></td>
+              <td onclick="event.stopPropagation()"><div class="action-btns">${actionBtn}</div></td>
             </tr>`;
         }).join('')}
       </tbody>
     </table>`;
+}
+
+function closeOrderDetail() { document.getElementById('orderDetailModal').style.display = 'none'; }
+
+async function openOrderDetail(orderDocId) {
+  const o = (window._orderDocMap || {})[orderDocId];
+  if(!o) return;
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const won = v => '\u20A9' + Number(v||0).toLocaleString();
+  const modal = document.getElementById('orderDetailModal');
+  const bodyEl = document.getElementById('orderDetailBody');
+  document.getElementById('orderDetailTitle').textContent = '주문 상세  ' + (o.orderId || o.id);
+  modal.style.display = 'flex';
+
+  // 주문자 연락처/안경원명은 주문 문서에 없으므로 회원 정보에서 보충
+  let u = {};
+  try {
+    if(o.userId) {
+      const us = await window._getDoc(window._doc(window._db, 'users', o.userId));
+      if(us.exists()) u = us.data();
+    }
+  } catch(e) { console.error(e); }
+
+  const items = Array.isArray(o.items) ? o.items : [];
+  const r = o.receiver || {};
+  const row = (k, v) => `<div style="display:flex;gap:12px;padding:6px 0;font-size:13px;"><div style="width:90px;color:var(--g3);flex-shrink:0;">${k}</div><div style="flex:1;word-break:break-all;">${v}</div></div>`;
+  const sec = (t, inner) => `<div style="margin-bottom:22px;"><div style="font-size:14px;font-weight:700;padding-bottom:8px;border-bottom:1px solid var(--g2);margin-bottom:6px;">${t}</div>${inner}</div>`;
+
+  const shipments = Array.isArray(o.shipments) ? o.shipments : [];
+  const statusHtml = (shipments.length ? shipments : [{ brandName: '', status: o.status, trackingCompany: o.trackingCompany, trackingNumber: o.trackingNumber }]).map(s => {
+    const si = orderManageStatusLabel[s.status] || { label: s.status || '-', cls: 'pending' };
+    const tr = s.trackingNumber ? ` &nbsp; ${esc(s.trackingCompany||'')} ${esc(s.trackingNumber)}` : '';
+    return `<div style="padding:4px 0;font-size:13px;">${s.brandName ? `<b>${esc(s.brandName)}</b> &nbsp;` : ''}<span class="badge ${si.cls}">${si.label}</span>${tr}</div>`;
+  }).join('');
+
+  const itemsHtml = `
+    <table style="width:100%;font-size:12px;border-collapse:collapse;">
+      <thead><tr style="text-align:left;color:var(--g3);">
+        <th style="padding:6px 4px;width:52px;"></th><th style="padding:6px 4px;">상품</th><th style="padding:6px 4px;">색상</th>
+        <th style="padding:6px 4px;text-align:right;">수량</th><th style="padding:6px 4px;text-align:right;">단가</th><th style="padding:6px 4px;text-align:right;">소계</th>
+      </tr></thead>
+      <tbody>${items.map(it => `
+        <tr style="border-top:1px solid var(--g1);">
+          <td style="padding:8px 4px;">${it.mainImageUrl ? `<img src="${esc(it.mainImageUrl)}" style="width:44px;height:44px;object-fit:cover;display:block;">` : ''}</td>
+          <td style="padding:8px 4px;"><div style="font-weight:600;">${esc(it.productName||'-')}</div><div style="color:var(--g3);font-size:11px;">${esc(it.brandName||'')}${it.barcode ? ' · ' + esc(it.barcode) : ''}</div></td>
+          <td style="padding:8px 4px;">${esc(it.selectedColor||'-')}${it.colorCode ? ' <span style="color:var(--g3);">(' + esc(it.colorCode) + ')</span>' : ''}</td>
+          <td style="padding:8px 4px;text-align:right;">${Number(it.qty||0)}</td>
+          <td style="padding:8px 4px;text-align:right;">${Number(it.discountRate||0) > 0 ? `<div style="text-decoration:line-through;color:var(--g3);font-size:11px;">${won(it.originalUnitPrice)}</div>` : ''}${won(it.unitPrice)}</td>
+          <td style="padding:8px 4px;text-align:right;font-weight:600;">${won(it.subtotal)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  const payRows = [
+    row('상품금액', won(o.productAmount)),
+    Number(o.couponDiscount||0) > 0 ? row('쿠폰 할인', '-' + won(o.couponDiscount) + (o.couponName ? ' (' + esc(o.couponName) + ')' : '')) : '',
+    Number(o.pointsUsed||0) > 0 ? row('적립금 사용', '-' + won(o.pointsUsed)) : '',
+    row('배송비', won(o.shippingFee)),
+    row('총 결제금액', '<b style="font-size:15px;">' + won(o.totalAmount) + '</b>'),
+    o.paidAmount != null ? row('실결제 금액', won(o.paidAmount)) : '',
+    o.paymentKey ? row('결제키', '<span style="font-size:11px;">' + esc(o.paymentKey) + '</span>') : ''
+  ].join('');
+
+  bodyEl.innerHTML =
+    sec('주문 정보', row('주문일시', formatDate(o.createdAt)) + row('상태', statusHtml)) +
+    sec('주문자', row('이름', esc(u.name || o.userName || '-')) + row('안경원명', esc(u.storeName || u.brandName || '-')) + row('연락처', esc(u.phone || '-')) + row('이메일', esc(u.email || o.userEmail || '-'))) +
+    sec('배송지', row('받는 분', esc(r.name || '-')) + row('연락처', esc(r.phone || '-')) + row('주소', esc(((r.zipcode ? '(' + r.zipcode + ') ' : '') + (r.addr1||'') + ' ' + (r.addr2||'')).trim() || '-')) + row('요청사항', esc(r.memo || '-'))) +
+    sec('주문 상품 (' + items.length + '건)', itemsHtml) +
+    sec('결제 정보', payRows);
 }
 
 // orderDocId + brandOwnerUid(구주문은 null)를 받아 해당 배송묶음(또는 구주문 전체)의 상태를 갱신
