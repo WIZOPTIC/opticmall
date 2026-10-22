@@ -485,7 +485,10 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       <div class="modal" style="max-width:760px;width:94vw;border-radius:0;">
         <div class="modal-header">
           <div class="modal-title" id="orderDetailTitle">주문 상세</div>
-          <button class="modal-close" onclick="closeOrderDetail()">✕</button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn-sm btn-ghost" onclick="printOrderDetail()">인쇄하기</button>
+            <button class="modal-close" onclick="closeOrderDetail()">✕</button>
+          </div>
         </div>
         <div class="modal-body" id="orderDetailBody" style="flex:1;overflow-y:auto;padding:20px;"></div>
       </div>
@@ -3287,11 +3290,77 @@ function renderOrderManageTable() {
     </table>`;
 }
 
+// 인쇄용 주문서: 상자에 동봉되어 고객에게 전달되므로 결제키·내부 상태 등 내부 정보는 제외
+function printOrderDetail() {
+  const o = (window._orderDocMap || {})[window._orderDetailCurrent];
+  if(!o) return;
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const won = v => '\u20A9' + Number(v||0).toLocaleString();
+  const items = Array.isArray(o.items) ? o.items : [];
+  const r = o.receiver || {};
+  const addr = ((r.zipcode ? '(' + r.zipcode + ') ' : '') + (r.addr1||'') + ' ' + (r.addr2||'')).trim();
+  const itemRows = items.map(it => `
+    <tr>
+      <td>${esc(it.productName||'-')}<div class="sub">${esc(it.brandName||'')}</div></td>
+      <td class="c">${esc(it.selectedColor||'-')}${it.colorCode ? '<div class="sub">' + esc(it.colorCode) + '</div>' : ''}</td>
+      <td class="c">${Number(it.qty||0)}</td>
+      <td class="r">${won(it.unitPrice)}</td>
+      <td class="r b">${won(it.subtotal)}</td>
+    </tr>`).join('');
+  const sumRow = (k, v, bold) => `<tr class="${bold ? 'tot' : ''}"><td>${k}</td><td class="r">${v}</td></tr>`;
+  const sums = [
+    sumRow('상품금액', won(o.productAmount)),
+    Number(o.couponDiscount||0) > 0 ? sumRow('쿠폰 할인', '-' + won(o.couponDiscount)) : '',
+    Number(o.pointsUsed||0) > 0 ? sumRow('적립금 사용', '-' + won(o.pointsUsed)) : '',
+    sumRow('배송비', won(o.shippingFee)),
+    sumRow('결제금액', won(o.totalAmount), true)
+  ].join('');
+  const d = o.createdAt?.toDate?.() || null;
+  const dateStr = d ? d.getFullYear() + '. ' + (d.getMonth()+1) + '. ' + d.getDate() + '.' : '-';
+
+  const win = window.open('', '_blank', 'width=760,height=960');
+  if(!win) { alert('팝업이 차단되었습니다. 브라우저의 팝업 허용 후 다시 시도해주세요.'); return; }
+  win.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>주문서 ${esc(o.orderId||o.id)}</title>
+  <style>
+    body{font-family:'Pretendard','Malgun Gothic',sans-serif;color:#14110f;margin:0;padding:36px 40px;font-size:13px;}
+    h1{font-size:20px;margin:0 0 4px;letter-spacing:.04em}
+    .meta{color:#666;font-size:12px;margin-bottom:22px;padding-bottom:14px;border-bottom:2px solid #14110f}
+    h2{font-size:13px;margin:22px 0 6px}
+    table{width:100%;border-collapse:collapse}
+    .info td{padding:5px 0;vertical-align:top}.info td:first-child{width:80px;color:#777}
+    .items th{background:#f3f0ea;font-size:12px;padding:8px 10px;text-align:left;border-top:1px solid #14110f;border-bottom:1px solid #ccc}
+    .items td{padding:9px 10px;border-bottom:1px solid #e5e1d9}
+    .sub{font-size:11px;color:#888;margin-top:2px}.items th.c,.items td.c{text-align:center}.items th.r,.items td.r{text-align:right}.b{font-weight:700}.sum .r{text-align:right}
+    .sum{width:46%;margin-left:auto;margin-top:14px}.sum td{padding:5px 10px}.sum .tot td{border-top:2px solid #14110f;font-weight:700;font-size:15px;padding-top:9px}
+    .foot{margin-top:34px;color:#888;font-size:11px;text-align:center}
+    .btn{margin-top:20px;padding:10px 20px;font-size:13px;cursor:pointer;border:1px solid #14110f;background:#fff}
+    @media print{.btn{display:none}body{padding:0}}
+  </style></head><body>
+    <h1>OPTICMALL 주문서</h1>
+    <div class="meta">주문번호 ${esc(o.orderId||o.id)} &nbsp;|&nbsp; 주문일 ${dateStr}</div>
+    <h2>배송지</h2>
+    <table class="info">
+      <tr><td>받는 분</td><td>${esc(r.name||'-')}</td></tr>
+      <tr><td>연락처</td><td>${esc(r.phone||'-')}</td></tr>
+      <tr><td>주소</td><td>${esc(addr||'-')}</td></tr>
+      ${r.memo ? `<tr><td>요청사항</td><td>${esc(r.memo)}</td></tr>` : ''}
+    </table>
+    <h2>주문 상품</h2>
+    <table class="items"><thead><tr><th>상품</th><th class="c">색상</th><th class="c">수량</th><th class="r">단가</th><th class="r">금액</th></tr></thead><tbody>${itemRows}</tbody></table>
+    <table class="sum">${sums}</table>
+    <div class="foot">위즈옵틱 · OPTICMALL &nbsp; 고객센터 032-563-9984</div>
+    <div style="text-align:center"><button class="btn" onclick="window.print()">인쇄</button></div>
+  </body></html>`);
+  win.document.close();
+  win.onload = () => win.print();
+}
+
 function closeOrderDetail() { document.getElementById('orderDetailModal').style.display = 'none'; }
 
 async function openOrderDetail(orderDocId) {
   const o = (window._orderDocMap || {})[orderDocId];
   if(!o) return;
+  window._orderDetailCurrent = orderDocId;
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const won = v => '\u20A9' + Number(v||0).toLocaleString();
   const modal = document.getElementById('orderDetailModal');
