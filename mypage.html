@@ -2339,7 +2339,7 @@ async function loadRestockAlerts() {
     listEl.innerHTML = alerts.map((a, i) => {
       const pDoc = productDocs[i];
       const p = pDoc.exists ? pDoc.data() : null;
-      const stock = p ? Number(p.stock||0) : 0;
+      const stock = p ? ((Array.isArray(p.colors) && p.colors.length) ? p.colors.reduce((sum, c) => sum + Number(c && c.stock || 0), 0) : Number(p.stock||0)) : 0;
       const isReady = stock > 0;
       const hasImg = !!p?.mainImageUrl;
       const imgHtml = hasImg ? `<img src="${p.mainImageUrl}">` : '<i class=ic-glasses></i>';
