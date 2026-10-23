@@ -3796,27 +3796,42 @@ async function processCancel(orderId, cancelType, expectedRefund) {
 
     // 트랜잭션: 모든 read 먼저 → 모든 write 나중에 (Firestore 규칙)
     await window._runTransaction(window._db, async (tx) => {
-      // 1단계: 모든 상품 read
+      // 1단계: 주문 상태 재확인(중복 처리 방지) + 상품은 productId 기준으로 한 번만 read
+      const freshOrder = await tx.get(orderRef);
+      if(!freshOrder.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
+      const curStatus = freshOrder.data().status;
+      if(curStatus !== 'cancel_requested' && curStatus !== 'return_requested') {
+        throw new Error('이미 처리되었거나 취소/반품 신청 상태가 아닌 주문입니다. (현재 상태: ' + curStatus + ')');
+      }
+      const items = Array.isArray(orderData.items) ? orderData.items : [];
+      const productIds = [...new Set(items.map(it => it.productId).filter(Boolean))];
       const productReads = await Promise.all(
-        (orderData.items || []).map(item => {
-          const ref = window._doc(window._db, 'products', item.productId);
-          return tx.get(ref).then(snap => ({ item, ref, snap }));
+        productIds.map(pid => {
+          const ref = window._doc(window._db, 'products', pid);
+          return tx.get(ref).then(snap => ({ pid, ref, snap }));
         })
       );
 
-      // 2단계: 모든 write
-      for(const { item, ref, snap } of productReads) {
+      // 2단계: 같은 상품의 여러 색상이 한 주문에 있어도 서로 덮어쓰지 않도록 상품별로 합산해서 한 번에 write
+      for(const { pid, ref, snap } of productReads) {
         if(!snap.exists()) continue;
         const pData = snap.data();
-        const colorIdx = Number(item.selectedColorIdx) || 0;
-        const qty = Number(item.qty) || 0;
-
-        if(pData.colors && pData.colors.length > colorIdx) {
-          const colors = [...pData.colors];
-          colors[colorIdx] = { ...colors[colorIdx], stock: Number(colors[colorIdx].stock||0) + qty };
-          tx.update(ref, { colors });
+        const myItems = items.filter(it => it.productId === pid);
+        if(pData.colors && pData.colors.length > 0) {
+          const colors = pData.colors.map(c => ({ ...c }));
+          let plainQty = 0;
+          myItems.forEach(it => {
+            const idx = Number(it.selectedColorIdx) || 0;
+            const qty = Number(it.qty) || 0;
+            if(idx < colors.length) colors[idx].stock = Number(colors[idx].stock || 0) + qty;
+            else plainQty += qty;
+          });
+          const payload = { colors };
+          if(plainQty > 0) payload.stock = Number(pData.stock || 0) + plainQty;
+          tx.update(ref, payload);
         } else {
-          tx.update(ref, { stock: Number(pData.stock||0) + qty });
+          const total = myItems.reduce((sum, it) => sum + (Number(it.qty) || 0), 0);
+          tx.update(ref, { stock: Number(pData.stock || 0) + total });
         }
       }
       tx.update(orderRef, {

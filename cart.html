@@ -635,8 +635,20 @@ async function loadCart() {
       rawItems.map(item => _db.collection('products').doc(item.productId).get())
     );
 
-    // 타임세일 할인율 (종료 전, 승인된 상품)
+    // 진행중 이벤트 할인율 (주문서와 동일한 기준: 승인됨 + 기간 내, 겹치면 높은 할인율)
     const tsRates = {};
+    try {
+      const promoSnap = await _db.collection('promotions').where('status', '==', 'approved').get();
+      const today = new Date().toISOString().slice(0,10);
+      promoSnap.forEach(doc => {
+        const promo = doc.data();
+        if(promo.startDate > today || promo.endDate < today) return;
+        const r = Number(promo.discountRate) || 0;
+        (promo.targetProductIds || []).forEach(pid => { if(r > (tsRates[pid] || 0)) tsRates[pid] = r; });
+      });
+    } catch(e) { console.error('이벤트 조회 실패:', e); }
+
+    // 타임세일 할인율 (종료 전, 승인된 상품) - 이벤트와 겹치면 높은 쪽
     try {
       const tsSet = await _db.collection('settings').doc('timesale').get();
       const endRaw = tsSet.exists ? tsSet.data().endAt : null;

@@ -894,6 +894,10 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 #loginOverlay input,#forgotPwOverlay input,#findIdOverlay input{font-size:14px!important}
 #loginOverlay button[id$="Btn"],#loginOverlay a[href="join.html"],#forgotPwOverlay button[id$="Btn"],#findIdOverlay button[id$="Btn"]{height:46px;padding:0!important;display:flex!important;align-items:center;justify-content:center;box-sizing:border-box}
 #loginOverlay span[onclick],#forgotPwOverlay span[onclick]{color:#8a8279!important}
+/* 알림창 성공/오류 구분 */
+.toast.error{background:#C0392B}
+.toast.success::before,.toast.error::before{content:"";display:inline-block;width:18px;height:18px;margin-right:9px;vertical-align:-4px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.5 2.5L16 9'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.5 2.5L16 9'/%3E%3C/svg%3E") center/contain no-repeat}
+.toast.error::before{-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Ccircle cx='12' cy='16.3' r='0.5' fill='black'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Ccircle cx='12' cy='16.3' r='0.5' fill='black'/%3E%3C/svg%3E") center/contain no-repeat}
 </style>
 </head>
 <body>
@@ -2659,12 +2663,12 @@ async function addCart() {
   const newCount = await updateCartCount();
 
   if(errors.length === 0) {
-    overlayIcon.innerHTML = '';
+    overlayIcon.innerHTML = '<i class=ic-check-circle></i>';
     overlayText.textContent = '장바구니에 담겼습니다';
     overlaySub.textContent = newCount ? `현재 장바구니 ${newCount}개` : '';
     setTimeout(() => { overlay.classList.remove('show'); }, 1200);
   } else {
-    overlayIcon.innerHTML = '';
+    overlayIcon.innerHTML = '<i class=ic-alert style="color:#C0392B"></i>';
     overlayText.textContent = '일부 항목만 담겼습니다';
     overlaySub.textContent = errors.join(' / ');
     setTimeout(() => { overlay.classList.remove('show'); }, 2500);
