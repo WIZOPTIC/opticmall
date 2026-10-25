@@ -2583,50 +2583,39 @@ async function toggleWish() {
 async function addSingleColorToCart(uid, colorIdx, qty) {
   const colorName = currentProduct.colors[colorIdx].colorName;
   // 색상별로 항상 고유한 장바구니 항목이 되도록 색상 인덱스를 기준으로 ID 생성
-  // (색상명이 비어있거나 같은 이름이 여러 개 있어도 수량이 서로 합쳐지지 않음 - 위시리스트와 동일한 방식)
   const cartItemId = `${currentProduct.id}_c${colorIdx}`;
   const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
   const productRef = _db.collection('products').doc(currentProduct.id);
 
-  await _db.runTransaction(async (tx) => {
-    const productSnap = await tx.get(productRef);
-    if(!productSnap.exists) throw new Error('상품 정보를 찾을 수 없습니다.');
+  // 재고는 결제가 승인될 때 차감됩니다. 장바구니에는 현재 재고 범위 안에서만 담을 수 있습니다.
+  const productSnap = await productRef.get();
+  if(!productSnap.exists) throw new Error('상품 정보를 찾을 수 없습니다.');
+  const pData = productSnap.data();
+  const cartSnap = await cartItemRef.get();
+  const existingQty = cartSnap.exists ? (Number(cartSnap.data().qty) || 0) : 0;
 
-    const pData = productSnap.data();
-    const cartSnap = await tx.get(cartItemRef);
-    const existingQty = cartSnap.exists ? (cartSnap.data().qty || 0) : 0;
+  const currentStock = (pData.colors && pData.colors.length > colorIdx)
+    ? Number(pData.colors[colorIdx].stock || 0)
+    : Number(pData.stock || 0);
+  if(currentStock < existingQty + qty) {
+    const addable = Math.max(0, currentStock - existingQty);
+    throw new Error(`${colorName}: 재고가 부족합니다. (재고 ${currentStock}개${existingQty ? ', 장바구니 ' + existingQty + '개' : ''}${addable ? ' / 추가 가능 ' + addable + '개' : ''})`);
+  }
 
-    if(pData.colors && pData.colors.length > colorIdx) {
-      const colors = [...pData.colors];
-      const currentStock = Number(colors[colorIdx].stock || 0);
-      if(currentStock < qty) throw new Error(`${colorName}: 재고가 부족합니다. (잔여 ${currentStock}개)`);
-
-      colors[colorIdx] = { ...colors[colorIdx], stock: currentStock - qty };
-      tx.update(productRef, { colors });
-    } else {
-      const currentStock = Number(pData.stock || 0);
-      if(currentStock < qty) throw new Error(`${colorName}: 재고가 부족합니다. (잔여 ${currentStock}개)`);
-      tx.update(productRef, { stock: currentStock - qty });
-    }
-
-    if(cartSnap.exists) {
-      tx.update(cartItemRef, {
-        qty: existingQty + qty,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } else {
-      tx.set(cartItemRef, {
-        productId: currentProduct.id,
-        selectedColor: colorName,
-        selectedColorIdx: colorIdx,
-        qty,
-        addedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-  });
-
-  // 로컬 재고 즉시 반영
-  currentProduct.colors[colorIdx].stock = Number(currentProduct.colors[colorIdx].stock || 0) - qty;
+  if(cartSnap.exists) {
+    await cartItemRef.update({
+      qty: existingQty + qty,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } else {
+    await cartItemRef.set({
+      productId: currentProduct.id,
+      selectedColor: colorName,
+      selectedColorIdx: colorIdx,
+      qty,
+      addedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
 }
 
 async function addCart() {
@@ -3365,6 +3354,50 @@ function fit(){if(busy)return;busy=true;f.style.marginTop='0px';var b=document.b
 fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);
 if(window.ResizeObserver){var t=0;new ResizeObserver(function(){cancelAnimationFrame(t);t=requestAnimationFrame(fit)}).observe(document.body);}
 setTimeout(fit,300);setTimeout(fit,1200);})();
+</script>
+<!-- COUPON-EXPIRY-NOTICE -->
+<script>
+(function(){
+  try {
+    var KEY = 'couponExpiryNoticeClosed';
+    try { if(sessionStorage.getItem(KEY) === '1') return; } catch(e) {}
+    var tries = 0;
+    var timer = setInterval(function(){
+      tries++;
+      if(typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length || !firebase.firestore) {
+        if(tries > 40) clearInterval(timer);
+        return;
+      }
+      clearInterval(timer);
+      firebase.auth().onAuthStateChanged(function(user){
+        if(!user || document.getElementById('couponExpiryBar')) return;
+        firebase.firestore().collection('users').doc(user.uid).collection('coupons').get().then(function(snap){
+          var now = Date.now(), limit = now + 7*24*60*60*1000, n = 0, first = null;
+          snap.forEach(function(d){
+            var c = d.data();
+            if(c.used || !c.expiresAt) return;
+            var t = c.expiresAt.toDate ? c.expiresAt.toDate() : new Date(c.expiresAt);
+            var ms = t.getTime();
+            if(ms > now && ms <= limit) { n++; if(!first || ms < first.getTime()) first = t; }
+          });
+          if(!n || document.getElementById('couponExpiryBar')) return;
+          var days = Math.max(0, Math.ceil((first.getTime() - now) / 86400000));
+          var bar = document.createElement('div');
+          bar.id = 'couponExpiryBar';
+          bar.style.cssText = 'background:#2B2B2B;color:#fff;font-size:13px;line-height:1.5;padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;position:relative;z-index:50;';
+          bar.innerHTML = '<span>7일 안에 만료되는 쿠폰이 <b>' + n + '장</b> 있어요. (가장 빠른 만료 ' + (days === 0 ? '오늘' : 'D-' + days) + ')</span>'
+            + '<a href="mypage.html?tab=coupons" style="color:#fff;text-decoration:underline;font-weight:700;white-space:nowrap;">쿠폰함 보기</a>'
+            + '<button type="button" aria-label="닫기" style="background:none;border:0;color:#fff;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;border-radius:0;">✕</button>';
+          bar.querySelector('button').onclick = function(){
+            bar.remove();
+            try { sessionStorage.setItem(KEY, '1'); } catch(e) {}
+          };
+          document.body.insertBefore(bar, document.body.firstChild);
+        }).catch(function(){});
+      });
+    }, 250);
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>

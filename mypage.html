@@ -893,7 +893,7 @@ _auth.onAuthStateChanged(async (user) => {
 
     // URL 파라미터로 탭 자동 이동 (?tab=wish, ?tab=restock)
     const urlTab = new URLSearchParams(location.search).get('tab');
-    if(urlTab === 'wish' || urlTab === 'restock' || urlTab === 'recent' || urlTab === 'points') {
+    if(urlTab === 'wish' || urlTab === 'restock' || urlTab === 'recent' || urlTab === 'points' || urlTab === 'coupons') {
       const tabEl = document.querySelector(`[onclick*="showSection('${urlTab}"]`);
       if(tabEl) tabEl.click();
     }
@@ -1029,7 +1029,7 @@ function renderCouponCard(c, isPast) {
         <div>
           <div style="font-size:18px;font-weight:700;color:var(--navy);">${couponValueLabel(c)}</div>
           <div style="font-size:12px;color:var(--g3);margin-top:8px;">
-            ${c._expiresAtDate ? formatDateShort(c._expiresAtDate) + '에 만료. ' : ''}구매금액 ₩${Number(c.minOrderAmount||0).toLocaleString()} 이상(배송비 별도).
+            ${c._expiresAtDate ? formatDateShort(c._expiresAtDate) + '에 만료. ' : ''}${(!isPast && c._expiresAtDate && (c._expiresAtDate - Date.now()) <= 7*86400000) ? '<b style="color:var(--red);">만료 임박. </b>' : ''}구매금액 ₩${Number(c.minOrderAmount||0).toLocaleString()} 이상(배송비 별도).
             <span onclick="showCouponDetail('${c.id}')" style="text-decoration:underline;cursor:pointer;color:var(--black);">쿠폰 세부 정보</span>
           </div>
         </div>
@@ -2175,35 +2175,26 @@ async function addSelectedWishToCart() {
     try {
       const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
       const productRef = _db.collection('products').doc(productId);
-      await _db.runTransaction(async (tx) => {
-        const productSnap = await tx.get(productRef);
-        if(!productSnap.exists) throw new Error('상품 없음');
-        const pData = productSnap.data();
-        const cartSnap = await tx.get(cartItemRef);
-        const existingQty = cartSnap.exists ? (cartSnap.data().qty || 0) : 0;
+      // 재고는 결제 승인 시점에 차감됩니다. 여기서는 재고 범위 안인지만 확인합니다.
+      const productSnap = await productRef.get();
+      if(!productSnap.exists) throw new Error('상품 없음');
+      const pData = productSnap.data();
+      const cartSnap = await cartItemRef.get();
+      const existingQty = cartSnap.exists ? (Number(cartSnap.data().qty) || 0) : 0;
+      const selectedColorName = it.colorName || '';
+      const currentStock = (pData.colors && pData.colors.length > 0)
+        ? Number(pData.colors[colorIdx]?.stock || 0)
+        : Number(pData.stock || 0);
+      if(currentStock < existingQty + 1) throw new Error('재고 부족');
 
-        let selectedColorName = it.colorName || '';
-        if(pData.colors && pData.colors.length > 0) {
-          const currentStock = Number(pData.colors[colorIdx]?.stock || 0);
-          if(currentStock < 1) throw new Error('재고 부족');
-          const colors = [...pData.colors];
-          colors[colorIdx] = { ...colors[colorIdx], stock: currentStock - 1 };
-          tx.update(productRef, { colors });
-        } else {
-          const currentStock = Number(pData.stock || 0);
-          if(currentStock < 1) throw new Error('재고 부족');
-          tx.update(productRef, { stock: currentStock - 1 });
-        }
-
-        if(cartSnap.exists) {
-          tx.update(cartItemRef, { qty: existingQty + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        } else {
-          tx.set(cartItemRef, {
-            productId, selectedColor: selectedColorName, selectedColorIdx: colorIdx,
-            qty: 1, addedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
-      });
+      if(cartSnap.exists) {
+        await cartItemRef.update({ qty: existingQty + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      } else {
+        await cartItemRef.set({
+          productId, selectedColor: selectedColorName, selectedColorIdx: colorIdx,
+          qty: 1, addedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
       successCount++;
     } catch(e) {
       console.error(e);
@@ -2715,6 +2706,50 @@ var p=s.parentElement;if(!p.offsetParent&&getComputedStyle(p).position!=='fixed'
 document.documentElement.style.setProperty('--sum-gap',Math.max(0,Math.round(top-h))+'px');}catch(e){}}
 fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);setTimeout(fit,500);setTimeout(fit,1500);
 if(window.ResizeObserver){var w=document.getElementById('stickyHeaderWrap');if(w)new ResizeObserver(fit).observe(w);var m=document.getElementById('mypageMain');if(m)new ResizeObserver(fit).observe(m);}})();
+</script>
+<!-- COUPON-EXPIRY-NOTICE -->
+<script>
+(function(){
+  try {
+    var KEY = 'couponExpiryNoticeClosed';
+    try { if(sessionStorage.getItem(KEY) === '1') return; } catch(e) {}
+    var tries = 0;
+    var timer = setInterval(function(){
+      tries++;
+      if(typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length || !firebase.firestore) {
+        if(tries > 40) clearInterval(timer);
+        return;
+      }
+      clearInterval(timer);
+      firebase.auth().onAuthStateChanged(function(user){
+        if(!user || document.getElementById('couponExpiryBar')) return;
+        firebase.firestore().collection('users').doc(user.uid).collection('coupons').get().then(function(snap){
+          var now = Date.now(), limit = now + 7*24*60*60*1000, n = 0, first = null;
+          snap.forEach(function(d){
+            var c = d.data();
+            if(c.used || !c.expiresAt) return;
+            var t = c.expiresAt.toDate ? c.expiresAt.toDate() : new Date(c.expiresAt);
+            var ms = t.getTime();
+            if(ms > now && ms <= limit) { n++; if(!first || ms < first.getTime()) first = t; }
+          });
+          if(!n || document.getElementById('couponExpiryBar')) return;
+          var days = Math.max(0, Math.ceil((first.getTime() - now) / 86400000));
+          var bar = document.createElement('div');
+          bar.id = 'couponExpiryBar';
+          bar.style.cssText = 'background:#2B2B2B;color:#fff;font-size:13px;line-height:1.5;padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;position:relative;z-index:50;';
+          bar.innerHTML = '<span>7일 안에 만료되는 쿠폰이 <b>' + n + '장</b> 있어요. (가장 빠른 만료 ' + (days === 0 ? '오늘' : 'D-' + days) + ')</span>'
+            + '<a href="mypage.html?tab=coupons" style="color:#fff;text-decoration:underline;font-weight:700;white-space:nowrap;">쿠폰함 보기</a>'
+            + '<button type="button" aria-label="닫기" style="background:none;border:0;color:#fff;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;border-radius:0;">✕</button>';
+          bar.querySelector('button').onclick = function(){
+            bar.remove();
+            try { sessionStorage.setItem(KEY, '1'); } catch(e) {}
+          };
+          document.body.insertBefore(bar, document.body.firstChild);
+        }).catch(function(){});
+      });
+    }, 250);
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>

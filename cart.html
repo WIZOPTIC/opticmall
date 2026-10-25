@@ -676,6 +676,17 @@ async function loadCart() {
       };
     }).filter(item => item.product); // 삭제된 상품은 제외
 
+    // 재고보다 많이 담겨 있으면 현재 재고만큼으로 맞춤 (재고는 결제 승인 시점에 차감됨)
+    for(const it of cartItems) {
+      const st = getItemStock(it);
+      if(st > 0 && it.qty > st) {
+        it.qty = st;
+        it.stockAdjusted = true;
+        _db.collection('carts').doc(uid).collection('items').doc(it.cartItemId)
+          .update({ qty: st }).catch(()=>{});
+      }
+    }
+
     renderCart();
   } catch(e) {
     console.error(e);
@@ -774,46 +785,24 @@ async function updateQtyInput(cartItemId, value) {
 async function setQty(cartItemId, newQty) {
   const item = getItem(cartItemId);
   if(!item) return;
+  if(newQty === item.qty) return;
 
-  const oldQty = item.qty;
-  const delta = newQty - oldQty; // 양수면 더 담는 것(재고 차감), 음수면 줄이는 것(재고 복구)
-  if(delta === 0) return;
+  // 재고는 결제가 승인될 때 차감됩니다. 장바구니에서는 현재 재고 범위 안인지만 확인합니다.
+  const stock = getItemStock(item);
+  if(newQty > stock) {
+    alert(`재고가 부족합니다. (잔여 ${stock}개)`);
+    renderCart();
+    return;
+  }
 
   const uid = _auth.currentUser.uid;
-  const cartItemRef = _db.collection('carts').doc(uid).collection('items').doc(cartItemId);
-  const productRef = _db.collection('products').doc(item.product.id);
-  const colorIdx = Number(item.selectedColorIdx) || 0;
-
   try {
-    await _db.runTransaction(async (tx) => {
-      const productSnap = await tx.get(productRef);
-      if(!productSnap.exists) throw new Error('상품 정보 없음');
-      const pData = productSnap.data();
-
-      if(pData.colors && pData.colors.length > colorIdx) {
-        const colors = [...pData.colors];
-        const currentStock = Number(colors[colorIdx].stock || 0);
-        // 증가 시 재고 체크
-        if(delta > 0 && currentStock < delta) throw new Error(`재고가 부족합니다. (잔여 ${currentStock}개)`);
-        colors[colorIdx] = { ...colors[colorIdx], stock: currentStock - delta };
-        tx.update(productRef, { colors });
-      } else {
-        const currentStock = Number(pData.stock || 0);
-        if(delta > 0 && currentStock < delta) throw new Error(`재고가 부족합니다. (잔여 ${currentStock}개)`);
-        tx.update(productRef, { stock: currentStock - delta });
-      }
-      tx.update(cartItemRef, { qty: newQty, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    });
-
+    await _db.collection('carts').doc(uid).collection('items').doc(cartItemId)
+      .update({ qty: newQty, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     item.qty = newQty;
-    // 로컬 product 재고 반영
-    if(item.product.colors && item.product.colors.length > colorIdx) {
-      item.product.colors[colorIdx].stock = Number(item.product.colors[colorIdx].stock || 0) - delta;
-    } else {
-      item.product.stock = Number(item.product.stock || 0) - delta;
-    }
   } catch(e) {
-    alert(e.message.includes('재고') ? e.message : '수량 변경 중 오류가 발생했습니다.');
+    console.error(e);
+    alert('수량 변경 중 오류가 발생했습니다.');
   }
   renderCart();
 }
@@ -830,57 +819,17 @@ async function deleteSelected() {
   await restoreStockAndRemove(selectedIds);
 }
 
-// 장바구니 삭제 + 재고 복구 (트랜잭션)
-// 파이어스토어 규칙: 트랜잭션 안에서는 "읽기를 전부 먼저, 쓰기는 그 다음"이어야 함.
-// 같은 상품의 색상 여러 개를 한 번에 지울 때도 재고가 서로 덮어써지지 않게 상품별로 합산해서 한 번만 씀.
+// 장바구니 삭제 (재고는 결제 승인 시점에만 차감되므로 복구할 것이 없음)
 async function restoreStockAndRemove(cartItemIds) {
   const uid = _auth.currentUser.uid;
   const targets = cartItemIds.map(getItem).filter(Boolean);
   if(targets.length === 0) return;
   try {
-    await _db.runTransaction(async (tx) => {
-      // 1) 읽기: 관련 상품을 한 번씩만 전부 읽기
-      const pids = [...new Set(targets.map(i => i.product.id))];
-      const snaps = {};
-      for(const pid of pids) {
-        snaps[pid] = await tx.get(_db.collection('products').doc(pid));
-      }
-
-      // 2) 계산: 상품별로 복구할 재고 합산
-      const updates = {};
-      for(const item of targets) {
-        const snap = snaps[item.product.id];
-        if(!snap.exists) continue;
-        const pData = snap.data();
-        const colorIdx = Number(item.selectedColorIdx) || 0;
-        const u = updates[item.product.id] || (updates[item.product.id] = {
-          colors: pData.colors ? [...pData.colors] : null,
-          stock: Number(pData.stock || 0),
-          useColors: false,
-          useStock: false
-        });
-        if(pData.colors && pData.colors.length > colorIdx) {
-          u.colors[colorIdx] = { ...u.colors[colorIdx], stock: Number(u.colors[colorIdx].stock || 0) + item.qty };
-          u.useColors = true;
-        } else {
-          u.stock += item.qty;
-          u.useStock = true;
-        }
-      }
-
-      // 3) 쓰기: 재고 복구 + 장바구니 삭제
-      for(const pid of Object.keys(updates)) {
-        const u = updates[pid];
-        const payload = {};
-        if(u.useColors) payload.colors = u.colors;
-        if(u.useStock) payload.stock = u.stock;
-        tx.update(_db.collection('products').doc(pid), payload);
-      }
-      for(const item of targets) {
-        tx.delete(_db.collection('carts').doc(uid).collection('items').doc(item.cartItemId));
-      }
+    const batch = _db.batch();
+    targets.forEach(item => {
+      batch.delete(_db.collection('carts').doc(uid).collection('items').doc(item.cartItemId));
     });
-
+    await batch.commit();
     cartItems = cartItems.filter(i => !cartItemIds.includes(i.cartItemId));
     renderCart();
   } catch(e) {
@@ -1316,6 +1265,50 @@ var p=s.parentElement;if(!p.offsetParent&&getComputedStyle(p).position!=='fixed'
 document.documentElement.style.setProperty('--sum-gap',Math.max(0,Math.round(top-h))+'px');}catch(e){}}
 fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);setTimeout(fit,500);setTimeout(fit,1500);
 if(window.ResizeObserver){var w=document.getElementById('stickyHeaderWrap');if(w)new ResizeObserver(fit).observe(w);var m=document.getElementById('cartMain');if(m)new ResizeObserver(fit).observe(m);}})();
+</script>
+<!-- COUPON-EXPIRY-NOTICE -->
+<script>
+(function(){
+  try {
+    var KEY = 'couponExpiryNoticeClosed';
+    try { if(sessionStorage.getItem(KEY) === '1') return; } catch(e) {}
+    var tries = 0;
+    var timer = setInterval(function(){
+      tries++;
+      if(typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length || !firebase.firestore) {
+        if(tries > 40) clearInterval(timer);
+        return;
+      }
+      clearInterval(timer);
+      firebase.auth().onAuthStateChanged(function(user){
+        if(!user || document.getElementById('couponExpiryBar')) return;
+        firebase.firestore().collection('users').doc(user.uid).collection('coupons').get().then(function(snap){
+          var now = Date.now(), limit = now + 7*24*60*60*1000, n = 0, first = null;
+          snap.forEach(function(d){
+            var c = d.data();
+            if(c.used || !c.expiresAt) return;
+            var t = c.expiresAt.toDate ? c.expiresAt.toDate() : new Date(c.expiresAt);
+            var ms = t.getTime();
+            if(ms > now && ms <= limit) { n++; if(!first || ms < first.getTime()) first = t; }
+          });
+          if(!n || document.getElementById('couponExpiryBar')) return;
+          var days = Math.max(0, Math.ceil((first.getTime() - now) / 86400000));
+          var bar = document.createElement('div');
+          bar.id = 'couponExpiryBar';
+          bar.style.cssText = 'background:#2B2B2B;color:#fff;font-size:13px;line-height:1.5;padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;position:relative;z-index:50;';
+          bar.innerHTML = '<span>7일 안에 만료되는 쿠폰이 <b>' + n + '장</b> 있어요. (가장 빠른 만료 ' + (days === 0 ? '오늘' : 'D-' + days) + ')</span>'
+            + '<a href="mypage.html?tab=coupons" style="color:#fff;text-decoration:underline;font-weight:700;white-space:nowrap;">쿠폰함 보기</a>'
+            + '<button type="button" aria-label="닫기" style="background:none;border:0;color:#fff;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;border-radius:0;">✕</button>';
+          bar.querySelector('button').onclick = function(){
+            bar.remove();
+            try { sessionStorage.setItem(KEY, '1'); } catch(e) {}
+          };
+          document.body.insertBefore(bar, document.body.firstChild);
+        }).catch(function(){});
+      });
+    }, 250);
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>
