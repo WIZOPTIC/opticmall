@@ -1872,6 +1872,17 @@ function renderEditorialSlot(s) {
       <option value="white" ${(s.textColor||'white')==='white'?'selected':''}>흰색 글씨 (어두운 사진용)</option>
       <option value="black" ${s.textColor==='black'?'selected':''}>검정 글씨 (밝은 사진용)</option>
     </select>
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">글씨 위치</label>
+    <select id="editorialTextPos_${s.id}" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;background:#fff;">
+      <option value="top" ${s.textPos==='top'?'selected':''}>상단</option>
+      <option value="middle" ${s.textPos==='middle'?'selected':''}>중간</option>
+      <option value="bottom" ${(s.textPos||'bottom')==='bottom'?'selected':''}>하단</option>
+    </select>
+    <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">글씨 배경 (어둡게/밝게 깔리는 막)</label>
+    <select id="editorialTextVeil_${s.id}" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:10px;box-sizing:border-box;background:#fff;">
+      <option value="on" ${(s.textVeil||'on')==='on'?'selected':''}>있음 (글씨가 잘 보이게 막을 깔아줌)</option>
+      <option value="off" ${s.textVeil==='off'?'selected':''}>없음 (사진 그대로, 글씨만)</option>
+    </select>
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">클릭 시 이동 위치</label>
     <select id="editorialLinkPreset_${s.id}" onchange="onEditorialLinkPresetChange('${s.id}')" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:8px;box-sizing:border-box;background:#fff;">
       ${linkPresetOptions}
@@ -1904,6 +1915,8 @@ async function saveEditorialSlot(slotId) {
     const title = document.getElementById('editorialTitle_'+slotId).value.trim();
     const subtitle = document.getElementById('editorialSubtitle_'+slotId).value.trim();
     const textColor = document.getElementById('editorialTextColor_'+slotId).value;
+    const textPos = document.getElementById('editorialTextPos_'+slotId).value;
+    const textVeil = document.getElementById('editorialTextVeil_'+slotId).value;
     const link = document.getElementById('editorialLink_'+slotId).value.trim();
     const order = parseInt(document.getElementById('editorialOrder_'+slotId).value, 10) || 1;
 
@@ -1921,7 +1934,7 @@ async function saveEditorialSlot(slotId) {
     }
 
     await window._setDoc(window._doc(window._db, 'editorialBanners', slotId), {
-      tag, title, subtitle, textColor, link, order, imageUrl,
+      tag, title, subtitle, textColor, textPos, textVeil, link, order, imageUrl,
       updatedAt: window._serverTimestamp()
     });
 
