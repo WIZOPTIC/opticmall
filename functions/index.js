@@ -12,6 +12,7 @@
  * 배포 전 꼭 설정해야 하는 것 (최초 1회):
  *   firebase functions:secrets:set GMAIL_USER
  *   firebase functions:secrets:set GMAIL_PASS   (Gmail "앱 비밀번호" 16자리, 계정 비밀번호 아님!)
+ *   firebase functions:secrets:set TOSS_SECRET_KEY   (토스페이먼츠 시크릿 키, 결제 승인용)
  *
  * 배포:
  *   cd functions && npm install
@@ -33,6 +34,7 @@ setGlobalOptions({ region: "asia-northeast3", maxInstances: 10 });
 
 const GMAIL_USER = defineSecret("GMAIL_USER");
 const GMAIL_PASS = defineSecret("GMAIL_PASS");
+const TOSS_SECRET_KEY = defineSecret("TOSS_SECRET_KEY"); // 토스페이먼츠 시크릿 키 (서버에만 보관)
 
 const CODE_TTL_MS = 5 * 60 * 1000; // 인증번호 유효시간: 5분
 const MAX_ATTEMPTS = 5; // 인증번호 오입력 허용 횟수
@@ -230,3 +232,435 @@ exports.checkEmailExists = onCall(async (request) => {
     throw new HttpsError("internal", "이메일 확인 중 오류가 발생했습니다.");
   }
 });
+
+/* ============================================================================
+ * 결제 승인 (confirmPayment)
+ * ----------------------------------------------------------------------------
+ * 흐름: 결제 성공 페이지 -> 이 함수 호출 -> (1) 서버에서 가격/배송비/쿠폰/적립금 재검증
+ *       -> (2) 재고 확인 -> (3) 토스페이먼츠 승인 요청 -> (4) 주문 확정(재고 차감, 적립금/쿠폰/구매등급 처리,
+ *       장바구니 정리)을 한 번에 처리. 검증에 실패하면 토스에 승인 요청 자체를 보내지 않으므로 돈이 빠지지 않음.
+ * 입력: { orderId, paymentKey, amount }
+ * 반환: { ok: true, already?: true }
+ * ============================================================================ */
+
+const FREE_SHIPPING_THRESHOLD = 100000; // 10만원 이상 무료배송
+const BASE_SHIPPING_FEE = 3500;
+const JEJU_EXTRA_FEE = 3000; // 제주/도서산간 추가비
+const REMOTE_KEYWORDS = ["제주", "울릉", "독도", "가거도", "거문도", "고흥", "신안", "완도", "진도", "홍도"];
+
+const PURCHASE_LEVELS = [
+  { level: 1, name: "화이트", min: 0 },
+  { level: 2, name: "실버", min: 1000000 },
+  { level: 3, name: "골드", min: 3000000 },
+  { level: 4, name: "플래티넘", min: 5000000 },
+  { level: 5, name: "옵틱 마스터", min: 10000000 },
+];
+function calcPurchaseLevel(total) {
+  let r = PURCHASE_LEVELS[0];
+  for (const lv of PURCHASE_LEVELS) if (total >= lv.min) r = lv;
+  return r;
+}
+
+function isRemoteAddress(addr) {
+  return REMOTE_KEYWORDS.some((kw) => String(addr || "").includes(kw));
+}
+
+function computeCouponDiscount(coupon, productAmount) {
+  if (!coupon) return 0;
+  if (productAmount < (coupon.minOrderAmount || 0)) return 0;
+  if (coupon.type === "fixed") {
+    return Math.min(Number(coupon.value) || 0, productAmount);
+  } else if (coupon.type === "percent") {
+    let d = Math.floor(productAmount * ((Number(coupon.value) || 0) / 100));
+    if (coupon.maxDiscountAmount != null) d = Math.min(d, Number(coupon.maxDiscountAmount));
+    return Math.min(d, productAmount);
+  }
+  return 0;
+}
+
+/** 진행 중인 이벤트/타임세일 할인율 지도 (productId -> 최고 할인율). 주문서(order.html)와 동일한 기준 */
+async function loadDiscountMap() {
+  const map = {};
+  const today = new Date().toISOString().slice(0, 10);
+  const promoSnap = await db.collection("promotions").where("status", "==", "approved").get();
+  promoSnap.forEach((d) => {
+    const promo = d.data();
+    if (promo.startDate > today || promo.endDate < today) return;
+    const r = Number(promo.discountRate) || 0;
+    (promo.targetProductIds || []).forEach((pid) => {
+      if (r > (map[pid] || 0)) map[pid] = r;
+    });
+  });
+  try {
+    const tsSet = await db.collection("settings").doc("timesale").get();
+    const endRaw = tsSet.exists ? tsSet.data().endAt : null;
+    const endDate = endRaw && endRaw.toDate ? endRaw.toDate() : null;
+    if (endDate && endDate > new Date()) {
+      const tsSnap = await db.collection("timesaleItems").where("status", "==", "approved").get();
+      tsSnap.forEach((d) => {
+        const t = d.data();
+        const r = Number(t.discountRate) || 0;
+        if (t.productId && r > (map[t.productId] || 0)) map[t.productId] = r;
+      });
+    }
+  } catch (e) {
+    console.error("타임세일 조회 실패:", e);
+  }
+  return map;
+}
+
+/** 상품 1개의 실제 판매 단가 (주문서와 동일한 계산) */
+function computeUnitPrice(product, colorIdx, eventRate) {
+  const colorData = Array.isArray(product.colors) ? product.colors[colorIdx] : null;
+  const hasColorPrice = colorData && colorData.price != null && colorData.price !== "";
+  const basePrice = hasColorPrice ? Number(colorData.price) : Number(product.price || 0);
+  const productRate = Number(product.discountRate) || 0;
+  const finalRate = Math.max(eventRate || 0, productRate);
+  if (finalRate > 0) {
+    if (!hasColorPrice && productRate > 0 && productRate === finalRate && Number(product.salePrice) > 0) {
+      return Number(product.salePrice);
+    }
+    return Math.round(basePrice * (1 - finalRate / 100));
+  }
+  return basePrice;
+}
+
+async function tossRequest(path, secretKey, body) {
+  const res = await fetch("https://api.tosspayments.com" + path, {
+    method: "POST",
+    headers: {
+      Authorization: "Basic " + Buffer.from(secretKey + ":").toString("base64"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  let data = {};
+  try {
+    data = await res.json();
+  } catch (e) {
+    data = {};
+  }
+  return { ok: res.ok, status: res.status, data };
+}
+
+exports.confirmPayment = onCall(
+  { secrets: [TOSS_SECRET_KEY], timeoutSeconds: 60 },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
+    }
+    const uid = request.auth.uid;
+    const orderId = String(request.data?.orderId || "").trim();
+    const paymentKey = String(request.data?.paymentKey || "").trim();
+    const amount = Number(request.data?.amount);
+
+    if (!orderId || !paymentKey || !Number.isFinite(amount)) {
+      throw new HttpsError("invalid-argument", "결제 정보가 올바르지 않습니다.");
+    }
+
+    const orderRef = db.collection("orders").doc(orderId);
+    const orderSnap = await orderRef.get();
+    if (!orderSnap.exists) {
+      throw new HttpsError("not-found", "주문 내역을 찾을 수 없습니다.");
+    }
+    const order = orderSnap.data();
+    if (order.userId !== uid) {
+      throw new HttpsError("permission-denied", "본인의 주문이 아닙니다.");
+    }
+
+    // 이미 처리된 주문(새로고침 등) - 중복 처리하지 않고 성공으로 응답
+    if (order.status !== "payment_pending") {
+      if (order.paymentKey === paymentKey) {
+        return { ok: true, already: true };
+      }
+      throw new HttpsError("failed-precondition", "이미 처리된 주문입니다.");
+    }
+
+    // 동시 호출 방지 (60초 잠금)
+    const lockOk = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(orderRef);
+      const d = snap.data();
+      if (d.status !== "payment_pending") return false;
+      const lockMs = d.confirmLockAt?.toMillis?.() || 0;
+      if (Date.now() - lockMs < 60 * 1000) return false;
+      tx.update(orderRef, { confirmLockAt: admin.firestore.FieldValue.serverTimestamp() });
+      return true;
+    });
+    if (!lockOk) {
+      throw new HttpsError("aborted", "결제 처리 중입니다. 잠시 후 다시 확인해주세요.");
+    }
+
+    // 검증 단계에서 실패하면 잠금을 풀어서 바로 다시 시도할 수 있게 함
+    const userRef = db.collection("users").doc(uid);
+    let couponRef = null;
+    let needByProduct = {};
+    let pointsUsed = 0;
+    let items = [];
+    try {
+      // 회원 승인 상태 확인
+      const userSnap = await userRef.get();
+      const user = userSnap.exists ? userSnap.data() : {};
+      if ((Number(user.member_level) || 0) < 2) {
+        throw new HttpsError("permission-denied", "안경사 인증 승인 후 주문이 가능합니다.");
+      }
+
+      // ---------- (1) 서버 재검증: 상품 가격 / 배송비 / 쿠폰 / 적립금 ----------
+      items = Array.isArray(order.items) ? order.items : [];
+      if (items.length === 0) {
+        throw new HttpsError("failed-precondition", "주문 상품 정보가 없습니다.");
+      }
+
+      const productIds = [...new Set(items.map((it) => it.productId).filter(Boolean))];
+      const productSnaps = await Promise.all(productIds.map((pid) => db.collection("products").doc(pid).get()));
+      const products = {};
+      productSnaps.forEach((s) => {
+        if (s.exists) products[s.id] = s.data();
+      });
+
+      const discountMap = await loadDiscountMap();
+
+      let productAmount = 0;
+      needByProduct = {}; // productId -> { colors: {idx: qty}, plain: qty }
+      for (const it of items) {
+        const p = products[it.productId];
+        if (!p) {
+          throw new HttpsError("failed-precondition", `판매가 종료되었거나 삭제된 상품이 있습니다. (${it.productName || it.productId})`);
+        }
+        if (p.status && p.status !== "approved") {
+          throw new HttpsError("failed-precondition", `현재 판매 중이 아닌 상품이 있습니다. (${it.productName || ""})`);
+        }
+        const qty = Number(it.qty);
+        if (!Number.isInteger(qty) || qty < 1) {
+          throw new HttpsError("invalid-argument", "주문 수량이 올바르지 않습니다.");
+        }
+        const colorIdx = Number(it.selectedColorIdx) || 0;
+        const unit = computeUnitPrice(p, colorIdx, discountMap[it.productId] || 0);
+        if (unit !== Number(it.unitPrice)) {
+          throw new HttpsError(
+            "failed-precondition",
+            `상품 가격이 변경되었습니다. 주문서를 다시 열어 확인해주세요. (${it.productName || ""})`
+          );
+        }
+        productAmount += unit * qty;
+
+        const need = (needByProduct[it.productId] = needByProduct[it.productId] || { colors: {}, plain: 0 });
+        if (Array.isArray(p.colors) && p.colors.length > colorIdx) {
+          need.colors[colorIdx] = (need.colors[colorIdx] || 0) + qty;
+        } else {
+          need.plain += qty;
+        }
+      }
+      if (productAmount !== Number(order.productAmount)) {
+        throw new HttpsError("failed-precondition", "주문 금액이 올바르지 않습니다. 주문서를 다시 열어 확인해주세요.");
+      }
+
+      const shippingFee =
+        (productAmount >= FREE_SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING_FEE) +
+        (isRemoteAddress(order.receiver?.addr1) ? JEJU_EXTRA_FEE : 0);
+      if (shippingFee !== Number(order.shippingFee)) {
+        throw new HttpsError("failed-precondition", "배송비가 올바르지 않습니다. 주문서를 다시 열어 확인해주세요.");
+      }
+
+      // 쿠폰
+      let couponDiscount = 0;
+      if (order.couponId) {
+        couponRef = userRef.collection("coupons").doc(order.couponId);
+        const cSnap = await couponRef.get();
+        if (!cSnap.exists) throw new HttpsError("failed-precondition", "사용할 수 없는 쿠폰입니다.");
+        const c = cSnap.data();
+        const exp = c.expiresAt?.toDate ? c.expiresAt.toDate() : c.expiresAt ? new Date(c.expiresAt) : null;
+        if (c.used || (exp && exp < new Date())) {
+          throw new HttpsError("failed-precondition", "이미 사용했거나 기간이 지난 쿠폰입니다.");
+        }
+        couponDiscount = computeCouponDiscount(c, productAmount);
+      }
+      if (couponDiscount !== (Number(order.couponDiscount) || 0)) {
+        throw new HttpsError("failed-precondition", "쿠폰 할인 금액이 올바르지 않습니다.");
+      }
+
+      // 적립금
+      pointsUsed = Number(order.pointsUsed) || 0;
+      const balance = Number(user.pointsBalance) || 0;
+      if (!Number.isInteger(pointsUsed) || pointsUsed < 0 || pointsUsed > balance) {
+        throw new HttpsError("failed-precondition", "적립금 사용 금액이 올바르지 않습니다.");
+      }
+      if (pointsUsed > Math.max(0, productAmount + shippingFee - couponDiscount)) {
+        throw new HttpsError("failed-precondition", "적립금 사용 금액이 결제 금액보다 큽니다.");
+      }
+
+      const expectedTotal = Math.max(0, productAmount + shippingFee - couponDiscount - pointsUsed);
+      if (expectedTotal !== Number(order.totalAmount) || expectedTotal !== amount) {
+        throw new HttpsError("failed-precondition", "결제 금액이 주문 금액과 일치하지 않습니다. 고객센터로 문의해주세요.");
+      }
+
+      // ---------- (2) 재고 사전 확인 ----------
+      for (const pid of Object.keys(needByProduct)) {
+        const p = products[pid];
+        const need = needByProduct[pid];
+        for (const idx of Object.keys(need.colors)) {
+          const stock = Number(p.colors[idx]?.stock || 0);
+          if (stock < need.colors[idx]) {
+            throw new HttpsError(
+              "failed-precondition",
+              `재고가 부족합니다. (${p.modelName || pid} ${p.colors[idx]?.colorName || ""} / 남은 재고 ${stock}개)`
+            );
+          }
+        }
+        if (need.plain > 0 && Number(p.stock || 0) < need.plain) {
+          throw new HttpsError("failed-precondition", `재고가 부족합니다. (${p.modelName || pid} / 남은 재고 ${Number(p.stock || 0)}개)`);
+        }
+      }
+    } catch (e) {
+      await orderRef.update({ confirmLockAt: admin.firestore.FieldValue.delete() });
+      throw e;
+    }
+
+    // ---------- (3) 토스페이먼츠 결제 승인 ----------
+    const secret = TOSS_SECRET_KEY.value();
+    const confirmRes = await tossRequest("/v1/payments/confirm", secret, { paymentKey, orderId, amount });
+
+    if (!confirmRes.ok) {
+      // 다른 요청이 먼저 승인한 경우 등: 주문이 이미 확정됐는지 한 번 더 확인
+      const again = (await orderRef.get()).data();
+      if (again.status !== "payment_pending" && again.paymentKey === paymentKey) {
+        return { ok: true, already: true };
+      }
+      await orderRef.update({
+        confirmLockAt: admin.firestore.FieldValue.delete(),
+        lastPaymentError: {
+          code: confirmRes.data.code || "",
+          message: confirmRes.data.message || "",
+          at: admin.firestore.FieldValue.serverTimestamp(),
+        },
+      });
+      throw new HttpsError("failed-precondition", confirmRes.data.message || "결제 승인에 실패했습니다.");
+    }
+    const payment = confirmRes.data;
+
+    // ---------- (4) 주문 확정 (한 번에 처리: 모두 성공하거나 모두 취소) ----------
+    try {
+      await db.runTransaction(async (tx) => {
+        const oSnap = await tx.get(orderRef);
+        const o = oSnap.data();
+        if (o.status !== "payment_pending") throw new Error("ALREADY_PROCESSED");
+
+        const pRefs = Object.keys(needByProduct).map((pid) => db.collection("products").doc(pid));
+        const pSnaps = await Promise.all(pRefs.map((r) => tx.get(r)));
+        const uSnap = await tx.get(userRef);
+        const cSnap = couponRef ? await tx.get(couponRef) : null;
+
+        const uData = uSnap.data() || {};
+        const curBalance = Number(uData.pointsBalance) || 0;
+        if (pointsUsed > curBalance) throw new Error("POINTS_INSUFFICIENT");
+        if (cSnap && (!cSnap.exists || cSnap.data().used)) throw new Error("COUPON_USED");
+
+        // 재고 차감
+        pSnaps.forEach((pSnap, i) => {
+          const pid = Object.keys(needByProduct)[i];
+          const pData = pSnap.data();
+          const need = needByProduct[pid];
+          const payload = {};
+          if (Object.keys(need.colors).length > 0) {
+            const colors = pData.colors.map((c) => ({ ...c }));
+            for (const idx of Object.keys(need.colors)) {
+              const left = Number(colors[idx].stock || 0) - need.colors[idx];
+              if (left < 0) throw new Error("STOCK_INSUFFICIENT");
+              colors[idx].stock = left;
+            }
+            payload.colors = colors;
+          }
+          if (need.plain > 0) {
+            const left = Number(pData.stock || 0) - need.plain;
+            if (left < 0) throw new Error("STOCK_INSUFFICIENT");
+            payload.stock = left;
+          }
+          tx.update(pRefs[i], payload);
+        });
+
+        // 적립금 차감 + 내역
+        if (pointsUsed > 0) {
+          tx.set(userRef.collection("pointsLedger").doc(), {
+            type: "use",
+            amount: -pointsUsed,
+            orderId,
+            note: "주문 결제 시 적립금 사용",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+
+        // 쿠폰 사용 처리
+        if (couponRef) {
+          tx.update(couponRef, {
+            used: true,
+            usedAt: admin.firestore.FieldValue.serverTimestamp(),
+            usedOrderId: orderId,
+          });
+        }
+
+        // 구매 누적 금액 / 등급 (결제금액 기준)
+        const newTotal = (Number(uData.total_purchase_amount) || 0) + amount;
+        const lv = calcPurchaseLevel(newTotal);
+        tx.update(userRef, {
+          pointsBalance: curBalance - pointsUsed,
+          total_purchase_amount: newTotal,
+          purchase_level: lv.level,
+          purchase_level_name: lv.name,
+        });
+
+        // 주문 상태: 결제완료 (브랜드별 배송묶음도 함께)
+        const shipments = Array.isArray(o.shipments) ? o.shipments.map((s) => ({ ...s, status: "paid" })) : [];
+        const orderUpdate = {
+          status: "paid",
+          paymentKey,
+          paidAmount: amount,
+          paymentMethod: payment.method || "",
+          paymentApprovedAt: payment.approvedAt || "",
+          receiptUrl: payment.receipt?.url || "",
+          paymentPassedAt: admin.firestore.FieldValue.serverTimestamp(),
+          couponConsumed: !!couponRef,
+          confirmLockAt: admin.firestore.FieldValue.delete(),
+        };
+        if (shipments.length > 0) orderUpdate.shipments = shipments;
+        tx.update(orderRef, orderUpdate);
+      });
+    } catch (e) {
+      // 승인은 됐지만 주문 확정에 실패 -> 결제 자동 취소(환불)
+      console.error("주문 확정 실패, 결제 취소 진행:", orderId, e.message);
+      if (e.message === "ALREADY_PROCESSED") {
+        return { ok: true, already: true };
+      }
+      const cancelRes = await tossRequest(`/v1/payments/${encodeURIComponent(paymentKey)}/cancel`, secret, {
+        cancelReason: "주문 처리 중 오류로 자동 취소",
+      });
+      await orderRef.update({
+        status: "payment_failed",
+        confirmLockAt: admin.firestore.FieldValue.delete(),
+        lastPaymentError: {
+          code: e.message,
+          message: cancelRes.ok ? "자동 환불 완료" : "자동 환불 실패 - 토스 대시보드에서 직접 취소 필요",
+          at: admin.firestore.FieldValue.serverTimestamp(),
+        },
+      });
+      const msg =
+        e.message === "STOCK_INSUFFICIENT"
+          ? "결제 직전에 재고가 소진되어 결제가 취소되었습니다."
+          : "주문 처리 중 문제가 발생하여 결제가 취소되었습니다.";
+      throw new HttpsError("aborted", msg);
+    }
+
+    // 장바구니 정리 (주문한 상품) - 실패해도 주문에는 영향 없음
+    try {
+      const cartSnap = await db.collection("carts").doc(uid).collection("items").get();
+      const batch = db.batch();
+      const ordered = new Set(items.map((i) => i.productId));
+      cartSnap.forEach((d) => {
+        if (ordered.has(d.data().productId)) batch.delete(d.ref);
+      });
+      await batch.commit();
+    } catch (e) {
+      console.error("장바구니 정리 실패:", e);
+    }
+
+    return { ok: true };
+  }
+);

@@ -1,0 +1,254 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // OPTICMALL Firestore 보안 규칙 (2차 강화 버전 - 결제 서버 연동용)
+    // - 재고 차감, 적립금/쿠폰 사용, 구매등급 갱신, 결제완료 처리는
+    //   서버(Cloud Functions confirmPayment)만 할 수 있음 (서버는 규칙의 영향을 받지 않음)
+    // ============================================================
+
+    // ---------- 공통 함수 ----------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function myRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    function isMaster() {
+      return isSignedIn() && myRole() in ['master', 'submaster'];
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    // 브랜드사/마스터 계정 여부 (일반 안경원 회원 'optician'이 아닌 계정)
+    function isPartner() {
+      return isSignedIn() && myRole() != 'optician';
+    }
+
+    // ---------- users (회원정보) ----------
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isMaster();
+
+      allow create: if isOwner(uid)
+        && request.resource.data.role == 'optician'
+        && request.resource.data.member_level == 1
+        && request.resource.data.approval_status == 'pending';
+
+      allow update: if isMaster()
+        || (isOwner(uid)
+            && request.resource.data.role == resource.data.role
+            && request.resource.data.member_level == resource.data.member_level
+            && request.resource.data.approval_status == resource.data.approval_status
+            && request.resource.data.get('bizDocUrl', null) == resource.data.get('bizDocUrl', null)
+            && request.resource.data.get('pointsBalance', 0) == resource.data.get('pointsBalance', 0)
+            && request.resource.data.get('total_purchase_amount', 0) == resource.data.get('total_purchase_amount', 0)
+            && request.resource.data.get('purchase_level', 0) == resource.data.get('purchase_level', 0));
+
+      allow delete: if isMaster();
+
+      match /addresses/{addrId} {
+        allow read, write: if isOwner(uid) || isMaster();
+      }
+
+      match /pointsLedger/{entryId} {
+        allow read: if isOwner(uid) || isMaster();
+        allow create: if isMaster();
+        allow update, delete: if isMaster();
+      }
+
+      // 쿠폰함: 발급은 마스터만, 본인은 '사용 처리'만 가능
+      match /coupons/{couponId} {
+        allow read: if isOwner(uid) || isMaster();
+        // 발급은 마스터, 단 가입 쿠폰 2종은 본인이 가입 시 '고정 ID'로 1번만 생성 가능
+        allow create: if isMaster()
+          || (isOwner(uid) && request.resource.data.source == 'signup_bonus'
+              && request.resource.data.used == false
+              && ((couponId == 'signup_fixed'
+                   && request.resource.data.type == 'fixed'
+                   && request.resource.data.value == 25000)
+                  || (couponId == 'signup_first10'
+                      && request.resource.data.type == 'percent'
+                      && request.resource.data.value == 10
+                      && request.resource.data.maxDiscountAmount == 20000)));
+        // 사용 처리는 서버(결제 승인)에서만
+        allow update: if isMaster();
+        allow delete: if isMaster();
+      }
+    }
+
+    // ---------- brands (브랜드 라벨) ----------
+    match /brands/{brandId} {
+      allow read: if true;
+      allow create: if isPartner() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isMaster()
+        || (isSignedIn() && resource.data.ownerUid == request.auth.uid
+            && request.resource.data.ownerUid == resource.data.ownerUid);
+      allow delete: if isMaster();
+    }
+
+    // ---------- products (상품) ----------
+    match /products/{productId} {
+      allow read: if true;
+
+      allow create: if isPartner()
+        && request.resource.data.brandOwnerUid == request.auth.uid
+        && request.resource.data.status == 'pending';
+
+      allow update: if isMaster()
+        || (isSignedIn() && resource.data.brandOwnerUid == request.auth.uid
+            && request.resource.data.brandOwnerUid == resource.data.brandOwnerUid
+            && request.resource.data.status == resource.data.status);
+
+      allow delete: if isMaster()
+        || (isSignedIn() && resource.data.brandOwnerUid == request.auth.uid);
+    }
+
+    // ---------- promotions (이벤트/할인) ----------
+    match /promotions/{promoId} {
+      allow read: if true;
+      allow create: if isPartner()
+        && request.resource.data.brandOwnerUid == request.auth.uid
+        && request.resource.data.status == 'pending';
+
+      allow update: if isMaster();
+      allow delete: if isMaster();
+    }
+
+    // ---------- settings (타임세일 종료시각 등 전역 설정) ----------
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isMaster();
+    }
+
+    // ---------- timesaleItems (타임세일 신청/등록 상품) ----------
+    match /timesaleItems/{itemId} {
+      allow read: if true;
+
+      allow create: if isMaster()
+        || (isPartner()
+            && request.resource.data.submittedBy == request.auth.uid
+            && request.resource.data.brandOwnerUid == request.auth.uid
+            && request.resource.data.status == 'pending');
+
+      allow update: if isMaster();
+      allow delete: if isMaster();
+    }
+
+    // ---------- orders (주문) ----------
+    match /orders/{orderId} {
+      allow read: if isMaster()
+        || (isSignedIn() && resource.data.userId == request.auth.uid)
+        || (isSignedIn() && ('shipmentBrandOwnerUids' in resource.data)
+            && request.auth.uid in resource.data.shipmentBrandOwnerUids);
+
+      // 주문은 항상 '결제대기' 상태로만 생성 (결제 관련 값은 처음부터 넣을 수 없음)
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'payment_pending'
+        && !('paymentKey' in request.resource.data)
+        && !('paidAmount' in request.resource.data)
+        && !('couponConsumed' in request.resource.data);
+
+      allow update: if isMaster()
+
+        // 고객: 취소/반품 신청 (결제완료 이후 상태에서만, 신청 상태로만 변경 가능)
+        || (isSignedIn() && resource.data.userId == request.auth.uid
+            && resource.data.status in ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered']
+            && request.resource.data.status in ['cancel_requested', 'return_requested']
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['status', 'previousStatus', 'cancelReason', 'cancelType', 'returnShippingFee',
+                           'expectedRefund', 'cancelRequestedAt', 'shipments']))
+
+        // 브랜드사: 자기 배송 상태 처리 (결제대기/취소완료 같은 상태로는 변경 불가)
+        || (isSignedIn() && ('shipmentBrandOwnerUids' in resource.data)
+            && request.auth.uid in resource.data.shipmentBrandOwnerUids
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'shipments'])
+            && request.resource.data.status in ['payment_window_passed', 'paid', 'preparing', 'shipping', 'delivered',
+                                                'cancel_requested', 'return_requested']);
+
+      allow delete: if isMaster();
+    }
+
+    // ---------- carts / wishlists / restockAlerts (본인 전용) ----------
+    match /carts/{uid}/items/{itemId} {
+      allow read, write: if isOwner(uid) || isMaster();
+    }
+    match /wishlists/{uid}/items/{itemId} {
+      allow read, write: if isOwner(uid) || isMaster();
+    }
+    match /restockAlerts/{uid}/items/{itemId} {
+      allow read, write: if isOwner(uid) || isMaster();
+    }
+
+    // ---------- board (고객센터) ----------
+    match /board/{postId} {
+      allow read: if resource.data.type in ['notice', 'faq']
+        || (resource.data.type == 'qna'
+            && (resource.data.get('secret', false) != true
+                || isMaster()
+                || (isSignedIn() && resource.data.authorUid == request.auth.uid)))
+        || (resource.data.type == 'inquiry'
+            && (isMaster() || (isSignedIn() && resource.data.authorUid == request.auth.uid)));
+
+      allow create: if
+        (request.resource.data.type in ['notice', 'faq'] && isMaster())
+        || (request.resource.data.type in ['qna', 'inquiry']
+            && isSignedIn()
+            && request.resource.data.authorUid == request.auth.uid);
+
+      allow update: if isMaster()
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount'])
+            && request.resource.data.viewCount == resource.data.viewCount + 1);
+
+      allow delete: if isMaster();
+    }
+
+    // ---------- reviews (상품 구매후기) ----------
+    match /reviews/{reviewId} {
+      allow read: if true;
+
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+
+      allow delete: if isMaster()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------- inquiries (상품 1:1 문의) ----------
+    match /inquiries/{inquiryId} {
+      allow read: if true;
+
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+
+      allow update: if isMaster();
+
+      allow delete: if isMaster()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------- editorialBanners (메인 롤링 배너) ----------
+    match /editorialBanners/{slotId} {
+      allow read: if true;
+      allow write: if isMaster();
+    }
+
+    // ---------- heroPhotos (메인 대표사진) ----------
+    match /heroPhotos/{photoId} {
+      allow read: if true;
+      allow write: if isMaster();
+    }
+
+    // ---------- categoryImages (카테고리 대표사진) ----------
+    match /categoryImages/{cat} {
+      allow read: if true;
+      allow write: if isMaster();
+    }
+
+    // ---------- 그 외 모든 컬렉션은 기본적으로 전부 차단 ----------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
