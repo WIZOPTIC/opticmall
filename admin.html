@@ -3812,6 +3812,22 @@ async function processCancel(orderId, cancelType, expectedRefund) {
         })
       );
 
+      // 1-2단계: 적립금/쿠폰/구매금액 되돌리기용 읽기 (쓰기 전에 모두 읽어야 함)
+      const od = freshOrder.data();
+      const alreadyRestored = !!od.refundRestored;
+      const usedPts = Number(od.pointsUsed || 0);
+      const earnedPts = od.pointsAwarded ? Number(od.pointsAmount || 0) : 0;
+      const paidAmt = Number(od.paidAmount || 0);
+      let userRef = null, userSnap = null, couponRef = null, couponSnap = null;
+      if(!alreadyRestored && od.userId) {
+        userRef = window._doc(window._db, 'users', od.userId);
+        userSnap = await tx.get(userRef);
+        if(od.couponId) {
+          couponRef = window._doc(window._db, 'users', od.userId, 'coupons', od.couponId);
+          couponSnap = await tx.get(couponRef);
+        }
+      }
+
       // 2단계: 같은 상품의 여러 색상이 한 주문에 있어도 서로 덮어쓰지 않도록 상품별로 합산해서 한 번에 write
       for(const { pid, ref, snap } of productReads) {
         if(!snap.exists()) continue;
@@ -3834,14 +3850,50 @@ async function processCancel(orderId, cancelType, expectedRefund) {
           tx.update(ref, { stock: Number(pData.stock || 0) + total });
         }
       }
+      // 3단계: 사용한 적립금 반환 / 지급된 적립금 회수 / 쿠폰 복구 / 누적 구매금액·등급 되돌리기
+      if(userRef && userSnap && userSnap.exists()) {
+        const ud = userSnap.data();
+        let bal = Number(ud.pointsBalance || 0);
+        if(usedPts > 0) {
+          bal += usedPts;
+          tx.set(window._doc(window._collection(userRef, 'pointsLedger')), {
+            type: 'earn', amount: usedPts, orderId: orderRef.id,
+            note: '주문 취소/반품 - 사용 적립금 반환', createdAt: window._serverTimestamp()
+          });
+        }
+        if(earnedPts > 0) {
+          const revoke = Math.min(earnedPts, bal);
+          bal -= revoke;
+          if(revoke > 0) {
+            tx.set(window._doc(window._collection(userRef, 'pointsLedger')), {
+              type: 'use', amount: revoke, orderId: orderRef.id,
+              note: '주문 취소/반품 - 지급 적립금 회수', createdAt: window._serverTimestamp()
+            });
+          }
+        }
+        const newTotal = Math.max(0, Number(ud.total_purchase_amount || 0) - paidAmt);
+        const LV = [[1,'화이트',0],[2,'실버',1000000],[3,'골드',3000000],[4,'플래티넘',5000000],[5,'옵틱 마스터',10000000]];
+        let lv = LV[0];
+        for(const l of LV) if(newTotal >= l[2]) lv = l;
+        tx.update(userRef, {
+          pointsBalance: bal,
+          total_purchase_amount: newTotal,
+          purchase_level: lv[0],
+          purchase_level_name: lv[1]
+        });
+        if(couponRef && couponSnap && couponSnap.exists() && couponSnap.data().used) {
+          tx.update(couponRef, { used: false, usedAt: null, usedOrderId: null });
+        }
+      }
       tx.update(orderRef, {
         status: 'cancel_completed',
         cancelNote: note,
-        cancelCompletedAt: window._serverTimestamp()
+        cancelCompletedAt: window._serverTimestamp(),
+        refundRestored: true
       });
     });
 
-    showToast('<i class=ic-check-circle></i> 환불 완료 처리되었습니다. 재고가 복구되었습니다.', 'success');
+    showToast('<i class=ic-check-circle></i> 환불 완료 처리되었습니다. 재고·적립금·쿠폰이 복구되었습니다.', 'success');
     loadCancelManage();
     loadDashboard();
   } catch(e) {
