@@ -209,7 +209,6 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 @media (max-width:768px){.header-top-row .logo{height:40px}}
 .footer-logo-img{margin-bottom:25px!important}
 @media (max-width:768px){.footer-cols{gap:28px;flex-wrap:wrap}.footer-col h5,.footer-col a{white-space:nowrap}}
-@media (max-width:900px){html,body{max-width:100%;overflow-x:clip}}
 /* 모바일 헤더: 로고+아이콘 한 줄, 아래에 옆으로 미는 메뉴 줄 (햄버거 없음) */
 @media (max-width:768px){
  .hamburger-btn{display:none!important}
@@ -221,6 +220,12 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
  .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:22px!important;padding:2px 2px 4px;margin-top:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0;width:100%}
  .gnb-inner::-webkit-scrollbar{display:none}
  .gnb-item{flex:0 0 auto;white-space:nowrap;font-size:15px!important;padding:9px 0!important}
+}
+/* 모바일 상품 격자: 2열 (기본 5열 규칙이 뒤에 있어서 덮어쓰던 문제 해결) */
+@media (max-width:768px){
+ .product-grid:not(#eventFullGrid):not(#newArrivalFullGrid):not(#bestFullGrid){grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ .brands-grid,.event-products-grid,.related-grid,.wish-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ .product-card{min-width:0}
 }
 .mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
