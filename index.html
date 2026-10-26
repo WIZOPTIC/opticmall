@@ -698,6 +698,12 @@ html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% 
 .tb-welcome .tb-badge{display:inline-flex;align-items:center;line-height:1;padding:4px 8px 2px;margin-left:6px;height:16px;box-sizing:border-box}
 /* 헤더 정돈: 로고-메뉴 왼쪽선 맞춤, 메뉴 가볍게 */
 @media (min-width:1001px){.header-top-row .logo{margin-left:-8px}}
+/* 로고만 작게: 로고가 차지하던 높이는 그대로 유지해서 헤더/롤링배너 위치가 변하지 않게 함 */
+.header-top-row .logo{display:flex;align-items:center;height:69px}
+@media (min-width:769px) and (max-width:1000px){.header-top-row .logo{height:57px}}
+@media (max-width:768px){.header-top-row .logo{height:40px}}
+.footer-logo-img{margin-bottom:28px!important}
+.mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item{font-weight:450!important;letter-spacing:.08em!important}
 .gnb-item:hover,.gnb-item.active{font-weight:450!important}
 /* 로그인/아이디 찾기/비밀번호 찾기 팝업: 회원가입 폼과 같은 입력칸 스타일 */
