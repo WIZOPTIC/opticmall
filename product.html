@@ -163,15 +163,16 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+.lightbox-img-wrap { position: relative; }
 .lightbox-nav {
   position: absolute; top: 50%; transform: translateY(-50%);
-  width: 48px; height: 48px; border-radius: 50%; border: none;
-  background: rgba(255,255,255,0.1); color: #fff; font-size: 22px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 72px; border: none; background: transparent; color: #111; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  filter: drop-shadow(0 0 3px rgba(255,255,255,.85));
 }
-.lightbox-nav:hover { background: rgba(255,255,255,0.25); }
-.lightbox-prev { left: 24px; }
-.lightbox-next { right: 24px; }
+.lightbox-nav:hover { color: #000; }
+.lightbox-prev { left: 4px; }
+.lightbox-next { right: 4px; }
 .lightbox-counter { color: rgba(255,255,255,0.6); font-size: 14px; font-family:"Inter",sans-serif; }
 
 /* 상품 정보 */
@@ -1039,11 +1040,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 <!-- 이미지 확대 라이트박스 -->
 <div class="lightbox-overlay" id="lightboxOverlay">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(-1)">‹</button>
   <div class="lightbox-img-wrap">
     <img id="lightboxImg" src="" alt="상품 이미지 확대">
+    <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(-1)" aria-label="이전 사진"><svg width="14" height="26" viewBox="0 0 14 26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="11,2 3,13 11,24"/></svg></button>
+    <button class="lightbox-nav lightbox-next" onclick="lightboxNav(1)" aria-label="다음 사진"><svg width="14" height="26" viewBox="0 0 14 26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,2 11,13 3,24"/></svg></button>
   </div>
-  <button class="lightbox-nav lightbox-next" onclick="lightboxNav(1)">›</button>
   <div class="lightbox-counter" id="lightboxCounter"></div>
 </div>
 
@@ -1241,7 +1242,7 @@ html{color-scheme:only light}
 
 /* 크게 보기: 터치 화면에서는 화살표 대신 쓸어넘기기 */
 .lightbox-overlay,.main-img{touch-action:pan-y pinch-zoom}
-@media (hover:none) and (pointer:coarse),(max-width:768px){.lightbox-nav{display:none!important}}
+
 
 /* 모바일 구매 버튼: 장바구니 담기 / 바로구매 같은 크기, 한 줄 */
 @media (max-width:768px){
