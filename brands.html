@@ -100,20 +100,31 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 }
 
 /* 브랜드 그리드 */
-.brands-wrap{max-width:1440px;margin:0 auto;padding:0 24px;}
+.brands-wrap{max-width:1440px;margin:0 auto;padding:0 24px 100px;}
+@media (max-width:720px){.brands-wrap{padding-bottom:64px;}}
 .brands-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
-.brand-card{border:1px solid var(--g2);border-radius:0;overflow:hidden;cursor:pointer;transition:all 0.2s;background:var(--white);}
-.brand-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 28px rgba(11,31,58,0.12);}
-.brand-logo-display{height:180px;background:var(--white);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;border-bottom:1px solid var(--g1);}
-.brand-logo-display img{max-width:100%;max-height:100%;object-fit:contain;}
-
-.brand-thumb-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--g1);height:180px;}
-.brand-thumb{height:100%;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;}
-.brand-thumb.no-img{opacity:0.15;}
-.brand-thumb img{width:100%;height:100%;object-fit:cover;}
-.brand-card-info{padding:16px;}
-.brand-card-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
-.brand-card-count{font-size:12px;color:var(--g3);}
+.brand-card{position:relative;border:1px solid #E6E1D8;border-radius:0;overflow:hidden;cursor:pointer;background:#fff;display:flex;flex-direction:column;transition:box-shadow .3s,transform .3s,border-color .3s;}
+.brand-card::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .35s;z-index:2;}
+.brand-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(42,36,32,.14);border-color:#D9D2C4;}
+.brand-card:hover::before{transform:scaleX(1);}
+.brand-logo-display{height:190px;background:#F5F2EC;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:28px 32px;}
+.brand-logo-display img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;transition:transform .4s;}
+.brand-card:hover .brand-logo-display img{transform:scale(1.04);}
+.brand-logo-text{font-size:26px;font-weight:700;letter-spacing:.12em;color:#2A2420;text-align:center;}
+.brand-thumb-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E6E1D8;height:84px;border-top:1px solid #E6E1D8;}
+.brand-thumb{height:100%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.brand-thumb.no-img{background:#FAF8F4;}
+.brand-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.brand-card:hover .brand-thumb img{transform:scale(1.08);}
+.brand-card-info{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;transition:background .3s;}
+.brand-card-name{font-size:15px;font-weight:700;color:#2A2420;letter-spacing:.06em;text-transform:uppercase;margin:0;transition:color .3s;}
+.brand-card-count{font-size:12px;color:#9A9288;margin-top:3px;transition:color .3s;}
+.brand-card-go{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--gold);white-space:nowrap;transition:color .3s;}
+.brand-card:hover .brand-card-info{background:#2A2420;}
+.brand-card:hover .brand-card-name{color:#fff;}
+.brand-card:hover .brand-card-count{color:#B8B0A4;}
+.brand-card:hover .brand-card-go{color:var(--gold-soft);}
+@media (max-width:720px){.brand-logo-display{height:130px;padding:18px;}.brand-thumb-row{height:56px;}.brand-card-info{padding:12px;}.brand-card-go{display:none;}}
 
 .loading-box{text-align:center;padding:80px;color:var(--g3);}
 .spinner{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--sky);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
@@ -573,24 +584,23 @@ function renderBrands(brands) {
     return;
   }
   area.innerHTML = `<div class="brands-grid">${brands.map(b => {
-    let visualHtml;
-    if(b.logoUrl) {
-      // 로고가 있으면 카드 전체에 로고 이미지 크게 표시
-      visualHtml = `<div class="brand-logo-display"><img src="${b.logoUrl}" alt="${b.brandName} 로고"></div>`;
-    } else {
-      // 로고가 없으면 대표 상품 썸네일 격자로 대체
-      const thumbsHtml = [0,1,2].map(i => {
-        const url = b.thumbs[i];
-        return `<div class="brand-thumb${url ? '' : ' no-img'}">${url ? `<img src="${url}">` : '<i class=ic-glasses></i>'}</div>`;
-      }).join('');
-      visualHtml = `<div class="brand-thumb-row">${thumbsHtml}</div>`;
-    }
+    const logoHtml = b.logoUrl
+      ? `<img src="${b.logoUrl}" alt="${b.brandName} 로고">`
+      : `<div class="brand-logo-text">${b.brandName}</div>`;
+    const thumbsHtml = [0,1,2].map(i => {
+      const url = b.thumbs[i];
+      return `<div class="brand-thumb${url ? '' : ' no-img'}">${url ? `<img src="${url}" alt="">` : ''}</div>`;
+    }).join('');
     return `
       <div class="brand-card" onclick="location.href='list.html?brand=${b.brandId}'">
-        ${visualHtml}
+        <div class="brand-logo-display">${logoHtml}</div>
+        <div class="brand-thumb-row">${thumbsHtml}</div>
         <div class="brand-card-info">
-          <div class="brand-card-name">${b.brandName}</div>
-          <div class="brand-card-count">상품 ${b.count}개</div>
+          <div>
+            <div class="brand-card-name">${b.brandName}</div>
+            <div class="brand-card-count">상품 ${b.count}개</div>
+          </div>
+          <div class="brand-card-go">상품 보기</div>
         </div>
       </div>`;
   }).join('')}</div>`;
