@@ -875,7 +875,7 @@ exports.getTrackingInfo = onRequest({ cors: true, timeoutSeconds: 30 }, async (r
 /**
  * 실시간 베스트 상품 집계 (매일 새벽 4시 자동 실행)
  * 최근 60일 주문 중 결제 완료 이후 상태(paid / preparing / shipping / delivered)의
- * 상품별 판매 수량을 합산해 settings/bestRank 문서에 상위 30개를 저장합니다.
+ * 상품별 판매 수량을 합산해 settings/bestRank 문서에 상위 10개를 저장합니다.
  * 메인/베스트 페이지는 이 문서 하나만 읽으므로 방문자가 늘어도 DB 읽기 비용이 거의 늘지 않습니다.
  */
 const { onSchedule } = require("firebase-functions/v2/scheduler");
@@ -900,7 +900,7 @@ exports.updateBestRank = onSchedule(
     });
     const items = [...qtyMap.entries()]
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 30)
+      .slice(0, 10)
       .map(([productId, qty]) => ({ productId, qty }));
     await db.collection("settings").doc("bestRank").set({
       items,
