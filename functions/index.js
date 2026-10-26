@@ -19,7 +19,7 @@
  *   firebase deploy --only functions
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
@@ -823,4 +823,51 @@ exports.claimSignupCoupons = onCall(async (request) => {
   });
   await batch.commit();
   return { granted: true };
+});
+
+/**
+ * 택배 배송조회 (스윗트래커 API 중계)
+ * - 마이페이지 배송조회 창에서 호출: GET ?t_code=택배사코드&t_invoice=운송장번호
+ * - API 키는 이 폴더의 .env 파일(SWEETTRACKER_KEY)에서 읽으며, 사이트 코드에는 노출되지 않음
+ */
+exports.getTrackingInfo = onRequest({ cors: true, timeoutSeconds: 30 }, async (req, res) => {
+  try {
+    const code = String(req.query.t_code || "").trim();
+    const invoice = String(req.query.t_invoice || "").replace(/[^0-9A-Za-z]/g, "");
+    if (!/^[0-9]{1,3}$/.test(code) || invoice.length < 5 || invoice.length > 30) {
+      res.status(400).json({ result: "N", msg: "택배사 또는 운송장번호가 올바르지 않습니다." });
+      return;
+    }
+    const key = process.env.SWEETTRACKER_KEY;
+    if (!key) {
+      console.error("SWEETTRACKER_KEY 가 설정되지 않았습니다.");
+      res.status(500).json({ result: "N", msg: "배송조회 설정 오류" });
+      return;
+    }
+    // 스윗트래커는 2026-10-30 14시부터 GET 호출을 종료하고 POST만 지원 → POST(form) 우선, 실패 시에만 GET 재시도
+    const endpoint = "https://info.sweettracker.co.kr/api/v1/trackingInfo";
+    const params = new URLSearchParams({ t_key: key, t_code: code, t_invoice: invoice });
+    let data = null;
+    try {
+      const rp = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
+      });
+      const txt = await rp.text();
+      try { data = JSON.parse(txt); } catch (e) { data = null; }
+      if (!rp.ok && !data) console.error("스윗트래커 POST 응답 이상:", rp.status);
+    } catch (e) {
+      console.error("스윗트래커 POST 호출 실패:", e);
+    }
+    if (!data) {
+      const rg = await fetch(endpoint + "?" + params.toString());
+      data = await rg.json();
+    }
+    res.set("Cache-Control", "no-store");
+    res.status(200).json(data);
+  } catch (e) {
+    console.error("getTrackingInfo 오류:", e);
+    res.status(500).json({ result: "N", msg: "배송조회 중 오류가 발생했습니다." });
+  }
 });
