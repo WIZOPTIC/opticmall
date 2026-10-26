@@ -703,7 +703,15 @@ html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% 
 @media (min-width:769px) and (max-width:1000px){.header-top-row .logo{height:57px}}
 @media (max-width:768px){.header-top-row .logo{height:40px}}
 .footer-logo-img{margin-bottom:25px!important}
+/* 모바일 가로 넘침 방지: 긴 상품명/큰 사진이 있어도 칸이 화면보다 넓어지지 않게 함 */
+.category-cards{grid-template-columns:minmax(0,1fr)!important}
+.cat-section,.full-grid-wrap,.hero-split,.hero-split>*{min-width:0}
+.hero-split{grid-template-columns:3fr 2fr}
+@media (max-width:860px){.hero-split{grid-template-columns:minmax(0,1fr)!important}}
+.hero-split .right-panel .product-row{min-width:0}
+.hero-split .right-panel .product-row span,.hero-split .right-panel .product-row div{min-width:0;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:768px){.footer-cols{gap:28px;flex-wrap:wrap}.footer-col h5,.footer-col a{white-space:nowrap}}
+@media (max-width:900px){html,body{max-width:100%;overflow-x:clip}}
 .mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item{font-weight:450!important;letter-spacing:.08em!important}
 .gnb-item:hover,.gnb-item.active{font-weight:450!important}
