@@ -453,6 +453,11 @@ html{color-scheme:only light}
  .quickpay-btns .btn-easypay{flex:1 1 0;min-width:0}
  .agree-box,.btn-pay{max-width:100%}
 }
+
+.order-item-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px}
+.oi-pct{font-size:12px;font-weight:700;color:var(--red)}
+.oi-orig{font-size:12px;font-weight:400;color:var(--g3);text-decoration:line-through}
+.oi-final{font-size:15px;font-weight:700}
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -1120,19 +1125,19 @@ function renderOrderItems() {
     const colorCode = colorData?.colorCode || '';
     const colorLabelWithCode = colorLabel + (colorCode ? ` (${colorCode})` : '');
     const barcode = colorData?.barcode || p.barcode || '';
-    const discountTag = p.discountRate ? `<span style="font-size:11px;color:var(--red);font-weight:700;margin-left:4px;">${p.discountRate}% 할인적용</span>` : '';
+    const pctTag = p.discountRate ? `<span class="oi-pct">${p.discountRate}%</span>` : '';
     const basePrice = Number(p.originalPrice != null ? p.originalPrice : (p.price || 0));
     const isDiscounted = unitPrice < basePrice;
     const originalSubtotal = basePrice * item.qty;
     const priceHtml = isDiscounted
-      ? `<div class="order-item-price"><span style="font-size:12px;color:var(--g3);text-decoration:line-through;margin-right:4px;">₩${originalSubtotal.toLocaleString()}</span>₩${subtotal.toLocaleString()}</div>`
+      ? `<div class="order-item-price">${pctTag}<span class="oi-orig">₩${originalSubtotal.toLocaleString()}</span><span class="oi-final">₩${subtotal.toLocaleString()}</span></div>`
       : `<div class="order-item-price">₩${subtotal.toLocaleString()}</div>`;
     return `
       <div class="order-item">
         <div class="order-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
         <div class="order-item-info">
-          <div class="order-item-name">${p.modelName||'-'}${colorLabelWithCode ? ' · '+colorLabelWithCode : ''}${discountTag}</div>
-          <div class="order-item-opt">${barcode} · ${item.qty}개</div>
+          <div class="order-item-name">${p.modelName||'-'}${colorLabelWithCode ? ' · '+colorLabelWithCode : ''}</div>
+          <div class="order-item-opt">${barcode ? barcode + ' · ' : ''}${item.qty}개</div>
         </div>
         ${priceHtml}
       </div>`;
