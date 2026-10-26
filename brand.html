@@ -317,7 +317,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       <div class="name" id="brandName">브랜드사</div>
       <div class="role">입점 브랜드</div>
     </div>
-    <button class="logout-btn" onclick="brandLogout()" title="로그아웃">⏻</button>
+    <button class="logout-btn" style="font-size:12px;font-weight:600;white-space:nowrap;" onclick="brandLogout()">로그아웃</button>
   </div>
 </aside>
 
@@ -842,6 +842,7 @@ async function brandLogin() {
 async function brandLogout() {
   if(confirm('로그아웃 하시겠습니까?')) {
     await window._signOut(window._auth);
+    location.href = 'index.html';
   }
 }
 

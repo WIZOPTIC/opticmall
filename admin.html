@@ -282,8 +282,8 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       <div class="name" id="adminName">관리자</div>
       <div class="role" id="adminRoleBadge">마스터</div>
     </div>
-    <button class="logout-btn" onclick="requestOrderNotificationPermission()" title="새 주문 알림 켜기">🔔</button>
-    <button class="logout-btn" onclick="adminLogout()" title="로그아웃">⏻</button>
+    <button class="logout-btn" style="margin-left:auto;font-size:12px;font-weight:600;white-space:nowrap;" onclick="requestOrderNotificationPermission()" title="새 주문이 들어오면 브라우저 알림으로 알려드려요">주문 알림</button>
+    <button class="logout-btn" style="margin-left:10px;font-size:12px;font-weight:600;white-space:nowrap;" onclick="adminLogout()">로그아웃</button>
   </div>
 </aside>
 
@@ -917,6 +917,7 @@ async function adminLogin() {
 async function adminLogout() {
   if(confirm('로그아웃 하시겠습니까?')) {
     await window._signOut(window._auth);
+    location.href = 'index.html';
   }
 }
 
