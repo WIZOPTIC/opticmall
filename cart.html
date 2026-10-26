@@ -364,6 +364,18 @@ html{color-scheme:only light}
  .footer-col a{white-space:normal!important}
  .footer-right{max-width:none!important;width:100%}
 }
+
+/* 모바일 장바구니 상품 줄: 사진·이름 위, 수량(왼쪽)·금액(오른쪽) 아래로 반듯하게 */
+@media (max-width:768px){
+ .cart-item{display:grid!important;grid-template-columns:22px 84px minmax(0,1fr) 28px;grid-template-areas:"chk img info del" "qty qty price price";gap:12px 12px!important;align-items:start!important;padding:14px!important}
+ .cart-item .item-check{grid-area:chk;margin:2px 0 0!important;justify-self:start}
+ .cart-item .item-img{grid-area:img;width:84px;height:84px}
+ .cart-item .item-info{grid-area:info;min-width:0}
+ .cart-item .item-del{grid-area:del;margin:0!important;justify-self:end;align-self:start}
+ .cart-item .item-qty{grid-area:qty;margin:0!important;justify-self:start;align-self:center}
+ .cart-item .item-price,.cart-item .item-locked{grid-area:price;justify-self:end;align-self:center;width:auto!important;text-align:right}
+ .cart-item .item-price-orig{height:auto;line-height:1.2}
+}
 </style>
 </head>
 <body>
