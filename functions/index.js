@@ -873,17 +873,17 @@ exports.getTrackingInfo = onRequest({ cors: true, timeoutSeconds: 30 }, async (r
 });
 
 /**
- * 실시간 베스트 상품 집계 (매시간 자동 실행)
- * 최근 30일 주문 중 결제 완료 이후 상태(paid / preparing / shipping / delivered)의
+ * 실시간 베스트 상품 집계 (매일 새벽 4시 자동 실행)
+ * 최근 60일 주문 중 결제 완료 이후 상태(paid / preparing / shipping / delivered)의
  * 상품별 판매 수량을 합산해 settings/bestRank 문서에 상위 30개를 저장합니다.
  * 메인/베스트 페이지는 이 문서 하나만 읽으므로 방문자가 늘어도 DB 읽기 비용이 거의 늘지 않습니다.
  */
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const BEST_WINDOW_DAYS = 30;
+const BEST_WINDOW_DAYS = 60;
 const BEST_STATUSES = new Set(["paid", "preparing", "shipping", "delivered"]);
 
 exports.updateBestRank = onSchedule(
-  { schedule: "every 60 minutes", timeZone: "Asia/Seoul", timeoutSeconds: 120, memory: "256MiB" },
+  { schedule: "every day 04:00", timeZone: "Asia/Seoul", timeoutSeconds: 120, memory: "256MiB" },
   async () => {
     const since = admin.firestore.Timestamp.fromMillis(Date.now() - BEST_WINDOW_DAYS * 24 * 3600 * 1000);
     const snap = await db.collection("orders").where("createdAt", ">=", since).get();
