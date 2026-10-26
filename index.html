@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="color-scheme" content="only light">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>try{if(localStorage.getItem('opticmall_heroPeek')!=='0')document.documentElement.classList.add('hero-peek')}catch(e){document.documentElement.classList.add('hero-peek')}</script>
 <title>옵틱몰 - 프리미엄 도매몰</title>
@@ -1832,7 +1833,11 @@ function renderTimesaleEmptyState() {
         <style>
           .clock-hand-sec { transform-origin: 340px 110px; animation: tsClockTick 6s linear infinite; }
           @keyframes tsClockTick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        </style>
+        
+/* 사진 HDR 밝기 확장 방지 */
+img,video,canvas{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
+html{color-scheme:only light}
+</style>
         <g transform="translate(340,110)">
           <circle cx="0" cy="0" r="52" fill="#000000"/>
           <circle cx="0" cy="0" r="43" fill="#FAF8F4"/>
