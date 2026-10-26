@@ -523,8 +523,12 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
  .brands-grid,.event-products-grid,.related-grid,.wish-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
  .product-card{min-width:0}
 }
-/* 모바일 바탕은 흰색 */
-@media (max-width:768px){html,html body{background:#fff!important}}
+/* 모바일 바탕은 전부 흰색 */
+@media (max-width:768px){
+ html,html body{background:#fff!important}
+ .hero,.main-img{background:#fff!important}
+ .card,.summary-card,.cart-header,.cart-item,.profile-card,.menu-card,.order-summary{border:1px solid #ECE8E1}
+}
 /* 모바일 하단 탭바 제거 (PC와 동일하게, 메뉴는 상단 헤더로 통일) */
 @media (max-width:768px){
  .mobile-tabbar{display:none!important}
@@ -2338,7 +2342,7 @@ function applyColorImages(color) {
 // 상세 이미지를 "상품정보" 탭 하단(스펙 표 바로 아래)과 "상품 상세" 탭 두 곳에 동일하게 렌더링
 function renderDetailImageGrids(urls) {
   const html = (urls && urls.length > 0)
-    ? urls.map(url => `<img src="${url}" loading="lazy" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
+    ? urls.map(url => `<img src="${url}" loading="lazy" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
     : '';
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap) {
@@ -2517,7 +2521,7 @@ async function loadRelatedProducts(p) {
         ? `<span style="color:var(--sky);font-weight:700;">₩${Number(r.price||0).toLocaleString()}</span>`
         : `회원 전용 가격`;
       const hasImg = !!r.mainImageUrl;
-      const imgHtml = hasImg ? `<img src="${r.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<i class=ic-glasses></i>';
+      const imgHtml = hasImg ? `<img loading="lazy" decoding="async" src="${r.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<i class=ic-glasses></i>';
       return `
         <div class="related-card" onclick="location.href='product.html?id=${r.id}'">
           <div class="related-img${hasImg ? '' : ' no-img'}">${imgHtml}</div>
@@ -3372,7 +3376,7 @@ async function renderFwRecentPanel() {
       const img = (p.colors && p.colors[0] && p.colors[0].mainImageUrl) || p.mainImageUrl || '';
       const name = p.name || p.modelName || '상품';
       return `<a class="fw-recent-item" href="product.html?id=${p.id}">
-        <img src="${img}" onerror="this.style.visibility='hidden'">
+        <img loading="lazy" decoding="async" src="${img}" onerror="this.style.visibility='hidden'">
         <span class="fw-recent-name">${name}</span>
       </a>`;
     }).join('');

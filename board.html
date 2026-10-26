@@ -336,8 +336,12 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
  .brands-grid,.event-products-grid,.related-grid,.wish-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
  .product-card{min-width:0}
 }
-/* 모바일 바탕은 흰색 */
-@media (max-width:768px){html,html body{background:#fff!important}}
+/* 모바일 바탕은 전부 흰색 */
+@media (max-width:768px){
+ html,html body{background:#fff!important}
+ .hero,.main-img{background:#fff!important}
+ .card,.summary-card,.cart-header,.cart-item,.profile-card,.menu-card,.order-summary{border:1px solid #ECE8E1}
+}
 /* 모바일 하단 탭바 제거 (PC와 동일하게, 메뉴는 상단 헤더로 통일) */
 @media (max-width:768px){
  .mobile-tabbar{display:none!important}
@@ -1415,7 +1419,7 @@ async function renderFwRecentPanel() {
       const img = (p.colors && p.colors[0] && p.colors[0].mainImageUrl) || p.mainImageUrl || '';
       const name = p.name || p.modelName || '상품';
       return `<a class="fw-recent-item" href="product.html?id=${p.id}">
-        <img src="${img}" onerror="this.style.visibility='hidden'">
+        <img loading="lazy" decoding="async" src="${img}" onerror="this.style.visibility='hidden'">
         <span class="fw-recent-name">${name}</span>
       </a>`;
     }).join('');
