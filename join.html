@@ -690,7 +690,7 @@ select.form-input{padding-right:8px!important}
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, onAuthStateChanged, signOut, deleteUser } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
@@ -715,6 +715,7 @@ window._auth = auth;
 window._db = db;
 window._storage = storage;
 window._createUser = createUserWithEmailAndPassword;
+window._deleteUser = deleteUser;
 window._fetchSignIn = fetchSignInMethodsForEmail;
 window._checkEmailExists = httpsCallable(functions, 'checkEmailExists');
 window._claimSignupCoupons = httpsCallable(functions, 'claimSignupCoupons');
@@ -1069,9 +1070,11 @@ async function submitForm() {
   document.getElementById('loadingOverlay').classList.add('show');
   document.getElementById('submitBtn').disabled = true;
 
+  let createdUser = null, docSaved = false;
   try {
     // 1. Firebase Auth 회원가입
     const userCred = await window._createUser(window._auth, email, pw);
+    createdUser = userCred.user;
     const uid = userCred.user.uid;
 
     // 사업자등록번호 정규화 (하이픈 제거)
@@ -1079,7 +1082,13 @@ async function submitForm() {
 
     // 2. 사업자등록증 Storage 업로드
     const fileRef = window._ref(window._storage, `business_docs/${uid}/${bizFileObj.name}`);
-    await window._uploadBytes(fileRef, bizFileObj);
+    // 일부 파일(.jfif 등)은 브라우저가 파일 형식을 비워서 보내 Storage가 거절하므로, 확장자로 형식을 직접 지정
+    const ext = (bizFileObj.name.split('.').pop() || '').toLowerCase();
+    const typeByExt = { jpg:'image/jpeg', jpeg:'image/jpeg', jfif:'image/jpeg', pjpeg:'image/jpeg', pjp:'image/jpeg',
+                        png:'image/png', webp:'image/webp', gif:'image/gif', pdf:'application/pdf' };
+    let contentType = bizFileObj.type;
+    if (!contentType || !/^(image\/|application\/pdf)/.test(contentType)) contentType = typeByExt[ext] || 'image/jpeg';
+    await window._uploadBytes(fileRef, bizFileObj, { contentType });
     const fileUrl = await window._getDownloadURL(fileRef);
 
     // 3. Firestore에 회원 정보 저장 (가입 유형은 항상 안경원 기본값,
@@ -1097,6 +1106,7 @@ async function submitForm() {
       createdAt: window._serverTimestamp(),
       approvedAt: null
     });
+    docSaved = true;
 
     // 가입 시 입력한 주소를 첫 기본 배송지로 addresses 서브컬렉션에 저장
     if (addr1) {
@@ -1121,6 +1131,8 @@ async function submitForm() {
     location.href = 'index.html';
 
   } catch(e) {
+    // 회원정보 저장 전에 실패했다면 반쪽짜리 로그인 계정이 남지 않도록 되돌림 (같은 이메일로 바로 다시 가입 가능)
+    if (createdUser && !docSaved) { try { await window._deleteUser(createdUser); } catch(_) {} }
     document.getElementById('loadingOverlay').classList.remove('show');
     document.getElementById('submitBtn').disabled = false;
     console.error(e);
