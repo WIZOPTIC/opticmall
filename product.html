@@ -1229,6 +1229,15 @@ html{color-scheme:only light}
  .product-images .thumb-list{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px!important;width:100%!important;max-height:none!important;overflow:visible!important;padding:0!important;flex-direction:row!important}
  .product-images .thumb{width:100%!important;height:auto!important;aspect-ratio:1/1;min-width:0}
 }
+
+/* 모바일 상세 탭: 옆으로 밀지 않고 3개씩 두 줄로 */
+@media (max-width:768px){
+ .tab-bar-wrap{position:static!important;margin-bottom:20px}
+ .tab-bar{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible!important;border-bottom:1px solid var(--g2)}
+ .tab{flex:none!important;padding:13px 4px!important;text-align:center;font-size:14px!important;white-space:nowrap;margin-bottom:0!important;border-bottom:2px solid transparent;border-top:1px solid var(--g2)}
+ .tab:nth-child(-n+3){border-top:none}
+ .tab.active{border-bottom-color:#14110f}
+}
 </style>
 
     <!-- 가격 (비회원) -->
