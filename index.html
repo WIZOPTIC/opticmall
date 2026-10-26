@@ -777,14 +777,6 @@ html{color-scheme:only light}
  .gnb-inner.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent)}
  .gnb-inner.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent)}
 }
-
-/* 모바일 실시간 베스트: 2열로 최대 6개, 짝수로 맞춤 */
-@media (max-width:768px){
- #bestFullGrid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important;padding-bottom:0!important}
- #bestFullGrid>*{flex:none!important;max-width:none!important;width:auto!important;min-width:0}
- #bestFullGrid>:nth-child(n+7){display:none!important}
- #bestFullGrid[data-n="3"]>:nth-child(3),#bestFullGrid[data-n="5"]>:nth-child(5){display:none!important}
-}
 </style>
 </head>
 <body>
@@ -1040,7 +1032,7 @@ html{color-scheme:only light}
   <section class="event-rank-section">
     <div class="ers-head">
       <h2>실시간 베스트 상품</h2>
-      <a href="timesale.html" class="more">더보기 →</a>
+      <a href="best.html" class="more">더보기 →</a>
     </div>
     <div class="ers-grid" id="eventRankGrid">
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--g3);">불러오는 중...</div>
@@ -1880,11 +1872,11 @@ function renderTimesaleEmptyState() {
         <text x="340" y="246" text-anchor="middle" font-size="14" fill="#9BA5B0">엄선된 상품으로 곧 만나요</text>
       </svg>
     </div>`;
-  document.getElementById('eventRankGrid').innerHTML = [1,2,3,4,5].map(renderEventRankPlaceholder).join('');
 }
 
 function renderAllMainSections() {
   if(mainAllProducts.length === 0) {
+    renderEmptyMainSection('eventRankGrid', '아직 등록된 상품이 없습니다.');
     renderEmptyMainSection('newArrivalHeroList', '아직 등록된 상품이 없습니다.');
     renderEmptyMainSection('newArrivalFullGrid', '아직 등록된 상품이 없습니다.');
     renderEmptyMainSection('bestHeroList', '아직 등록된 상품이 없습니다.');
@@ -1913,9 +1905,45 @@ function renderAllMainSections() {
       best.slice(0, 3).map(p => renderMainProductRow(p)).join('');
     document.getElementById('bestFullGrid').innerHTML =
       best.map(p => renderMainProductCard(p, 'BEST', 'best')).join('');
-    document.getElementById('bestFullGrid').setAttribute('data-n', String(best.length));
   }
+  renderBestRankSection();
 }
+
+// 실시간 베스트 상품: 판매순위(settings/bestRank, 서버가 주기적으로 집계) 순서.
+// 집계 데이터가 아직 없으면 관리자 선정 베스트 → 최신 등록순으로 채운다.
+let bestRankIds = [];
+async function loadBestRank() {
+  try {
+    const snap = await _db.collection('settings').doc('bestRank').get();
+    const items = snap.exists && Array.isArray(snap.data().items) ? snap.data().items : [];
+    bestRankIds = items.map(i => i.productId).filter(Boolean);
+  } catch(e) { bestRankIds = []; }
+  renderBestRankSection();
+}
+function getRankedBestProducts(limit) {
+  const byId = new Map(mainAllProducts.map(p => [p.id, p]));
+  const out = [], seen = new Set();
+  const push = p => { if(p && !seen.has(p.id)) { seen.add(p.id); out.push(p); } };
+  bestRankIds.forEach(id => push(byId.get(id)));
+  mainAllProducts.filter(p => p.adminPick && p.adminPick.best).forEach(push);
+  mainAllProducts.forEach(push);
+  return out.slice(0, limit);
+}
+function renderBestRankSection() {
+  const grid = document.getElementById('eventRankGrid');
+  if(!grid || !mainAllProducts.length) return;
+  const w = window.innerWidth;
+  const cols = w >= 1101 ? 5 : (w >= 641 ? 3 : 2);
+  const max = cols === 5 ? 5 : 6;
+  let list = getRankedBestProducts(max);
+  if(list.length > cols) list = list.slice(0, Math.floor(list.length / cols) * cols);
+  grid.innerHTML = list.map((p, i) => renderEventRankCard(p, i + 1)).join('');
+}
+let _bestRankCols = 0;
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, c = w >= 1101 ? 5 : (w >= 641 ? 3 : 2);
+  if(c !== _bestRankCols) { _bestRankCols = c; renderBestRankSection(); }
+});
 
 // 타임세일: 실제 관리자 승인 데이터 연동
 async function loadTimesaleData() {
@@ -1958,13 +1986,10 @@ async function loadTimesaleData() {
       timesaleProducts.slice(0,3).map(p => renderMainProductRow(p)).join('');
     document.getElementById('eventFullGrid').innerHTML =
       timesaleProducts.slice(0,10).map(p => renderMainProductCard(p, 'EVENT', 'hot')).join('');
-    document.getElementById('eventRankGrid').innerHTML =
-      timesaleProducts.slice(0,5).map((p,i) => renderEventRankCard(p, i+1)).join('');
   } catch(e) {
     console.error('타임세일 로드 실패:', e);
     renderEmptyMainSection('eventHeroList', `타임세일 정보를 불러오지 못했습니다.`);
     renderEmptyMainSection('eventFullGrid', `타임세일 정보를 불러오지 못했습니다.<br><span style="font-size:11px;color:#C3CBD3;">(오류 내용: ${(e && e.message) ? e.message : e})</span>`);
-    document.getElementById('eventRankGrid').innerHTML = [1,2,3,4,5].map(renderEventRankPlaceholder).join('');
   }
 }
 
@@ -1986,11 +2011,13 @@ async function loadMainProducts() {
     renderEmptyMainSection('newArrivalFullGrid', '상품을 불러오지 못했습니다.');
     renderEmptyMainSection('bestHeroList', '상품을 불러오지 못했습니다.');
     renderEmptyMainSection('bestFullGrid', '상품을 불러오지 못했습니다.');
+    renderEmptyMainSection('eventRankGrid', '상품을 불러오지 못했습니다.');
   }
 }
 
 loadMainProducts();
 loadTimesaleData();
+loadBestRank();
 
 // ── 메인 상단 배너(3분할) : "롤링 배너 관리"(editorialBanners)에 등록된 내용을 한 줄 캐러셀로 사용, 4개 이상이면 통째로 한 칸씩 흐르듯 이동 ──
 const HERO_BANNER_GRADIENT = 'linear-gradient(180deg, rgba(11,31,58,0.10), rgba(7,20,41,0.62))';

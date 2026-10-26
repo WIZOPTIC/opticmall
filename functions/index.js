@@ -871,3 +871,42 @@ exports.getTrackingInfo = onRequest({ cors: true, timeoutSeconds: 30 }, async (r
     res.status(500).json({ result: "N", msg: "배송조회 중 오류가 발생했습니다." });
   }
 });
+
+/**
+ * 실시간 베스트 상품 집계 (매시간 자동 실행)
+ * 최근 30일 주문 중 결제 완료 이후 상태(paid / preparing / shipping / delivered)의
+ * 상품별 판매 수량을 합산해 settings/bestRank 문서에 상위 30개를 저장합니다.
+ * 메인/베스트 페이지는 이 문서 하나만 읽으므로 방문자가 늘어도 DB 읽기 비용이 거의 늘지 않습니다.
+ */
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const BEST_WINDOW_DAYS = 30;
+const BEST_STATUSES = new Set(["paid", "preparing", "shipping", "delivered"]);
+
+exports.updateBestRank = onSchedule(
+  { schedule: "every 60 minutes", timeZone: "Asia/Seoul", timeoutSeconds: 120, memory: "256MiB" },
+  async () => {
+    const since = admin.firestore.Timestamp.fromMillis(Date.now() - BEST_WINDOW_DAYS * 24 * 3600 * 1000);
+    const snap = await db.collection("orders").where("createdAt", ">=", since).get();
+    const qtyMap = new Map();
+    snap.forEach((doc) => {
+      const o = doc.data();
+      if (!BEST_STATUSES.has(o.status)) return;
+      (Array.isArray(o.items) ? o.items : []).forEach((it) => {
+        const pid = it && it.productId;
+        if (!pid) return;
+        const q = Number(it.qty || it.quantity || 1) || 1;
+        qtyMap.set(pid, (qtyMap.get(pid) || 0) + q);
+      });
+    });
+    const items = [...qtyMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30)
+      .map(([productId, qty]) => ({ productId, qty }));
+    await db.collection("settings").doc("bestRank").set({
+      items,
+      windowDays: BEST_WINDOW_DAYS,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    console.log(`updateBestRank: ${snap.size}건 집계, 상위 ${items.length}개 저장`);
+  }
+);
