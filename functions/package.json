@@ -1,8 +1,8 @@
 {
   "name": "opticmall-functions",
-  "description": "OPTICMALL Cloud Functions - 아이디 찾기(이메일 인증) 기능",
+  "description": "OPTICMALL Cloud Functions - 아이디 찾기, 결제 승인, 회원 탈퇴, 가입 쿠폰",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "dependencies": {
