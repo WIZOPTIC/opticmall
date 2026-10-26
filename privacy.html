@@ -287,6 +287,17 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 /* 사진 HDR 밝기 확장 방지 */
 img,video,canvas{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
 html{color-scheme:only light}
+
+/* 푸터 정렬: 모바일/태블릿 */
+.footer-bottom{border-top:none!important;padding-top:0!important}
+@media (max-width:1000px){
+ .footer-top{flex-direction:column!important;gap:0!important;padding:0 0 28px!important}
+ .footer-mid{flex-direction:column!important;gap:0!important;flex-wrap:nowrap!important;width:100%}
+ .footer-contact{order:-1;padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.12)}
+ .footer-cols{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px!important;padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.12)}
+ .footer-col a{white-space:normal!important}
+ .footer-right{max-width:none!important;width:100%}
+}
 </style>
 </head>
 <body>
