@@ -573,7 +573,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 @media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:36px!important}}
 /* 배너 영역도 딥그린으로 이어서, '실시간 베스트 상품'부터 베이지 시작 */
 .hero-banner-band{background:var(--hdr-bg);padding:0 0 8px}
-@media (max-width:768px){.hero-banner-band{padding:10px 0 12px}}
+@media (max-width:768px){.hero-banner-band{padding:0 0 10px}.banner-viewport{padding-top:4px}}
 /* 데스크톱: 첫 화면에서 배너 카드가 창 아래쪽 끝까지 차도록 높이를 창 높이 기준으로 계산 (헤더 높이는 JS가 --hdr-h에 넣어줌) */
 @media (min-width:861px){
   .banner-slide-item{aspect-ratio:auto!important;height:clamp(460px, var(--hero-h, calc(100vh - 170px)), 780px)}
