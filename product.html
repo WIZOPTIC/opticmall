@@ -1589,8 +1589,7 @@ async function doLogin() {
   btn.textContent = '로그인 중...';
   btn.disabled = true;
   try {
-    // 여러 탭을 동시에 띄워놓고 쓰는 경우가 많아 항상 LOCAL로 유지 (메인과 동일)
-    await _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    // 로그인 유지는 브라우저 기본값(LOCAL)을 그대로 사용 (로그아웃 후 재로그인 시 멈추는 문제 방지를 위해 매번 따로 지정하지 않음)
     await _auth.signInWithEmailAndPassword(email, pw);
     closeLogin();
   } catch(e) {
