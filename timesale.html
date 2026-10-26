@@ -293,6 +293,13 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
  .brands-grid,.event-products-grid,.related-grid,.wish-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
  .product-card{min-width:0}
 }
+/* 모바일 하단 탭바 제거 (PC와 동일하게, 메뉴는 상단 헤더로 통일) */
+@media (max-width:768px){
+ .mobile-tabbar{display:none!important}
+ body{padding-bottom:0!important}
+ .floating-widget{bottom:20px!important}
+ .fw-recent-panel,.fw-share-panel{bottom:20px!important}
+}
 .mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}

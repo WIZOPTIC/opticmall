@@ -307,6 +307,27 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
  .brands-grid,.event-products-grid,.related-grid,.wish-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
  .product-card{min-width:0}
 }
+/* 모바일 하단 탭바 제거 (PC와 동일하게, 메뉴는 상단 헤더로 통일) */
+@media (max-width:768px){
+ .mobile-tabbar{display:none!important}
+ body{padding-bottom:0!important}
+ .floating-widget{bottom:20px!important}
+ .fw-recent-panel,.fw-share-panel{bottom:20px!important}
+}
+/* 장바구니/주문 모바일: 목록과 요약을 위아래로 */
+@media (max-width:768px){
+ .main{flex-direction:column!important;gap:14px!important;padding:12px!important;align-items:stretch!important}
+ .cart-list,.order-form{width:100%;min-width:0}
+ .order-summary{width:100%!important;position:static!important;max-height:none!important;overflow:visible!important}
+ .cart-item{flex-wrap:wrap;gap:10px 12px;padding:14px;align-items:flex-start}
+ .item-img{width:84px;height:84px}
+ .item-info{flex:1 1 calc(100% - 150px);min-width:0}
+ .item-qty{margin-left:32px}
+ .item-price{width:auto;flex:1;text-align:right}
+ .card{padding:16px}
+ .form-row{grid-template-columns:1fr!important}
+ .form-input,.form-textarea,select{font-size:16px}
+}
 .mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}
