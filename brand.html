@@ -263,6 +263,36 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 /* 알림창 성공/오류 아이콘 */
 .toast.success::before,.toast.error::before{content:"";display:inline-block;width:18px;height:18px;margin-right:9px;vertical-align:-4px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.5 2.5L16 9'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.5 2.5L16 9'/%3E%3C/svg%3E") center/contain no-repeat}
 .toast.error::before{-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Ccircle cx='12' cy='16.3' r='0.5' fill='black'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Ccircle cx='12' cy='16.3' r='0.5' fill='black'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* ===== 모바일 (관리자/브랜드사) ===== */
+.m-menu-btn{display:none;width:38px;height:38px;border:none;background:none;cursor:pointer;margin-right:8px;flex-shrink:0;padding:0;position:relative}
+.m-menu-btn span,.m-menu-btn span::before,.m-menu-btn span::after{content:"";position:absolute;left:9px;width:20px;height:2px;background:#111}
+.m-menu-btn span{top:18px}.m-menu-btn span::before{left:0;top:-6px}.m-menu-btn span::after{left:0;top:6px}
+.m-sidebar-bg{display:none}
+@media (max-width:900px){
+  body{display:block}
+  .m-menu-btn{display:block}
+  .sidebar{width:270px;transform:translateX(-100%);transition:transform .25s;box-shadow:none}
+  .sidebar.m-open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.25)}
+  .m-sidebar-bg.m-open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99}
+  .main{margin-left:0!important;width:100%;min-width:0}
+  .topbar{padding:0 12px;height:54px}
+  .topbar .today{display:none}
+  .topbar-title{flex:1}
+  .content{padding:14px 12px}
+  .dash-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px}
+  .dash-card{padding:14px}
+  .dash-card .value{font-size:22px}
+  .table-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  .table-wrap table{min-width:720px}
+  th,td{padding:10px 10px}
+  .section-header{flex-wrap:wrap;gap:8px}
+  .modal{width:96vw!important;max-width:96vw!important;max-height:92vh}
+  .modal-body{padding:16px}
+  .modal-header,.modal-footer{padding:14px 16px}
+  .modal-footer{flex-wrap:wrap}
+  input,select,textarea{font-size:16px}
+}
 </style>
 </head>
 <body>
@@ -2760,6 +2790,18 @@ async function deleteBrand(brandId) {
   document.addEventListener('focusout', function(e){ if(e.target && e.target.type === 'password') hide(); }, true);
   window.addEventListener('scroll', hide, true);
   window.addEventListener('resize', hide);
+})();
+</script>
+
+<script>
+(function(){
+  var sb=document.getElementById('sidebar'); if(!sb) return;
+  var bg=document.createElement('div'); bg.className='m-sidebar-bg'; document.body.appendChild(bg);
+  function setOpen(o){ sb.classList.toggle('m-open',o); bg.classList.toggle('m-open',o); }
+  var tb=document.querySelector('.topbar');
+  if(tb){ var b=document.createElement('button'); b.type='button'; b.className='m-menu-btn'; b.setAttribute('aria-label','메뉴'); b.innerHTML='<span></span>'; b.onclick=function(){ setOpen(!sb.classList.contains('m-open')); }; tb.insertBefore(b,tb.firstChild); }
+  bg.onclick=function(){ setOpen(false); };
+  sb.addEventListener('click',function(e){ if(e.target.closest('.menu-item')) setOpen(false); });
 })();
 </script>
 </body>
