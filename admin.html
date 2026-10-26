@@ -113,6 +113,8 @@ tr:hover td{background:#FAFBFC;}
 .btn-reject{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-reject:hover{background:var(--red);color:var(--white);}
 .btn-view{padding:5px 12px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-del-tbl{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-del-tbl:hover{background:var(--red);color:var(--white);}
 .btn-edit-tbl{padding:5px 12px;background:var(--sky-lt);color:var(--sky);border:1px solid var(--sky);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
 
 /* 상품 수정 모달 (마스터용) */
@@ -1559,6 +1561,7 @@ function renderProductRow(p, isApprovalView) {
             <button class="btn-reject" onclick="rejectProduct('${p.id}')"><i class=ic-x-circle></i> 반려</button>
           ` : `
             <button class="btn-edit-tbl" onclick="startAdminEditRow('${p.id}')"><i class=ic-edit></i>️ 수정</button>
+            <button class="btn-del-tbl" onclick="deleteProductAdmin('${p.id}')">삭제</button>
           `}
         </div>
       </td>
