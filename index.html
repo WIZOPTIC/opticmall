@@ -694,7 +694,7 @@ html.hero-peek .banner-track{--hero-item-divisor:3.2}
 html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% - 28px) / var(--hero-item-divisor) + 14px)))}
 @media (max-width:860px){
   html.hero-peek .banner-track{--hero-item-divisor:1.1}
-  html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.95 * ((100% - 28px) / var(--hero-item-divisor) + 14px)))}
+  html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.91 * ((100% - 28px) / var(--hero-item-divisor) + 14px)))}
 }
 .tb-welcome{display:inline-flex!important;align-items:center}
 .tb-welcome .tb-badge{display:inline-flex;align-items:center;line-height:1;padding:4px 8px 2px;margin-left:6px;height:16px;box-sizing:border-box}
@@ -2089,8 +2089,15 @@ function heroPeekOffset() {
   const track = document.getElementById('heroBannerTrack');
   if (!track || !track.classList.contains('peek')) return 0;
   const divisor = parseFloat(getComputedStyle(track).getPropertyValue('--hero-item-divisor')) || 3;
-  const frac = divisor - Math.floor(divisor);
-  return 1 - (frac / 2);
+  // 화면에 보이는 정식 배너 수(n)와 폭(V)으로, 왼쪽에 보이는 이전 배너 조각(p)과 오른쪽에 보이는 다음 배너 조각이 정확히 같아지도록 계산
+  // (예전에는 소수부만 보고 계산해서, 폰처럼 배너가 1개씩 보이는 화면에서는 왼쪽 조각이 거의 안 보였음)
+  const V = track.clientWidth || (track.parentElement ? track.parentElement.clientWidth : 0);
+  if (!V) { const frac = divisor - Math.floor(divisor); return 1 - (frac / 2); }
+  const n = Math.floor(divisor);
+  const a = (V - 28) / divisor;
+  const u = a + 14;
+  const p = (V - n * a - (n + 1) * 14) / 2;
+  return 1 - ((p + 14) / u);
 }
 
 function moveHeroTrack(withTransition) {
