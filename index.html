@@ -754,6 +754,37 @@ html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% 
 #loginOverlay input,#forgotPwOverlay input,#findIdOverlay input{font-size:14px!important}
 #loginOverlay button[id$="Btn"],#loginOverlay a[href="join.html"],#forgotPwOverlay button[id$="Btn"],#findIdOverlay button[id$="Btn"]{height:46px;padding:0!important;display:flex!important;align-items:center;justify-content:center;box-sizing:border-box}
 #loginOverlay span[onclick],#forgotPwOverlay span[onclick]{color:#8a8279!important}
+
+/* 사진 HDR 밝기 확장 방지 */
+img,video,canvas{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
+html,body,.thumb,[style*="background"]{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
+html{color-scheme:only light}
+
+/* 푸터 정렬: 모바일/태블릿 */
+.footer-bottom{border-top:none!important;padding-top:0!important}
+@media (max-width:1000px){
+ .footer-top{flex-direction:column!important;gap:0!important;padding:0 0 28px!important}
+ .footer-mid{flex-direction:column!important;gap:0!important;flex-wrap:nowrap!important;width:100%}
+ .footer-contact{order:-1;padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.12)}
+ .footer-cols{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px!important;padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.12)}
+ .footer-col a{white-space:normal!important}
+ .footer-right{max-width:none!important;width:100%}
+}
+
+/* 모바일 상단 메뉴: 옆에 더 있으면 가장자리를 흐리게 해서 쓸 수 있다는 것을 알려줌 */
+@media (max-width:768px){
+ .gnb-inner.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent)}
+ .gnb-inner.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent)}
+ .gnb-inner.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent)}
+}
+
+/* 모바일 실시간 베스트: 2열로 최대 6개, 짝수로 맞춤 */
+@media (max-width:768px){
+ #bestFullGrid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important;padding-bottom:0!important}
+ #bestFullGrid>*{flex:none!important;max-width:none!important;width:auto!important;min-width:0}
+ #bestFullGrid>:nth-child(n+7){display:none!important}
+ #bestFullGrid[data-n="3"]>:nth-child(3),#bestFullGrid[data-n="5"]>:nth-child(5){display:none!important}
+}
 </style>
 </head>
 <body>
@@ -1834,28 +1865,6 @@ function renderTimesaleEmptyState() {
           .clock-hand-sec { transform-origin: 340px 110px; animation: tsClockTick 6s linear infinite; }
           @keyframes tsClockTick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-/* 사진 HDR 밝기 확장 방지 */
-img,video,canvas{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
-html,body,.thumb,[style*="background"]{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
-html{color-scheme:only light}
-
-/* 푸터 정렬: 모바일/태블릿 */
-.footer-bottom{border-top:none!important;padding-top:0!important}
-@media (max-width:1000px){
- .footer-top{flex-direction:column!important;gap:0!important;padding:0 0 28px!important}
- .footer-mid{flex-direction:column!important;gap:0!important;flex-wrap:nowrap!important;width:100%}
- .footer-contact{order:-1;padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.12)}
- .footer-cols{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px!important;padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.12)}
- .footer-col a{white-space:normal!important}
- .footer-right{max-width:none!important;width:100%}
-}
-
-/* 모바일 상단 메뉴: 옆에 더 있으면 가장자리를 흐리게 해서 쓸 수 있다는 것을 알려줌 */
-@media (max-width:768px){
- .gnb-inner.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent)}
- .gnb-inner.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent)}
- .gnb-inner.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent)}
-}
 </style>
         <g transform="translate(340,110)">
           <circle cx="0" cy="0" r="52" fill="#000000"/>
@@ -1904,6 +1913,7 @@ function renderAllMainSections() {
       best.slice(0, 3).map(p => renderMainProductRow(p)).join('');
     document.getElementById('bestFullGrid').innerHTML =
       best.map(p => renderMainProductCard(p, 'BEST', 'best')).join('');
+    document.getElementById('bestFullGrid').setAttribute('data-n', String(best.length));
   }
 }
 
