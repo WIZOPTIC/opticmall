@@ -255,7 +255,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
   </div>
   <nav class="sidebar-menu">
     <div class="menu-section">주문 관리</div>
-    <button class="menu-item" onclick="showPage('orderManage',this)">주문/배송 관리 <span class="menu-badge" id="pendingShipBadge"></span></button>
+    <button class="menu-item active" onclick="showPage('orderManage',this)">주문/배송 관리 <span class="menu-badge" id="pendingShipBadge"></span></button>
     <button class="menu-item" onclick="showPage('cancelManage',this)">취소/반품 관리 <span class="menu-badge" id="pendingCancelBadge"></span></button>
     <button class="menu-item" id="settlementMenuItem" onclick="showPage('settlement',this)">정산 관리</button>
     <div class="menu-section">회원 관리</div>
@@ -273,7 +273,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <button class="menu-item" onclick="showPage('heroPhotos',this)">메인 대표사진 관리</button>
     <button class="menu-item" onclick="showPage('editorial',this)">롤링 배너 관리</button>
     <div class="menu-section">현황 · 설정</div>
-    <button class="menu-item active" onclick="showPage('dashboard',this)">대시보드</button>
+    <button class="menu-item" onclick="showPage('dashboard',this)">대시보드</button>
     <button class="menu-item" onclick="showPage('adminSettings',this)">설정</button>
   </nav>
   <div class="sidebar-user">
@@ -290,14 +290,14 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 <!-- 메인 -->
 <div class="main" id="mainArea" style="display:none;">
   <div class="topbar">
-    <div class="topbar-title" id="pageTitle">대시보드</div>
+    <div class="topbar-title" id="pageTitle">주문/배송 관리</div>
     <div class="today" id="todayDate"></div>
   </div>
 
   <div class="content">
 
     <!-- 대시보드 -->
-    <div class="page active" id="page-dashboard">
+    <div class="page" id="page-dashboard">
       <div class="dash-grid">
         <div class="dash-card">
           <div class="icon"><i class=ic-users></i></div>
@@ -401,7 +401,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     </div>
 
     <!-- 주문/배송 관리 -->
-    <div class="page" id="page-orderManage">
+    <div class="page active" id="page-orderManage">
       <div class="section-header">
         <div class="section-title">주문/배송 관리</div>
         <button class="btn-sm btn-primary" onclick="loadOrderManage()"><i class=ic-refresh></i> 새로고침</button>
@@ -412,6 +412,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         <button class="om-filter-btn" data-status="preparing" onclick="filterOrderManage('preparing',this)">출고준비중</button>
         <button class="om-filter-btn" data-status="shipping" onclick="filterOrderManage('shipping',this)">배송중</button>
         <button class="om-filter-btn" data-status="delivered" onclick="filterOrderManage('delivered',this)">배송완료</button>
+        <button class="om-filter-btn" data-status="unpaid" onclick="filterOrderManage('unpaid',this)">결제 미완료</button>
       </div>
       <div class="table-wrap" id="orderManageTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
@@ -848,6 +849,7 @@ onAuthStateChanged(auth, async (user) => {
       if(roleBadgeEl) roleBadgeEl.textContent = role === 'master' ? '마스터' : '서브마스터';
 
       loadDashboard();
+      loadOrderManage();
       startNewOrderWatcher();
     } catch(e) {
       console.error(e);
@@ -3155,6 +3157,7 @@ function computeOverallOrderStatus(shipments) {
   if(statuses.some(s => s === 'preparing')) return 'preparing';
   return 'paid';
 }
+let orderManageUnpaidCache = []; // 결제를 끝내지 못한 주문 (결제창 이탈/실패)
 let orderManageCache = []; // 평탄화된 행: 주문+브랜드 배송묶음 단위 (구주문은 브랜드 없이 1행)
 let orderManageCurrentFilter = 'all';
 
@@ -3221,6 +3224,20 @@ async function loadOrderManage() {
     window._orderDocMap = {};
     allOrderDocs.forEach(o => { window._orderDocMap[o.id] = o; });
     orderManageCache = rows;
+    // 결제 미완료 주문(결제대기/결제실패)은 별도 탭에서 확인
+    orderManageUnpaidCache = [];
+    try {
+      const unpaidSnap = await window._getDocs(window._query(
+        window._collection(window._db, 'orders'),
+        window._where('status', 'in', ['payment_pending', 'payment_failed'])
+      ));
+      unpaidSnap.forEach(d => {
+        const o = { id: d.id, ...d.data() };
+        orderManageUnpaidCache.push(o);
+        window._orderDocMap[o.id] = o;
+      });
+      orderManageUnpaidCache.sort((a,b) => (b.createdAt?.toDate?.() || 0) - (a.createdAt?.toDate?.() || 0));
+    } catch(e) { console.error('결제 미완료 주문 조회 실패:', e); }
     renderOrderManageTable();
     sweepPendingPointsAward(allOrderDocs); // 배송완료됐지만 아직 적립금 미지급인 건 백그라운드에서 자동 보정
   } catch(e) {
@@ -3236,8 +3253,41 @@ function filterOrderManage(status, el) {
   renderOrderManageTable();
 }
 
+function renderUnpaidOrders(tableEl) {
+  const rows = orderManageUnpaidCache;
+  if(rows.length === 0) {
+    tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);">결제가 완료되지 않은 주문이 없습니다.</div>';
+    return;
+  }
+  tableEl.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>주문일</th><th>주문번호</th><th>회원</th><th>상품 요약</th><th>금액</th><th>상태</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(o => {
+          const items = Array.isArray(o.items) ? o.items : [];
+          const first = items[0] ? (items[0].productName || '-') : '-';
+          const summary = items.length > 1 ? first + ' 외 ' + (items.length - 1) + '건' : first;
+          const failed = o.status === 'payment_failed';
+          return `
+            <tr style="cursor:pointer;" onclick="openOrderDetail('${o.id}')">
+              <td style="font-size:11px;white-space:nowrap;">${formatDate(o.createdAt)}</td>
+              <td style="font-size:11px;color:var(--sky);text-decoration:underline;">${o.orderId || o.id}</td>
+              <td>${o.userName || o.userEmail || '-'}</td>
+              <td style="font-size:12px;">${summary}</td>
+              <td>₩${Number(o.totalAmount || 0).toLocaleString()}</td>
+              <td><span class="badge ${failed ? 'rejected' : 'pending'}">${failed ? '결제 실패' : '결제 안 됨'}</span></td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="font-size:12px;color:var(--g3);padding:12px 4px;">결제창을 닫았거나 결제가 실패한 주문입니다. 재고와 적립금, 쿠폰은 차감되지 않았습니다.</div>`;
+}
+
 function renderOrderManageTable() {
   const tableEl = document.getElementById('orderManageTable');
+  if(orderManageCurrentFilter === 'unpaid') { renderUnpaidOrders(tableEl); return; }
   const rows = orderManageCurrentFilter === 'all'
     ? orderManageCache
     : orderManageCache.filter(r => {

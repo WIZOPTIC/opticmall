@@ -296,7 +296,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
   </div>
   <nav class="sidebar-menu">
     <div class="menu-section">주문 관리</div>
-    <button class="menu-item" onclick="showPage('shipManage',this)">주문/배송 관리 <span class="menu-badge" id="brandPendingShipBadge"></span></button>
+    <button class="menu-item active" onclick="showPage('shipManage',this)">주문/배송 관리 <span class="menu-badge" id="brandPendingShipBadge"></span></button>
     <button class="menu-item" onclick="showPage('cancelManage',this)">취소/반품 관리 <span class="menu-badge" id="brandPendingCancelBadge"></span></button>
     <div class="menu-section">상품 관리</div>
     <button class="menu-item" onclick="showPage('register',this)">상품 등록</button>
@@ -309,8 +309,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="menu-section">브랜드 관리</div>
     <button class="menu-item" onclick="showPage('brandManage',this)">내 브랜드 관리</button>
     <div class="menu-section">현황</div>
-    <button class="menu-item active" onclick="showPage('dashboard',this)">대시보드</button>
-    <button class="menu-item" onclick="showPage('dashboard',this)">판매 통계</button>
+    <button class="menu-item" onclick="showPage('dashboard',this)">대시보드</button>
   </nav>
   <div class="sidebar-user">
     <div class="user-avatar">B</div>
@@ -325,14 +324,14 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 <!-- 메인 -->
 <div class="main" id="mainArea" style="display:none;">
   <div class="topbar">
-    <div class="topbar-title" id="pageTitle">대시보드</div>
+    <div class="topbar-title" id="pageTitle">주문/배송 관리</div>
     <div class="today" id="todayDate"></div>
   </div>
 
   <div class="content">
 
     <!-- 대시보드 -->
-    <div class="page active" id="page-dashboard">
+    <div class="page" id="page-dashboard">
       <div class="dash-grid">
         <div class="dash-card">
           <div class="label">전체 등록 상품</div>
@@ -522,7 +521,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     </div>
 
     <!-- 주문/배송 관리 -->
-    <div class="page" id="page-shipManage">
+    <div class="page active" id="page-shipManage">
       <div class="section-header">
         <div class="section-title">주문/배송 관리</div>
         <button class="btn-sm btn-primary" onclick="loadShipManage()">새로고침</button>
@@ -774,6 +773,7 @@ onAuthStateChanged(auth, async (user) => {
 
       window.initRegisterTable();
       window.loadDashboard();
+      if(typeof loadShipManage === 'function') loadShipManage();
       window.renderBrandLogoPreview();
     } catch(e) {
       console.error(e);
@@ -995,64 +995,58 @@ function closeBrandOrderDetail() {
 function printBrandOrderDetail() {
   const r = currentBrandDetailRow;
   if(!r) return;
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const won = v => '\u20A9' + Number(v||0).toLocaleString();
   const rcv = r.receiver || {};
-  const statusInfo = BRAND_SHIP_STATUS_LABEL[r.myShipment.status] || { label: r.myShipment.status, cls: '' };
-  const itemRows = r.myItems.map(it => `
+  const addr = ((rcv.zipcode ? '(' + rcv.zipcode + ') ' : '') + (rcv.addr1||'') + ' ' + (rcv.addr2||'')).trim();
+  const items = r.myItems || [];
+  const itemRows = items.map(it => `
     <tr>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;">${it.productName||'-'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">${it.selectedColor||'-'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;">${it.colorCode||'-'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}개</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;">₩${Number(it.subtotal||0).toLocaleString()}</td>
+      <td>${esc(it.productName||'-')}<div class="sub">${esc(it.brandName||'')}</div></td>
+      <td class="c">${esc(it.selectedColor||'-')}${it.colorCode ? '<div class="sub">' + esc(it.colorCode) + '</div>' : ''}</td>
+      <td class="c">${Number(it.qty||0)}</td>
+      <td class="r">${won(it.unitPrice)}</td>
+      <td class="r b">${won(it.subtotal)}</td>
     </tr>`).join('');
+  const total = items.reduce((sum, it) => sum + Number(it.subtotal||0), 0);
+  const d = r.createdAt?.toDate?.() || null;
+  const dateStr = d ? d.getFullYear() + '. ' + (d.getMonth()+1) + '. ' + d.getDate() + '.' : '-';
 
-  const win = window.open('', '_blank', 'width=700,height=900');
-  win.document.write(`
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-      <meta charset="UTF-8">
-      <title>주문 상세 - ${r.orderId}</title>
-      <style>
-        body{font-family:"Noto Sans KR",Arial,sans-serif;padding:32px;color:#111;}
-        h1{font-size:18px;margin-bottom:4px;}
-        .meta{font-size:13px;color:#666;margin-bottom:24px;}
-        .section-title{font-size:14px;font-weight:700;margin:20px 0 8px;}
-        .addr-box{background:#f7f7f7;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.9;}
-        table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
-        th{background:#f2f2f2;padding:10px 12px;text-align:left;font-size:12px;}
-        @page{ margin:18mm 16mm; }
-        thead{ display:table-header-group; } /* 페이지 넘어가도 표 제목줄이 매 페이지 상단에 반복됨 */
-        tr{ page-break-inside:avoid; } /* 한 상품 행이 페이지 경계에서 어색하게 잘리지 않도록 */
-        .addr-box{ page-break-inside:avoid; }
-        @media print{
-          body{ padding:0; }
-          button{ display:none; }
-        }
-      </style>
-    </head>
-    <body>
-      <h1>주문 상세 - ${r.orderId}</h1>
-      <div class="meta">${formatDate(r.createdAt)} 주문 · 상태: ${statusInfo.label}</div>
-
-      <div class="section-title">배송지 정보</div>
-      <div class="addr-box">
-        <div><strong>받는분</strong> ${rcv.name || r.userName || '-'}</div>
-        <div><strong>연락처</strong> ${rcv.phone || '-'}</div>
-        <div><strong>주소</strong> ${rcv.zipcode ? `(${rcv.zipcode}) ` : ''}${rcv.addr1||''} ${rcv.addr2||''}</div>
-        ${rcv.memo ? `<div><strong>배송 메모</strong> ${rcv.memo}</div>` : ''}
-      </div>
-
-      <div class="section-title">주문 상품</div>
-      <table>
-        <thead><tr><th>상품명</th><th style="text-align:center;">색상</th><th style="text-align:center;">컬러번호</th><th style="text-align:center;">수량</th><th style="text-align:right;">금액</th></tr></thead>
-        <tbody>${itemRows}</tbody>
-      </table>
-
-      <button onclick="window.print()" style="margin-top:24px;padding:10px 20px;font-size:13px;cursor:pointer;">인쇄</button>
-    </body>
-    </html>
-  `);
+  const win = window.open('', '_blank', 'width=760,height=960');
+  if(!win) { alert('팝업이 차단되었습니다. 브라우저의 팝업 허용 후 다시 시도해주세요.'); return; }
+  win.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>주문서 ${esc(r.orderId)}</title>
+  <style>
+    body{font-family:'Pretendard','Malgun Gothic',sans-serif;color:#14110f;margin:0;padding:36px 40px;font-size:13px;}
+    h1{font-size:20px;margin:0 0 4px;letter-spacing:.04em}
+    .meta{color:#666;font-size:12px;margin-bottom:22px;padding-bottom:14px;border-bottom:2px solid #14110f}
+    h2{font-size:13px;margin:22px 0 6px}
+    table{width:100%;border-collapse:collapse}
+    .info td{padding:5px 0;vertical-align:top}.info td:first-child{width:80px;color:#777}
+    .items th{background:#f3f0ea;font-size:12px;padding:8px 10px;text-align:left;border-top:1px solid #14110f;border-bottom:1px solid #ccc}
+    .items td{padding:9px 10px;border-bottom:1px solid #e5e1d9}
+    .items thead{display:table-header-group}.items tr{page-break-inside:avoid}
+    .sub{font-size:11px;color:#888;margin-top:2px}.items th.c,.items td.c{text-align:center}.items th.r,.items td.r{text-align:right}.b{font-weight:700}.sum .r{text-align:right}
+    .sum{width:46%;margin-left:auto;margin-top:14px}.sum td{padding:5px 10px}.sum .tot td{border-top:2px solid #14110f;font-weight:700;font-size:15px;padding-top:9px}
+    .foot{margin-top:34px;color:#888;font-size:11px;text-align:center}
+    .btn{margin-top:20px;padding:10px 20px;font-size:13px;cursor:pointer;border:1px solid #14110f;background:#fff}
+    @page{margin:18mm 16mm}
+    @media print{.btn{display:none}body{padding:0}}
+  </style></head><body>
+    <h1>OPTICMALL 주문서</h1>
+    <div class="meta">주문번호 ${esc(r.orderId)} &nbsp;|&nbsp; 주문일 ${dateStr}</div>
+    <h2>배송지</h2>
+    <table class="info">
+      <tr><td>받는 분</td><td>${esc(rcv.name || r.userName || '-')}</td></tr>
+      <tr><td>연락처</td><td>${esc(rcv.phone||'-')}</td></tr>
+      <tr><td>주소</td><td>${esc(addr||'-')}</td></tr>
+      ${rcv.memo ? `<tr><td>요청사항</td><td>${esc(rcv.memo)}</td></tr>` : ''}
+    </table>
+    <h2>주문 상품</h2>
+    <table class="items"><thead><tr><th>상품</th><th class="c">색상</th><th class="c">수량</th><th class="r">단가</th><th class="r">금액</th></tr></thead><tbody>${itemRows}</tbody></table>
+    <table class="sum"><tr class="tot"><td>상품금액 합계</td><td class="r">${won(total)}</td></tr></table>
+    <div class="foot">위즈옵틱 · OPTICMALL &nbsp; 고객센터 032-563-9984</div>
+    <div style="text-align:center"><button class="btn" onclick="window.print()">인쇄</button></div>
+  </body></html>`);
   win.document.close();
   win.onload = () => win.print();
 }
