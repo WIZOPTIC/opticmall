@@ -1283,7 +1283,8 @@ async function doLogin() {
 // 로그아웃
 async function doLogout() {
   await _auth.signOut();
-  showMainToast('로그아웃되었습니다.');
+  // 로그아웃 직후 다른 계정으로 로그인할 때 멈추는 문제를 막기 위해 페이지를 새로 불러옴
+  location.reload();
 }
 
 // 비밀번호 찾기
