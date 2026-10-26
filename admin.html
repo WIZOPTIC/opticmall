@@ -2851,8 +2851,8 @@ async function deleteProductAdmin(pid, fromModal=false) {
 
 
 // ===================== 상품 전체수정 모달 (마스터 전용) =====================
-const A_SLOT_KEYS = ['main','detail1','detail2','detail3','detail4'];
-const A_SLOT_LABELS = {main:'메인', detail1:'상세1', detail2:'상세2', detail3:'상세3', detail4:'상세4'};
+const A_SLOT_KEYS = ['main','detail1','detail2','detail3','detail4','detail5'];
+const A_SLOT_LABELS = {main:'메인', detail1:'상세1', detail2:'상세2', detail3:'상세3', detail4:'상세4', detail5:'상세5'};
 let adminEditingProductId = null;
 let adminEditingProductData = null;
 let adminEditingColors = [];
@@ -2894,7 +2894,8 @@ function startAdminEditRow(pid) {
         detail1: buildAdminEditSlot(c.detailImageUrls?.[0]),
         detail2: buildAdminEditSlot(c.detailImageUrls?.[1]),
         detail3: buildAdminEditSlot(c.detailImageUrls?.[2]),
-        detail4: buildAdminEditSlot(c.detailImageUrls?.[3])
+        detail4: buildAdminEditSlot(c.detailImageUrls?.[3]),
+        detail5: buildAdminEditSlot(c.detailImageUrls?.[4])
       }
     }));
   } else {
@@ -2910,7 +2911,8 @@ function startAdminEditRow(pid) {
         detail1: buildAdminEditSlot(product.detailImageUrls?.[0]),
         detail2: buildAdminEditSlot(product.detailImageUrls?.[1]),
         detail3: buildAdminEditSlot(product.detailImageUrls?.[2]),
-        detail4: buildAdminEditSlot(product.detailImageUrls?.[3])
+        detail4: buildAdminEditSlot(product.detailImageUrls?.[3]),
+        detail5: buildAdminEditSlot(product.detailImageUrls?.[4])
       }
     }];
   }
@@ -3010,7 +3012,7 @@ function addAdminEditColor() {
     barcode: '',
     stock: '',
     price: '',
-    slots: { main: buildAdminEditSlot(), detail1: buildAdminEditSlot(), detail2: buildAdminEditSlot(), detail3: buildAdminEditSlot(), detail4: buildAdminEditSlot() }
+    slots: { main: buildAdminEditSlot(), detail1: buildAdminEditSlot(), detail2: buildAdminEditSlot(), detail3: buildAdminEditSlot(), detail4: buildAdminEditSlot(), detail5: buildAdminEditSlot() }
   });
   renderAdminEditColorCards();
 }
@@ -3136,7 +3138,7 @@ async function saveAdminProductEdit() {
         price: colorPrice,
         salePrice: colorSalePrice,
         mainImageUrl: urls.main || '',
-        detailImageUrls: [urls.detail1, urls.detail2, urls.detail3, urls.detail4].filter(Boolean)
+        detailImageUrls: [urls.detail1, urls.detail2, urls.detail3, urls.detail4, urls.detail5].filter(Boolean)
       });
     }
 

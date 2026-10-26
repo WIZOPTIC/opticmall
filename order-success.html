@@ -106,7 +106,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 }
 .footer-mid { display: flex; gap: 64px; flex-wrap: wrap; }
 .footer-logo { font-family: var(--font-serif); font-style: italic; font-size:22px; font-weight: 500; color: #fff; margin-bottom: 22px; }
-.footer-logo-img { display: block; height: 32px; width: auto; filter: brightness(0) invert(1); margin-bottom: 22px; }
+.footer-logo-img { display: block; height: 29px; width: auto; filter: brightness(0) invert(1); margin-bottom: 22px; }
 .footer-logo span { color: var(--gold-soft); font-style: normal; }
 .footer-cols { display: flex; gap: 64px; }
 .footer-col h5 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 16px; }
@@ -212,10 +212,16 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 html{overflow-y:scroll}
 header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shadow:none!important}
 .header-main,.header-inner{padding:25px 24px 12px!important;gap:6px!important}
-.logo-img{height:69px!important;filter:invert(1) brightness(1.05)}
+.logo-img{height:65px!important;filter:invert(1) brightness(1.05)}
 .mobile-menu-drawer .logo-img{filter:none!important}
-@media (min-width:769px) and (max-width:1000px){.logo-img{height:57px!important}.header-main,.header-inner{padding-top:41px!important}}
-@media (max-width:768px){.header-main,.header-inner{padding:12px 16px!important}.logo-img{height:40px!important}.mobile-menu-drawer .logo-img{height:36px!important}}
+@media (min-width:769px) and (max-width:1000px){.logo-img{height:51px!important}.header-main,.header-inner{padding-top:41px!important}}
+@media (max-width:768px){.header-main,.header-inner{padding:12px 16px!important}.logo-img{height:36px!important}.mobile-menu-drawer .logo-img{height:36px!important}}
+/* 로고만 작게: 로고가 차지하던 높이는 그대로 유지해서 헤더 위치가 변하지 않게 함 */
+.header-top-row .logo{display:flex;align-items:center;height:69px}
+@media (min-width:769px) and (max-width:1000px){.header-top-row .logo{height:57px}}
+@media (max-width:768px){.header-top-row .logo{height:40px}}
+.footer-logo-img{margin-bottom:25px!important}
+.mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}
 .gnb-item:hover,.gnb-item.active{font-weight:500!important;color:#FF7A1A!important}
@@ -274,7 +280,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
         <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <a href="index.html" class="logo"><img src="assets/opticmall-logo.svg" alt="Opticmall" class="logo-img"></a>
+    <a href="index.html" class="logo"><img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="logo-img"></a>
     
     
   </div>
@@ -325,7 +331,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
   <div class="mobile-menu-drawer" id="mobileMenuDrawer">
     <div class="mobile-menu-header">
-      <span class="logo"><img src="assets/opticmall-logo.svg" alt="Opticmall" class="logo-img" style="height:36px;"></span>
+      <span class="logo"><img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="logo-img" style="height:32px;"></span>
       <button onclick="toggleMobileMenu()" aria-label="메뉴 닫기" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--g4);">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -368,7 +374,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       <div class="info-row"><span class="lbl">주문번호</span><span class="val" id="rOrderId">-</span></div>
       <div class="info-row"><span class="lbl">주문상품</span><span class="val" id="rOrderName">-</span></div>
       <div class="info-row"><span class="lbl">결제금액</span><span class="val price" id="rAmount">-</span></div>
-      <div class="info-row"><span class="lbl">결제상태</span><span class="val" style="color:var(--green);">결제창 통과 (승인 대기)</span></div>
+      <div class="info-row"><span class="lbl">결제상태</span><span class="val" style="color:var(--green);">결제 완료</span></div>
     </div>
 
     <div class="btn-group">
@@ -389,6 +395,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -401,6 +408,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const _auth = firebase.auth();
 const _db = firebase.firestore();
+const _functions = firebase.app().functions('asia-northeast3');
 
 function updateTopbarLoggedIn(name, level, role, uid) {
   const guest = document.getElementById('topbarGuest');
@@ -486,74 +494,6 @@ const PURCHASE_LEVELS = [
   { level: 5, name: '옵틱 마스터', nameEn: 'Optic Master', min: 10000000 }
 ];
 
-function calcPurchaseLevel(totalAmount) {
-  let result = PURCHASE_LEVELS[0];
-  for (const lv of PURCHASE_LEVELS) {
-    if (totalAmount >= lv.min) result = lv;
-  }
-  return result;
-}
-
-async function deductUsedPoints(userId, orderId, pointsUsed) {
-  if(!pointsUsed || pointsUsed <= 0) return;
-  const userRef = _db.collection('users').doc(userId);
-  try {
-    await _db.runTransaction(async (tx) => {
-      const userSnap = await tx.get(userRef);
-      const currentBalance = Number(userSnap.exists ? userSnap.data().pointsBalance : 0) || 0;
-      const newBalance = Math.max(0, currentBalance - pointsUsed);
-      tx.update(userRef, { pointsBalance: newBalance });
-      const ledgerRef = userRef.collection('pointsLedger').doc();
-      tx.set(ledgerRef, {
-        type: 'use',
-        amount: -pointsUsed,
-        orderId,
-        note: '주문 결제 시 적립금 사용',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    });
-  } catch(e) {
-    console.error('적립금 차감 실패:', e);
-  }
-}
-
-async function consumeCoupon(userId, orderId, couponId) {
-  if(!couponId) return;
-  const couponRef = _db.collection('users').doc(userId).collection('coupons').doc(couponId);
-  try {
-    await _db.runTransaction(async (tx) => {
-      const couponSnap = await tx.get(couponRef);
-      if(!couponSnap.exists) return; // 쿠폰이 이미 삭제된 경우 등 — 조용히 무시
-      const couponData = couponSnap.data();
-      if(couponData.used) return; // 이미 다른 주문(예: 중복 탭)에서 사용 처리됨 — 재처리 방지
-      tx.update(couponRef, {
-        used: true,
-        usedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        usedOrderId: orderId
-      });
-    });
-  } catch(e) {
-    console.error('쿠폰 사용 처리 실패:', e);
-  }
-}
-
-async function updateUserPurchaseLevel(userId, orderAmount) {
-  const userRef = _db.collection('users').doc(userId);
-  try {
-    const userSnap = await userRef.get();
-    const userData = userSnap.exists ? userSnap.data() : {};
-    const newTotal = Number(userData.total_purchase_amount || 0) + Number(orderAmount || 0);
-    const newLevelInfo = calcPurchaseLevel(newTotal);
-    await userRef.update({
-      total_purchase_amount: newTotal,
-      purchase_level: newLevelInfo.level,
-      purchase_level_name: newLevelInfo.name
-    });
-  } catch(e) {
-    console.error('구매등급 갱신 실패:', e);
-  }
-}
-
 function renderOrderNameFromOrder(order) {
   if(Array.isArray(order.items) && order.items.length > 0) {
     const first = order.items[0].productName || '상품';
@@ -583,87 +523,42 @@ async function handleSuccess() {
       return;
     }
 
-    const order = orderSnap.data();
+    let order = orderSnap.data();
 
-    // 금액 위변조 체크 (클라이언트 단계 기초 검증)
-    if(Number(amount) !== Number(order.totalAmount)) {
+    // 새로고침 등으로 재진입한 경우: 이미 처리된 주문이면 결과만 다시 보여줌
+    if(order.status !== 'payment_pending') {
+      if(order.status === 'payment_failed') {
+        showError('결제 처리에 실패했습니다. 결제하신 금액은 자동으로 취소됩니다. 고객센터로 문의해주세요.');
+        return;
+      }
+      showResult(orderId, order, order.paidAmount ?? amount);
+      return;
+    }
+
+    if(!paymentKey || Number(amount) !== Number(order.totalAmount)) {
       showError('결제 금액이 주문 금액과 일치하지 않습니다. 고객센터로 문의해주세요.');
       return;
     }
 
-    // 이미 처리된 주문이면(새로고침, 뒤로가기 등으로 이 페이지에 재진입한 경우)
-    // 적립금 차감/쿠폰 사용/구매등급 갱신이 중복으로 일어나지 않도록 결과 화면만 다시 보여주고 종료
-    if(order.status !== 'payment_pending') {
-      document.getElementById('rOrderId').textContent = orderId;
-      document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
-      document.getElementById('rAmount').textContent = '₩' + Number(order.paidAmount ?? amount).toLocaleString();
-      document.getElementById('loadingArea').style.display = 'none';
-      document.getElementById('resultArea').style.display = 'block';
-      return;
-    }
+    // 결제 승인은 서버(Cloud Functions)에서 처리 - 금액 재검증, 토스 승인, 재고/적립금/쿠폰/등급 반영
+    const confirmFn = _functions.httpsCallable('confirmPayment');
+    await confirmFn({ orderId, paymentKey, amount: Number(amount) });
 
-    // 주문 상태 업데이트: 결제창 통과 (실제 승인은 다음 단계 서버 연동에서 처리)
-    // 브랜드별 배송묶음(shipments) 상태도 함께 갱신
-    const updatedShipments = Array.isArray(order.shipments)
-      ? order.shipments.map(s => ({ ...s, status: 'payment_window_passed' }))
-      : [];
-
-    await orderRef.update({
-      status: 'payment_window_passed',
-      shipments: updatedShipments,
-      paymentKey: paymentKey || '',
-      paidAmount: Number(amount),
-      paymentPassedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // 결제 완료된 상품을 장바구니에서 제거 (장바구니에서 주문한 경우)
-    await removeOrderedItemsFromCart(order);
-
-    // 누적 구매금액 갱신 및 구매등급 재계산
-    await updateUserPurchaseLevel(order.userId, Number(amount));
-
-    // 이번 결제에서 사용한 적립금이 있으면 회원 잔액에서 차감
-    await deductUsedPoints(order.userId, orderId, Number(order.pointsUsed) || 0);
-
-    // 이번 결제에서 사용한 쿠폰이 있으면 사용 처리 (트랜잭션으로 중복사용 방지)
-    if(order.couponId && !order.couponConsumed) {
-      await consumeCoupon(order.userId, orderId, order.couponId);
-      await orderRef.update({ couponConsumed: true });
-    }
-
-    document.getElementById('rOrderId').textContent = orderId;
-    document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
-    document.getElementById('rAmount').textContent = '₩' + Number(amount).toLocaleString();
-
-    document.getElementById('loadingArea').style.display = 'none';
-    document.getElementById('resultArea').style.display = 'block';
+    const doneSnap = await orderRef.get();
+    showResult(orderId, doneSnap.exists ? doneSnap.data() : order, amount);
 
   } catch(e) {
     console.error(e);
-    showError('오류가 발생했습니다: ' + e.message);
+    showError(e && e.message ? e.message : '결제 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.');
   }
 }
 
-async function removeOrderedItemsFromCart(order) {
-  const uid = _auth.currentUser?.uid;
-  if(!uid || !Array.isArray(order.items)) return;
-  try {
-    const cartRef = _db.collection('carts').doc(uid).collection('items');
-    const cartSnap = await cartRef.get();
-    const batch = _db.batch();
-    // 주문한 상품 ID 목록
-    const orderedProductIds = new Set(order.items.map(i => i.productId));
-    cartSnap.forEach(doc => {
-      const data = doc.data();
-      // productId가 주문한 상품이면 삭제 (색상별로 담긴 아이템 모두 포함)
-      if(orderedProductIds.has(data.productId)) {
-        batch.delete(doc.ref);
-      }
-    });
-    await batch.commit();
-  } catch(e) {
-    console.error('장바구니 정리 중 오류:', e);
-  }
+function showResult(orderId, order, amount) {
+  document.getElementById('rOrderId').textContent = orderId;
+  document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
+  document.getElementById('rAmount').textContent = '₩' + Number(amount).toLocaleString();
+  document.getElementById('loadingArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
 }
 
 function showError(msg) {
@@ -707,7 +602,7 @@ _auth.onAuthStateChanged(async (user) => {
         </div>
       </div>
       <div class="footer-right">
-        <img src="assets/opticmall-logo.svg" alt="Opticmall" class="footer-logo-img">
+        <img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="footer-logo-img">
         <div class="footer-biz">
           위즈옵틱 · 대표: 손진영<br>
           <span class="footer-biz-addr">인천광역시 검단구 원당대로 840번길 5 장원프라자 5F</span><br>

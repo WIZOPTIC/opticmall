@@ -1570,7 +1570,8 @@ function startEditRow(pid) {
         detail1: buildEditSlot(c.detailImageUrls?.[0]),
         detail2: buildEditSlot(c.detailImageUrls?.[1]),
         detail3: buildEditSlot(c.detailImageUrls?.[2]),
-        detail4: buildEditSlot(c.detailImageUrls?.[3])
+        detail4: buildEditSlot(c.detailImageUrls?.[3]),
+        detail5: buildEditSlot(c.detailImageUrls?.[4])
       }
     }));
   } else {
@@ -1585,7 +1586,8 @@ function startEditRow(pid) {
         detail1: buildEditSlot(product.detailImageUrls?.[0]),
         detail2: buildEditSlot(product.detailImageUrls?.[1]),
         detail3: buildEditSlot(product.detailImageUrls?.[2]),
-        detail4: buildEditSlot(product.detailImageUrls?.[3])
+        detail4: buildEditSlot(product.detailImageUrls?.[3]),
+        detail5: buildEditSlot(product.detailImageUrls?.[4])
       }
     }];
   }
@@ -1670,7 +1672,7 @@ function addEditColor() {
     barcode: '',
     stock: '',
     price: '',
-    slots: { main: buildEditSlot(), detail1: buildEditSlot(), detail2: buildEditSlot(), detail3: buildEditSlot(), detail4: buildEditSlot() }
+    slots: { main: buildEditSlot(), detail1: buildEditSlot(), detail2: buildEditSlot(), detail3: buildEditSlot(), detail4: buildEditSlot(), detail5: buildEditSlot() }
   });
   renderEditColorCards();
 }
@@ -1795,7 +1797,7 @@ async function saveProductEdit() {
         price: colorPrice,
         salePrice: colorSalePrice,
         mainImageUrl: urls.main || '',
-        detailImageUrls: [urls.detail1, urls.detail2, urls.detail3, urls.detail4].filter(Boolean)
+        detailImageUrls: [urls.detail1, urls.detail2, urls.detail3, urls.detail4, urls.detail5].filter(Boolean)
       });
     }
 
@@ -1890,7 +1892,7 @@ async function deleteProduct(productId) {
 // ===================== 상품 등록 (카드 방식, 다중 색상 지원) =====================
 let myBrandsForRegister = [];
 let selectedBulkBrandId = '';
-let productCards = []; // [{cardId, modelName, barcode, size, category, type, price, discountRate, colors:[{colorId, colorName, stock, images:{main,detail1..4}}]}]
+let productCards = []; // [{cardId, modelName, barcode, size, category, type, price, discountRate, colors:[{colorId, colorName, stock, images:{main,detail1..5}}]}]
 let cardIdCounter = 0;
 let colorIdCounter = 0;
 let currentImgUploadTarget = null; // {cardId, colorId, slotKey}
@@ -1957,7 +1959,7 @@ function addColorToCard(card, rerender=true) {
     barcode: '',
     stock: '',
     price: '',
-    images: { main:null, detail1:null, detail2:null, detail3:null, detail4:null }
+    images: { main:null, detail1:null, detail2:null, detail3:null, detail4:null, detail5:null }
   });
   if(rerender) renderProductCards();
 }
@@ -2023,8 +2025,8 @@ function updateColorPricePreview(cardId, colorId) {
   if(el) el.textContent = getColorPricePreviewText(card, color);
 }
 
-const SLOT_KEYS = ['main','detail1','detail2','detail3','detail4'];
-const SLOT_LABELS = {main:'메인', detail1:'상세1', detail2:'상세2', detail3:'상세3', detail4:'상세4'};
+const SLOT_KEYS = ['main','detail1','detail2','detail3','detail4','detail5'];
+const SLOT_LABELS = {main:'메인', detail1:'상세1', detail2:'상세2', detail3:'상세3', detail4:'상세4', detail5:'상세5'};
 
 function triggerColorImgUpload(cardId, colorId, slotKey) {
   currentImgUploadTarget = {cardId, colorId, slotKey};
@@ -2272,7 +2274,7 @@ async function submitBulkRegister() {
           price: colorPrice,
           salePrice: colorSalePrice,
           mainImageUrl: imgUrls.main || '',
-          detailImageUrls: [imgUrls.detail1, imgUrls.detail2, imgUrls.detail3, imgUrls.detail4].filter(Boolean)
+          detailImageUrls: [imgUrls.detail1, imgUrls.detail2, imgUrls.detail3, imgUrls.detail4, imgUrls.detail5].filter(Boolean)
         });
       }
 
