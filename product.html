@@ -3399,5 +3399,36 @@ setTimeout(fit,300);setTimeout(fit,1200);})();
   } catch(e) {}
 })();
 </script>
+<!-- CAPS-LOCK-WARN -->
+<script>
+(function(){
+  var tip = null;
+  function hide(){ if(tip){ tip.style.display = 'none'; } }
+  function show(input){
+    if(!tip){
+      tip = document.createElement('div');
+      tip.textContent = 'Caps Lock이 켜져 있습니다';
+      tip.style.cssText = 'position:fixed;z-index:2147483000;background:#2B2B2B;color:#fff;font-size:12px;line-height:1;padding:7px 10px;border-radius:0;pointer-events:none;white-space:nowrap;';
+      document.body.appendChild(tip);
+    }
+    var r = input.getBoundingClientRect();
+    tip.style.left = Math.max(8, r.left) + 'px';
+    tip.style.top = (r.bottom + 4) + 'px';
+    tip.style.display = 'block';
+  }
+  function check(e){
+    var t = e.target;
+    if(!t || t.tagName !== 'INPUT' || t.type !== 'password') return;
+    var on = false;
+    try { on = !!(e.getModifierState && e.getModifierState('CapsLock')); } catch(err) {}
+    if(on) show(t); else hide();
+  }
+  document.addEventListener('keydown', check, true);
+  document.addEventListener('keyup', check, true);
+  document.addEventListener('focusout', function(e){ if(e.target && e.target.type === 'password') hide(); }, true);
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', hide);
+})();
+</script>
 </body>
 </html>
