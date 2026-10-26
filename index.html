@@ -802,6 +802,15 @@ html{color-scheme:only light}
 @media (max-width:640px){
  .ers-head h2,.cat-badge-row .title,.category-hero-title,.ts-wrap .category-hero-title,.page-wrap .category-hero-title,.list-title,.cs-hero h1{font-size:21px!important}
 }
+
+/* 모바일 메인: 가로로 넘기는 상품 줄 — 3번째 상품이 살짝 보이게 하고, 아래에 진행바를 둬서 더 있다는 걸 알 수 있게 함 */
+.scroll-progress{display:none}
+@media (max-width:768px){
+ #eventFullGrid,#newArrivalFullGrid,#bestFullGrid{margin-right:-16px!important;padding-right:16px!important;scroll-padding-left:0}
+ #eventFullGrid>*,#newArrivalFullGrid>*,#bestFullGrid>*{flex:0 0 calc((100vw - 74px)/2)!important;max-width:none!important;min-width:0}
+ .scroll-progress{display:block;position:relative;height:3px;background:#E3E0DA;width:56%;margin:14px auto 4px}
+ .scroll-progress i{position:absolute;left:0;top:0;height:100%;width:30%;background:#141413}
+}
 </style>
 </head>
 <body>
@@ -2274,6 +2283,31 @@ async function loadHomeBanners() {
   }
 }
 loadHomeBanners();
+
+// 모바일 메인 가로 상품 줄: 아래 진행바(현재 위치 표시) 연결
+(function(){
+  ['eventFullGrid','newArrivalFullGrid','bestFullGrid'].forEach(function(id){
+    var g=document.getElementById(id);
+    if(!g) return;
+    var bar=document.createElement('div'); bar.className='scroll-progress'; bar.innerHTML='<i></i>';
+    g.parentNode.insertBefore(bar,g.nextSibling);
+    var thumb=bar.firstChild;
+    function upd(){
+      var sw=g.scrollWidth, cw=g.clientWidth;
+      if(sw<=cw+2){ bar.style.visibility='hidden'; return; }
+      bar.style.visibility='visible';
+      var w=Math.max(18,Math.min(100,cw/sw*100));
+      var p=g.scrollLeft/(sw-cw);
+      thumb.style.width=w+'%';
+      thumb.style.left=(Math.max(0,Math.min(1,p))*(100-w))+'%';
+    }
+    g.addEventListener('scroll',upd,{passive:true});
+    window.addEventListener('resize',upd);
+    if(window.MutationObserver) new MutationObserver(upd).observe(g,{childList:true});
+    if(window.ResizeObserver) new ResizeObserver(upd).observe(g);
+    upd();
+  });
+})();
 
 // ── 타임세일/신상품/베스트상품 코너의 대표사진 (관리자 페이지에서 등록) ──
 async function loadHeroPhotos() {
