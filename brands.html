@@ -587,8 +587,6 @@ function renderBrands(brands) {
     const logoHtml = b.logoUrl
       ? `<img src="${b.logoUrl}" alt="${b.brandName} 로고">`
       : `<div class="brand-logo-text">${b.brandName}</div>`;
-    return `<div class="brand-thumb${url ? '' : ' no-img'}">${url ? `<img src="${url}" alt="">` : ''}</div>`;
-    }).join('');
     return `
       <div class="brand-card" onclick="location.href='list.html?brand=${b.brandId}'">
         <div class="brand-logo-display">${logoHtml}</div>
