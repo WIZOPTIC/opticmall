@@ -253,8 +253,8 @@ header {
 .product-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
 
 .product-row:hover .p-row-name-main { color: var(--gold); }
-.p-row-img { position: relative; width: 148px; height: 104px; flex: 0 0 148px; border-radius: 10px; overflow: hidden; background: #F1F0EE; }
-.p-row-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.p-row-img { position: relative; width: 148px; min-height: 104px; flex: 0 0 148px; border-radius: 10px; overflow: hidden; background: #F1F0EE; align-self: center; }
+.p-row-img img { width: 100%; height: auto; display: block; }
 .p-row-info { flex: 1; min-width: 0; }
 .p-row-code { font-size: 11.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
 .p-row-name-main { font-size: 12px; color: var(--stone); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.15s; }
