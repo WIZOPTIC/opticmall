@@ -716,6 +716,14 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
         <div id="pwChangeMsg" style="display:none;font-size:12px;margin-bottom:12px;"></div>
         <button class="btn-save" onclick="changePassword()">비밀번호 변경</button>
       </div>
+
+      <div class="form-card" id="withdrawCard" style="margin-top:20px;">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px;">회원 탈퇴</div>
+        <div style="font-size:12.5px;color:var(--g3);line-height:1.7;margin-bottom:16px;">탈퇴하면 보유 적립금과 쿠폰은 사라지고 복구할 수 없어요. 주문·결제 기록은 관련 법령에 따라 일정 기간 보관됩니다. 진행 중인 주문이 있으면 탈퇴할 수 없어요.</div>
+        <div class="form-group"><label>비밀번호 확인</label><input type="password" id="wdPw" autocomplete="current-password"></div>
+        <div id="wdMsg" style="display:none;font-size:12px;margin-bottom:12px;color:#C0392B;"></div>
+        <button type="button" id="wdBtn" onclick="withdrawAccount()" style="width:100%;height:46px;background:#fff;color:#C0392B;border:1px solid #C0392B;border-radius:0;font-size:14px;font-weight:700;cursor:pointer;">회원 탈퇴</button>
+      </div>
     </div>
 
     <!-- 사업자 정보 -->
@@ -771,6 +779,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -1113,6 +1122,8 @@ function renderProfile() {
 
   // 회원정보 폼
   document.getElementById('editName').value = u.name || '';
+  const wdCard = document.getElementById('withdrawCard');
+  if(wdCard) wdCard.style.display = (u.role && u.role !== 'optician') ? 'none' : '';
   document.getElementById('editBirth').value = u.birth || '';
   document.getElementById('editEmail').value = currentUser.email || '';
   document.getElementById('editPhone').value = u.phone || '';
@@ -1173,6 +1184,34 @@ function searchAddrProfile() {
       document.getElementById('editAddr2').focus();
     }
   }).open();
+}
+
+// 회원 탈퇴 (비밀번호 재확인 → 서버에서 진행 중 주문 확인 후 계정/개인정보 삭제)
+async function withdrawAccount() {
+  const msgEl = document.getElementById('wdMsg');
+  const btn = document.getElementById('wdBtn');
+  const show = (t) => { msgEl.textContent = t; msgEl.style.display = t ? 'block' : 'none'; };
+  show('');
+  const pw = document.getElementById('wdPw').value;
+  if(!pw) { show('비밀번호를 입력해주세요.'); return; }
+  if(!confirm('정말 탈퇴하시겠어요?\n보유 적립금과 쿠폰이 사라지고 복구할 수 없습니다.')) return;
+  btn.disabled = true;
+  try {
+    const user = _auth.currentUser;
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, pw);
+    await user.reauthenticateWithCredential(cred);
+    await firebase.app().functions('asia-northeast3').httpsCallable('withdrawAccount')({});
+    try { await _auth.signOut(); } catch(e) {}
+    alert('탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다.');
+    location.href = 'index.html';
+  } catch(e) {
+    console.error(e);
+    const code = e && e.code || '';
+    if(code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') show('비밀번호가 올바르지 않습니다.');
+    else if(code === 'auth/too-many-requests') show('시도가 너무 많아요. 잠시 후 다시 시도해주세요.');
+    else show(e && e.message ? e.message : '탈퇴 처리 중 오류가 발생했습니다.');
+    btn.disabled = false;
+  }
 }
 
 // 비밀번호 변경 (현재 비밀번호로 재인증 후 변경)

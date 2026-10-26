@@ -664,3 +664,163 @@ exports.confirmPayment = onCall(
     return { ok: true };
   }
 );
+
+/**
+ * 회원 탈퇴 공통 처리 (본인 탈퇴 / 관리자 강제 탈퇴 모두 사용)
+ *  - 진행 중인 주문(결제완료~배송중, 취소/반품 진행 중)이 있으면 막음
+ *  - 삭제: 회원정보, 배송지, 적립금내역, 쿠폰, 장바구니, 관심상품, 재입고알림, 사업자등록증 파일, 로그인 계정
+ *  - 보관: 주문/결제 기록은 전자상거래법에 따라 보관 (주문에 '탈퇴 회원' 표시만 추가)
+ *  - 후기/문의는 남기되 작성자 이름만 '탈퇴한 회원'으로 변경
+ *  - 같은 사업자번호로 재가입해도 가입 쿠폰을 또 받지 못하도록 사업자번호만 withdrawnBiz에 남김
+ */
+async function purgeMember(uid, userData, actor) {
+  if (userData.role !== "optician") {
+    throw new HttpsError("failed-precondition", "브랜드사·관리자 계정은 이 방법으로 탈퇴시킬 수 없습니다.");
+  }
+  const ACTIVE = [
+    "payment_window_passed", "paid", "preparing", "shipping",
+    "cancel_requested", "return_requested",
+  ];
+  const ordersSnap = await db.collection("orders").where("userId", "==", uid).get();
+  if (ordersSnap.docs.some((d) => ACTIVE.includes(d.data().status))) {
+    throw new HttpsError(
+      "failed-precondition",
+      "진행 중인 주문이 있어 탈퇴 처리할 수 없습니다. 배송이 완료되거나 취소가 끝난 뒤 다시 시도해주세요."
+    );
+  }
+
+  // 주문 기록은 보관하되 탈퇴 표시
+  let batch = db.batch();
+  let n = 0;
+  for (const d of ordersSnap.docs) {
+    batch.update(d.ref, {
+      userWithdrawn: true,
+      withdrawnAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    if (++n % 400 === 0) { await batch.commit(); batch = db.batch(); }
+  }
+  await batch.commit();
+
+  // 후기/문의 작성자 이름 비식별 처리
+  for (const col of ["reviews", "inquiries"]) {
+    const snap = await db.collection(col).where("userId", "==", uid).get();
+    for (const d of snap.docs) {
+      const upd = {};
+      if ("userName" in d.data()) upd.userName = "탈퇴한 회원";
+      if ("userEmail" in d.data()) upd.userEmail = "";
+      if (Object.keys(upd).length) await d.ref.update(upd);
+    }
+  }
+
+  // 같은 사업자번호 재가입 시 가입 쿠폰 중복 지급 방지용 기록 (개인정보 없음)
+  const biz = String(userData.bizNoNormalized || "").trim();
+  if (biz) {
+    await db.collection("withdrawnBiz").doc(biz).set({
+      withdrawnAt: admin.firestore.FieldValue.serverTimestamp(),
+      by: actor,
+    }, { merge: true });
+  }
+
+  // 개인정보 삭제
+  for (const c of ["carts", "wishlists", "restockAlerts"]) {
+    await db.recursiveDelete(db.collection(c).doc(uid));
+  }
+  await db.collection("findIdCodes").doc(uid).delete().catch(() => {});
+  try {
+    await admin.storage().bucket("opticmall.firebasestorage.app")
+      .deleteFiles({ prefix: `business_docs/${uid}/`, force: true });
+  } catch (e) {
+    console.error("사업자등록증 파일 삭제 실패:", e);
+  }
+  await db.recursiveDelete(db.collection("users").doc(uid)); // 회원정보 + 배송지/적립금내역/쿠폰
+
+  // 로그인 계정 삭제 (마지막)
+  try {
+    await admin.auth().deleteUser(uid);
+  } catch (e) {
+    if (e.code !== "auth/user-not-found") throw e;
+  }
+}
+
+/** 회원 본인 탈퇴 */
+exports.withdrawAccount = onCall({ timeoutSeconds: 120 }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
+  }
+  const uid = request.auth.uid;
+  const snap = await db.collection("users").doc(uid).get();
+  if (!snap.exists) throw new HttpsError("not-found", "회원 정보를 찾을 수 없습니다.");
+  await purgeMember(uid, snap.data(), uid);
+  return { ok: true };
+});
+
+/** 관리자(마스터/서브마스터)가 안경원 회원을 강제 탈퇴 */
+exports.adminWithdrawMember = onCall({ timeoutSeconds: 120 }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
+  }
+  const meSnap = await db.collection("users").doc(request.auth.uid).get();
+  const myRole = meSnap.exists ? meSnap.data().role : null;
+  if (myRole !== "master" && myRole !== "submaster") {
+    throw new HttpsError("permission-denied", "관리자만 사용할 수 있습니다.");
+  }
+  const targetUid = String(request.data?.targetUid || "").trim();
+  if (!targetUid || targetUid === request.auth.uid) {
+    throw new HttpsError("invalid-argument", "대상 회원이 올바르지 않습니다.");
+  }
+  const tSnap = await db.collection("users").doc(targetUid).get();
+  if (!tSnap.exists) throw new HttpsError("not-found", "회원 정보를 찾을 수 없습니다.");
+  await purgeMember(targetUid, tSnap.data(), "admin:" + request.auth.uid);
+  return { ok: true };
+});
+
+/**
+ * 가입 쿠폰 지급 (가입 직후 본인이 호출, 서버가 대신 지급)
+ *  - 같은 사업자등록번호로 이미 가입한 다른 계정이 있거나, 탈퇴한 기록이 있으면 지급하지 않음
+ *  - 이미 지급된 계정은 다시 지급하지 않음
+ */
+exports.claimSignupCoupons = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
+  }
+  const uid = request.auth.uid;
+  const userRef = db.collection("users").doc(uid);
+  const snap = await userRef.get();
+  if (!snap.exists) throw new HttpsError("not-found", "회원 정보를 찾을 수 없습니다.");
+  const u = snap.data();
+  if (u.role !== "optician") return { granted: false, reason: "not-optician" };
+
+  const fixedRef = userRef.collection("coupons").doc("signup_fixed");
+  const firstRef = userRef.collection("coupons").doc("signup_first10");
+  const [fx, fr] = await Promise.all([fixedRef.get(), firstRef.get()]);
+  if (fx.exists || fr.exists) return { granted: false, reason: "already" };
+
+  const biz = String(u.bizNoNormalized || "").trim();
+  if (biz) {
+    const [dup, wd] = await Promise.all([
+      db.collection("users").where("bizNoNormalized", "==", biz).get(),
+      db.collection("withdrawnBiz").doc(biz).get(),
+    ]);
+    const otherExists = dup.docs.some((d) => d.id !== uid);
+    if (otherExists || wd.exists) return { granted: false, reason: "duplicate-biz" };
+  }
+
+  const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + 90 * 24 * 60 * 60 * 1000);
+  const base = {
+    used: false, usedAt: null, usedOrderId: null,
+    source: "signup_bonus",
+    issuedAt: admin.firestore.FieldValue.serverTimestamp(),
+    expiresAt,
+  };
+  const batch = db.batch();
+  batch.set(fixedRef, {
+    ...base, name: "회원가입 쿠폰", type: "fixed", value: 25000,
+    minOrderAmount: 300000, maxDiscountAmount: null, firstPurchaseOnly: false,
+  });
+  batch.set(firstRef, {
+    ...base, name: "첫 구매 10% 할인 쿠폰", type: "percent", value: 10,
+    minOrderAmount: 200000, maxDiscountAmount: 20000, firstPurchaseOnly: true,
+  });
+  await batch.commit();
+  return { granted: true };
+});

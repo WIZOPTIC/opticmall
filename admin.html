@@ -771,6 +771,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp, runTransaction, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -790,6 +791,7 @@ const storage = getStorage(app);
 window._auth = auth;
 window._db = db;
 window._storage = storage;
+window._adminWithdrawMember = httpsCallable(getFunctions(app, 'asia-northeast3'), 'adminWithdrawMember');
 window._ref = ref;
 window._uploadBytes = uploadBytes;
 window._getDownloadURL = getDownloadURL;
@@ -1372,8 +1374,31 @@ async function openModal(uid) {
     } else {
       footer.innerHTML = `<div style="font-size:13px;color:var(--g3);">이미 처리된 회원입니다.</div>`;
     }
+    // 안경원 회원만 강제 탈퇴 가능 (브랜드사/관리자 계정은 제외)
+    if(role === 'optician') {
+      footer.insertAdjacentHTML('afterbegin', `<button type="button" class="btn-modal-reject" style="margin-right:auto;" onclick="forceWithdrawMember('${uid}')">강제 탈퇴</button>`);
+    }
   } catch(e) {
     body.innerHTML = '오류: ' + e.message;
+  }
+}
+
+async function forceWithdrawMember(uid) {
+  const u = allUsers[uid];
+  if(!u) return;
+  const label = (u.storeName || u.name || u.email || uid);
+  if(!confirm(`[${label}] 회원을 강제 탈퇴시킬까요?\n\n회원정보, 배송지, 적립금, 쿠폰, 장바구니, 사업자등록증이 삭제되고 로그인할 수 없게 됩니다.\n주문/결제 기록은 법에 따라 보관됩니다.\n이 작업은 되돌릴 수 없습니다.`)) return;
+  const typed = prompt('확인을 위해 "탈퇴"라고 입력해주세요.');
+  if(typed !== '탈퇴') { showToast('취소했습니다.', 'error'); return; }
+  try {
+    await window._adminWithdrawMember({ targetUid: uid });
+    showToast('<i class=ic-check-circle></i> 강제 탈퇴 처리되었습니다.', 'success');
+    closeModal();
+    loadMembers();
+    loadDashboard();
+  } catch(e) {
+    console.error(e);
+    showToast('처리 실패: ' + (e.message || e), 'error');
   }
 }
 
@@ -1857,7 +1882,6 @@ function renderEditorialSlot(s) {
   ).join('');
   return `
   <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:16px;position:relative;">
-    <button onclick="deleteEditorialSlot('${s.id}')" style="position:absolute;top:12px;right:12px;background:none;border:none;color:#9BA5B0;font-size:13px;cursor:pointer;">삭제</button>
     <div id="editorialPreview_${s.id}" style="position:relative;aspect-ratio:4/5;background:#F2F4F6;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;cursor:pointer;" onclick="document.getElementById('editorialFile_${s.id}').click()">
       ${imgHtml}
       <div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;">사진 변경</div>
@@ -1891,6 +1915,7 @@ function renderEditorialSlot(s) {
     <label style="display:block;font-size:12px;color:#5A6472;margin-bottom:4px;">노출 순서 (숫자가 작을수록 먼저)</label>
     <input type="number" id="editorialOrder_${s.id}" value="${s.order||1}" style="width:100%;padding:8px 10px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;margin-bottom:12px;box-sizing:border-box;">
     <button class="btn-sm btn-primary" style="width:100%;" onclick="saveEditorialSlot('${s.id}')" id="editorialSaveBtn_${s.id}">저장</button>
+    <button type="button" style="width:100%;margin-top:8px;padding:8px 0;background:#fff;color:#C0392B;border:1px solid #C0392B;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;" onclick="deleteEditorialSlot('${s.id}')">이 배너 삭제</button>
   </div>`;
 }
 
