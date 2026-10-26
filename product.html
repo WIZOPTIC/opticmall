@@ -952,6 +952,15 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
  .header-right .icon-btn,.header-right>.icon-btn:nth-child(n){width:34px!important;height:34px!important;margin:0!important}
  .header-right>#userMenuWrap,.header-right>div[id=userMenuWrap]{margin:0!important;flex:none;width:34px;height:34px}
 }
+
+/* 모바일 비율 정리: 로고는 키우고, 섹션/페이지 제목은 줄여서 로고가 주인공이 되게 */
+@media (max-width:768px){
+ .header-main .logo-img,.header-inner .logo-img{height:46px!important}
+ .header-top-row .logo{height:46px!important}
+}
+@media (max-width:640px){
+ .ers-head h2,.cat-badge-row .title,.category-hero-title,.ts-wrap .category-hero-title,.page-wrap .category-hero-title,.list-title,.cs-hero h1{font-size:21px!important}
+}
 </style>
 </head>
 <body>
