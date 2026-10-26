@@ -425,6 +425,18 @@ html{color-scheme:only light}
  .footer-col a{white-space:normal!important}
  .footer-right{max-width:none!important;width:100%}
 }
+
+/* 모바일 분류 버튼: 2x2 칸을 꽉 채워 같은 크기로 (상품목록과 동일) */
+@media (max-width:768px){
+ .list-header{flex-direction:column!important;align-items:stretch!important;gap:14px!important}
+ .list-controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;width:100%}
+ .list-controls .stock-toggle,.list-controls .filter-btn,.list-controls .sort-select{width:100%!important;min-width:0!important;height:44px!important;font-size:14px!important}
+ .list-controls .filter-dropdown{min-width:0}
+ .list-controls .filter-panel{min-width:100%!important;max-width:calc(100vw - 32px)}
+ .list-controls .filter-dropdown:nth-of-type(1) .filter-panel{left:auto;right:0}
+ #vkoolSubTabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0!important;overflow:visible!important;padding:0 16px!important}
+ .vk-subtab{flex:none!important;text-align:center;padding:13px 4px!important;white-space:nowrap}
+}
 </style>
 </head>
 <body>
