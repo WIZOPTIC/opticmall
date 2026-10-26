@@ -276,6 +276,18 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .footer-logo-img{margin-bottom:25px!important}
 @media (max-width:768px){.footer-cols{gap:28px;flex-wrap:wrap}.footer-col h5,.footer-col a{white-space:nowrap}}
 @media (max-width:900px){html,body{max-width:100%;overflow-x:clip}}
+/* 모바일 헤더: 로고+아이콘 한 줄, 아래에 옆으로 미는 메뉴 줄 (햄버거 없음) */
+@media (max-width:768px){
+ .hamburger-btn{display:none!important}
+ .header-main,.header-inner{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo icons" "nav nav";align-items:center;row-gap:0!important;gap:0!important;padding-top:8px!important;padding-bottom:0!important}
+ .header-top-row{grid-area:logo;width:auto!important}
+ .header-nav-row{display:contents!important;position:static!important;transform:none!important}
+ .header-right{grid-area:icons;margin:0!important}
+ .header-auth{display:none!important}
+ .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:22px!important;padding:2px 2px 4px;margin-top:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0;width:100%}
+ .gnb-inner::-webkit-scrollbar{display:none}
+ .gnb-item{flex:0 0 auto;white-space:nowrap;font-size:15px!important;padding:9px 0!important}
+}
 .mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}

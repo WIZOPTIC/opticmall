@@ -668,8 +668,9 @@ html.hero-peek{--edge-l:calc(13.65px + 3.125%);--edge-r:calc(11.7px + 3.125%)}
 .footer-biz,.footer-contact .fc-hours{letter-spacing:.01em}
 .footer-copy{font-family:var(--font-body)!important;letter-spacing:.02em}
 /* 회원가입 팝업: 좌하단 코너 카드 */
-.sp-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:900;width:360px;max-width:calc(100vw - 32px);background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(20,17,15,.55),0 12px 40px rgba(30,26,23,.3);animation:spIn .4s ease both;text-align:center}
+.sp-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:900;width:360px;max-width:calc(100vw - 32px);background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 12px 40px rgba(30,26,23,.3);animation:spIn .4s ease both;text-align:center}
 @keyframes spIn{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
+.sp-bg{display:none;position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(20,17,15,.55);z-index:899}
 .sp-x{position:absolute;top:8px;right:8px;width:26px;height:26px;border:0;border-radius:50%;background:rgba(255,255,255,.7);color:#5A6472;font-size:13px;cursor:pointer;line-height:1}
 .sp-head{background:var(--ivory);padding:20px 20px 16px;border-bottom:1px solid #EDE3CF}
 .sp-tag{display:inline-block;background:var(--gold);color:#fff;font-family:"Montserrat",var(--font-body);font-size:10px;font-weight:600;letter-spacing:.08em;padding:3px 9px;border-radius:2px;margin-bottom:9px}
@@ -712,6 +713,18 @@ html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% 
 .hero-split .right-panel .product-row span,.hero-split .right-panel .product-row div{min-width:0;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:768px){.footer-cols{gap:28px;flex-wrap:wrap}.footer-col h5,.footer-col a{white-space:nowrap}}
 @media (max-width:900px){html,body{max-width:100%;overflow-x:clip}}
+/* 모바일 헤더: 로고+아이콘 한 줄, 아래에 옆으로 미는 메뉴 줄 (햄버거 없음) */
+@media (max-width:768px){
+ .hamburger-btn{display:none!important}
+ .header-main,.header-inner{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo icons" "nav nav";align-items:center;row-gap:0!important;gap:0!important;padding-top:8px!important;padding-bottom:0!important}
+ .header-top-row{grid-area:logo;width:auto!important}
+ .header-nav-row{display:contents!important;position:static!important;transform:none!important}
+ .header-right{grid-area:icons;margin:0!important}
+ .header-auth{display:none!important}
+ .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:22px!important;padding:2px 2px 4px;margin-top:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0;width:100%}
+ .gnb-inner::-webkit-scrollbar{display:none}
+ .gnb-item{flex:0 0 auto;white-space:nowrap;font-size:15px!important;padding:9px 0!important}
+}
 .mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item{font-weight:450!important;letter-spacing:.08em!important}
 .gnb-item:hover,.gnb-item.active{font-weight:450!important}
@@ -825,6 +838,7 @@ html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% 
 
 
 <!-- 회원가입 유도 팝업 (비회원 전용 · 좌하단 코너 카드) -->
+<div id="signupPromoBg" class="sp-bg" onclick="closeSignupPromo()"></div>
 <div id="signupPromoOverlay" class="sp-card" style="display:none;" role="dialog" aria-label="회원가입 혜택">
   <button type="button" class="sp-x" onclick="closeSignupPromo()" aria-label="닫기">✕</button>
   <div class="sp-head">
@@ -1166,11 +1180,12 @@ function maybeShowSignupPromo() {
   } catch(e) {}
   setTimeout(() => {
     const el = document.getElementById('signupPromoOverlay');
-    if (el && !mainMemberLevel) el.style.display = 'block';
+    if (el && !mainMemberLevel) { el.style.display = 'block'; var bg = document.getElementById('signupPromoBg'); if (bg) bg.style.display = 'block'; }
   }, 1200);
 }
 function closeSignupPromo() {
   document.getElementById('signupPromoOverlay').style.display = 'none';
+  var bg = document.getElementById('signupPromoBg'); if (bg) bg.style.display = 'none';
 }
 function snoozeSignupPromo() {
   try {
