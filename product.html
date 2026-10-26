@@ -1242,6 +1242,13 @@ html{color-scheme:only light}
 /* 크게 보기: 터치 화면에서는 화살표 대신 쓸어넘기기 */
 .lightbox-overlay,.main-img{touch-action:pan-y pinch-zoom}
 @media (hover:none) and (pointer:coarse),(max-width:768px){.lightbox-nav{display:none!important}}
+
+/* 모바일 구매 버튼: 장바구니 담기 / 바로구매 같은 크기, 한 줄 */
+@media (max-width:768px){
+ .buy-btns .btn-cart,.buy-btns .btn-buy{flex:1 1 0!important;min-width:0;white-space:nowrap;padding:0 6px!important;height:50px;font-size:15px!important}
+ .buy-btns .btn-buy{border:1px solid transparent!important}
+ .buy-btns .btn-wish{flex:0 0 52px;height:50px;padding:0!important}
+}
 </style>
 
     <!-- 가격 (비회원) -->
