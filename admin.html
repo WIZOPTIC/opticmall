@@ -49,7 +49,9 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--g1);color:var(--blac
 .menu-item.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sky);border-radius:0 2px 2px 0;}
 .menu-badge{margin-left:auto;background:var(--red);color:var(--white);font-size:10px;font-weight:700;padding:1px 6px;border-radius:100px;}
 .menu-badge:empty{display:none;}
-.sidebar-user{padding:16px 20px;border-top:1px solid var(--g2);display:flex;align-items:center;gap:10px;}
+.sidebar-user{padding:16px 20px;border-top:1px solid var(--g2);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.user-info .name,.user-info .role{white-space:nowrap;}
+.sidebar-user .user-actions{flex-basis:100%;display:flex;gap:16px;padding-left:42px;}
 .user-avatar{width:32px;height:32px;background:var(--sky);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);}
 .user-info .name{font-size:13px;font-weight:600;color:var(--navy);}
 .user-info .role{font-size:11px;color:var(--g3);}
@@ -282,8 +284,10 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       <div class="name" id="adminName">관리자</div>
       <div class="role" id="adminRoleBadge">마스터</div>
     </div>
-    <button class="logout-btn" style="margin-left:auto;font-size:12px;font-weight:600;white-space:nowrap;" onclick="requestOrderNotificationPermission()" title="새 주문이 들어오면 브라우저 알림으로 알려드려요">주문 알림</button>
-    <button class="logout-btn" style="margin-left:10px;font-size:12px;font-weight:600;white-space:nowrap;" onclick="adminLogout()">로그아웃</button>
+    <div class="user-actions">
+      <button class="logout-btn" style="margin-left:0;font-size:12px;font-weight:600;white-space:nowrap;" onclick="requestOrderNotificationPermission()" title="새 주문이 들어오면 브라우저 알림으로 알려드려요">주문 알림</button>
+      <button class="logout-btn" style="margin-left:0;font-size:12px;font-weight:600;white-space:nowrap;" onclick="adminLogout()">로그아웃</button>
+    </div>
   </div>
 </aside>
 
