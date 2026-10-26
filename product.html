@@ -1238,6 +1238,10 @@ html{color-scheme:only light}
  .tab:nth-child(-n+3){border-top:none}
  .tab.active{border-bottom-color:#14110f}
 }
+
+/* 크게 보기: 터치 화면에서는 화살표 대신 쓸어넘기기 */
+.lightbox-overlay,.main-img{touch-action:pan-y pinch-zoom}
+@media (hover:none) and (pointer:coarse),(max-width:768px){.lightbox-nav{display:none!important}}
 </style>
 
     <!-- 가격 (비회원) -->
@@ -2537,6 +2541,38 @@ document.addEventListener('keydown', (e) => {
   if(e.key === 'ArrowLeft') lightboxNav(-1);
   if(e.key === 'ArrowRight') lightboxNav(1);
 });
+
+// 터치 스와이프: 크게 보기 / 메인 사진을 옆으로 쓸어서 넘기기
+(function(){
+  function addSwipe(el, onSwipe){
+    if(!el) return;
+    var sx=0, sy=0, dx=0, on=false, moved=false, last=0;
+    el.addEventListener('touchstart', function(e){
+      if(e.touches.length!==1){ on=false; return; }
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY; dx=0; on=true; moved=false;
+    }, {passive:true});
+    el.addEventListener('touchmove', function(e){
+      if(!on) return;
+      if(e.touches.length!==1){ on=false; return; }
+      dx=e.touches[0].clientX-sx; var dy=e.touches[0].clientY-sy;
+      if(Math.abs(dx)>10 && Math.abs(dx)>Math.abs(dy)) moved=true;
+    }, {passive:true});
+    el.addEventListener('touchend', function(){
+      if(on && moved && Math.abs(dx)>50){ last=Date.now(); onSwipe(dx<0?1:-1); }
+      on=false;
+    }, {passive:true});
+    el.addEventListener('click', function(e){
+      if(Date.now()-last<400){ e.stopPropagation(); e.preventDefault(); }
+    }, true);
+  }
+  addSwipe(document.getElementById('lightboxOverlay'), function(dir){ lightboxNav(dir); });
+  addSwipe(document.getElementById('mainImgBox'), function(dir){
+    var th=document.querySelectorAll('#thumbList .thumb[data-thumb-url]');
+    if(th.length<2) return;
+    var n=(currentImgIndex+dir+th.length)%th.length;
+    th[n].click();
+  });
+})();
 
 // 관련 상품 (같은 타입 다른 상품 최대 4개)
 async function loadRelatedProducts(p) {
