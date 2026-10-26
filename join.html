@@ -352,9 +352,9 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
  .header-nav-row{display:contents!important;position:static!important;transform:none!important}
  .header-right{grid-area:icons;margin:0!important}
  .header-auth{display:none!important}
- .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:22px!important;padding:2px 2px 4px;margin-top:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0;width:100%}
+ .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:13px!important;padding:2px 2px 4px;margin-top:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0;width:100%}
  .gnb-inner::-webkit-scrollbar{display:none}
- .gnb-item{flex:0 0 auto;white-space:nowrap;font-size:15px!important;padding:9px 0!important}
+ .gnb-item{flex:0 0 auto;white-space:nowrap;font-size:14.5px!important;letter-spacing:0!important;padding:9px 0!important}
 }
 /* 모바일 상품 격자: 2열 (기본 5열 규칙이 뒤에 있어서 덮어쓰던 문제 해결) */
 @media (max-width:768px){
@@ -472,6 +472,13 @@ html{color-scheme:only light}
  .footer-cols{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px!important;padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.12)}
  .footer-col a{white-space:normal!important}
  .footer-right{max-width:none!important;width:100%}
+}
+
+/* 모바일 상단 메뉴: 옆에 더 있으면 가장자리를 흐리게 해서 쓸 수 있다는 것을 알려줌 */
+@media (max-width:768px){
+ .gnb-inner.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent)}
+ .gnb-inner.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent)}
+ .gnb-inner.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent)}
 }
 </style>
 </head>
@@ -1493,6 +1500,30 @@ setTimeout(fit,300);setTimeout(fit,1200);})();
   document.addEventListener('focusout', function(e){ if(e.target && e.target.type === 'password') hide(); }, true);
   window.addEventListener('scroll', hide, true);
   window.addEventListener('resize', hide);
+})();
+</script>
+<script>
+/* 모바일 상단 메뉴: 더 볼 메뉴가 있는 쪽 가장자리를 흐리게 표시 + 지금 보는 메뉴가 가려져 있으면 보이게 이동 */
+(function(){
+  var g=document.querySelector('.gnb-inner'); if(!g) return;
+  var mq=window.matchMedia('(max-width:768px)');
+  function upd(){
+    var max=g.scrollWidth-g.clientWidth;
+    g.classList.toggle('fade-r',mq.matches&&g.scrollLeft<max-4);
+    g.classList.toggle('fade-l',mq.matches&&g.scrollLeft>4);
+  }
+  function reveal(){
+    if(!mq.matches) return;
+    var a=g.querySelector('.gnb-item.active'); if(!a) return;
+    var l=a.offsetLeft-g.offsetLeft-16;
+    if(a.offsetLeft+a.offsetWidth>g.scrollLeft+g.clientWidth-20) g.scrollLeft=Math.max(0,l);
+  }
+  g.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);
+  window.addEventListener('load',function(){reveal();upd();});
+  setTimeout(function(){reveal();upd();},300); setTimeout(function(){reveal();upd();},1200);
+  if(window.ResizeObserver) new ResizeObserver(upd).observe(g);
+  upd();
 })();
 </script>
 </body>
