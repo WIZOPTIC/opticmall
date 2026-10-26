@@ -85,7 +85,7 @@ header {
 .header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
 .header-nav-row { display: flex; align-items: center; width: 100%; gap: 16px; }
 .logo { font-family: var(--font-serif); font-style: italic; font-size: 42px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; user-select: none; }
-.logo-img { display: block; height: 56px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; user-select: none; pointer-events: none; }
+.logo-img { display: block; height: 63px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; user-select: none; pointer-events: none; }
 
 .header-right { display: flex; align-items: center; gap: 2px; margin-left: auto; flex-shrink: 0; white-space: nowrap; }
 
@@ -106,7 +106,7 @@ header {
   .mobile-menu-backdrop:not(.open) { display: none; }
   .header-main { padding: 20px 20px 14px; }
   .header-top-row { gap: 12px; }
-  .logo-img { height: 45px; }
+  .logo-img { height: 50px; }
   .header-nav-row { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: auto; }
   .header-right { margin-right: 0 !important; }
 }
@@ -369,7 +369,7 @@ footer { background: var(--footer-bg); padding: 56px 24px 36px; }
 }
 .footer-mid { display: flex; gap: 64px; flex-wrap: wrap; }
 .footer-logo { font-family: var(--font-serif); font-style: italic; font-size:22px; font-weight: 500; color: #fff; margin-bottom: 22px; }
-.footer-logo-img { display: block; height: 26px; width: auto; filter: brightness(0) invert(1); margin-bottom: 22px; }
+.footer-logo-img { display: block; height: 29px; width: auto; filter: brightness(0) invert(1); margin-bottom: 22px; }
 .footer-logo span { color: var(--gold-soft); font-style: normal; }
 .footer-cols { display: flex; gap: 64px; }
 .footer-col h5 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 16px; }
@@ -558,8 +558,8 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 /* 딥그린 헤더 (푸터와 같은 색) */
 header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shadow:none!important}
 .header-main{padding:25px 24px 12px!important;gap:6px!important}
-.logo-img{height:55px!important;filter:invert(1) brightness(1.05)}
-@media (min-width:769px) and (max-width:1000px){.logo-img{height:46px!important}.header-main{padding-top:41px!important}}
+.logo-img{height:65px!important;filter:invert(1) brightness(1.05)}
+@media (min-width:769px) and (max-width:1000px){.logo-img{height:51px!important}.header-main{padding-top:41px!important}}
 .gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
 .gnb-item:hover,.gnb-item.active{color:#fff!important}
 .gnb-item{font-size:14px;letter-spacing:.04em}
@@ -569,7 +569,7 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .header-cs{position:absolute;right:63px;top:24px;font-size:12px;color:#c9cfca;letter-spacing:.04em;padding-bottom:8px;border-bottom:1px solid rgba(244,243,240,.25)}
 .header-cs b{color:#F4F3F0;font-weight:500;margin-left:6px}
 @media (max-width:1000px){.header-cs{display:none}}
-@media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:32px!important}}
+@media (max-width:768px){.header-main{padding:12px 16px!important}.logo-img{height:36px!important}}
 /* 배너 영역도 딥그린으로 이어서, '실시간 베스트 상품'부터 베이지 시작 */
 .hero-banner-band{background:var(--hdr-bg);padding:0 0 8px}
 @media (max-width:768px){.hero-banner-band{padding:10px 0 12px}}
@@ -702,7 +702,7 @@ html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% 
 .header-top-row .logo{display:flex;align-items:center;height:69px}
 @media (min-width:769px) and (max-width:1000px){.header-top-row .logo{height:57px}}
 @media (max-width:768px){.header-top-row .logo{height:40px}}
-.footer-logo-img{margin-bottom:28px!important}
+.footer-logo-img{margin-bottom:25px!important}
 .mobile-menu-header .logo{display:flex;align-items:center;height:36px}
 .gnb-item{font-weight:450!important;letter-spacing:.08em!important}
 .gnb-item:hover,.gnb-item.active{font-weight:450!important}
@@ -896,7 +896,7 @@ html.hero-peek .banner-track:not(.peek){transform:translateX(calc(-0.9 * ((100% 
   <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
   <div class="mobile-menu-drawer" id="mobileMenuDrawer">
     <div class="mobile-menu-header">
-      <span class="logo"><img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="logo-img" style="height:29px;"></span>
+      <span class="logo"><img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="logo-img" style="height:32px;"></span>
       <button onclick="toggleMobileMenu()" aria-label="메뉴 닫기" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--g4);">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
