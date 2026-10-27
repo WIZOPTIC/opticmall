@@ -299,6 +299,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <button class="menu-item" onclick="showPage('productApproval',this)">상품 승인 관리 <span class="menu-badge" id="pendingProductBadge"></span></button>
     <button class="menu-item" onclick="showPage('allProducts',this)">전체 상품 목록</button>
     <button class="menu-item" onclick="showPage('featuredPicks',this)">신상품·베스트 선정</button>
+    <button class="menu-item" onclick="showPage('bulkRegister',this)">대량 상품 등록</button>
     <div class="menu-section">프로모션</div>
     <button class="menu-item" onclick="showPage('promoApproval',this)">이벤트 승인 관리 <span class="menu-badge" id="pendingPromoBadge"></span></button>
     <button class="menu-item" onclick="showPage('allPromos',this)">전체 이벤트 목록</button>
@@ -416,6 +417,47 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       <div class="table-wrap" id="allProductsTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
+    </div>
+
+    <!-- 대량 상품 등록 -->
+    <div class="page" id="page-bulkRegister">
+      <div class="section-header">
+        <div class="section-title">대량 상품 등록</div>
+      </div>
+      <div style="background:var(--white);border-radius:10px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-size:13px;line-height:1.7;">
+        <div style="font-weight:700;margin-bottom:8px;">① 엑셀 파일 선택 <span style="font-weight:400;color:var(--g3);">(상품목록_v14.xlsx)</span></div>
+        <input type="file" accept=".xlsx,.xls" onchange="bulkOnExcel(this)">
+        <div style="font-weight:700;margin:16px 0 8px;">② 사진 폴더 선택 <span style="font-weight:400;color:var(--g3);">('opticmall사진' 폴더 통째로 선택 · 브라우저가 "업로드할까요?" 물으면 허용)</span></div>
+        <input type="file" webkitdirectory directory multiple onchange="bulkOnFolder(this)">
+        <div style="font-weight:700;margin:16px 0 8px;">③ 브랜드 연결</div>
+        <div id="bulkBrandBox"></div>
+        <div style="font-weight:700;margin:16px 0 8px;">④ 옵션</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+          <label>등록 상태
+            <select id="bulkStatusSel" style="padding:7px 10px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;">
+              <option value="approved">바로 노출 (승인 완료)</option>
+              <option value="pending">승인 대기로 등록</option>
+            </select>
+          </label>
+          <label style="cursor:pointer;"><input type="checkbox" id="bulkSkipDup" checked> 이미 등록된 모델(같은 브랜드+모델명)은 건너뛰기</label>
+        </div>
+      </div>
+      <div id="bulkSummary" style="font-size:13px;margin-bottom:10px;">엑셀과 사진 폴더를 선택하면 여기에 요약이 표시돼요.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <button class="btn-sm btn-primary" onclick="bulkSelectFirstOne()">모델 1개만 선택 (테스트)</button>
+        <button class="btn-sm" style="background:var(--g2);" onclick="bulkSelectAll(true)">등록 가능한 모델 전체 선택</button>
+        <button class="btn-sm" style="background:var(--g2);" onclick="bulkSelectAll(false)">선택 해제</button>
+        <button class="btn-bulk-save" id="bulkRunBtn" style="padding:8px 20px;font-size:13px;" onclick="bulkRunSelected()">선택한 모델 등록 시작</button>
+        <button class="btn-sm" id="bulkStopBtn" style="display:none;background:#E74C3C;color:#fff;" onclick="bulkStop()">중지</button>
+        <span id="bulkProgress" style="align-self:center;font-size:13px;font-weight:700;"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>브랜드</th><th>모델</th><th>사이즈</th><th>카테고리</th><th>소재</th><th>도매가</th><th>색상</th><th>사진</th><th>상태</th></tr></thead>
+          <tbody id="bulkTableBody"><tr><td colspan="10" style="text-align:center;color:var(--g3);padding:30px;">엑셀을 선택해 주세요.</td></tr></tbody>
+        </table>
+      </div>
+      <div id="bulkLog" style="margin-top:12px;background:#111;color:#ddd;font-family:monospace;font-size:12px;border-radius:8px;padding:12px;height:160px;overflow:auto;"></div>
     </div>
 
     <!-- 신상품·베스트 선정 -->
@@ -778,7 +820,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         </div>
         <div class="edit-form-group">
           <label>소재</label>
-          <select id="aEditMaterial"><option value="">선택</option><option value="Metal">Metal</option><option value="Metal+Titanium">Metal+Titanium</option><option value="Metal+TR">Metal+TR</option><option value="TR">TR</option><option value="TR+Acetate">TR+Acetate</option><option value="Acetate">Acetate</option><option value="Ultem+Metal">Ultem+Metal</option></select>
+          <select id="aEditMaterial"><option value="">선택</option><option value="METAL">METAL</option><option value="METAL+TR">METAL+TR</option><option value="METAL+TITAN">METAL+TITAN</option><option value="METAL+TITANTEMPLE">METAL+TITANTEMPLE</option><option value="METAL+TR+TITAN">METAL+TR+TITAN</option><option value="TR">TR</option><option value="TR+TITAN">TR+TITAN</option><option value="TR+ACETATE">TR+ACETATE</option><option value="ACETATE">ACETATE</option><option value="ULTEM+METAL">ULTEM+METAL</option></select>
         </div>
       </div>
       <div class="edit-form-group" style="margin-bottom:14px;">
@@ -801,6 +843,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 </div>
 <input type="file" class="hidden-file-input" id="aEditImgFileInput" accept="image/*" style="display:none;">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -966,13 +1009,14 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', featuredPicks:'신상품·베스트 선정', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', featuredPicks:'신상품·베스트 선정', bulkRegister:'대량 상품 등록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
   if(name === 'productApproval') loadProductApproval();
   if(name === 'allProducts') loadAllProducts();
   if(name === 'featuredPicks') loadFeaturedPicks();
+  if(name === 'bulkRegister') initBulkRegister();
   if(name === 'promoApproval') loadPromoApproval();
   if(name === 'allPromos') loadAllPromos();
   if(name === 'timesaleManage') loadTimesaleManage();
@@ -1073,7 +1117,7 @@ function startNewOrderWatcher() {
 }
 
 // 날짜 포맷
-const MATERIAL_OPTIONS = ['Metal', 'Metal+Titanium', 'Metal+TR', 'TR', 'TR+Acetate', 'Acetate', 'Ultem+Metal'];
+const MATERIAL_OPTIONS = ['METAL', 'METAL+TR', 'METAL+TITAN', 'METAL+TITANTEMPLE', 'METAL+TR+TITAN', 'TR', 'TR+TITAN', 'TR+ACETATE', 'ACETATE', 'ULTEM+METAL'];
 // 소재 드롭다운 값 세팅: 목록에 없는 기존 값(자유 입력으로 저장된 값)은 임시 항목으로 추가해 값이 사라지지 않게 함
 function setMaterialSelect(selectId, value) {
   const el = document.getElementById(selectId);
@@ -3201,6 +3245,305 @@ async function saveAdminProductEdit() {
     btn.textContent = '저장하기';
   }
 }
+
+// ===================== 대량 상품 등록 =====================
+// 엑셀(모델/색상/사진 파일명) + 사진 폴더를 읽어서, 기존 상품등록과 똑같은 구조로 products 에 저장한다.
+const BULK = { models: [], files: new Map(), brands: [], brandPick: {}, running: false, stop: false, excelName: '', fileCount: 0 };
+const bNorm = s => String(s == null ? '' : s).normalize('NFC').trim();
+const bKey = (b, m, c, f) => [b, m, c, f].map(x => bNorm(x).toLowerCase()).join('/');
+const bEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const BULK_SLOTS = ['main','detail1','detail2','detail3','detail4','detail5'];
+const BULK_CATEGORIES = ['하금테','뿔테','메탈','선글라스','스포츠고글'];
+
+async function initBulkRegister() {
+  if (BULK.brands.length) { bulkRender(); return; }
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'brands'));
+    BULK.brands = [];
+    snap.forEach(d => BULK.brands.push({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error(e);
+    showToast('브랜드 목록을 불러오지 못했어요: ' + e.message, 'error');
+  }
+  bulkRender();
+}
+
+function bulkLog(msg, cls) {
+  const box = document.getElementById('bulkLog');
+  if (!box) return;
+  const line = document.createElement('div');
+  if (cls === 'err') line.style.color = '#E74C3C';
+  if (cls === 'ok') line.style.color = '#27AE60';
+  line.textContent = new Date().toLocaleTimeString('ko-KR') + '  ' + msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ---------- 엑셀 읽기 ----------
+async function bulkOnExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') { showToast('엑셀 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'error'); return; }
+  try {
+    const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+    const modelSheetName = wb.SheetNames.find(n => n.startsWith('모델'));
+    const colorSheetName = wb.SheetNames.find(n => n === '색상');
+    if (!modelSheetName || !colorSheetName) { showToast("엑셀에 '모델' 시트와 '색상' 시트가 필요해요.", 'error'); return; }
+    const mrows = XLSX.utils.sheet_to_json(wb.Sheets[modelSheetName], { defval: '' });
+    const crows = XLSX.utils.sheet_to_json(wb.Sheets[colorSheetName], { defval: '' });
+    const pick = (row, prefix) => { const k = Object.keys(row).find(x => bNorm(x).startsWith(prefix)); return k ? row[k] : ''; };
+
+    const models = [];
+    const byModel = {};
+    for (const r of mrows) {
+      const model = bNorm(pick(r, '모델번호'));
+      if (!model) continue;
+      const m = {
+        brand: bNorm(pick(r, '브랜드')), model,
+        size: bNorm(pick(r, '사이즈')), category: bNorm(pick(r, '카테고리')), material: bNorm(pick(r, '소재')),
+        price: Number(String(pick(r, '도매가')).replace(/[^0-9.]/g, '')) || 0,
+        origin: bNorm(pick(r, '원산지')) === '한국' ? 'korea' : 'china',
+        photochromic: bNorm(pick(r, '변색렌즈')) === '예',
+        discount: Number(String(pick(r, '할인율')).replace(/[^0-9.]/g, '')) || 0,
+        colors: [], errors: [], warns: []
+      };
+      models.push(m);
+      byModel[model] = m;
+    }
+    for (const r of crows) {
+      const model = bNorm(pick(r, '모델번호'));
+      const m = byModel[model];
+      if (!model || !m) continue;
+      const photos = [];
+      for (let i = 1; i <= 6; i++) { const f = bNorm(pick(r, '사진' + i)); if (f) photos.push(f); }
+      m.colors.push({
+        code: bNorm(pick(r, '색상번호')), barcode: bNorm(pick(r, '바코드')), name: bNorm(pick(r, '색상이름')),
+        stock: Number(pick(r, '재고')) || 0, photos
+      });
+    }
+    BULK.models = models.filter(m => m.colors.length);
+    BULK.excelName = file.name;
+    BULK.models.forEach(m => { m.selected = false; m.state = ''; });
+    bulkLog(`엑셀 읽음: 모델 ${BULK.models.length}개 / 색상 ${BULK.models.reduce((a, m) => a + m.colors.length, 0)}개`);
+    bulkAutoPickBrands();
+    bulkValidate();
+    bulkRender();
+  } catch (e) {
+    console.error(e);
+    showToast('엑셀을 읽는 중 오류: ' + e.message, 'error');
+  }
+}
+
+// ---------- 사진 폴더 읽기 ----------
+function bulkOnFolder(input) {
+  BULK.files = new Map();
+  let n = 0;
+  for (const f of input.files) {
+    const rel = (f.webkitRelativePath || f.name).split('/');
+    if (rel.length < 4) continue;
+    if (/중복파일/.test(rel.join('/'))) continue;
+    if (!/\.(jpe?g|png|webp)$/i.test(f.name)) continue;
+    const L = rel.length;
+    BULK.files.set(bKey(rel[L - 4], rel[L - 3], rel[L - 2], rel[L - 1]), f);
+    n++;
+  }
+  BULK.fileCount = n;
+  bulkLog(`사진 폴더 읽음: 사진 ${n}장`);
+  bulkValidate();
+  bulkRender();
+}
+
+function bulkAutoPickBrands() {
+  const names = [...new Set(BULK.models.map(m => m.brand))];
+  for (const nm of names) {
+    if (BULK.brandPick[nm]) continue;
+    const hit = BULK.brands.find(b => bNorm(b.brandName).toLowerCase() === nm.toLowerCase());
+    if (hit) BULK.brandPick[nm] = hit.id;
+  }
+}
+
+function bulkValidate() {
+  for (const m of BULK.models) {
+    m.errors = []; m.warns = [];
+    m.photoFound = 0; m.photoTotal = 0;
+    if (!BULK.brandPick[m.brand]) m.errors.push('브랜드 연결 필요');
+    if (!BULK_CATEGORIES.includes(m.category)) m.errors.push('카테고리 확인');
+    if (m.price <= 0) m.errors.push('도매가 확인');
+    if (!/^\d+(\.\d+)?-\d+-\d+$/.test(m.size)) m.warns.push('사이즈 형식(48-21-145) 확인');
+    if (!m.material) m.warns.push('소재 비어있음');
+    for (const c of m.colors) {
+      if (!c.name) m.errors.push(`${c.code} 색상이름 없음`);
+      else if (/[\/\\#\$\[\]\.]/.test(c.name)) m.errors.push(`${c.code} 색상이름에 특수문자`);
+      if (!c.barcode) m.errors.push(`${c.code} 바코드 없음`);
+      c.found = [];
+      for (const fn of c.photos) {
+        m.photoTotal++;
+        const f = BULK.files.get(bKey(m.brand, m.model, c.code, fn));
+        if (f) { c.found.push(f); m.photoFound++; }
+      }
+      if (BULK.fileCount && c.found.length < c.photos.length) m.errors.push(`${c.code} 사진 ${c.photos.length - c.found.length}장 못 찾음`);
+      if (BULK.fileCount && c.found.length === 0) { /* 위에서 에러 처리 */ }
+    }
+    if (!BULK.fileCount) m.errors.push('사진 폴더 선택 필요');
+    if (m.colors.length > 10) m.errors.push('색상 10개 초과');
+    if (m.errors.length) m.selected = false;
+  }
+}
+
+// ---------- 화면 ----------
+function bulkRender() {
+  const brandNames = [...new Set(BULK.models.map(m => m.brand))];
+  const brandBox = document.getElementById('bulkBrandBox');
+  if (brandBox) {
+    brandBox.innerHTML = brandNames.length ? brandNames.map(nm => `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <b style="min-width:110px;">${bEsc(nm)}</b> →
+        <select onchange="bulkPickBrand('${bEsc(nm)}', this.value)" style="padding:7px 10px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;">
+          <option value="">(브랜드 선택)</option>
+          ${BULK.brands.map(b => `<option value="${b.id}" ${BULK.brandPick[nm] === b.id ? 'selected' : ''}>${bEsc(b.brandName)}</option>`).join('')}
+          <option value="__new__">+ 새 브랜드 만들기 (${bEsc(nm)})</option>
+        </select>
+      </div>`).join('') : '<span style="color:var(--g3);font-size:12px;">엑셀을 먼저 선택해 주세요.</span>';
+  }
+  const sum = document.getElementById('bulkSummary');
+  if (sum) {
+    const ok = BULK.models.filter(m => !m.errors.length).length;
+    const sel = BULK.models.filter(m => m.selected).length;
+    sum.innerHTML = BULK.models.length
+      ? `엑셀 <b>${bEsc(BULK.excelName)}</b> · 모델 ${BULK.models.length}개 중 <b style="color:#27AE60;">등록 가능 ${ok}개</b>, 확인 필요 ${BULK.models.length - ok}개 · 사진 ${BULK.fileCount}장 · 현재 선택 <b>${sel}개</b>`
+      : '엑셀과 사진 폴더를 선택하면 여기에 요약이 표시돼요.';
+  }
+  const tb = document.getElementById('bulkTableBody');
+  if (!tb) return;
+  tb.innerHTML = BULK.models.map((m, i) => `
+    <tr>
+      <td><input type="checkbox" ${m.selected ? 'checked' : ''} ${m.errors.length || BULK.running ? 'disabled' : ''} onchange="bulkToggle(${i}, this.checked)"></td>
+      <td>${bEsc(m.brand)}</td>
+      <td><b>${bEsc(m.model)}</b></td>
+      <td>${bEsc(m.size)}</td>
+      <td>${bEsc(m.category)}</td>
+      <td>${bEsc(m.material)}</td>
+      <td>${m.price.toLocaleString()}</td>
+      <td>${m.colors.length}</td>
+      <td>${m.photoFound}/${m.photoTotal}</td>
+      <td id="bulkState-${i}" style="font-size:12px;">${m.state ? m.state : (m.errors.length ? `<span style="color:#E74C3C;">${bEsc(m.errors.slice(0, 3).join(', '))}${m.errors.length > 3 ? ' 외 ' + (m.errors.length - 3) : ''}</span>` : (m.warns.length ? `<span style="color:#E67E22;">${bEsc(m.warns.join(', '))}</span>` : '<span style="color:#27AE60;">준비됨</span>'))}</td>
+    </tr>`).join('');
+}
+
+async function bulkPickBrand(name, id) {
+  if (id === '__new__') {
+    if (!confirm(`'${name}' 브랜드를 새로 만들까요?\n(관리자 계정 소유 브랜드로 만들어져요)`)) { bulkRender(); return; }
+    try {
+      const ref = window._doc(window._collection(window._db, 'brands'));
+      const uid = window._auth.currentUser.uid;
+      await window._setDoc(ref, { ownerUid: uid, brandName: name, logoUrl: null, createdAt: window._serverTimestamp() });
+      BULK.brands.push({ id: ref.id, ownerUid: uid, brandName: name });
+      id = ref.id;
+      showToast(`'${name}' 브랜드를 만들었어요.`, 'success');
+    } catch (e) { showToast('브랜드 생성 오류: ' + e.message, 'error'); bulkRender(); return; }
+  }
+  BULK.brandPick[name] = id;
+  bulkValidate();
+  bulkRender();
+}
+
+function bulkToggle(i, on) { BULK.models[i].selected = on; bulkRender(); }
+function bulkSelectAll(on) { BULK.models.forEach(m => { m.selected = on && !m.errors.length; }); bulkRender(); }
+function bulkSelectFirstOne() {
+  BULK.models.forEach(m => { m.selected = false; });
+  const first = BULK.models.find(m => !m.errors.length);
+  if (first) first.selected = true; else showToast('등록 가능한 모델이 없어요. 오른쪽 상태 칸을 확인해 주세요.', 'error');
+  bulkRender();
+}
+
+// ---------- 등록 ----------
+async function bulkUploadOne(file, ownerUid, ci, slot) {
+  const opt = await resizeImageForUpload(file, 1600, 0.85);
+  const rand = Math.random().toString(36).slice(2, 8);
+  const path = `products/${ownerUid}/${Date.now()}_c${ci}_${slot}_${rand}.jpg`;
+  const fileRef = window._ref(window._storage, path);
+  await window._uploadBytes(fileRef, opt, { contentType: 'image/jpeg' });
+  return await window._getDownloadURL(fileRef);
+}
+
+async function bulkRunSelected() {
+  if (BULK.running) return;
+  const targets = BULK.models.map((m, i) => ({ m, i })).filter(x => x.m.selected && !x.m.errors.length);
+  if (!targets.length) { showToast('등록할 모델을 선택해 주세요.', 'error'); return; }
+  const status = document.getElementById('bulkStatusSel').value;
+  const skipDup = document.getElementById('bulkSkipDup').checked;
+  if (!confirm(`${targets.length}개 모델을 등록할까요?\n(${status === 'approved' ? '바로 노출(승인 완료)' : '승인 대기'} 상태로 저장돼요)`)) return;
+  BULK.running = true; BULK.stop = false;
+  document.getElementById('bulkRunBtn').disabled = true;
+  document.getElementById('bulkStopBtn').style.display = '';
+  const batchId = 'bulk-' + new Date().toISOString().slice(0, 10);
+  let ok = 0, skipped = 0, failed = 0;
+  bulkRender();
+
+  for (let t = 0; t < targets.length; t++) {
+    if (BULK.stop) { bulkLog('사용자가 중지했어요.', 'err'); break; }
+    const { m, i } = targets[t];
+    const stEl = () => document.getElementById('bulkState-' + i);
+    const setState = (txt) => { m.state = txt; if (stEl()) stEl().innerHTML = txt; };
+    document.getElementById('bulkProgress').textContent = `${t + 1}/${targets.length} · ${m.brand} ${m.model}`;
+    try {
+      const brand = BULK.brands.find(b => b.id === BULK.brandPick[m.brand]);
+      const ownerUid = brand.ownerUid || window._auth.currentUser.uid;
+      if (skipDup) {
+        const q = await window._getDocs(window._query(window._collection(window._db, 'products'), window._where('modelName', '==', m.model)));
+        if (q.docs.some(d => d.data().brandId === brand.id)) {
+          setState('<span style="color:#E67E22;">이미 등록됨 · 건너뜀</span>'); skipped++; bulkLog(`${m.model}: 이미 등록돼 있어서 건너뜀`); continue;
+        }
+      }
+      const savedColors = [];
+      for (let ci = 0; ci < m.colors.length; ci++) {
+        const c = m.colors[ci];
+        setState(`색상 ${ci + 1}/${m.colors.length} 업로드 중...`);
+        const urls = new Array(c.found.length);
+        // 사진 3장씩 동시에 업로드
+        for (let s = 0; s < c.found.length; s += 3) {
+          await Promise.all(c.found.slice(s, s + 3).map(async (f, k) => { urls[s + k] = await bulkUploadOne(f, ownerUid, ci, BULK_SLOTS[s + k]); }));
+        }
+        const price = m.price;
+        savedColors.push({
+          colorName: c.name, colorCode: c.code, barcode: c.barcode, stock: c.stock,
+          price, salePrice: m.discount > 0 ? Math.round(price * (1 - m.discount / 100)) : 0,
+          mainImageUrl: urls[0] || '', detailImageUrls: urls.slice(1).filter(Boolean)
+        });
+      }
+      const salePrice = m.discount > 0 ? Math.round(m.price * (1 - m.discount / 100)) : 0;
+      const ref = window._doc(window._collection(window._db, 'products'));
+      await window._setDoc(ref, {
+        brandId: brand.id, brandName: brand.brandName || m.brand, brandOwnerUid: ownerUid,
+        modelName: m.model, size: m.size, material: m.material, category: m.category,
+        origin: m.origin, photochromic: m.photochromic,
+        price: m.price, discountRate: m.discount, salePrice,
+        colors: savedColors,
+        mainImageUrl: savedColors[0]?.mainImageUrl || '',
+        colorNames: savedColors.map(c => c.colorName),
+        status, createdAt: window._serverTimestamp(),
+        approvedAt: status === 'approved' ? window._serverTimestamp() : null,
+        importBatch: batchId
+      });
+      m.selected = false;
+      setState('<span style="color:#27AE60;">등록 완료 ✓</span>'); ok++;
+      bulkLog(`${m.brand} ${m.model}: 색상 ${savedColors.length}개 등록 완료`, 'ok');
+    } catch (e) {
+      console.error(e);
+      failed++;
+      setState(`<span style="color:#E74C3C;">실패: ${bEsc(e.message)}</span>`);
+      bulkLog(`${m.model}: 실패 - ${e.message}`, 'err');
+      if (/permission|insufficient/i.test(e.message)) { bulkLog('권한 오류예요. 중단합니다. (관리자 권한/보안 규칙 확인 필요)', 'err'); break; }
+    }
+  }
+  BULK.running = false;
+  document.getElementById('bulkRunBtn').disabled = false;
+  document.getElementById('bulkStopBtn').style.display = 'none';
+  document.getElementById('bulkProgress').textContent = `끝! 성공 ${ok} · 건너뜀 ${skipped} · 실패 ${failed}`;
+  showToast(`대량 등록 끝: 성공 ${ok}, 건너뜀 ${skipped}, 실패 ${failed}`, failed ? 'error' : 'success');
+  bulkRender();
+}
+function bulkStop() { BULK.stop = true; }
 
 // ===================== 취소/반품 관리 =====================
 // ===================== 주문/배송 관리 =====================

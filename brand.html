@@ -705,7 +705,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         </div>
         <div class="edit-form-group">
           <label>소재</label>
-          <select id="editMaterial"><option value="">선택</option><option value="Metal">Metal</option><option value="Metal+Titanium">Metal+Titanium</option><option value="Metal+TR">Metal+TR</option><option value="TR">TR</option><option value="TR+Acetate">TR+Acetate</option><option value="Acetate">Acetate</option><option value="Ultem+Metal">Ultem+Metal</option></select>
+          <select id="editMaterial"><option value="">선택</option><option value="METAL">METAL</option><option value="METAL+TR">METAL+TR</option><option value="METAL+TITAN">METAL+TITAN</option><option value="METAL+TITANTEMPLE">METAL+TITANTEMPLE</option><option value="METAL+TR+TITAN">METAL+TR+TITAN</option><option value="TR">TR</option><option value="TR+TITAN">TR+TITAN</option><option value="TR+ACETATE">TR+ACETATE</option><option value="ACETATE">ACETATE</option><option value="ULTEM+METAL">ULTEM+METAL</option></select>
         </div>
       </div>
 
@@ -826,7 +826,7 @@ window._getCurrentBrandData = () => currentBrandData;
 // ===================== 공통 =====================
 document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'short'});
 
-const MATERIAL_OPTIONS = ['Metal', 'Metal+Titanium', 'Metal+TR', 'TR', 'TR+Acetate', 'Acetate', 'Ultem+Metal'];
+const MATERIAL_OPTIONS = ['METAL', 'METAL+TR', 'METAL+TITAN', 'METAL+TITANTEMPLE', 'METAL+TR+TITAN', 'TR', 'TR+TITAN', 'TR+ACETATE', 'ACETATE', 'ULTEM+METAL'];
 // 소재 드롭다운 값 세팅: 목록에 없는 기존 값(자유 입력으로 저장된 값)은 임시 항목으로 추가해 값이 사라지지 않게 함
 function setMaterialSelect(selectId, value) {
   const el = document.getElementById(selectId);
