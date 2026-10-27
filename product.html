@@ -1229,6 +1229,10 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
       </div>
     </div>
     <style>@keyframes priceCheckSpin{to{transform:rotate(360deg);}}
+/* 사진/썸네일을 빠르게 두 번 클릭하거나 살짝 끌어도 파란색으로 선택·드래그되지 않게 */
+#mainImgBox,#mainImgBox *,#thumbList,#thumbList *,#lightboxOverlay,#lightboxOverlay *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+#mainImgBox img,#thumbList img,#lightboxOverlay img{-webkit-user-drag:none;user-drag:none;}
+#mainImgBox ::selection,#thumbList ::selection,#lightboxOverlay ::selection{background:transparent;}
 /* 사진 HDR 밝기 확장 방지 */
 img,video,canvas{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
 html,body,.thumb,[style*="background"]{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
