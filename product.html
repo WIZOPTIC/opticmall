@@ -118,7 +118,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   flex: 0 0 72px; flex-direction: column; justify-content: flex-start;
   width: 72px; gap: 8px; overflow-y: auto; overflow-x: hidden; padding-right: 2px; align-self: flex-start;
 }
-.product-left-col .product-images .thumb { width: 68px; height: 68px; flex-shrink: 0; }
+.product-left-col .product-images .thumb { width: 68px; height: 51px; flex-shrink: 0; }
 .product-left-col .product-images .thumb-list::-webkit-scrollbar { width: 4px; }
 .product-left-col .product-images .thumb-list::-webkit-scrollbar-thumb { background: var(--g2); border-radius:0; }
 .product-left-tabs { margin-top: 32px; }
@@ -1251,7 +1251,7 @@ html{color-scheme:only light}
  .product-images{flex:none!important;width:100%!important;height:auto!important;display:block!important}
  .product-images .main-img{aspect-ratio:4/3;margin-bottom:10px}
  .product-images .thumb-list{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px!important;width:100%!important;max-height:none!important;overflow:visible!important;padding:0!important;flex-direction:row!important}
- .product-images .thumb{width:100%!important;height:auto!important;aspect-ratio:1/1;min-width:0}
+ .product-images .thumb{width:100%!important;height:auto!important;aspect-ratio:4/3;min-width:0}
 }
 
 /* 모바일 상세 탭: 옆으로 밀지 않고 3개씩 두 줄로 */
@@ -1658,7 +1658,7 @@ function renderThumbs(container, urls) {
     return;
   }
   container.innerHTML = urls.map((url, i) => `
-    <div class="thumb ${i===0?'active':''}" data-thumb-url="${url}" onclick="switchMainImage('${url}', this, ${i})" style="background-image:url('${url}');background-size:cover;background-position:center;"></div>
+    <div class="thumb ${i===0?'active':''}" data-thumb-url="${url}" onclick="switchMainImage('${url}', this, ${i})" style="background-image:url('${url}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
   `).join('');
   urls.forEach(url => {
     const probe = new Image();
@@ -1689,28 +1689,28 @@ function renderThumbs(container, urls) {
 function makeSmoothThumb(img, size) {
   const iw = img.naturalWidth, ih = img.naturalHeight;
   if (!iw || !ih) return null;
-  const side = Math.min(iw, ih);
-  const sx = (iw - side) / 2, sy = (ih - side) / 2;
+  // 사진 전체(좌우 안 잘림)를 4:3 비율 그대로 줄임
   let cur = document.createElement('canvas');
-  cur.width = side; cur.height = side;
-  let ctx = cur.getContext('2d');
-  ctx.drawImage(img, sx, sy, side, side, 0, 0, side, side);
-  let w = side;
-  while (w / 2 >= size) {
-    const nw = Math.round(w / 2);
+  cur.width = iw; cur.height = ih;
+  cur.getContext('2d').drawImage(img, 0, 0);
+  let w = iw, h = ih;
+  const targetW = Math.min(size, iw);
+  const targetH = Math.round(targetW * ih / iw);
+  while (w / 2 >= targetW) {
+    const nw = Math.round(w / 2), nh = Math.round(h / 2);
     const nx = document.createElement('canvas');
-    nx.width = nw; nx.height = nw;
+    nx.width = nw; nx.height = nh;
     const c2 = nx.getContext('2d');
     c2.imageSmoothingEnabled = true; c2.imageSmoothingQuality = 'high';
-    c2.drawImage(cur, 0, 0, w, w, 0, 0, nw, nw);
-    cur = nx; w = nw;
+    c2.drawImage(cur, 0, 0, w, h, 0, 0, nw, nh);
+    cur = nx; w = nw; h = nh;
   }
-  if (w > size) {
+  if (w > targetW) {
     const nx = document.createElement('canvas');
-    nx.width = size; nx.height = size;
+    nx.width = targetW; nx.height = targetH;
     const c2 = nx.getContext('2d');
     c2.imageSmoothingEnabled = true; c2.imageSmoothingQuality = 'high';
-    c2.drawImage(cur, 0, 0, w, w, 0, 0, size, size);
+    c2.drawImage(cur, 0, 0, w, h, 0, 0, targetW, targetH);
     cur = nx;
   }
   return cur;
