@@ -458,6 +458,19 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         </table>
       </div>
       <div id="bulkLog" style="margin-top:12px;background:#111;color:#ddd;font-family:monospace;font-size:12px;border-radius:8px;padding:12px;height:160px;overflow:auto;"></div>
+      <div style="background:var(--white);border-radius:10px;padding:18px 20px;margin-top:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-size:13px;line-height:1.7;">
+        <div style="font-weight:700;margin-bottom:6px;">브랜드 일괄 할인</div>
+        <div style="color:var(--g3);margin-bottom:10px;">브랜드를 고르고 <b>할인율(%)</b>을 입력하면 그 브랜드 상품 전체에 한 번에 적용해요. 원하는 <b>판매가</b>를 입력하면 할인율을 자동 계산해요. (둘 중 하나만 입력)</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <select id="bulkDiscBrand" style="padding:7px 10px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;"><option value="">(브랜드 선택)</option></select>
+          <label>할인율 <input type="number" id="bulkDiscRate" step="0.01" min="0" max="90" placeholder="7" style="width:80px;padding:7px 10px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;"> %</label>
+          <span style="color:var(--g3);">또는</span>
+          <label>판매가 <input type="number" id="bulkDiscTarget" placeholder="12000" style="width:110px;padding:7px 10px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;"> 원</label>
+          <button class="btn-sm btn-primary" onclick="bulkDiscountApply(false)">할인 적용</button>
+          <button class="btn-sm" style="background:var(--g2);" onclick="bulkDiscountApply(true)">할인 해제 (원래 도매가로)</button>
+        </div>
+        <div id="bulkDiscResult" style="margin-top:10px;"></div>
+      </div>
     </div>
 
     <!-- 신상품·베스트 선정 -->
@@ -3392,6 +3405,12 @@ function bulkValidate() {
 
 // ---------- 화면 ----------
 function bulkRender() {
+  const dsel = document.getElementById('bulkDiscBrand');
+  if (dsel) {
+    const cur = dsel.value;
+    dsel.innerHTML = '<option value="">(브랜드 선택)</option>' + BULK.brands.map(b => `<option value="${b.id}">${bEsc(b.brandName)}</option>`).join('');
+    dsel.value = cur;
+  }
   const brandNames = [...new Set(BULK.models.map(m => m.brand))];
   const brandBox = document.getElementById('bulkBrandBox');
   if (brandBox) {
@@ -3544,6 +3563,65 @@ async function bulkRunSelected() {
   bulkRender();
 }
 function bulkStop() { BULK.stop = true; }
+
+// ---------- 브랜드 일괄 할인 ----------
+// 원하는 판매가가 되도록 할인율(소수 둘째 자리까지)을 찾는다. 상품 페이지는 판매가 = round(도매가 x (1 - 할인율/100)) 로 계산하므로 같은 식으로 검증.
+function findDiscountRate(price, target) {
+  if (!(price > 0) || !(target > 0) || target >= price) return 0;
+  const exact = (1 - target / price) * 100;
+  for (let d = 0; d <= 2; d++) {
+    const r = Number(exact.toFixed(d));
+    if (Math.round(price * (1 - r / 100)) === target) return r;
+  }
+  return Number(exact.toFixed(2));
+}
+
+async function bulkDiscountApply(clear) {
+  const brandId = document.getElementById('bulkDiscBrand').value;
+  const target = Number(document.getElementById('bulkDiscTarget').value) || 0;
+  const rateInput = Number(document.getElementById('bulkDiscRate').value) || 0;
+  const out = document.getElementById('bulkDiscResult');
+  if (!brandId) { showToast('브랜드를 선택해 주세요.', 'error'); return; }
+  if (!clear && target <= 0 && rateInput <= 0) { showToast('할인율(%) 또는 판매가를 입력해 주세요.', 'error'); return; }
+  if (!clear && target > 0 && rateInput > 0) { showToast('할인율과 판매가 중 하나만 입력해 주세요.', 'error'); return; }
+  if (rateInput >= 90) { showToast('할인율이 너무 커요. 다시 확인해 주세요.', 'error'); return; }
+  const brand = BULK.brands.find(b => b.id === brandId);
+  out.textContent = '상품 불러오는 중...';
+  try {
+    const snap = await window._getDocs(window._query(window._collection(window._db, 'products'), window._where('brandId', '==', brandId)));
+    const items = [];
+    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    if (!items.length) { out.textContent = '이 브랜드로 등록된 상품이 없어요.'; return; }
+    const plan = items.map(p => {
+      const price = Number(p.price) || 0;
+      const rate = clear ? 0 : (rateInput > 0 ? rateInput : findDiscountRate(price, target));
+      const sale = rate > 0 ? Math.round(price * (1 - rate / 100)) : 0;
+      return { p, price, rate, sale };
+    });
+    const sample = plan[0];
+    const msg = clear
+      ? `[${brand.brandName}] 상품 ${items.length}개의 할인을 모두 해제할까요?`
+      : `[${brand.brandName}] 상품 ${items.length}개에 적용할까요?\n\n예) 도매가 ${sample.price.toLocaleString()}원 → 할인율 ${sample.rate}% → 판매가 ${(sample.sale || sample.price).toLocaleString()}원`;
+    if (!confirm(msg)) { out.textContent = ''; return; }
+    let done = 0, fail = 0;
+    for (const x of plan) {
+      try {
+        const colors = (x.p.colors || []).map(c => {
+          const cp = Number(c.price) || x.price;
+          return { ...c, salePrice: x.rate > 0 ? Math.round(cp * (1 - x.rate / 100)) : 0 };
+        });
+        await window._updateDoc(window._doc(window._db, 'products', x.p.id), { discountRate: x.rate, salePrice: x.sale, colors });
+        done++;
+      } catch (e) { fail++; console.error(e); }
+      out.textContent = `${done + fail}/${plan.length} 처리 중...`;
+    }
+    out.innerHTML = `<b style="color:#27AE60;">끝! 성공 ${done}개</b>${fail ? ` · <b style="color:#E74C3C;">실패 ${fail}개</b>` : ''} (할인율 ${plan[0].rate}%)`;
+    showToast(`일괄 할인 적용 완료: ${done}개`, fail ? 'error' : 'success');
+  } catch (e) {
+    console.error(e);
+    out.innerHTML = `<span style="color:#E74C3C;">오류: ${bEsc(e.message)}</span>`;
+  }
+}
 
 // ===================== 취소/반품 관리 =====================
 // ===================== 주문/배송 관리 =====================
