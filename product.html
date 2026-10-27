@@ -1666,8 +1666,52 @@ function renderThumbs(container, urls) {
       const el = container.querySelector(`.thumb[data-thumb-url="${CSS.escape(url)}"]`);
       if (el) el.remove();
     };
+    // 큰 사진을 68px 칸에 그대로 줄여 쓰면 가는 안경테 선이 깨져 보여서(지글거림),
+    // 절반씩 여러 번 나눠 줄이는 방식으로 부드럽게 만든 작은 그림으로 바꿔 끼움 (실패하면 기존 방식 그대로 유지)
+    probe.onload = function () {
+      try {
+        const el = container.querySelector(`.thumb[data-thumb-url="${CSS.escape(url)}"]`);
+        if (!el) return;
+        const cv = makeSmoothThumb(probe, 200);
+        if (!cv) return;
+        cv.style.cssText = 'width:100%;height:100%;display:block;pointer-events:none;';
+        el.style.backgroundImage = 'none';
+        el.appendChild(cv);
+      } catch (e) { /* 실패 시 원래 배경 그림 유지 */ }
+    };
     probe.src = url;
   });
+}
+
+// 정사각형(가운데 기준 cover)으로 잘라 size px로 줄이되, 한 번에 확 줄이지 않고 2배씩 단계적으로 줄여 선이 깨지지 않게 함
+function makeSmoothThumb(img, size) {
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  if (!iw || !ih) return null;
+  const side = Math.min(iw, ih);
+  const sx = (iw - side) / 2, sy = (ih - side) / 2;
+  let cur = document.createElement('canvas');
+  cur.width = side; cur.height = side;
+  let ctx = cur.getContext('2d');
+  ctx.drawImage(img, sx, sy, side, side, 0, 0, side, side);
+  let w = side;
+  while (w / 2 >= size) {
+    const nw = Math.round(w / 2);
+    const nx = document.createElement('canvas');
+    nx.width = nw; nx.height = nw;
+    const c2 = nx.getContext('2d');
+    c2.imageSmoothingEnabled = true; c2.imageSmoothingQuality = 'high';
+    c2.drawImage(cur, 0, 0, w, w, 0, 0, nw, nw);
+    cur = nx; w = nw;
+  }
+  if (w > size) {
+    const nx = document.createElement('canvas');
+    nx.width = size; nx.height = size;
+    const c2 = nx.getContext('2d');
+    c2.imageSmoothingEnabled = true; c2.imageSmoothingQuality = 'high';
+    c2.drawImage(cur, 0, 0, w, w, 0, 0, size, size);
+    cur = nx;
+  }
+  return cur;
 }
 
 // 메인 사진 박스: 가로는 항상 꽉 채우고, 세로만 화면에 맞게 아주 살짝 잘라서(object-fit:cover) 스크롤 없이 한 화면에 다 보이게
