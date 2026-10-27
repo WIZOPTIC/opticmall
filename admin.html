@@ -1581,7 +1581,6 @@ function renderProductRow(p, isApprovalView) {
       <td>${p.material||'-'}</td>
       <td>${priceDisplay}</td>
       <td>${stockDisplay}</td>
-      <td>${formatDate(p.createdAt)}</td>
       <td><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></td>
       <td>
         <div class="action-btns">
@@ -1616,7 +1615,7 @@ async function loadProductApproval() {
       <table>
         <thead><tr>
           <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
-          <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>처리</th>
+          <th>도매가</th><th>재고</th><th>상태</th><th>처리</th>
         </tr></thead>
         <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
       </table>`;
@@ -1664,7 +1663,7 @@ function applyAdminProductSearch() {
     <table>
       <thead><tr>
         <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
-        <th>도매가</th><th>재고</th><th>등록일</th><th>상태</th><th>관리</th>
+        <th>도매가</th><th>재고</th><th>상태</th><th>관리</th>
       </tr></thead>
       <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
     </table>`;
