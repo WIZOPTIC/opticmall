@@ -1674,7 +1674,9 @@ function renderThumbs(container, urls) {
         if (!el) return;
         const cv = makeSmoothThumb(probe, 200);
         if (!cv) return;
-        cv.style.cssText = 'width:100%;height:100%;display:block;pointer-events:none;';
+        cv.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:block;pointer-events:none;';
+        el.style.position = 'relative';
+        el.style.overflow = 'hidden';
         el.style.backgroundImage = 'none';
         el.appendChild(cv);
       } catch (e) { /* 실패 시 원래 배경 그림 유지 */ }
