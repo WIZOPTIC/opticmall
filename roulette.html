@@ -498,7 +498,7 @@ html{color-scheme:only light}
     <div class="header-right">
       <div class="header-auth">
         <div id="topbarGuest">
-      <button class="tb-link" onclick="location.href='index.html?openLogin=1'">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
+      <button class="tb-link" onclick="location.href='index.html?openLogin=1&next=roulette.html'">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button>
     </div>
         <div id="topbarUser" style="display:none;align-items:center;">
       <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="_auth.signOut();location.reload();">로그아웃</button>
@@ -788,7 +788,7 @@ function rwSet(a){GX.rot=a;document.getElementById('rwWheel').style.transform='r
 async function gcPull(){
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
   if(!btn||btn.disabled||rlSpun||GX.busy)return;
-  if(btn.dataset.login){location.href='index.html?openLogin=1';return;}
+  if(btn.dataset.login){location.href='index.html?openLogin=1&next=roulette.html';return;}
   GX.busy=true;rlBusy=true;btn.disabled=true;msg.textContent='';
   let res=null;
   (async()=>{try{const r=await _fn.httpsCallable('spinRoulette')({});res={d:r.data};}catch(e){res={err:e};}})();

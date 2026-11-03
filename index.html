@@ -1380,6 +1380,11 @@ async function doLogin() {
     await _auth.signInWithEmailAndPassword(email, pw);
     closeLogin();
     showMainToast('✓ 로그인되었습니다!', 'success');
+    // 다른 페이지에서 로그인하러 넘어온 경우(next 파라미터) 로그인 후 원래 페이지로 복귀
+    try {
+      const nx = new URLSearchParams(location.search).get('next') || '';
+      if (/^[A-Za-z0-9_-]+\.html(\?[A-Za-z0-9_=&%.-]*)?$/.test(nx)) { setTimeout(() => { location.href = nx; }, 500); }
+    } catch(e) {}
   } catch(e) {
     errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
     errEl.style.display = 'block';
