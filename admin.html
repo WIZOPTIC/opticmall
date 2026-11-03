@@ -514,7 +514,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       </div>
       <div style="background:#F6F8FA;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#555;line-height:1.6;">
         신상품은 기본적으로 등록일 최신순으로 노출되며, 아래에서 체크하면 목록 맨 앞에 고정 노출됩니다.<br>
-        베스트상품은 실시간 판매 데이터가 준비되기 전까지 아래 체크로만 노출됩니다 (체크하지 않으면 메인/목록에 노출되지 않습니다).
+        베스트상품은 최근 60일 판매량에 따라 모델·색상 단위로 자동 집계되고, 아래에서 색상별로 체크한 것도 함께 노출돼요. 같은 모델도 색상이 다르면 각각 따로 보여요.
       </div>
       <div class="product-search-bar">
         <input type="text" id="featuredPicksSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyFeaturedPicksSearch()">
@@ -1767,6 +1767,14 @@ function renderFeaturedPickRow(p) {
     : `<div style="width:44px;height:44px;border-radius:8px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0.3;"><i class=ic-glasses></i></div>`;
   const isNew = !!(p.adminPick && p.adminPick.new);
   const isBest = !!(p.adminPick && p.adminPick.best);
+  const cs = Array.isArray(p.colors) ? p.colors : [];
+  const pickedIdx = isBest ? getBestPickedIdxs(p) : [];
+  const bestCell = cs.length > 0
+    ? cs.map((c, i) => `<label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;padding:2px 0;">
+          <input type="checkbox" ${pickedIdx.includes(i)?'checked':''} onchange="toggleBestColor('${p.id}',${i},this.checked)">
+          <span>${bEsc(c.colorName||'')}${c.colorCode ? ' <span style="color:var(--g3);">'+bEsc(c.colorCode)+'</span>' : ''}</span>
+        </label>`).join('')
+    : `<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" ${isBest?'checked':''} onchange="toggleFeaturedPick('${p.id}','best',this.checked)"></label>`;
   return `
     <tr>
       <td>${thumb}</td>
@@ -1781,11 +1789,7 @@ function renderFeaturedPickRow(p) {
           <input type="checkbox" ${isNew?'checked':''} onchange="toggleFeaturedPick('${p.id}','new',this.checked)">
         </label>
       </td>
-      <td style="text-align:center;">
-        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
-          <input type="checkbox" ${isBest?'checked':''} onchange="toggleFeaturedPick('${p.id}','best',this.checked)">
-        </label>
-      </td>
+      <td style="min-width:190px;">${bestCell}</td>
     </tr>`;
 }
 
@@ -1827,10 +1831,45 @@ function applyFeaturedPicksSearch() {
     <table>
       <thead><tr>
         <th>이미지</th><th>모델명</th><th>바코드</th><th>브랜드</th><th>카테고리</th>
-        <th>도매가</th><th>등록일</th><th>신상품</th><th>베스트</th>
+        <th>도매가</th><th>등록일</th><th>신상품</th><th>베스트 (색상 선택)</th>
       </tr></thead>
       <tbody>${filtered.map(p => renderFeaturedPickRow(p)).join('')}</tbody>
     </table>`;
+}
+
+// 베스트로 선정된 색상 번호들 (예전처럼 모델만 선정된 상품은 첫 번째 색상으로 간주)
+function getBestPickedIdxs(p) {
+  const cs = Array.isArray(p.colors) ? p.colors : [];
+  const keys = p.adminPick && Array.isArray(p.adminPick.bestColors) ? p.adminPick.bestColors : null;
+  if(keys && keys.length) {
+    const out = [];
+    keys.forEach(k => { const i = cs.findIndex(c => (c.colorCode || c.colorName) === k); if(i >= 0) out.push(i); });
+    return out;
+  }
+  return p.adminPick && p.adminPick.best ? [0] : [];
+}
+async function toggleBestColor(pid, idx, checked) {
+  const list = window._allFeaturedPickProducts || [];
+  const p = list.find(x => x.id === pid);
+  if(!p) return;
+  const cs = Array.isArray(p.colors) ? p.colors : [];
+  const set = new Set(getBestPickedIdxs(p));
+  if(checked) set.add(idx); else set.delete(idx);
+  const idxs = [...set].sort((a, b) => a - b);
+  const keys = idxs.map(i => cs[i].colorCode || cs[i].colorName);
+  try {
+    await window._updateDoc(window._doc(window._db, 'products', pid), {
+      'adminPick.bestColors': keys,
+      'adminPick.best': keys.length > 0
+    });
+    p.adminPick = p.adminPick || {};
+    p.adminPick.bestColors = keys;
+    p.adminPick.best = keys.length > 0;
+    showToast(checked ? '베스트 색상으로 선정되었습니다.' : '선정이 해제되었습니다.', 'success');
+  } catch(e) {
+    showToast('저장 실패: ' + e.message, 'error');
+    applyFeaturedPicksSearch();
+  }
 }
 
 async function toggleFeaturedPick(pid, field, value) {

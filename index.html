@@ -1716,7 +1716,7 @@ async function toggleMainWish(event, productId, wishId, colorName) {
     } else {
       await wishRef.set({
         productId,
-        colorIdx: wishId !== productId ? 0 : null,
+        colorIdx: wishId !== productId ? (Number((String(wishId).match(/_c(\d+)$/)||[])[1]) || 0) : null,
         colorName: colorName || '',
         addedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -1750,14 +1750,40 @@ function showMainToast(msg, type) {
   }, 1800);
 }
 
-function goToProductFromMain(productId) {
+function goToProductFromMain(productId, colorIdx) {
   const product = mainAllProducts.find(p => p.id === productId);
   if(product) {
     try {
       sessionStorage.setItem('preloadProduct_' + productId, JSON.stringify(product));
     } catch(e) { console.error('상품 미리보기 데이터 저장 실패:', e); }
   }
-  location.href = 'product.html?id=' + productId;
+  location.href = 'product.html?id=' + productId + (colorIdx ? '&c=' + colorIdx : '');
+}
+
+// ── 베스트: 모델 + 색상 단위 ──
+// 색상 키: 컬러번호(없으면 색상이름)
+function findColorIdx(p, code, name) {
+  const cs = Array.isArray(p.colors) ? p.colors : [];
+  let i = -1;
+  if(code) i = cs.findIndex(c => c.colorCode === code);
+  if(i < 0 && name) i = cs.findIndex(c => c.colorName === name);
+  if(i < 0 && code) i = cs.findIndex(c => c.colorName === code);
+  return i;
+}
+// 상품 하나를 "특정 색상 기준"으로 보이게 복사 (사진·바코드·가격·색상칩이 그 색상 것으로 바뀜)
+function makeColorView(p, ci) {
+  const cs = Array.isArray(p.colors) ? p.colors : [];
+  const c = cs[ci];
+  if(!c) return Object.assign({}, p, { _ci: 0 });
+  const cp = Number(c.price) || Number(p.price) || 0;
+  const rate = Number(p.discountRate) || 0;
+  return Object.assign({}, p, {
+    _ci: ci, colors: [c], colorNames: [c.colorName],
+    mainImageUrl: c.mainImageUrl || p.mainImageUrl,
+    barcode: c.barcode || p.barcode,
+    price: cp,
+    salePrice: c.salePrice ? Number(c.salePrice) : (rate > 0 ? Math.round(cp * (1 - rate/100)) : 0)
+  });
 }
 
 function renderMainProductCard(p, badgeText, badgeClass) {
@@ -1779,10 +1805,10 @@ function renderMainProductCard(p, badgeText, badgeClass) {
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
   const codeLabel = p.brandName ? `${p.brandName}` : '';
 
-  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
+  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c${p._ci||0}` : p.id;
   const isWished = mainWishlistIds.has(mainWishId);
   return `
-    <div class="product-card" onclick="goToProductFromMain('${p.id}')" style="cursor:pointer;">
+    <div class="product-card" onclick="goToProductFromMain('${p.id}',${p._ci||0})" style="cursor:pointer;">
       <div class="product-img-wrap">
         <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
         <button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleMainWish(event,'${p.id}','${mainWishId}',${(p.colors&&p.colors[0])?`'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'`:'null'})">${isWished ? '<i class=ic-wish-filled></i>' : '<i class=ic-wish></i>'}</button>
@@ -1822,11 +1848,11 @@ function renderMainProductRow(p) {
         : `<div class="p-row-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
   const codeLabel = p.brandName ? `${p.brandName}` : '';
-  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
+  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c${p._ci||0}` : p.id;
   const isWished = mainWishlistIds.has(mainWishId);
   const wishColorArg = (p.colors&&p.colors[0]) ? `'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'` : 'null';
   return `
-    <div class="product-row" onclick="goToProductFromMain('${p.id}')">
+    <div class="product-row" onclick="goToProductFromMain('${p.id}',${p._ci||0})">
       <div class="p-row-img">${imgHtml}</div>
       <div class="p-row-info">
         <div class="p-row-code">${codeLabel}</div>
@@ -1854,10 +1880,10 @@ function renderEventRankCard(p, rank) {
         : `<div class="product-price"><span class="won">₩</span>${basePrice.toLocaleString()}</div>`)
     : `<div class="price-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>판매가 회원공개</div>`;
   const codeLabel = p.brandName ? `${p.brandName}` : '';
-  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
+  const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c${p._ci||0}` : p.id;
   const isWished = mainWishlistIds.has(mainWishId);
   return `
-    <div class="product-card ers-card" onclick="goToProductFromMain('${p.id}')" style="cursor:pointer;">
+    <div class="product-card ers-card" onclick="goToProductFromMain('${p.id}',${p._ci||0})" style="cursor:pointer;">
       <div class="product-img-wrap">
         <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
         <span class="ers-rank">${rank}</span>
@@ -1939,7 +1965,7 @@ function renderAllMainSections() {
 
   // 베스트: 아직 실 판매데이터가 없어, 관리자가 admin.html에서 직접 선정한 상품만 노출한다.
   // (추후 주문 데이터가 쌓이면 실 판매량 기준 랭킹으로 교체 예정)
-  const best = mainAllProducts.filter(p => p.adminPick && p.adminPick.best).slice(0, 10);
+  const best = getBestEntries(10, false);
   if(best.length === 0) {
     renderEmptyMainSection('bestHeroList', '아직 선정된 베스트상품이 없습니다.');
     renderEmptyMainSection('bestFullGrid', '아직 선정된 베스트상품이 없습니다.');
@@ -1954,22 +1980,45 @@ function renderAllMainSections() {
 
 // 실시간 베스트 상품: 판매순위(settings/bestRank, 서버가 주기적으로 집계) 순서.
 // 집계 데이터가 아직 없으면 관리자 선정 베스트 → 최신 등록순으로 채운다.
-let bestRankIds = [];
+let bestRankItems = [];
 async function loadBestRank() {
   try {
     const snap = await _db.collection('settings').doc('bestRank').get();
     const items = snap.exists && Array.isArray(snap.data().items) ? snap.data().items : [];
-    bestRankIds = items.map(i => i.productId).filter(Boolean);
-  } catch(e) { bestRankIds = []; }
-  renderBestRankSection();
+    bestRankItems = items.filter(i => i && i.productId);
+  } catch(e) { bestRankItems = []; }
+  if(mainAllProducts.length) renderAllMainSections(); else renderBestRankSection();
 }
-function getRankedBestProducts(limit) {
+// 관리자가 고른 베스트 색상들 (없으면 첫 번째 색상)
+function bestPickColorIdxs(p) {
+  const keys = p.adminPick && Array.isArray(p.adminPick.bestColors) ? p.adminPick.bestColors : null;
+  const cs = Array.isArray(p.colors) ? p.colors : [];
+  if(keys && keys.length) {
+    const out = [];
+    keys.forEach(k => { const i = cs.findIndex(c => (c.colorCode || c.colorName) === k); if(i >= 0) out.push(i); });
+    if(out.length) return out;
+  }
+  return [0];
+}
+// 판매순위(모델+색상) → 관리자 선정(모델+색상) 순. fillAll=true 면 부족한 자리를 최신 상품으로 채움
+function getBestEntries(limit, fillAll) {
   const byId = new Map(mainAllProducts.map(p => [p.id, p]));
   const out = [], seen = new Set();
-  const push = p => { if(p && !seen.has(p.id)) { seen.add(p.id); out.push(p); } };
-  bestRankIds.forEach(id => push(byId.get(id)));
-  mainAllProducts.filter(p => p.adminPick && p.adminPick.best).forEach(push);
-  mainAllProducts.forEach(push);
+  const push = (p, ci) => {
+    if(!p) return;
+    const k = p.id + '|' + ci;
+    if(seen.has(k)) return;
+    seen.add(k); out.push(makeColorView(p, ci));
+  };
+  bestRankItems.forEach(it => {
+    const p = byId.get(it.productId);
+    if(!p) return;
+    let ci = findColorIdx(p, it.colorCode, it.colorName);
+    if(ci < 0) ci = 0;
+    push(p, ci);
+  });
+  mainAllProducts.filter(p => p.adminPick && p.adminPick.best).forEach(p => bestPickColorIdxs(p).forEach(ci => push(p, ci)));
+  if(fillAll) mainAllProducts.forEach(p => push(p, 0));
   return out.slice(0, limit);
 }
 function renderBestRankSection() {
@@ -1978,7 +2027,7 @@ function renderBestRankSection() {
   const w = window.innerWidth;
   const cols = w >= 1101 ? 5 : (w >= 641 ? 3 : 2);
   const max = cols === 5 ? 5 : 6;
-  let list = getRankedBestProducts(max);
+  let list = getBestEntries(max, true);
   if(list.length > cols) list = list.slice(0, Math.floor(list.length / cols) * cols);
   grid.innerHTML = list.map((p, i) => renderEventRankCard(p, i + 1)).join('');
 }

@@ -2196,6 +2196,12 @@ async function loadProduct() {
   }
 }
 
+// 주소에 ?c=색상번호(0부터)가 있으면 그 색상으로 시작 (베스트 상품 등에서 들어올 때)
+function getInitColorIdx(p) {
+  const n = parseInt(new URLSearchParams(location.search).get('c'), 10);
+  return (Array.isArray(p.colors) && n >= 0 && n < p.colors.length) ? n : 0;
+}
+
 function renderProduct(p) {
   // 상품 상세 페이지도 탭 제목은 모델명 대신 고정 문구로 통일
   document.title = '옵틱몰 - 프리미엄 도매몰';
@@ -2220,7 +2226,7 @@ function renderProduct(p) {
   (function(){ var ex = p.material || p.extraInfo || ''; var r = document.getElementById('extraInfoRow'); if(r){ document.getElementById('extraInfoValue').textContent = ex; r.style.display = ex ? '' : 'none'; } })();
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
-  const firstColor = (p.colors && p.colors.length > 0) ? p.colors[0] : null;
+  const firstColor = (p.colors && p.colors.length > 0) ? p.colors[getInitColorIdx(p)] : null;
   const initMainUrl = (firstColor && firstColor.mainImageUrl) ? firstColor.mainImageUrl : p.mainImageUrl;
   const initDetailUrls = ((firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || [])).filter(isValidImgUrl);
   const allImages = [initMainUrl, ...initDetailUrls].filter(isValidImgUrl);
@@ -2257,7 +2263,7 @@ function renderProduct(p) {
   if(p.colors && p.colors.length > 0) {
     colorSection.style.display = 'block';
     selectedItems = [];
-    renderColorButtons(p, 0);
+    renderColorButtons(p, getInitColorIdx(p));
   } else {
     colorSection.style.display = 'none';
     const stock = Number(p.stock || 0);
