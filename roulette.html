@@ -765,7 +765,7 @@ function gcHtml(){
     w+='<path d="M320 332 L'+p1[0]+' '+p1[1]+' A262 262 0 0 1 '+p2[0]+' '+p2[1]+' Z" fill="'+c+'" stroke="#2a2018" stroke-width="2"/>';
     const pv=RL&&RL.prizes&&RL.prizes[i]?Number(RL.prizes[i].value):0;
     const tc=['#3a2a1c','#FFFFFF','#3a2a1c','#F4E4B0'][i%4],tk=['none','#7a4a2c','none','#2a1a10'][i%4];
-    const th=(i+.5)*seg,fp=th>90&&th<270,ab=fp?332+196:122,pc=fp?332+222:164,rt=fp?th+180:th;
+    const th=(i+.5)*seg,ab=122,pc=164,rt=th;
     w+='<g transform="rotate('+rt+' 320 332)"><text x="320" y="'+ab+'" text-anchor="middle" font-size="30" font-weight="800" fill="'+tc+'"'+(tk!=='none'?' stroke="'+tk+'" stroke-width="4" paint-order="stroke"':'')+'>'+rlFmt(pv)+'<tspan font-size="18">원</tspan></text><rect x="276" y="'+(pc-12)+'" width="88" height="24" rx="12" fill="rgba(20,12,6,.5)" stroke="#F4E4B0" stroke-width="1.8"/><text x="320" y="'+(pc+5)+'" text-anchor="middle" font-size="13" font-weight="800" letter-spacing="3" fill="#F4E4B0">COUPON</text></g>';
     const q=rwPt(274,i*seg);d+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="6" fill="#F4E4B0" stroke="#7a6232" stroke-width="1.5"/>';
   }
