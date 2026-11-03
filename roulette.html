@@ -419,7 +419,7 @@ html{color-scheme:only light}
 .gc-knob{transform-box:view-box;transform-origin:180px 392px;}
 .gc-knob.turn{animation:gcTurn 1.2s cubic-bezier(.5,0,.3,1);}
 @keyframes gcTurn{0%{transform:rotate(0)}100%{transform:rotate(540deg)}}
-.gc-drop{opacity:0;}
+.gc-tray .in{transform-box:fill-box;transform-origin:center;}.gc-tray.ready{cursor:pointer;}.gc-tray.ready .in{animation:gcPulse 1.3s ease-in-out infinite;}
 .gc-drop .in{transform-box:fill-box;transform-origin:center;}
 .gc-drop.fall{opacity:1;}
 .gc-drop.fall .in{animation:gcDrop .95s cubic-bezier(.3,.2,.4,1) forwards;}
@@ -573,7 +573,7 @@ const _auth = firebase.auth();
 const _db = firebase.firestore();
 const _fn = firebase.app().functions("asia-northeast3");
 
-let memberLevel = 0;
+let memberLevel = 0, memberRole = '';
 
 function toggleMobileMenu() {
   document.getElementById('mobileMenuDrawer').classList.toggle('open');
@@ -589,7 +589,7 @@ _auth.onAuthStateChanged(async (user) => {
     try {
       const userDoc = await _db.collection('users').doc(user.uid).get();
       const userData = userDoc.exists ? userDoc.data() : {};
-      memberLevel = userData.member_level || 0;
+      memberLevel = userData.member_level || 0; memberRole = userData.role || '';
       updateHeaderLoggedIn(userData.name || user.email.split('@')[0], memberLevel, userData.role);
     } catch(e) {
       updateHeaderLoggedIn(user.email.split('@')[0], 0, null);
@@ -685,7 +685,7 @@ function eventProductMatches(prod, kw) {
 }
 
 
-let RL=null, rlSpun=false, rlBusy=false, rlSpinId='';
+let rlTester=false, RL=null, rlSpun=false, rlBusy=false, rlSpinId='';
 function rlFmt(n){return Number(n).toLocaleString('ko-KR');}
 function rlTodayKST(){return new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);}
 async function initRoulette(user){
@@ -702,21 +702,23 @@ async function initRoulette(user){
   if(RL.startDate&&today<RL.startDate)state='before';
   else if(RL.endDate&&today>RL.endDate)state='ended';
   rlSpun=false;
-  if(user){
+  rlTester=!!RL.testMode&&(memberRole==='master'||memberRole==='submaster');
+  if(user&&!rlTester){
     const eid=String(RL.eventId||'roulette').replace(/[^0-9A-Za-z_-]/g,'')||'roulette';
     rlSpinId=RL.limit==='daily'?eid+'_'+today.replace(/-/g,'')+'_'+user.uid:eid+'_'+user.uid;
     try{const d=await _db.collection('rouletteSpins').doc(rlSpinId).get();rlSpun=d.exists;}catch(e){}
   }
   const period=(RL.startDate||RL.endDate)?'EVENT PERIOD  '+(RL.startDate||'')+' ~ '+(RL.endDate||''):'';
-  area.innerHTML=gcHtml();
+  area.innerHTML=gcHtml();clInit();
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
   if(state==='before'){btn.textContent='시작 전입니다';btn.disabled=true;}
   else if(state==='ended'){btn.textContent='종료된 이벤트입니다';btn.disabled=true;}
   else if(!user){btn.textContent='로그인하고 참여하기';btn.onclick=()=>location.href='index.html?openLogin=1';}
   else if(memberLevel<2){btn.textContent='승인된 회원만 참여할 수 있어요';btn.disabled=true;}
   else if(rlSpun){btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';btn.disabled=true;msg.textContent='쿠폰함에서 받은 쿠폰을 확인해 보세요.';}
-  else btn.textContent='캡슐 뽑기';
+  else btn.textContent='뽑기 시작';
 }
+let gcData=null,gcCanOpen=false;
 const GC_COLORS=['#E7A58F','#8FBDB6','#E6C36A','#B7A2D6','#8FB0D6','#D98C95','#A7CC9C','#E9B97A'];
 let gcColor='#E6C36A';
 function gcCap(cx,cy,r,col,i){
@@ -727,59 +729,108 @@ function gcCap(cx,cy,r,col,i){
    +'<line x1="'+(-r)+'" y1="0" x2="'+r+'" y2="0" stroke="rgba(0,0,0,.18)" stroke-width="1.2"/>'
    +'<ellipse cx="'+(-r*.38)+'" cy="'+(-r*.45)+'" rx="'+(r*.2)+'" ry="'+(r*.34)+'" fill="rgba(255,255,255,.38)" transform="rotate(25 '+(-r*.38)+' '+(-r*.45)+')"/></g></g></g>';
 }
+/* ===== 인형뽑기(집게) 기계 ===== */
+const CL={x:245,hy:150,open:1,balls:[],mode:'idle',raf:0,t0:0,held:null};
+const CL_RAIL=112,CL_HOME_Y=150,CL_CHUTE_X=98,CL_TRAY_Y=474;
 function gcHtml(){
-  const pos=[[118,92],[180,78],[242,92],[88,148],[148,134],[212,138],[272,148],[116,202],[176,190],[236,202],[78,205],[282,205],[140,248],[206,252],[262,246],[100,255],[180,140]];
-  let caps='';pos.forEach((p,i)=>{caps+=gcCap(p[0],p[1],27,GC_COLORS[i%GC_COLORS.length],i);});
-  return '<div class="rl-head"><div class="rl-logo">Opticmall</div><div class="rl-eyebrowline"><i></i><span>CAPSULE EVENT</span><i></i></div></div>'
-  +'<div class="rl-stage"><svg class="gc-machine" id="gcMachine" viewBox="0 0 360 540" xmlns="http://www.w3.org/2000/svg">'
+  const pos=[[184,366],[232,366],[280,366],[328,366],[160,366],[208,324],[256,324],[304,324],[232,282],[280,282],[184,324],[328,324]];
+  CL.balls=pos.map((p,i)=>({id:i,x:p[0],y:p[1],c:GC_COLORS[i%GC_COLORS.length],alive:true}));
+  let balls='';CL.balls.forEach(b=>{balls+='<g id="cb'+b.id+'" transform="translate('+b.x+' '+b.y+')">'+gcCap(0,0,24,b.c,b.id).replace('class="gc-cap"','class="gc-cap2"').replace(/animation-delay:[^;"]*/,'')+'</g>';});
+  return '<div class="rl-head"><div class="rl-logo">Opticmall</div><div class="rl-eyebrowline"><i></i><span>LUCKY CRANE</span><i></i></div></div>'
+  +'<div class="rl-stage"><svg class="gc-machine" id="gcMachine" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">'
   +'<defs><linearGradient id="gcGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4E8C4"/><stop offset=".5" stop-color="#A98C52"/><stop offset="1" stop-color="#E6D3A0"/></linearGradient>'
   +'<linearGradient id="gcBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b241d"/><stop offset="1" stop-color="#0f0c0a"/></linearGradient>'
-  +'<radialGradient id="gcGlass" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/></radialGradient>'
-  +'<clipPath id="gcDome"><circle cx="180" cy="168" r="132"/></clipPath></defs>'
-  +'<ellipse cx="180" cy="528" rx="150" ry="9" fill="rgba(0,0,0,.55)"/>'
-  +'<circle cx="180" cy="168" r="132" fill="#15110e"/>'
-  +'<g clip-path="url(#gcDome)">'+caps+'</g>'
-  +'<circle cx="180" cy="168" r="132" fill="url(#gcGlass)" stroke="url(#gcGold)" stroke-width="4"/>'
-  +'<path d="M 82 110 A 110 110 0 0 1 150 56" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="5" stroke-linecap="round"/>'
-  +'<rect x="92" y="286" width="176" height="20" rx="6" fill="url(#gcGold)"/>'
-  +'<rect x="62" y="300" width="236" height="222" rx="26" fill="url(#gcBody)" stroke="url(#gcGold)" stroke-width="3"/>'
-  +'<rect x="108" y="318" width="144" height="34" rx="17" fill="#0a0908" stroke="#A98C52" stroke-width="1.2"/>'
-  +'<text x="180" y="342" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="20" fill="#E6D3A0">Opticmall</text>'
-  +'<rect x="112" y="436" width="136" height="72" rx="16" fill="#050403" stroke="#A98C52" stroke-width="2"/>'
-  +'<g class="gc-drop" id="gcDrop" onclick="gcOpen()"><g class="in">'+gcCap(180,474,25,'#E6C36A',3).replace('class="gc-cap"','class="gc-cap2"').replace(/animation-delay:[^;"]*/,'')+'</g></g>'
-  +'<path d="M 112 470 q 0 -14 14 -14 h 108 q 14 0 14 14 v 40 h -136 z" fill="none"/>'
-  +'<rect x="104" y="500" width="152" height="12" rx="6" fill="url(#gcGold)"/>'
-  +'<g class="gc-knobhit" onclick="gcPull()"><circle cx="180" cy="392" r="42" fill="#0a0908" stroke="url(#gcGold)" stroke-width="4"/>'
-  +'<g class="gc-knob" id="gcKnob"><rect x="132" y="386" width="96" height="12" rx="6" fill="url(#gcGold)"/><circle cx="180" cy="392" r="9" fill="#0a0908" stroke="#C8AA68" stroke-width="2"/></g></g>'
+  +'<linearGradient id="gcWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3026"/><stop offset="1" stop-color="#14100d"/></linearGradient>'
+  +'<linearGradient id="gcGlassHl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".45" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+  +'<clipPath id="clWin"><rect x="40" y="92" width="320" height="310" rx="6"/></clipPath></defs>'
+  +'<ellipse cx="200" cy="552" rx="170" ry="8" fill="rgba(0,0,0,.55)"/>'
+  +'<rect x="10" y="14" width="380" height="530" rx="26" fill="url(#gcBody)" stroke="url(#gcGold)" stroke-width="3"/>'
+  +'<rect x="40" y="26" width="320" height="52" rx="12" fill="#0a0908" stroke="#A98C52" stroke-width="1.5"/>'
+  +'<text x="200" y="62" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="28" fill="#E6D3A0">Opticmall</text>'
+  +'<rect x="40" y="92" width="320" height="310" rx="6" fill="url(#gcWall)"/>'
+  +'<g clip-path="url(#clWin)">'
+  +'<rect x="40" y="394" width="320" height="10" fill="#0a0908"/>'
+  +'<rect x="44" y="392" width="104" height="14" fill="#030202"/>'
+  +'<rect x="150" y="392" width="210" height="12" fill="url(#gcGold)" opacity=".55"/>'
+  +'<line x1="52" y1="'+CL_RAIL+'" x2="348" y2="'+CL_RAIL+'" stroke="url(#gcGold)" stroke-width="5" stroke-linecap="round"/>'
+  +balls
+  +'<g id="clClaw"><line id="clCable" x1="245" y1="'+CL_RAIL+'" x2="245" y2="150" stroke="#C8AA68" stroke-width="3"/>'
+  +'<rect id="clCar" x="229" y="'+(CL_RAIL-9)+'" width="32" height="18" rx="5" fill="url(#gcGold)"/>'
+  +'<g id="clHead"><rect x="-13" y="-8" width="26" height="16" rx="5" fill="url(#gcGold)"/>'
+  +'<g id="clArmL" transform="translate(-9 6)"><path d="M0 0 Q -16 14 -7 40" fill="none" stroke="#E6D3A0" stroke-width="5" stroke-linecap="round"/></g>'
+  +'<g id="clArmR" transform="translate(9 6)"><path d="M0 0 Q 16 14 7 40" fill="none" stroke="#E6D3A0" stroke-width="5" stroke-linecap="round"/></g></g></g>'
+  +'</g>'
+  +'<rect x="40" y="92" width="320" height="310" rx="6" fill="url(#gcGlassHl)" pointer-events="none"/>'
+  +'<rect x="40" y="92" width="320" height="310" rx="6" fill="none" stroke="url(#gcGold)" stroke-width="3"/>'
+  +'<rect x="44" y="424" width="108" height="86" rx="12" fill="#050403" stroke="#A98C52" stroke-width="2"/>'
+  +'<g id="gcDrop" class="gc-tray" onclick="gcOpen()" style="display:none"><g class="in"><g transform="translate('+CL_CHUTE_X+' '+CL_TRAY_Y+')" id="clTrayBall"></g></g></g>'
+  +'<rect x="40" y="500" width="116" height="10" rx="5" fill="url(#gcGold)"/>'
+  +'<circle cx="236" cy="470" r="9" fill="#C8AA68"/><rect x="232" y="470" width="8" height="34" fill="#8E7440"/><ellipse cx="236" cy="504" rx="26" ry="8" fill="#0a0908" stroke="#A98C52" stroke-width="1.5"/>'
+  +'<g class="gc-knobhit" onclick="gcPull()"><circle cx="320" cy="474" r="30" fill="#0a0908" stroke="url(#gcGold)" stroke-width="4"/><circle cx="320" cy="474" r="21" fill="url(#gcGold)"/></g>'
   +'</svg></div>'
   +'<div class="rl-foot"><button class="rl-btn" id="rlBtn" onclick="gcPull()"></button><div class="rl-msg" id="rlMsg"></div></div>';
 }
-let gcData=null,gcCanOpen=false;
+function clInit(){CL.x=245;CL.hy=CL_HOME_Y;CL.open=1;CL.held=null;CL.mode='idle';CL.heldDy=0;clSet();}
+function clSet(){
+  const x=CL.x,hy=CL.hy,ang=8+CL.open*20;
+  document.getElementById('clCable').setAttribute('x1',x);document.getElementById('clCable').setAttribute('x2',x);document.getElementById('clCable').setAttribute('y2',hy-8);
+  document.getElementById('clCar').setAttribute('x',x-16);
+  document.getElementById('clHead').setAttribute('transform','translate('+x+' '+hy+')');
+  document.getElementById('clArmL').setAttribute('transform','translate(-9 6) rotate('+ang+')');
+  document.getElementById('clArmR').setAttribute('transform','translate(9 6) rotate('+(-ang)+')');
+  if(CL.held){const g=document.getElementById('cb'+CL.held.id);g.setAttribute('transform','translate('+x+' '+(hy+34+CL.heldDy)+')');}
+}
+function clTween(ms,fn,ease){
+  return new Promise(res=>{const t0=performance.now();(function f(now){let t=Math.min(1,(now-t0)/ms);const e=ease?ease(t):t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;fn(e);if(t<1)requestAnimationFrame(f);else res();})(t0);});
+}
+const clBounce=t=>{const n=7.5625,d=2.75;if(t<1/d)return n*t*t;if(t<2/d)return n*(t-=1.5/d)*t+.75;if(t<2.5/d)return n*(t-=2.25/d)*t+.9375;return n*(t-=2.625/d)*t+.984375;};
+function clSweepStart(){
+  CL.mode='sweep';CL.t0=performance.now();
+  (function f(now){if(CL.mode!=='sweep')return;CL.x=245+92*Math.sin((now-CL.t0)/1000*1.9);clSet();CL.raf=requestAnimationFrame(f);})(CL.t0);
+}
 async function gcPull(){
-  if(rlBusy||rlSpun)return;
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
-  if(!btn||btn.disabled)return;
-  rlBusy=true;btn.disabled=true;msg.textContent='';
-  const mach=document.getElementById('gcMachine'),knob=document.getElementById('gcKnob'),drop=document.getElementById('gcDrop');
-  mach.classList.add('shaking');knob.classList.remove('turn');void knob.getBoundingClientRect();knob.classList.add('turn');
-  const wait=new Promise(r=>setTimeout(r,1500));
-  let d=null,err=null;
-  try{const r=await _fn.httpsCallable('spinRoulette')({});d=r.data;}catch(e){err=e;}
-  await wait;
-  mach.classList.remove('shaking');
-  if(err){
-    rlBusy=false;
-    const m=(err&&err.message)||'';
+  if(!btn||btn.disabled||rlSpun)return;
+  if(CL.mode==='idle'){CL.mode='sweep0';btn.textContent='집기';msg.textContent='집게가 움직여요. 원하는 곳에서 "집기"를 눌러 주세요.';clSweepStart();return;}
+  if(CL.mode!=='sweep'||rlBusy)return;
+  CL.mode='grab';rlBusy=true;btn.disabled=true;msg.textContent='';
+  cancelAnimationFrame(CL.raf);
+  // 가장 가까운 캡슐(위쪽 우선) 고르기
+  const alive=CL.balls.filter(b=>b.alive).sort((a,b)=>Math.abs(a.x-CL.x)-Math.abs(b.x-CL.x)||a.y-b.y);
+  const target=alive[0],x0=CL.x;
+  await clTween(280,e=>{CL.x=x0+(target.x-x0)*e;clSet();});
+  const hy0=CL.hy,hy1=target.y-26;
+  const call=(async()=>{try{const r=await _fn.httpsCallable('spinRoulette')({});return {d:r.data};}catch(e){return {err:e};}})();
+  await clTween(750,e=>{CL.hy=hy0+(hy1-hy0)*e;clSet();});
+  const o0=CL.open;await clTween(380,e=>{CL.open=o0*(1-e);clSet();});
+  const res=await call;
+  if(res.err){
+    await clTween(650,e=>{CL.hy=hy1+(CL_HOME_Y-hy1)*e;clSet();});
+    await clTween(300,e=>{CL.open=e;clSet();});
+    rlBusy=false;CL.mode='idle';btn.disabled=false;btn.textContent='뽑기 시작';
+    const err=res.err,m=(err&&err.message)||'';
     if(err.code==='functions/already-exists'){rlSpun=true;btn.textContent='참여 완료';btn.disabled=true;msg.textContent=m;}
-    else{btn.disabled=false;msg.textContent=m||'잠시 후 다시 시도해 주세요.';}
+    else msg.textContent=m||'잠시 후 다시 시도해 주세요.';
     return;
   }
-  rlSpun=true;rlBusy=false;gcData=d;
-  gcColor=GC_COLORS[Math.floor(Math.random()*GC_COLORS.length)];
-  drop.querySelectorAll('circle').forEach(c=>{if(c.getAttribute('fill')==='#E6C36A')c.setAttribute('fill',gcColor);});
-  drop.classList.add('fall');
-  setTimeout(()=>{drop.classList.add('ready');gcCanOpen=true;msg.textContent='캡슐을 눌러 열어보세요';},1000);
+  rlSpun=true;gcData=res.d;gcColor=target.c;target.alive=false;
+  CL.held=target;CL.heldDy=target.y-(hy1+34);
+  await clTween(300,e=>{CL.heldDy=CL.heldDy*(1-e);clSet();});
+  await clTween(800,e=>{CL.hy=hy1+(CL_HOME_Y-hy1)*e;clSet();});
+  const xs=CL.x;await clTween(1000,e=>{CL.x=xs+(CL_CHUTE_X-xs)*e;clSet();});
+  await new Promise(r=>setTimeout(r,150));
+  CL.open=1;clSet();
+  // 놓기: 아래로 떨어지기
+  const h=CL.held;CL.held=null;
+  const g=document.getElementById('cb'+h.id),y0=CL.hy+34;
+  const tray=document.getElementById('clTrayBall');
+  await clTween(900,e=>{g.setAttribute('transform','translate('+CL_CHUTE_X+' '+(y0+(CL_TRAY_Y-y0)*e)+')');},clBounce);
+  g.parentNode.removeChild(g);
+  tray.innerHTML=gcCap(0,0,24,h.c,h.id).replace('class="gc-cap"','class="gc-cap2"').replace(/animation-delay:[^;"]*/,'');
+  const dr=document.getElementById('gcDrop');dr.style.display='';dr.classList.add('ready');
+  rlBusy=false;gcCanOpen=true;CL.mode='done';
   btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';
+  msg.textContent='뽑은 캡슐을 눌러 열어보세요';
 }
 function gcOpen(){
   if(!gcCanOpen||!gcData)return;
@@ -808,7 +859,7 @@ function rlShowResult(d){
    +'<p>'+(d.minOrderAmount>0?rlFmt(d.minOrderAmount)+'원 이상 주문 시 사용 가능':'금액 제한 없이 사용 가능')+'</p>'
    +'<p>발급일로부터 '+d.validDays+'일간 사용할 수 있어요.</p>'
    +'<button class="rl-btn" onclick="location.href=\'mypage.html?tab=coupons\'">쿠폰함 보기</button>'
-   +'<button class="rl-btn sub" onclick="document.getElementById(\'rlModal\').classList.remove(\'open\');document.getElementById(\'rlMsg\').textContent=\'쿠폰함에서 받은 쿠폰을 확인해 보세요.\'">닫기</button>';
+   +'<button class="rl-btn sub" onclick="if(rlTester){location.reload();return;}document.getElementById(\'rlModal\').classList.remove(\'open\');document.getElementById(\'rlMsg\').textContent=\'쿠폰함에서 받은 쿠폰을 확인해 보세요.\'">닫기</button>';
   card.classList.add('show');requestAnimationFrame(()=>requestAnimationFrame(()=>card.classList.add('in')));
 }
 
