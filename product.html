@@ -1292,10 +1292,11 @@ html{color-scheme:only light}
 }
 
 /* 화면 아래에 남는 여백을 위쪽 정보 영역 간격으로 나눠 씀 (--su 는 스크립트가 계산) */
-.product-info .product-meta{margin-top:var(--su,0px)!important}
-.product-info .spec-line{margin-top:var(--su,0px)!important}
-.product-info #price-visible,.product-info #price-locked,.product-info #price-checking{margin-top:var(--su,0px)!important}
-.product-info #colorSection{margin-top:var(--su,0px)!important}
+.product-info .product-head{margin-bottom:calc(var(--su,0px)*.6)!important}
+.product-info .product-meta{margin-top:calc(var(--su,0px)*1.1)!important}
+.product-info .spec-line{margin-top:calc(var(--su,0px)*1.1)!important}
+.product-info #price-visible,.product-info #price-locked,.product-info #price-checking{margin-top:calc(var(--su,0px)*.6)!important}
+.product-info #colorSection{margin-top:calc(var(--su,0px)*.6)!important}
 </style>
 
     <!-- 가격 (비회원) -->
@@ -1602,8 +1603,9 @@ html{color-scheme:only light}
         if(hb>0 && hb<h) h=hb;
       }
       // 아래에 남는 여백이 있으면 위쪽 간격 4곳에 나눠 줌 (최대 14px씩, 아래에도 조금 남김)
-      var slack=window.innerHeight-(h+base+bottomGap)-24;
-      var su=(slack>0&&window.innerWidth>1000)?Math.min(14,Math.floor(slack/4)):0;
+      // 여유가 충분하면 상품마다 같은 간격(16px 기준)으로 고정, 모자라면 남는 만큼만
+      var slack=window.innerHeight-(h+base+bottomGap)-8;
+      var su=(slack>0&&window.innerWidth>1000)?Math.min(16,Math.floor(slack/4)):0;
       if(su>0){ productInfo.style.setProperty('--su',su+'px'); h=productInfo.offsetHeight; }
       var top=(h+base+bottomGap>window.innerHeight)?(window.innerHeight-h-bottomGap):base;
       productInfo.style.setProperty('top',top+'px','important');
