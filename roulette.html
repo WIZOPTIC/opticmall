@@ -771,7 +771,7 @@ function gcHtml(){
   const ttl=((RL&&RL.title)||'행운 뽑기');
   const per=(RL&&RL.startDate&&RL.endDate)?gxFmtD(RL.startDate)+' ~ '+gxFmtD(RL.endDate):'오픈 기념 이벤트';
   const wd=ttl.split(' ').filter(Boolean),h2=wd.length>=4?escapeHtml(wd.slice(0,-2).join(' '))+'<br><em>'+escapeHtml(wd.slice(-2).join(' '))+'</em>':escapeHtml(ttl);
-  return '<div class="rl-head2"><h2 class="rl-h2">'+h2+'</h2><p class="rl-desc">룰렛을 돌리고<br>할인쿠폰을 받아가세요.</p><div class="rl-per">'+per+'</div></div>'
+  return '<div class="rl-head2"><h2 class="rl-h2">'+h2+'</h2><p class="rl-desc">'+escapeHtml((RL&&RL.subtitle)||'룰렛을 돌리고 할인쿠폰을 받아가세요')+'</p><div class="rl-per">'+per+'</div></div>'
   +'<div class="rl-stage cw"><svg class="gx" id="gxSvg" viewBox="16 20 608 608" xmlns="http://www.w3.org/2000/svg">'
   +'<defs><linearGradient id="rwG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4E4B0"/><stop offset=".5" stop-color="#B8963F"/><stop offset="1" stop-color="#E6D3A0"/></linearGradient>'
   +'<radialGradient id="rwH" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#FFF6D6"/><stop offset=".6" stop-color="#D6B26A"/><stop offset="1" stop-color="#8a6c2e"/></radialGradient></defs>'

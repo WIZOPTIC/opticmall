@@ -211,6 +211,59 @@ tr:hover td{background:#FAFBFC;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* 페이지 */
+
+/* 뽑기 이벤트 관리 화면 */
+.rla{max-width:960px;display:flex;flex-direction:column;gap:20px;padding-bottom:40px;}
+.rla-card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:26px 28px;}
+.rla-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:22px;}
+.rla-h{font-size:17px;font-weight:800;color:#111318;}
+.rla-sub{font-size:12.5px;color:#7a8794;margin-top:5px;line-height:1.55;}
+.rla-switch span{white-space:nowrap;}
+.rla-switch{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;color:#5A6472;flex-shrink:0;}
+.rla-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px;}
+.rla-f{display:flex;flex-direction:column;gap:7px;min-width:0;}
+.rla-wide{grid-column:1/3;}
+.rla-f>span{font-size:12.5px;font-weight:700;color:#3b4350;}
+.rla-f>em{font-style:normal;font-size:11.5px;color:#9BA5B0;line-height:1.5;}
+.rla-f>em b{color:#C9A227;font-weight:700;}
+.rla-in{width:100%;box-sizing:border-box;height:42px;padding:0 13px;border:1.5px solid #E0E4E8;border-radius:8px;background:#fff;font-size:14px;font-family:inherit;color:#111318;outline:none;transition:border-color .15s,box-shadow .15s;}
+.rla-in:focus{border-color:#C9A227;box-shadow:0 0 0 3px rgba(201,162,39,.14);}
+select.rla-in{cursor:pointer;}
+.rla-tw{overflow-x:auto;}
+.rla-t{width:100%;border-collapse:collapse;}
+.rla-t thead{background:none;}
+.rla-t th{padding:0 10px 10px;font-size:12px;font-weight:700;color:#7a8794;text-align:left;text-transform:none;letter-spacing:0;border-bottom:1.5px solid #E0E4E8;}
+.rla-t td{padding:10px;border-bottom:1px solid #F2F4F6;vertical-align:middle;}
+.rla-t tr:hover td{background:#FCFBF7;}
+.rla-t .c-no{width:38px;text-align:center;}
+.rla-t .c-pct{width:210px;}
+.rla-t .c-del{width:70px;}
+.rla-no{width:26px;height:26px;border-radius:50%;background:#FBF6E9;color:#A98C52;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto;}
+.rla-u{position:relative;display:block;}
+.rla-u .rla-in{padding-right:34px;text-align:right;font-variant-numeric:tabular-nums;}
+.rla-u i{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-style:normal;font-size:12.5px;color:#9BA5B0;pointer-events:none;}
+.rla-pct{display:flex;align-items:center;gap:10px;}
+.rla-bar{flex:1;height:8px;border-radius:99px;background:#F2F4F6;overflow:hidden;min-width:60px;}
+.rla-bar>div{height:100%;border-radius:99px;background:linear-gradient(90deg,#E4CD84,#C9A227);}
+.rla-pct b{width:54px;text-align:right;font-size:13.5px;font-weight:800;color:#111318;font-variant-numeric:tabular-nums;}
+.rla-pct.zero b{color:#c0c6cd;}
+.rla-x{height:34px;padding:0 12px;border:1px solid #E0E4E8;border-radius:7px;background:#fff;color:#8a94a0;font-size:12px;font-family:inherit;cursor:pointer;}
+.rla-x:hover{border-color:#FF4444;color:#FF4444;background:#FFF6F6;}
+.rla-sum{display:flex;gap:28px;flex-wrap:wrap;margin-top:18px;padding:14px 18px;background:#F7F4EE;border-radius:9px;font-size:13px;color:#5A6472;}
+.rla-sum b{color:#111318;font-weight:800;margin-left:6px;}
+.rla-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+.rla-btn{height:44px;padding:0 24px;border:1.5px solid #E0E4E8;border-radius:9px;background:#fff;color:#3b4350;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;}
+.rla-btn:hover{border-color:#C9A227;color:#A98C52;}
+.rla-btn.rla-main{border-color:#2A2420;background:#2A2420;color:#fff;min-width:120px;}
+.rla-btn.rla-main:hover{background:#463D36;border-color:#463D36;color:#fff;}
+.rla-win{font-size:13px;color:#7a8794;}
+.rla-wt{width:100%;border-collapse:collapse;}
+.rla-wt thead{background:none;}
+.rla-wt th{padding:0 10px 10px;font-size:12px;font-weight:700;color:#7a8794;text-align:left;text-transform:none;letter-spacing:0;border-bottom:1.5px solid #E0E4E8;}
+.rla-wt td{padding:12px 10px;border-bottom:1px solid #F2F4F6;font-size:13px;color:#111318;}
+.rla-wt td.v{text-align:right;font-weight:800;font-variant-numeric:tabular-nums;}
+.rla-wt th.v{text-align:right;}
+@media(max-width:900px){.rla-grid{grid-template-columns:1fr}.rla-wide{grid-column:auto}.rla-head{flex-direction:column}.rla-t .c-pct{width:150px}}
 .page{display:none;}
 .page.active{display:block;}
 
@@ -443,30 +496,41 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 
     <!-- 상품 노출 순서 -->
     <div class="page" id="page-roulette">
-      <div class="section-card" style="padding:24px;max-width:900px;">
-        <div class="section-title">인형뽑기 이벤트 설정</div>
-        <div style="font-size:13px;color:#7a8794;margin-bottom:18px;">확률(가중치)은 회원에게 보이지 않아요. 가중치가 0이면 해당 금액은 절대 나오지 않습니다. 회원에게는 선물 캡슐만 보이고 금액은 열어봐야 알 수 있어요.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-          <label style="grid-column:1/3;font-size:13px;font-weight:600;">진행 여부
-            <select id="rlEnabled" class="form-input" style="margin-top:4px;"><option value="1">진행 중 (회원에게 공개)</option><option value="0">중지</option></select></label>
-          <label style="font-size:13px;font-weight:600;">이벤트 제목<input id="rlTitle" class="form-input" style="margin-top:4px;" value="옵틱몰 오픈 기념 행운 뽑기"></label>
-          <label style="font-size:13px;font-weight:600;">부제목<input id="rlSubtitle" class="form-input" style="margin-top:4px;" value="집게로 선물을 뽑고 할인쿠폰을 받아가세요"></label>
-          <label style="font-size:13px;font-weight:600;">시작일<input id="rlStart" type="date" class="form-input" style="margin-top:4px;"></label>
-          <label style="font-size:13px;font-weight:600;">종료일<input id="rlEnd" type="date" class="form-input" style="margin-top:4px;"></label>
-          <label style="font-size:13px;font-weight:600;">참여 횟수
-            <select id="rlLimit" class="form-input" style="margin-top:4px;"><option value="once">회원당 1회</option><option value="daily">회원당 하루 1회</option></select></label>
-          <label style="font-size:13px;font-weight:600;">테스트 모드 (오픈 전 확인용)
-            <select id="rlTest" class="form-input" style="margin-top:4px;"><option value="0">끔 (정상 운영)</option><option value="1">켬 - 관리자 계정만 횟수 제한 없이 반복 가능</option></select></label>
-          <label style="font-size:13px;font-weight:600;">쿠폰 사용 기간(일)<input id="rlValid" type="number" min="1" class="form-input" style="margin-top:4px;" value="30"></label>
+      <div class="rla">
+        <div class="rla-card">
+          <div class="rla-head"><div><div class="rla-h">이벤트 기본 설정</div><div class="rla-sub">회원에게 보이는 룰렛 이벤트의 제목, 기간, 참여 방식을 정해요.</div></div>
+            <label class="rla-switch"><span>진행 여부</span>
+              <select id="rlEnabled" class="rla-in"><option value="1">진행 중 (회원에게 공개)</option><option value="0">중지</option></select></label></div>
+          <div class="rla-grid">
+            <label class="rla-f rla-wide"><span>이벤트 제목</span><input id="rlTitle" class="rla-in" value="옵틱몰 오픈 기념 행운 뽑기"><em>띄어쓰기 기준으로 뒤 두 단어가 금색으로 강조돼요. 예) 옵틱몰 오픈 기념 <b>행운 뽑기</b></em></label>
+            <label class="rla-f rla-wide"><span>안내 문구</span><input id="rlSubtitle" class="rla-in" value="룰렛을 돌리고 할인쿠폰을 받아가세요"><em>룰렛 화면과 이벤트 안내 배너에 같이 나와요.</em></label>
+            <label class="rla-f"><span>시작일</span><input id="rlStart" type="date" class="rla-in"></label>
+            <label class="rla-f"><span>종료일</span><input id="rlEnd" type="date" class="rla-in"></label>
+            <label class="rla-f"><span>참여 횟수</span>
+              <select id="rlLimit" class="rla-in"><option value="once">회원당 1회</option><option value="daily">회원당 하루 1회</option></select></label>
+            <label class="rla-f"><span>쿠폰 사용 기간 (일)</span><input id="rlValid" type="number" min="1" class="rla-in" value="30"></label>
+            <label class="rla-f rla-wide"><span>테스트 모드 (오픈 전 확인용)</span>
+              <select id="rlTest" class="rla-in"><option value="0">끔 (정상 운영)</option><option value="1">켬 - 관리자 계정만 횟수 제한 없이 반복 가능</option></select><em>오픈 전에는 반드시 &lsquo;끔&rsquo;으로 두세요.</em></label>
+          </div>
         </div>
-        <div style="font-size:14px;font-weight:700;margin:6px 0 8px;">상품(쿠폰) 및 확률</div>
-        <table class="data-table" style="width:100%;"><thead><tr><th>할인금액(원)</th><th>가중치</th><th>실제 확률</th><th>최소 주문금액(원)</th><th></th></tr></thead><tbody id="rlPrizeBody"></tbody></table>
-        <div style="margin-top:10px;display:flex;gap:8px;">
-          <button class="btn" onclick="rlAddPrize()">상품 추가</button>
-          <button class="btn btn-primary" onclick="saveRouletteAdmin()">저장</button>
+
+        <div class="rla-card">
+          <div class="rla-head"><div><div class="rla-h">쿠폰 금액과 당첨 확률</div><div class="rla-sub">룰렛판에는 아래 금액이 모두 표시돼요. 가중치가 클수록 잘 나오고, 0이면 절대 나오지 않아요.</div></div></div>
+          <div class="rla-tw"><table class="rla-t">
+            <thead><tr><th class="c-no">#</th><th>할인금액</th><th>가중치</th><th class="c-pct">실제 확률</th><th>최소 주문금액</th><th class="c-del"></th></tr></thead>
+            <tbody id="rlPrizeBody"></tbody>
+          </table></div>
+          <div class="rla-sum" id="rlSum"></div>
+          <div class="rla-actions">
+            <button type="button" class="rla-btn" onclick="rlAddPrize()">+ 금액 추가</button>
+            <button type="button" class="rla-btn rla-main" onclick="saveRouletteAdmin()">저장</button>
+          </div>
         </div>
-        <div style="font-size:14px;font-weight:700;margin:28px 0 8px;">당첨 내역 (최근 100건)</div>
-        <div id="rlWinners" style="font-size:13px;color:#555;">불러오는 중...</div>
+
+        <div class="rla-card">
+          <div class="rla-head"><div><div class="rla-h">당첨 내역</div><div class="rla-sub">최근 100건까지 보여요.</div></div></div>
+          <div id="rlWinners" class="rla-win">불러오는 중...</div>
+        </div>
       </div>
     </div>
     <div class="page" id="page-productOrder">
@@ -3456,12 +3520,20 @@ async function loadRouletteAdmin(){
 }
 function rlRenderPrizes(){
   const tot=RLA.reduce((s,p)=>s+(Number(p.weight)||0),0);
-  document.getElementById('rlPrizeBody').innerHTML=RLA.map((p,i)=>`<tr>
-    <td><input type="number" class="form-input" style="width:120px;" value="${p.value}" onchange="RLA[${i}].value=Number(this.value)"></td>
-    <td><input type="number" min="0" step="any" class="form-input" style="width:100px;" value="${p.weight}" onchange="RLA[${i}].weight=Number(this.value);rlRenderPrizes()"></td>
-    <td><b>${tot>0?((Number(p.weight)||0)/tot*100).toFixed(1):'0.0'}%</b></td>
-    <td><input type="number" min="0" class="form-input" style="width:130px;" value="${p.min}" onchange="RLA[${i}].min=Number(this.value)"></td>
-    <td><button class="btn" onclick="RLA.splice(${i},1);rlRenderPrizes()">삭제</button></td></tr>`).join('');
+  let ev=0;
+  document.getElementById('rlPrizeBody').innerHTML=RLA.map((p,i)=>{
+    const pr=tot>0?(Number(p.weight)||0)/tot*100:0;ev+=pr/100*(Number(p.value)||0);
+    const ps=pr>=10?pr.toFixed(1):pr>0?pr.toFixed(2).replace(/0$/,''):'0';
+    return `<tr>
+    <td><div class="rla-no">${i+1}</div></td>
+    <td><span class="rla-u"><input type="number" class="rla-in" value="${p.value}" onchange="RLA[${i}].value=Number(this.value);rlRenderPrizes()"><i>원</i></span></td>
+    <td><input type="number" min="0" step="any" class="rla-in" style="max-width:120px;text-align:right;" value="${p.weight}" onchange="RLA[${i}].weight=Number(this.value);rlRenderPrizes()"></td>
+    <td><div class="rla-pct${pr>0?'':' zero'}"><div class="rla-bar"><div style="width:${Math.min(100,pr)}%"></div></div><b>${ps}%</b></div></td>
+    <td><span class="rla-u"><input type="number" min="0" class="rla-in" value="${p.min}" onchange="RLA[${i}].min=Number(this.value)"><i>원</i></span></td>
+    <td><button type="button" class="rla-x" onclick="RLA.splice(${i},1);rlRenderPrizes()">삭제</button></td></tr>`;
+  }).join('');
+  const sm=document.getElementById('rlSum');
+  if(sm)sm.innerHTML='<div>금액 종류<b>'+RLA.length+'개</b></div><div>가중치 합계<b>'+tot.toLocaleString()+'</b></div><div>1인당 평균 쿠폰 금액<b>약 '+Math.round(ev).toLocaleString()+'원</b></div>';
 }
 function rlAddPrize(){RLA.push({value:1000,weight:0,min:100000});rlRenderPrizes();}
 async function saveRouletteAdmin(){
@@ -3486,7 +3558,7 @@ async function rlLoadWinners(){
     const snap=await window._getDocs(window._collection(window._db,'rouletteSpins'));
     const rows=snap.docs.map(d=>d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,100);
     if(!rows.length){el.textContent='아직 참여 내역이 없습니다.';return;}
-    el.innerHTML='<table class="data-table" style="width:100%;"><thead><tr><th>일시</th><th>회원</th><th>상호</th><th>당첨</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${r.createdAt?new Date(r.createdAt.seconds*1000).toLocaleString('ko-KR'):''}</td><td>${r.userName||''}</td><td>${r.company||''}</td><td>${Number(r.value).toLocaleString()}원</td></tr>`).join('')+'</tbody></table>';
+    el.innerHTML='<table class="rla-wt"><thead><tr><th>일시</th><th>회원</th><th>상호</th><th class="v">당첨 쿠폰</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${r.createdAt?new Date(r.createdAt.seconds*1000).toLocaleString('ko-KR'):''}</td><td>${r.userName||''}</td><td>${r.company||''}</td><td class="v">${Number(r.value).toLocaleString()}원</td></tr>`).join('')+'</tbody></table>';
   }catch(e){el.textContent='불러오지 못했습니다.';}
 }
 
