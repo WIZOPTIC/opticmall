@@ -1234,6 +1234,20 @@ document.addEventListener('click', (e) => {
 });
 
 // 로그인 슬라이드
+// 로그인 후 돌아갈 페이지 검증 (같은 사이트의 .html 페이지만, 메인/가입 페이지는 제외)
+function rememberNextOk(p) {
+  return /^[A-Za-z0-9_-]+\.html(\?[A-Za-z0-9_=&%.,-]*)?$/.test(p) && !/^(index|join)\.html/.test(p);
+}
+function captureLoginNext() {
+  try {
+    let nx = new URLSearchParams(location.search).get('next') || '';
+    if (!rememberNextOk(nx) && document.referrer) {
+      const u = new URL(document.referrer);
+      if (u.origin === location.origin) nx = u.pathname.split('/').pop() + u.search;
+    }
+    if (rememberNextOk(nx)) sessionStorage.setItem('opticmall_login_next', nx);
+  } catch(e) {}
+}
 function openLogin() {
   document.getElementById('loginOverlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
@@ -1380,10 +1394,11 @@ async function doLogin() {
     await _auth.signInWithEmailAndPassword(email, pw);
     closeLogin();
     showMainToast('✓ 로그인되었습니다!', 'success');
-    // 다른 페이지에서 로그인하러 넘어온 경우(next 파라미터) 로그인 후 원래 페이지로 복귀
+    // 다른 페이지에서 로그인하러 넘어온 경우, 로그인 후 원래 있던 페이지로 복귀
     try {
-      const nx = new URLSearchParams(location.search).get('next') || '';
-      if (/^[A-Za-z0-9_-]+\.html(\?[A-Za-z0-9_=&%.-]*)?$/.test(nx)) { setTimeout(() => { location.href = nx; }, 500); }
+      const nx = sessionStorage.getItem('opticmall_login_next') || '';
+      sessionStorage.removeItem('opticmall_login_next');
+      if (rememberNextOk(nx)) { setTimeout(() => { location.href = nx; }, 500); }
     } catch(e) {}
   } catch(e) {
     errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
@@ -1633,6 +1648,7 @@ _auth.onAuthStateChanged(async (user) => {
     maybeShowSignupPromo();
     if(new URLSearchParams(location.search).get('openLogin') === '1' && !window._autoLoginOpened) {
       window._autoLoginOpened = true;
+      captureLoginNext();
       openLogin();
     }
   }
