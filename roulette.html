@@ -765,7 +765,7 @@ function gcHtml(){
     w+='<path d="M320 332 L'+p1[0]+' '+p1[1]+' A262 262 0 0 1 '+p2[0]+' '+p2[1]+' Z" fill="'+c+'" stroke="#2a2018" stroke-width="2"/>';
     const pv=RL&&RL.prizes&&RL.prizes[i]?Number(RL.prizes[i].value):0;
     const tc=['#3a2a1c','#FFFFFF','#3a2a1c','#F4E4B0'][i%4],tk=['none','#7a4a2c','none','#2a1a10'][i%4];
-    w+='<g transform="rotate('+((i+.5)*seg)+' 320 332)"><text x="320" y="122" text-anchor="middle" font-size="27" font-weight="800" fill="'+tc+'"'+(tk!=='none'?' stroke="'+tk+'" stroke-width="4" paint-order="stroke"':'')+'>'+rlFmt(pv)+'<tspan font-size="17" font-weight="700">원</tspan></text></g>';
+    w+='<g transform="rotate('+((i+.5)*seg)+' 320 332)"><text x="320" y="118" text-anchor="middle" font-size="27" font-weight="800" fill="'+tc+'"'+(tk!=='none'?' stroke="'+tk+'" stroke-width="4" paint-order="stroke"':'')+'>'+rlFmt(pv)+'<tspan font-size="17" font-weight="700">원</tspan></text><text x="320" y="146" text-anchor="middle" font-size="15" font-weight="800" letter-spacing="3" fill="'+tc+'"'+(tk!=='none'?' stroke="'+tk+'" stroke-width="3" paint-order="stroke"':'')+'>쿠폰</text></g>';
     const q=rwPt(274,i*seg);d+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="6" fill="#F4E4B0" stroke="#7a6232" stroke-width="1.5"/>';
   }
   const ttl=((RL&&RL.title)||'행운 뽑기');
