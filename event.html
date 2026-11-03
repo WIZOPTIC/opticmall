@@ -508,8 +508,8 @@ body.has-promo .empty-box{display:none;}
   <a id="rlPromo" href="roulette.html" class="rlp">
     <span class="rlp-txt">
       <span class="rlp-eb">OPEN EVENT</span>
-      <span class="rlp-title" id="rlPromoTitle">행운의 룰렛</span>
-      <span class="rlp-desc">룰렛을 돌리고 할인쿠폰을 받아가세요</span>
+      <span class="rlp-title" id="rlPromoTitle">행운 뽑기</span>
+      <span class="rlp-desc">캡슐을 뽑고 할인쿠폰을 받아가세요</span>
       <span class="rlp-btn">지금 참여하기</span>
     </span>
     <span class="rlp-art"><span class="rlp-wheel"></span><span class="rlp-pin"></span></span>
@@ -651,7 +651,7 @@ async function loadRoulettePromo(){
     if(!d.exists||!d.data().enabled)return;
     const c=d.data(),t=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);
     if(c.endDate&&t>c.endDate)return;
-    document.getElementById('rlPromoTitle').textContent=c.title||'행운의 룰렛';
+    document.getElementById('rlPromoTitle').textContent=c.title||'행운 뽑기';
     document.getElementById('rlPromo').style.display='flex';document.body.classList.add('has-promo');
   }catch(e){}
 }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="color-scheme" content="only light">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>행운의 룰렛 - 옵틱몰</title>
+<title>행운 뽑기 - 옵틱몰</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF7A1A'/><text x='50' y='68' font-family='Arial, sans-serif' font-weight='800' font-size='48' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Montserrat:wght@400;500;600;700&family=Inter:wght@600;700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -396,35 +396,69 @@ html{color-scheme:only light}
  .ers-head h2,.cat-badge-row .title,.category-hero-title,.ts-wrap .category-hero-title,.page-wrap .category-hero-title,.list-title,.cs-hero h1{font-size:21px!important}
 }
 
-.rl-wrap{max-width:1100px;margin:8px auto 0;text-align:center;padding:36px 56px;border-radius:18px;display:grid;grid-template-columns:1fr auto;grid-template-areas:'head stage' 'foot stage';align-items:center;column-gap:40px;text-align:left;color:#fff;
-  background:linear-gradient(90deg,rgba(22,18,15,.93) 0%,rgba(22,18,15,.8) 55%,rgba(22,18,15,.72) 100%),url(event-open-wide.jpg) center/cover no-repeat #2A2420;position:relative;overflow:hidden;min-height:calc(100vh - 410px);}
-.rl-wrap:before{content:"";position:absolute;inset:14px;border:1px solid rgba(214,196,154,.28);border-radius:12px;pointer-events:none;}
-.rl-head{grid-area:head;align-self:end;}.rl-foot{grid-area:foot;align-self:start;}.rl-stage{grid-area:stage;}
-.rl-eyebrow{font-size:12px;letter-spacing:4px;color:#D6C49A;margin-bottom:14px;}
-.rl-title{font-size:34px;font-weight:700;color:#fff;margin:0 0 10px;letter-spacing:-.5px;}
-.rl-sub{font-size:15px;color:rgba(255,255,255,.72);margin-bottom:8px;}
-.rl-period{font-size:12px;color:#D6C49A;letter-spacing:.5px;margin-bottom:30px;}
-.rl-stage{position:relative;width:clamp(300px,calc(100vh - 480px),460px);aspect-ratio:1/1;margin:14px 20px 14px 0;}
-.rl-stage:before{content:"";position:absolute;inset:-26px;border-radius:50%;background:radial-gradient(circle,rgba(214,196,154,.28) 0%,rgba(214,196,154,0) 68%);}
-.rl-pointer{position:absolute;left:50%;top:-14px;transform:translateX(-50%);z-index:3;width:34px;height:44px;
-  background:linear-gradient(180deg,#F1E3B8,#A98C52);clip-path:polygon(50% 100%,0 12%,18% 0,82% 0,100% 12%);filter:drop-shadow(0 3px 4px rgba(0,0,0,.5));}
-.rl-wheel{position:relative;width:100%;height:100%;border-radius:50%;transition:transform 5.2s cubic-bezier(.12,.7,.1,1);box-shadow:0 14px 40px rgba(0,0,0,.55);}
-.rl-hub{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;z-index:2;display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:800;letter-spacing:2px;color:#2A2420;background:radial-gradient(circle at 35% 30%,#F4E8C4,#C8AA68 55%,#8E7440);border:3px solid #2A2420;box-shadow:0 0 0 3px #D6C49A,0 6px 14px rgba(0,0,0,.5);}
-.rl-btn{display:inline-block;min-width:240px;padding:17px 34px;border:none;border-radius:999px;background:linear-gradient(180deg,#E6D3A0,#A98C52);color:#2A2420;font-size:16px;font-weight:800;letter-spacing:.5px;cursor:pointer;font-family:inherit;box-shadow:0 8px 20px rgba(0,0,0,.35);transition:transform .15s;}
-.rl-btn:hover:not(:disabled){transform:translateY(-2px);}
-.rl-btn:disabled{background:rgba(255,255,255,.14);color:rgba(255,255,255,.55);box-shadow:none;cursor:default;}
-.rl-msg{margin-top:16px;font-size:14px;color:rgba(255,255,255,.7);min-height:20px;}
-.rl-modal{position:fixed;inset:0;background:rgba(15,12,10,.72);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
+.rl-wrap{max-width:1100px;margin:8px auto 0;padding:24px 24px 28px;border-radius:18px;color:#fff;text-align:center;position:relative;overflow:hidden;
+  display:grid;grid-template-columns:1fr;grid-template-areas:'head' 'stage' 'foot';justify-items:center;align-content:center;
+  background:radial-gradient(ellipse at 50% 50%,#1d1813 0%,#0d0b09 62%,#070605 100%);}
+.rl-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.rl-head,.rl-stage,.rl-foot{position:relative;z-index:1;}
+.rl-title{font-size:24px;font-weight:700;color:#fff;padding:60px 0 8px;}.rl-sub{font-size:14px;color:rgba(255,255,255,.65);padding-bottom:60px;}
+.rl-head{grid-area:head;}
+.rl-logo{font-family:"Playfair Display","Cormorant Garamond",Georgia,"Times New Roman",serif;font-style:italic;font-size:26px;color:#fff;letter-spacing:.5px;line-height:1.1;}
+.rl-eyebrowline{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:5px;}
+.rl-eyebrowline i{display:block;width:clamp(40px,12vw,150px);height:1px;background:linear-gradient(90deg,transparent,#A98C52);}
+.rl-eyebrowline i:last-child{transform:scaleX(-1);}
+.rl-eyebrowline span{font-size:11px;letter-spacing:.55em;color:#D6C49A;padding-left:.55em;}
+.rl-stage{grid-area:stage;position:relative;height:clamp(300px,calc(100vh - 525px),520px);aspect-ratio:360/540;margin:12px 0 14px;}
+.gc-machine{width:100%;height:100%;overflow:visible;display:block;}
+.gc-machine.shaking{animation:gcMachine .13s linear infinite;}
+@keyframes gcMachine{0%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-1px)}100%{transform:translate(0,0)}}
+.gc-cap{transform-box:fill-box;transform-origin:center;animation:gcBob 3.4s ease-in-out infinite;}
+@keyframes gcBob{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
+.gc-machine.shaking .gc-cap{animation:gcTumble .28s ease-in-out infinite;}
+@keyframes gcTumble{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(var(--dx2),var(--dy2)) rotate(var(--rot2))}}
+.gc-knob{transform-box:view-box;transform-origin:180px 392px;}
+.gc-knob.turn{animation:gcTurn 1.2s cubic-bezier(.5,0,.3,1);}
+@keyframes gcTurn{0%{transform:rotate(0)}100%{transform:rotate(540deg)}}
+.gc-drop{opacity:0;}
+.gc-drop .in{transform-box:fill-box;transform-origin:center;}
+.gc-drop.fall{opacity:1;}
+.gc-drop.fall .in{animation:gcDrop .95s cubic-bezier(.3,.2,.4,1) forwards;}
+@keyframes gcDrop{0%{transform:translateY(-86px)}55%{transform:translateY(0)}68%{transform:translateY(-16px)}82%{transform:translateY(0)}91%{transform:translateY(-5px)}100%{transform:translateY(0)}}
+.gc-drop.ready{cursor:pointer;}
+.gc-drop.ready .in{animation:gcPulse 1.3s ease-in-out infinite;}
+@keyframes gcPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.gc-knobhit{cursor:pointer;}
+.rl-foot{grid-area:foot;text-align:center;}
+.rl-btn{display:inline-block;min-width:280px;padding:15px 34px;border:1.5px solid #C8AA68;border-radius:999px !important;background:rgba(12,10,8,.6);color:#E6D3A0;font-size:16px;font-weight:600;letter-spacing:.5px;cursor:pointer;font-family:inherit;box-shadow:0 0 18px rgba(201,168,98,.18);transition:background .2s,transform .15s;}
+.rl-btn:hover:not(:disabled){background:rgba(201,168,98,.14);transform:translateY(-1px);}
+.rl-btn:disabled{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.45);box-shadow:none;cursor:default;}
+.rl-msg{margin-top:12px;font-size:14px;color:rgba(255,255,255,.7);min-height:20px;}
+/* 캡슐 열기 연출 */
+.rl-modal{position:fixed;inset:0;background:rgba(5,4,3,.86);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column;}
 .rl-modal.open{display:flex;}
-.rl-card{background:radial-gradient(ellipse at 50% 0%,#4a3d33,#2A2420 70%);border:1px solid #A98C52;border-radius:18px;padding:40px 28px 30px;max-width:360px;width:100%;text-align:center;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6);}
-.rl-card .eb{font-size:12px;letter-spacing:4px;color:#D6C49A;}
+.gc-ov{position:relative;width:170px;height:170px;margin-bottom:10px;}
+.gc-ov.done{height:0;margin:0;}
+.gc-ovcap{position:absolute;inset:0;}
+.gc-ovcap .top,.gc-ovcap .bot{position:absolute;left:0;width:170px;height:85px;transition:transform .8s cubic-bezier(.2,.8,.3,1),opacity .8s;}
+.gc-ovcap .top{top:0;border-radius:85px 85px 0 0;background:var(--c);}
+.gc-ovcap .bot{top:85px;border-radius:0 0 85px 85px;background:#F4EEDD;}
+.gc-ovcap .hl{position:absolute;left:28px;top:20px;width:34px;height:60px;border-radius:50%;background:rgba(255,255,255,.35);transform:rotate(20deg);}
+.gc-ovcap.wob{animation:gcWob .9s ease-in-out;}
+@keyframes gcWob{0%,100%{transform:rotate(0)}15%{transform:rotate(-14deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-12deg)}60%{transform:rotate(10deg)}75%{transform:rotate(-6deg)}}
+.gc-ovcap.pop .top{transform:translate(-44px,-130px) rotate(-38deg);opacity:0;}
+.gc-ovcap.pop .bot{transform:translate(40px,110px) rotate(28deg);opacity:0;}
+.gc-spark{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px;border-radius:50%;background:#E6D3A0;opacity:0;}
+.gc-spark.go{animation:gcSpark .9s ease-out forwards;}
+@keyframes gcSpark{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(.3)}}
+.rl-card{background:radial-gradient(ellipse at 50% 0%,#2a2219,#0d0b09 75%);border:1px solid #A98C52;border-radius:18px;padding:36px 28px 28px;max-width:360px;width:100%;text-align:center;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.7);opacity:0;transform:translateY(14px) scale(.96);transition:opacity .5s,transform .5s;display:none;}
+.rl-card.show{display:block;}.rl-card.in{opacity:1;transform:none;}
+.rl-card .eb{font-size:12px;letter-spacing:.4em;color:#D6C49A;}
 .rl-card .big{font-size:36px;font-weight:800;color:#E6D3A0;margin:14px 0 14px;letter-spacing:-.5px;}
 .rl-card p{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;margin:0 0 4px;}
-.rl-card .rl-btn{margin-top:22px;min-width:0;width:100%;}
-.rl-card .rl-btn.sub{background:transparent;color:#D6C49A;border:1px solid rgba(214,196,154,.5);margin-top:10px;box-shadow:none;}
-@media(max-width:860px){.rl-wrap{background:linear-gradient(180deg,rgba(22,18,15,.82),rgba(22,18,15,.7)),url(event-open-tall.jpg) center/cover no-repeat #2A2420;min-height:0;display:block;text-align:center;padding:40px 18px 48px;}.rl-stage{width:min(420px,80vw);margin:0 auto 30px;}.rl-period{margin-bottom:34px;}}
-@media(max-width:600px){.rl-wrap{padding:40px 14px 48px;border-radius:12px;}.rl-title{font-size:21px;}.rl-btn{min-width:0;width:100%;}}
+.rl-card .rl-btn{border-radius:999px !important;margin-top:22px;min-width:0;width:100%;background:linear-gradient(180deg,#E6D3A0,#A98C52);color:#1a1510;border:none;font-weight:800;box-shadow:none;}
+.rl-card .rl-btn.sub{background:transparent;color:#D6C49A;border:1px solid rgba(214,196,154,.5);margin-top:10px;}
+@media(max-width:860px){.rl-stage{height:min(480px,62vh);margin:16px 0 18px;}.rl-wrap{padding:26px 14px 32px;}}
+@media(max-width:600px){.rl-logo{font-size:28px;}.rl-btn{min-width:0;width:100%;}.rl-eyebrowline span{letter-spacing:.3em;white-space:nowrap;}.rl-eyebrowline{gap:10px;}}
 </style>
 </head>
 <body>
@@ -517,12 +551,6 @@ html{color-scheme:only light}
 </div>
 
 <div class="event-wrap">
-  <div class="category-hero">
-    <div class="category-hero-titlewrap">
-      <h1 class="category-hero-title">이벤트</h1>
-      <span class="category-hero-eyebrow">BRAND EVENTS</span>
-    </div>
-  </div>
   <div class="rl-wrap" id="rlArea"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
 </div>
 <div class="rl-modal" id="rlModal"><div class="rl-card" id="rlCard"></div></div>
@@ -680,74 +708,99 @@ async function initRoulette(user){
     try{const d=await _db.collection('rouletteSpins').doc(rlSpinId).get();rlSpun=d.exists;}catch(e){}
   }
   const period=(RL.startDate||RL.endDate)?'EVENT PERIOD  '+(RL.startDate||'')+' ~ '+(RL.endDate||''):'';
-  area.innerHTML='<div class="rl-head"><div class="rl-eyebrow">OPEN EVENT</div><div class="rl-title">'+escapeHtml(RL.title||'행운의 룰렛')+'</div>'
-   +(RL.subtitle?'<div class="rl-sub">'+escapeHtml(RL.subtitle)+'</div>':'')
-   +(period?'<div class="rl-period">'+escapeHtml(period)+'</div>':'')+'</div>'
-   +'<div class="rl-stage"><div class="rl-pointer"></div><canvas class="rl-wheel" id="rlWheel" width="840" height="840"></canvas><div class="rl-hub">SPIN</div></div>'
-   +'<div class="rl-foot"><button class="rl-btn" id="rlBtn" onclick="rlSpin()"></button><div class="rl-msg" id="rlMsg"></div></div>';
-  rlDraw();
+  area.innerHTML=gcHtml();
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
   if(state==='before'){btn.textContent='시작 전입니다';btn.disabled=true;}
   else if(state==='ended'){btn.textContent='종료된 이벤트입니다';btn.disabled=true;}
   else if(!user){btn.textContent='로그인하고 참여하기';btn.onclick=()=>location.href='index.html?openLogin=1';}
   else if(memberLevel<2){btn.textContent='승인된 회원만 참여할 수 있어요';btn.disabled=true;}
   else if(rlSpun){btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';btn.disabled=true;msg.textContent='쿠폰함에서 받은 쿠폰을 확인해 보세요.';}
-  else btn.textContent='룰렛 돌리기';
+  else btn.textContent='캡슐 뽑기';
 }
-function rlDraw(){
-  const c=document.getElementById('rlWheel'),x=c.getContext('2d'),n=RL.prizes.length,S=c.width,R=S/2,a=2*Math.PI/n;
-  const rim=34,Ri=R-rim;
-  x.clearRect(0,0,S,S);
-  // 바깥 금속 테두리
-  let g=x.createLinearGradient(0,0,S,S);g.addColorStop(0,'#F4E8C4');g.addColorStop(.5,'#A98C52');g.addColorStop(1,'#E6D3A0');
-  x.beginPath();x.arc(R,R,R-2,0,2*Math.PI);x.fillStyle=g;x.fill();
-  x.beginPath();x.arc(R,R,R-rim+4,0,2*Math.PI);x.fillStyle='#2A2420';x.fill();
-  for(let i=0;i<n;i++){
-    const odd3=(n%2===1&&i===n-1),dark=!odd3&&i%2===0;
-    x.beginPath();x.moveTo(R,R);x.arc(R,R,Ri,-Math.PI/2+i*a,-Math.PI/2+(i+1)*a);x.closePath();
-    const gg=x.createRadialGradient(R,R,Ri*.1,R,R,Ri);
-    if(odd3){gg.addColorStop(0,'#E6D3A0');gg.addColorStop(1,'#B8985A');}else if(dark){gg.addColorStop(0,'#3d332c');gg.addColorStop(1,'#241f1b');}else{gg.addColorStop(0,'#FBF8F1');gg.addColorStop(1,'#E9DFC9');}
-    x.fillStyle=gg;x.fill();
-    x.strokeStyle='#C8AA68';x.lineWidth=3;x.stroke();
-    const mid=-Math.PI/2+(i+.5)*a,left=((i+.5)*a)>Math.PI;
-    x.save();x.translate(R,R);x.rotate(left?mid+Math.PI:mid);
-    x.fillStyle=dark?'#E6D3A0':'#2A2420';x.font='700 46px "Noto Sans KR","Malgun Gothic",sans-serif';x.textBaseline='middle';
-    const t=rlFmt(RL.prizes[i].value)+'원';
-    if(left){x.textAlign='left';x.fillText(t,-(Ri-46),2);}else{x.textAlign='right';x.fillText(t,Ri-46,2);}
-    x.restore();
-  }
-  // 테두리 전구
-  const dots=n*3;
-  for(let i=0;i<dots;i++){
-    const th=i*2*Math.PI/dots,rr=R-rim/2-1;
-    x.beginPath();x.arc(R+Math.sin(th)*rr,R-Math.cos(th)*rr,6,0,2*Math.PI);
-    x.fillStyle=i%2?'#FFF6D8':'#8E7440';x.fill();
-  }
-  x.beginPath();x.arc(R,R,Ri,0,2*Math.PI);x.lineWidth=5;x.strokeStyle='#E6D3A0';x.stroke();
+const GC_COLORS=['#E7A58F','#8FBDB6','#E6C36A','#B7A2D6','#8FB0D6','#D98C95','#A7CC9C','#E9B97A'];
+let gcColor='#E6C36A';
+function gcCap(cx,cy,r,col,i){
+  const rot=((i*47)%40)-20,dx=((i*13)%9)-4,dy=((i*7)%9)-5,dr=((i*29)%24)-12;
+  const dx2=((i*17)%15)-7,dy2=((i*11)%13)-8,dr2=((i*31)%80)-40;
+  return '<g transform="translate('+cx+' '+cy+')"><g class="gc-cap" style="--dx:'+dx+'px;--dy:'+dy+'px;--rot:'+dr+'deg;--dx2:'+dx2+'px;--dy2:'+dy2+'px;--rot2:'+dr2+'deg;animation-delay:'+(-(i%7)*.45)+'s">'
+   +'<g transform="rotate('+rot+')"><circle r="'+r+'" fill="'+col+'"/><path d="M '+(-r)+' 0 A '+r+' '+r+' 0 0 0 '+r+' 0 Z" fill="#F4EEDD"/>'
+   +'<line x1="'+(-r)+'" y1="0" x2="'+r+'" y2="0" stroke="rgba(0,0,0,.18)" stroke-width="1.2"/>'
+   +'<ellipse cx="'+(-r*.38)+'" cy="'+(-r*.45)+'" rx="'+(r*.2)+'" ry="'+(r*.34)+'" fill="rgba(255,255,255,.38)" transform="rotate(25 '+(-r*.38)+' '+(-r*.45)+')"/></g></g></g>';
 }
-async function rlSpin(){
+function gcHtml(){
+  const pos=[[118,92],[180,78],[242,92],[88,148],[148,134],[212,138],[272,148],[116,202],[176,190],[236,202],[78,205],[282,205],[140,248],[206,252],[262,246],[100,255],[180,140]];
+  let caps='';pos.forEach((p,i)=>{caps+=gcCap(p[0],p[1],27,GC_COLORS[i%GC_COLORS.length],i);});
+  return '<div class="rl-head"><div class="rl-logo">Opticmall</div><div class="rl-eyebrowline"><i></i><span>CAPSULE EVENT</span><i></i></div></div>'
+  +'<div class="rl-stage"><svg class="gc-machine" id="gcMachine" viewBox="0 0 360 540" xmlns="http://www.w3.org/2000/svg">'
+  +'<defs><linearGradient id="gcGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4E8C4"/><stop offset=".5" stop-color="#A98C52"/><stop offset="1" stop-color="#E6D3A0"/></linearGradient>'
+  +'<linearGradient id="gcBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b241d"/><stop offset="1" stop-color="#0f0c0a"/></linearGradient>'
+  +'<radialGradient id="gcGlass" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/></radialGradient>'
+  +'<clipPath id="gcDome"><circle cx="180" cy="168" r="132"/></clipPath></defs>'
+  +'<ellipse cx="180" cy="528" rx="150" ry="9" fill="rgba(0,0,0,.55)"/>'
+  +'<circle cx="180" cy="168" r="132" fill="#15110e"/>'
+  +'<g clip-path="url(#gcDome)">'+caps+'</g>'
+  +'<circle cx="180" cy="168" r="132" fill="url(#gcGlass)" stroke="url(#gcGold)" stroke-width="4"/>'
+  +'<path d="M 82 110 A 110 110 0 0 1 150 56" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="5" stroke-linecap="round"/>'
+  +'<rect x="92" y="286" width="176" height="20" rx="6" fill="url(#gcGold)"/>'
+  +'<rect x="62" y="300" width="236" height="222" rx="26" fill="url(#gcBody)" stroke="url(#gcGold)" stroke-width="3"/>'
+  +'<rect x="108" y="318" width="144" height="34" rx="17" fill="#0a0908" stroke="#A98C52" stroke-width="1.2"/>'
+  +'<text x="180" y="342" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="20" fill="#E6D3A0">Opticmall</text>'
+  +'<rect x="112" y="436" width="136" height="72" rx="16" fill="#050403" stroke="#A98C52" stroke-width="2"/>'
+  +'<g class="gc-drop" id="gcDrop" onclick="gcOpen()"><g class="in">'+gcCap(180,474,25,'#E6C36A',3).replace('class="gc-cap"','class="gc-cap2"').replace(/animation-delay:[^;"]*/,'')+'</g></g>'
+  +'<path d="M 112 470 q 0 -14 14 -14 h 108 q 14 0 14 14 v 40 h -136 z" fill="none"/>'
+  +'<rect x="104" y="500" width="152" height="12" rx="6" fill="url(#gcGold)"/>'
+  +'<g class="gc-knobhit" onclick="gcPull()"><circle cx="180" cy="392" r="42" fill="#0a0908" stroke="url(#gcGold)" stroke-width="4"/>'
+  +'<g class="gc-knob" id="gcKnob"><rect x="132" y="386" width="96" height="12" rx="6" fill="url(#gcGold)"/><circle cx="180" cy="392" r="9" fill="#0a0908" stroke="#C8AA68" stroke-width="2"/></g></g>'
+  +'</svg></div>'
+  +'<div class="rl-foot"><button class="rl-btn" id="rlBtn" onclick="gcPull()"></button><div class="rl-msg" id="rlMsg"></div></div>';
+}
+let gcData=null,gcCanOpen=false;
+async function gcPull(){
   if(rlBusy||rlSpun)return;
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
+  if(!btn||btn.disabled)return;
   rlBusy=true;btn.disabled=true;msg.textContent='';
-  try{
-    const r=await _fn.httpsCallable('spinRoulette')({});
-    const d=r.data,n=RL.prizes.length,seg=360/n;
-    const wheel=document.getElementById('rlWheel');
-    const jitter=(Math.random()-.5)*seg*.6;
-    const deg=360*6-((d.prizeIndex+.5)*seg+jitter);
-    wheel.style.transform='rotate('+deg+'deg)';
-    setTimeout(()=>{
-      rlSpun=true;rlBusy=false;
-      btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';
-      msg.textContent='쿠폰함에서 받은 쿠폰을 확인해 보세요.';
-      rlShowResult(d);
-    },5400);
-  }catch(e){
+  const mach=document.getElementById('gcMachine'),knob=document.getElementById('gcKnob'),drop=document.getElementById('gcDrop');
+  mach.classList.add('shaking');knob.classList.remove('turn');void knob.getBoundingClientRect();knob.classList.add('turn');
+  const wait=new Promise(r=>setTimeout(r,1500));
+  let d=null,err=null;
+  try{const r=await _fn.httpsCallable('spinRoulette')({});d=r.data;}catch(e){err=e;}
+  await wait;
+  mach.classList.remove('shaking');
+  if(err){
     rlBusy=false;
-    const m=(e&&e.message)||'';
-    if(e&&e.code==='functions/already-exists'){rlSpun=true;btn.textContent='참여 완료';btn.disabled=true;msg.textContent=m;}
+    const m=(err&&err.message)||'';
+    if(err.code==='functions/already-exists'){rlSpun=true;btn.textContent='참여 완료';btn.disabled=true;msg.textContent=m;}
     else{btn.disabled=false;msg.textContent=m||'잠시 후 다시 시도해 주세요.';}
+    return;
   }
+  rlSpun=true;rlBusy=false;gcData=d;
+  gcColor=GC_COLORS[Math.floor(Math.random()*GC_COLORS.length)];
+  drop.querySelectorAll('circle').forEach(c=>{if(c.getAttribute('fill')==='#E6C36A')c.setAttribute('fill',gcColor);});
+  drop.classList.add('fall');
+  setTimeout(()=>{drop.classList.add('ready');gcCanOpen=true;msg.textContent='캡슐을 눌러 열어보세요';},1000);
+  btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';
+}
+function gcOpen(){
+  if(!gcCanOpen||!gcData)return;
+  gcCanOpen=false;
+  document.getElementById('gcDrop').classList.remove('ready');
+  const modal=document.getElementById('rlModal');
+  modal.innerHTML='<div class="gc-ov" id="gcOv"><div class="gc-ovcap" id="gcOvCap" style="--c:'+gcColor+'"><div class="top"></div><div class="bot"></div><div class="hl"></div></div></div><div class="rl-card" id="rlCard"></div>';
+  modal.classList.add('open');
+  const cap=document.getElementById('gcOvCap'),ov=document.getElementById('gcOv');
+  setTimeout(()=>cap.classList.add('wob'),150);
+  setTimeout(()=>{
+    cap.classList.add('pop');
+    for(let i=0;i<16;i++){
+      const sp=document.createElement('span');sp.className='gc-spark';
+      const ang=i/16*Math.PI*2,dist=90+Math.random()*70;
+      sp.style.setProperty('--x',Math.cos(ang)*dist+'px');sp.style.setProperty('--y',Math.sin(ang)*dist+'px');
+      sp.style.background=i%2?'#E6D3A0':gcColor;
+      ov.appendChild(sp);requestAnimationFrame(()=>sp.classList.add('go'));
+    }
+  },1150);
+  setTimeout(()=>{ov.style.display='none';rlShowResult(gcData);},1700);
 }
 function rlShowResult(d){
   const card=document.getElementById('rlCard');
@@ -755,8 +808,8 @@ function rlShowResult(d){
    +'<p>'+(d.minOrderAmount>0?rlFmt(d.minOrderAmount)+'원 이상 주문 시 사용 가능':'금액 제한 없이 사용 가능')+'</p>'
    +'<p>발급일로부터 '+d.validDays+'일간 사용할 수 있어요.</p>'
    +'<button class="rl-btn" onclick="location.href=\'mypage.html?tab=coupons\'">쿠폰함 보기</button>'
-   +'<button class="rl-btn sub" onclick="document.getElementById(\'rlModal\').classList.remove(\'open\')">닫기</button>';
-  document.getElementById('rlModal').classList.add('open');
+   +'<button class="rl-btn sub" onclick="document.getElementById(\'rlModal\').classList.remove(\'open\');document.getElementById(\'rlMsg\').textContent=\'쿠폰함에서 받은 쿠폰을 확인해 보세요.\'">닫기</button>';
+  card.classList.add('show');requestAnimationFrame(()=>requestAnimationFrame(()=>card.classList.add('in')));
 }
 
 function escapeHtml(str) {
