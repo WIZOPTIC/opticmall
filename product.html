@@ -1290,6 +1290,12 @@ html{color-scheme:only light}
  .gnb-inner.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent)}
  .gnb-inner.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent)}
 }
+
+/* 화면 아래에 남는 여백을 위쪽 정보 영역 간격으로 나눠 씀 (--su 는 스크립트가 계산) */
+.product-info .product-meta{margin-top:var(--su,0px)!important}
+.product-info .spec-line{margin-top:var(--su,0px)!important}
+.product-info #price-visible,.product-info #price-locked,.product-info #price-checking{margin-top:var(--su,0px)!important}
+.product-info #colorSection{margin-top:var(--su,0px)!important}
 </style>
 
     <!-- 가격 (비회원) -->
@@ -1580,6 +1586,7 @@ html{color-scheme:only light}
       var normalTop=hh+gap, bottomGap=8;
       // 화면에 다 안 들어가면 간격만 줄여서 한 화면에 들어오게 함 (스크롤 때 따라 움직이며 움찔하는 것 방지)
       productInfo.classList.remove('info-compact');
+      productInfo.style.setProperty('--su','0px');
       var h=productInfo.offsetHeight;
       // 처음 놓인 자리(스크롤 0일 때 위치)를 그대로 고정 위치로 써서, 스크롤 시작할 때 패널이 움찔하며 올라가지 않게 함
       var par=productInfo.parentElement, natural=0;
@@ -1594,6 +1601,10 @@ html{color-scheme:only light}
         var hb=Math.round(br.bottom-ir.top);
         if(hb>0 && hb<h) h=hb;
       }
+      // 아래에 남는 여백이 있으면 위쪽 간격 4곳에 나눠 줌 (최대 14px씩, 아래에도 조금 남김)
+      var slack=window.innerHeight-(h+base+bottomGap)-24;
+      var su=(slack>0&&window.innerWidth>1000)?Math.min(14,Math.floor(slack/4)):0;
+      if(su>0){ productInfo.style.setProperty('--su',su+'px'); h=productInfo.offsetHeight; }
       var top=(h+base+bottomGap>window.innerHeight)?(window.innerHeight-h-bottomGap):base;
       productInfo.style.setProperty('top',top+'px','important');
     }catch(e){}
