@@ -103,11 +103,18 @@ tr:hover td{background:#FAFBFC;}
 .om-filter-btn.active{background:var(--footer-bg);border-color:var(--footer-bg);color:var(--white);}
 .btn-ship{padding:5px 12px;background:var(--sky-lt);color:var(--sky);border:1px solid var(--gold-soft);border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-ship:hover{background:var(--sky);color:var(--white);}
-/* 상품 테이블 행 높이 고정 */
-#allProductsTable table td, #productApprovalTable table td { vertical-align:middle; white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis; padding:8px 10px; }
-#allProductsTable table td:first-child, #productApprovalTable table td:first-child { width:52px; max-width:52px; overflow:visible; }
-#allProductsTable table td:last-child, #productApprovalTable table td:last-child { max-width:none; overflow:visible; white-space:nowrap; }
-#allProductsTable table tr, #productApprovalTable table tr { height:64px; }
+/* 상품 테이블: 썸네일(84px)이 옆 칸을 덮지 않도록 열 폭과 간격 정리 */
+#allProductsTable table, #productApprovalTable table, #featuredPicksTable table { width:100%; border-collapse:separate; border-spacing:0; }
+#allProductsTable table th, #productApprovalTable table th, #featuredPicksTable table th { padding:13px 12px; white-space:nowrap; }
+#allProductsTable table td, #productApprovalTable table td, #featuredPicksTable table td { vertical-align:middle; white-space:nowrap; max-width:170px; overflow:hidden; text-overflow:ellipsis; padding:12px; border-bottom:1px solid #EEF0F2; }
+#allProductsTable table td:first-child, #productApprovalTable table td:first-child, #featuredPicksTable table td:first-child { width:108px; min-width:108px; max-width:108px; overflow:visible; padding:10px 8px 10px 16px; }
+#allProductsTable table th:first-child, #productApprovalTable table th:first-child, #featuredPicksTable table th:first-child { padding-left:16px; }
+#allProductsTable table td:nth-child(2), #productApprovalTable table td:nth-child(2) { padding-left:18px; }
+#allProductsTable table th:nth-child(2), #productApprovalTable table th:nth-child(2) { padding-left:18px; }
+#allProductsTable table td:last-child, #productApprovalTable table td:last-child { max-width:none; overflow:visible; white-space:nowrap; padding-right:16px; }
+#allProductsTable table tr, #productApprovalTable table tr, #featuredPicksTable table tr { height:84px; }
+#allProductsTable table tbody tr:last-child td, #productApprovalTable table tbody tr:last-child td { border-bottom:none; }
+#allProductsTable .pthumb, #allProductsTable .pthumb-ph, #productApprovalTable .pthumb, #productApprovalTable .pthumb-ph, #featuredPicksTable .pthumb, #featuredPicksTable .pthumb-ph { border:1px solid #EEF0F2; }
 .btn-approve{padding:5px 12px;background:#E8FBF0;color:#27AE60;border:1px solid #A8DDB8;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-approve:hover{background:#27AE60;color:var(--white);}
 .btn-reject{padding:5px 12px;background:#FEECEC;color:var(--red);border:1px solid #FFBBBB;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
