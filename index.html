@@ -1693,6 +1693,9 @@ function getMainColorDot(colorName) {
   if(name.includes('건메탈')) return '#6B6F73';
   if(name.includes('로즈')) return '#E6B8B0';
   if(name.includes('카키')) return '#8B8B5A';
+  if(name.includes('베이지') || name.includes('beige')) return '#D9C3A5';
+  if(name.includes('옐로우') || name.includes('yellow')) return '#F2C94C';
+  if(name.includes('호피') || name.includes('대모')) return '#8B4A2B';
   return '#888';
 }
 
@@ -2137,19 +2140,10 @@ function moveHeroTrack(withTransition) {
   track.style.transform = 'translateX(calc(-1 * (' + heroBannerPos + ' + ' + offset + ') * ((100% - 28px) / var(--hero-item-divisor) + 14px)))';
 }
 
+var heroWrapTimer = null;
 function slideHeroTrack() {
   if (heroBannerRealCount <= 3) return;
-  // 5초마다 한 칸씩 이동 (사진이 아직 준비 안 된 슬라이드는 스켈레톤 상태로 넘어갔다가, 로딩되면 자동으로 채워짐)
-  heroBannerPos = heroBannerPos + 1;
-  moveHeroTrack(true);
-
-  const maxPos = heroBannerRealCount; // 복제본까지 다 보여준 지점
-  if (heroBannerPos >= maxPos) {
-    setTimeout(() => {
-      heroBannerPos = 0;
-      moveHeroTrack(false);
-    }, HERO_BANNER_SLIDE_MS + 50);
-  }
+  heroBannerGoTo(heroBannerPos + 1, true);
 }
 
 // ── 사용자가 버튼/드래그로 직접 배너를 넘기는 기능 ──
@@ -2158,15 +2152,27 @@ function heroResetAutoTimer() {
   if (heroBannerRealCount > 3) heroBannerTimer = setInterval(slideHeroTrack, HERO_BANNER_ROTATE_MS);
 }
 
+// 무한 반복: 맨 끝(복제본)에 닿으면 처음으로 몰래 되돌리고, 맨 처음에서 왼쪽으로 가면 끝(복제본)으로 몰래 점프한 뒤 한 칸 이동
 function heroBannerGoTo(pos, withTransition) {
   if (heroBannerRealCount <= 3) return;
-  const maxPos = heroBannerRealCount; // 복제본까지 다 보여준 지점(여기 도달하면 처음으로 되돌림)
-  if (pos < 0) pos = 0;
+  const maxPos = heroBannerRealCount; // 복제본까지 다 보여준 지점 (처음 화면과 똑같이 보임)
+  const track = document.getElementById('heroBannerTrack');
+  if (heroWrapTimer) { clearTimeout(heroWrapTimer); heroWrapTimer = null; }
+  // 이전 이동이 끝나기 전에 눌러도 어색하지 않도록, 복제본 위치에 있으면 먼저 처음으로 되돌려 둠
+  if (heroBannerPos >= maxPos) { heroBannerPos = 0; pos = Math.max(-1, pos - maxPos); moveHeroTrack(false); if (track) void track.offsetWidth; }
+  if (pos < 0) {
+    // 처음에서 왼쪽 → 끝 복제본 위치로 순간이동(눈에 안 띔) 후 한 칸 뒤로
+    heroBannerPos = maxPos;
+    moveHeroTrack(false);
+    if (track) void track.offsetWidth;
+    pos = maxPos - 1;
+  }
   if (pos > maxPos) pos = maxPos;
   heroBannerPos = pos;
   moveHeroTrack(withTransition !== false);
   if (heroBannerPos >= maxPos) {
-    setTimeout(() => {
+    heroWrapTimer = setTimeout(() => {
+      heroWrapTimer = null;
       heroBannerPos = 0;
       moveHeroTrack(false);
     }, withTransition === false ? 0 : HERO_BANNER_SLIDE_MS + 50);
@@ -2180,7 +2186,7 @@ function heroBannerGoNext() {
 }
 
 function heroBannerGoPrev() {
-  if (heroBannerRealCount <= 3 || heroBannerPos <= 0) return;
+  if (heroBannerRealCount <= 3) return;
   heroResetAutoTimer();
   heroBannerGoTo(heroBannerPos - 1, true);
 }
