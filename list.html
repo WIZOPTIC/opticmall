@@ -706,6 +706,7 @@ html{color-scheme:only light}
         </div>
       </div>
       <select class="sort-select">
+        <option>추천순</option>
         <option>신상품순</option>
         <option>낮은가격순</option>
         <option>높은가격순</option>
@@ -1476,7 +1477,12 @@ function applyFilters() {
 
   // 정렬
   const sortV = document.querySelector('.sort-select').value;
-  if(sortV === '낮은가격순') result.sort((a,b) => (a.price||0) - (b.price||0));
+  if(sortV === '신상품순') result.sort((a,b) => {
+    const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+    const dbb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+    return dbb - da;
+  });
+  else if(sortV === '낮은가격순') result.sort((a,b) => (a.price||0) - (b.price||0));
   else if(sortV === '높은가격순') result.sort((a,b) => (b.price||0) - (a.price||0));
 
   renderProducts(result);
@@ -1506,17 +1512,23 @@ async function loadActivePromotions() {
   }
 }
 
+// 노출 순서: 관리자가 정한 순서(displayOrder)가 있으면 그 순서대로, 아직 순서를 안 정한 새 상품은 맨 앞(최신순)
+function compareDisplayOrder(a, b) {
+  const ha = typeof a.displayOrder === 'number', hb = typeof b.displayOrder === 'number';
+  if(ha && hb) return a.displayOrder - b.displayOrder;
+  if(ha !== hb) return ha ? 1 : -1;
+  const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+  const dbb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+  return dbb - da;
+}
+
 async function loadApprovedProducts() {
   try {
     const snap = await _db.collection('products').where('status', '==', 'approved').get();
     const products = [];
     snap.forEach(doc => products.push({id: doc.id, ...doc.data()}));
-    // 최신순 정렬
-    products.sort((a,b) => {
-      const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-      const dbb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-      return dbb - da;
-    });
+    // 노출 순서 정렬 (관리자 지정 순서 우선)
+    products.sort(compareDisplayOrder);
 
     // 진행중 이벤트 할인가 매칭
     const discountMap = await loadActivePromotions();

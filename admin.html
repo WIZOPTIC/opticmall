@@ -142,6 +142,22 @@ tr:hover td{background:#FAFBFC;}
 .color-img-slot{width:56px;height:56px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
 .color-img-slot:hover{border-color:var(--sky);color:var(--sky);}
 .color-img-slot.filled{border-style:solid;border-color:var(--green);}
+
+.ord-row{display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--g1);background:var(--white);cursor:grab;}
+.ord-row.dragging{opacity:.35;}
+.ord-row.drop-before{box-shadow:0 -3px 0 var(--sky) inset;}
+.ord-row.drop-after{box-shadow:0 3px 0 var(--sky) inset;}
+.ord-no{width:34px;text-align:right;font-size:12px;color:var(--g3);font-weight:600;flex:none;}
+.ord-thumb{width:46px;height:46px;border-radius:6px;object-fit:cover;background:var(--g1);flex:none;}
+.ord-info{flex:1;min-width:0;}
+.ord-info b{font-size:14px;}
+.ord-info span{display:block;font-size:11.5px;color:var(--g3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ord-btns{display:flex;gap:6px;flex:none;}
+.ord-btns button{padding:5px 10px;border:1.5px solid var(--g2);border-radius:5px;background:var(--white);font-family:inherit;font-size:11.5px;cursor:pointer;color:var(--g4);}
+.ord-btns button:hover{border-color:var(--sky);color:var(--sky);}
+.color-img-slot.drag-over{outline:2px solid var(--sky);outline-offset:1px;}
+.color-img-slot[draggable=true]{cursor:grab;}
+.color-img-slot.dragging{opacity:.4;}
 .color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .color-img-slot .slot-main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:7px;text-align:center;padding:1px 0;font-weight:700;}
 .color-img-slot .slot-del{position:absolute;top:1px;right:1px;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;}
@@ -298,6 +314,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <div class="menu-section">상품 관리</div>
     <button class="menu-item" onclick="showPage('productApproval',this)">상품 승인 관리 <span class="menu-badge" id="pendingProductBadge"></span></button>
     <button class="menu-item" onclick="showPage('allProducts',this)">전체 상품 목록</button>
+    <button class="menu-item" onclick="showPage('productOrder',this)">상품 노출 순서</button>
     <button class="menu-item" onclick="showPage('featuredPicks',this)">신상품·베스트 선정</button>
     <button class="menu-item" onclick="showPage('bulkRegister',this)">대량 상품 등록</button>
     <div class="menu-section">프로모션</div>
@@ -417,6 +434,22 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       <div class="table-wrap" id="allProductsTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
+    </div>
+
+    <!-- 상품 노출 순서 -->
+    <div class="page" id="page-productOrder">
+      <div class="section-header">
+        <div class="section-title">상품 노출 순서</div>
+        <button class="btn-sm btn-primary" id="ordSaveBtn" onclick="ordSave()">순서 저장</button>
+      </div>
+      <div style="font-size:12.5px;color:var(--g4);margin-bottom:12px;line-height:1.6;">상품을 끌어서 위아래로 옮기면 쇼핑몰 상품 목록(추천순)에 그 순서대로 보여요. 브랜드나 카테고리로 좁혀서 정리해도 전체 순서는 유지돼요.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        <select id="ordBrand" onchange="ordApplyFilter()" style="padding:8px 12px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;"><option value="">전체 브랜드</option></select>
+        <select id="ordCategory" onchange="ordApplyFilter()" style="padding:8px 12px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;"><option value="">전체 카테고리</option></select>
+        <input type="text" id="ordSearch" onkeyup="ordApplyFilter()" placeholder="모델명 검색" style="padding:8px 12px;border:1.5px solid var(--g2);border-radius:6px;font-family:inherit;font-size:13px;min-width:160px;">
+        <span id="ordCount" style="align-self:center;font-size:12px;color:var(--g3);"></span>
+      </div>
+      <div class="table-wrap" id="ordList"><div class="loading"><div class="spinner"></div>불러오는 중...</div></div>
     </div>
 
     <!-- 대량 상품 등록 -->
@@ -1022,12 +1055,13 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', featuredPicks:'신상품·베스트 선정', bulkRegister:'대량 상품 등록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', productOrder:'상품 노출 순서', featuredPicks:'신상품·베스트 선정', bulkRegister:'대량 상품 등록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
   if(name === 'productApproval') loadProductApproval();
   if(name === 'allProducts') loadAllProducts();
+  if(name === 'productOrder') loadProductOrder();
   if(name === 'featuredPicks') loadFeaturedPicks();
   if(name === 'bulkRegister') initBulkRegister();
   if(name === 'promoApproval') loadPromoApproval();
@@ -3052,7 +3086,11 @@ function renderAdminEditColorCards() {
           const s = color.slots[slot];
           const previewSrc = s.newFile ? s.previewUrl : (s.existingUrl && !s.removed ? s.existingUrl : null);
           const hasImg = !!previewSrc;
-          return `<div class="color-img-slot ${hasImg?'filled':''}" title="${A_SLOT_LABELS[slot]}"
+          return `<div class="color-img-slot ${hasImg?'filled':''}" title="${hasImg ? '끌어서 순서 변경' : A_SLOT_LABELS[slot]}"
+              ${hasImg ? 'draggable="true"' : ''}
+              ondragstart="aImgDragStart(event,${color.colorId},'${slot}')" ondragend="aImgDragEnd(event)"
+              ondragover="aImgDragOver(event)" ondragleave="this.classList.remove('drag-over')"
+              ondrop="aImgDrop(event,${color.colorId},'${slot}')"
               onclick="triggerAdminEditColorImgUpload(${color.colorId},'${slot}')">
             ${hasImg ? `<img src="${previewSrc}">` : `<span style="font-size:9px;text-align:center;">${A_SLOT_LABELS[slot]}</span>`}
             ${slot==='main' ? `<span class="slot-main-tag">MAIN</span>` : ''}
@@ -3109,6 +3147,38 @@ function addAdminEditColor() {
 function removeAdminEditColor(colorId) {
   if(adminEditingColors.length <= 1) return;
   adminEditingColors = adminEditingColors.filter(c => c.colorId !== colorId);
+  renderAdminEditColorCards();
+}
+
+// ---- 사진 순서 바꾸기 (끌어서 놓기) ----
+let _aImgDrag = null;
+function aImgDragStart(ev, colorId, slot) {
+  _aImgDrag = { colorId, slot };
+  ev.dataTransfer.effectAllowed = 'move';
+  try { ev.dataTransfer.setData('text/plain', slot); } catch(e) {}
+  setTimeout(() => { try { ev.target.classList.add('dragging'); } catch(e) {} }, 0);
+}
+function aImgDragEnd(ev) {
+  _aImgDrag = null;
+  document.querySelectorAll('.color-img-slot.dragging,.color-img-slot.drag-over').forEach(el => el.classList.remove('dragging','drag-over'));
+}
+function aImgDragOver(ev) {
+  if(!_aImgDrag) return;
+  ev.preventDefault();
+  ev.currentTarget.classList.add('drag-over');
+}
+function aImgDrop(ev, colorId, slot) {
+  ev.preventDefault();
+  const d = _aImgDrag; _aImgDrag = null;
+  if(!d || d.colorId !== colorId || d.slot === slot) { renderAdminEditColorCards(); return; }
+  const color = adminEditingColors.find(c => c.colorId === colorId);
+  if(!color) return;
+  const isFilled = s => !!(s.newFile || (s.existingUrl && !s.removed));
+  const items = A_SLOT_KEYS.map(k => color.slots[k]);
+  const moved = items.splice(A_SLOT_KEYS.indexOf(d.slot), 1)[0];
+  items.splice(A_SLOT_KEYS.indexOf(slot), 0, moved);
+  const ordered = items.filter(isFilled).concat(items.filter(x => !isFilled(x)));
+  A_SLOT_KEYS.forEach((k, i) => { color.slots[k] = ordered[i]; });
   renderAdminEditColorCards();
 }
 
@@ -3258,6 +3328,123 @@ async function saveAdminProductEdit() {
     btn.textContent = '저장하기';
   }
 }
+
+
+// ===================== 상품 노출 순서 =====================
+const ORD = { all: [], view: [], dirty: false };
+function ordCompare(a, b) {
+  const ra = a.displayOrder, rb = b.displayOrder;
+  const ha = typeof ra === 'number', hb = typeof rb === 'number';
+  if (ha && hb) return ra - rb;
+  if (ha !== hb) return ha ? 1 : -1; // 순서를 정하지 않은 새 상품은 맨 앞
+  const da = a.createdAt?.toDate?.() || new Date(0);
+  const dbb = b.createdAt?.toDate?.() || new Date(0);
+  return dbb - da;
+}
+async function loadProductOrder() {
+  const box = document.getElementById('ordList');
+  box.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  try {
+    const all = (await fetchAllProducts()).filter(p => p.status === 'approved');
+    all.sort(ordCompare);
+    ORD.all = all; ORD.dirty = false;
+    const brands = [...new Set(all.map(p => p.brandName).filter(Boolean))].sort();
+    const cats = [...new Set(all.map(p => p.category).filter(Boolean))].sort();
+    const bs = document.getElementById('ordBrand'), cs = document.getElementById('ordCategory');
+    const bv = bs.value, cv = cs.value;
+    bs.innerHTML = '<option value="">전체 브랜드</option>' + brands.map(b => `<option value="${bEsc(b)}">${bEsc(b)}</option>`).join('');
+    cs.innerHTML = '<option value="">전체 카테고리</option>' + cats.map(c => `<option value="${bEsc(c)}">${bEsc(c)}</option>`).join('');
+    bs.value = bv; cs.value = cv;
+    ordApplyFilter();
+  } catch (e) {
+    box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">불러오기 실패: ' + e.message + '</div>';
+  }
+}
+function ordApplyFilter() {
+  if (ORD.dirty && !confirm('저장하지 않은 순서 변경이 있어요. 필터를 바꾸면 사라져요. 계속할까요?')) return;
+  ORD.dirty = false;
+  const b = document.getElementById('ordBrand').value, c = document.getElementById('ordCategory').value;
+  const k = (document.getElementById('ordSearch').value || '').trim().toLowerCase();
+  ORD.view = ORD.all.filter(p => (!b || p.brandName === b) && (!c || p.category === c) && (!k || (p.modelName || '').toLowerCase().includes(k)));
+  ordRender();
+}
+function ordRender() {
+  const box = document.getElementById('ordList');
+  document.getElementById('ordCount').textContent = `${ORD.view.length}개` + (ORD.dirty ? ' · 저장 안 된 변경 있음' : '');
+  if (!ORD.view.length) { box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">해당하는 상품이 없어요.</div>'; return; }
+  box.innerHTML = ORD.view.map((p, i) => {
+    const colors = Array.isArray(p.colors) ? p.colors.length : 0;
+    return `<div class="ord-row" draggable="true" data-i="${i}"
+        ondragstart="ordDragStart(event,${i})" ondragend="ordDragEnd(event)" ondragover="ordDragOver(event,${i})" ondragleave="ordDragLeave(event)" ondrop="ordDrop(event,${i})">
+      <div class="ord-no">${i + 1}</div>
+      ${p.mainImageUrl ? `<img class="ord-thumb" src="${p.mainImageUrl}" draggable="false">` : '<div class="ord-thumb"></div>'}
+      <div class="ord-info"><b>${bEsc(p.modelName || '')}</b><span>${bEsc(p.brandName || '')} · ${bEsc(p.category || '')} · 색상 ${colors}개</span></div>
+      <div class="ord-btns"><button onclick="ordMove(${i},0)">맨 위로</button><button onclick="ordMove(${i},${ORD.view.length - 1})">맨 아래로</button></div>
+    </div>`;
+  }).join('');
+}
+let _ordDragIdx = null;
+function ordDragStart(ev, i) { _ordDragIdx = i; ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', String(i)); } catch (e) {} setTimeout(() => ev.target.classList && ev.target.classList.add('dragging'), 0); }
+function ordDragEnd() { _ordDragIdx = null; document.querySelectorAll('.ord-row').forEach(el => el.classList.remove('dragging', 'drop-before', 'drop-after')); }
+function ordDragOver(ev, i) {
+  if (_ordDragIdx === null) return;
+  ev.preventDefault();
+  const el = ev.currentTarget, r = el.getBoundingClientRect();
+  const before = ev.clientY < r.top + r.height / 2;
+  el.classList.toggle('drop-before', before); el.classList.toggle('drop-after', !before);
+  // 화면 끝에 가까우면 자동으로 스크롤
+  const sc = document.querySelector('.main') || document.scrollingElement;
+  if (ev.clientY < 110) window.scrollBy(0, -18); else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 18);
+}
+function ordDragLeave(ev) { ev.currentTarget.classList.remove('drop-before', 'drop-after'); }
+function ordDrop(ev, i) {
+  ev.preventDefault();
+  const from = _ordDragIdx; _ordDragIdx = null;
+  if (from === null) return;
+  const r = ev.currentTarget.getBoundingClientRect();
+  const before = ev.clientY < r.top + r.height / 2;
+  let to = before ? i : i + 1;
+  if (from < to) to--;
+  ordMove(from, to);
+}
+function ordMove(from, to) {
+  if (from === to) { ordRender(); return; }
+  const it = ORD.view.splice(from, 1)[0];
+  ORD.view.splice(to, 0, it);
+  ORD.dirty = true;
+  ordRender();
+}
+async function ordSave() {
+  if (!ORD.dirty) { showToast('바뀐 순서가 없어요.', 'error'); return; }
+  const btn = document.getElementById('ordSaveBtn');
+  // 전체 순서 안에서, 지금 보이는 상품들이 차지하던 자리에 새 순서대로 다시 채워 넣음
+  const viewIds = new Set(ORD.view.map(p => p.id));
+  const slots = [];
+  ORD.all.forEach((p, i) => { if (viewIds.has(p.id)) slots.push(i); });
+  const next = ORD.all.slice();
+  slots.forEach((pos, k) => { next[pos] = ORD.view[k]; });
+  const todo = [];
+  next.forEach((p, i) => { if (p.displayOrder !== i) todo.push({ p, i }); });
+  btn.disabled = true;
+  let done = 0, fail = 0;
+  for (const t of todo) {
+    try {
+      await window._updateDoc(window._doc(window._db, 'products', t.p.id), { displayOrder: t.i });
+      t.p.displayOrder = t.i; done++;
+    } catch (e) { fail++; console.error(e); }
+    btn.textContent = `저장 중... ${done + fail}/${todo.length}`;
+  }
+  btn.disabled = false; btn.textContent = '순서 저장';
+  if (fail) { showToast(`${fail}개 저장에 실패했어요. 다시 시도해 주세요.`, 'error'); return; }
+  next.sort(ordCompare);
+  ORD.all = next; ORD.dirty = false;
+  const b = document.getElementById('ordBrand').value, c = document.getElementById('ordCategory').value;
+  const k = (document.getElementById('ordSearch').value || '').trim().toLowerCase();
+  ORD.view = ORD.all.filter(p => (!b || p.brandName === b) && (!c || p.category === c) && (!k || (p.modelName || '').toLowerCase().includes(k)));
+  ordRender();
+  showToast('노출 순서를 저장했어요.', 'success');
+}
+window.addEventListener('beforeunload', e => { if (ORD.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
 // ===================== 대량 상품 등록 =====================
 // 엑셀(모델/색상/사진 파일명) + 사진 폴더를 읽어서, 기존 상품등록과 똑같은 구조로 products 에 저장한다.

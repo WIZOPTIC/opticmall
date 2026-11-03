@@ -165,6 +165,9 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--g1);color:var(--blac
 .color-img-slot{width:56px;height:56px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
 .color-img-slot:hover{border-color:var(--sky);color:var(--sky);}
 .color-img-slot.filled{border-style:solid;border-color:var(--green);}
+.color-img-slot.drag-over{outline:2px solid var(--sky);outline-offset:1px;}
+.color-img-slot[draggable=true]{cursor:grab;}
+.color-img-slot.dragging{opacity:.4;}
 .color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .color-img-slot .slot-main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:7px;text-align:center;padding:1px 0;font-weight:700;}
 .color-img-slot .slot-del{position:absolute;top:1px;right:1px;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;}
@@ -1668,7 +1671,11 @@ function renderEditColorCards() {
           const s = color.slots[slot];
           const previewSrc = s.newFile ? s.previewUrl : (s.existingUrl && !s.removed ? s.existingUrl : null);
           const hasImg = !!previewSrc;
-          return `<div class="color-img-slot ${hasImg?'filled':''}" title="${SLOT_LABELS[slot]}"
+          return `<div class="color-img-slot ${hasImg?'filled':''}" title="${hasImg ? '끌어서 순서 변경' : SLOT_LABELS[slot]}"
+              ${hasImg ? 'draggable="true"' : ''}
+              ondragstart="bImgDragStart(event,'e',0,${color.colorId},'${slot}')" ondragend="bImgDragEnd(event)"
+              ondragover="bImgDragOver(event)" ondragleave="this.classList.remove('drag-over')"
+              ondrop="bImgDrop(event,'e',0,${color.colorId},'${slot}')"
               onclick="triggerEditColorImgUpload(${color.colorId},'${slot}')">
             ${hasImg ? `<img src="${previewSrc}">` : `<span style="font-size:9px;text-align:center;">${SLOT_LABELS[slot]}</span>`}
             ${slot==='main' ? `<span class="slot-main-tag">MAIN</span>` : ''}
@@ -1738,6 +1745,51 @@ document.getElementById('editImgFileInput').addEventListener('change', function(
   e.target.value = '';
   currentEditImgTarget = null;
 });
+
+// ---- 사진 순서 바꾸기 (끌어서 놓기) ----
+// mode 'e' = 상품 수정 창, 'n' = 새 상품 등록 카드
+let _bImgDrag = null;
+function bImgDragStart(ev, mode, cardId, colorId, slot) {
+  _bImgDrag = { mode, cardId, colorId, slot };
+  ev.dataTransfer.effectAllowed = 'move';
+  try { ev.dataTransfer.setData('text/plain', slot); } catch(e) {}
+  setTimeout(() => { try { ev.target.classList.add('dragging'); } catch(e) {} }, 0);
+}
+function bImgDragEnd(ev) {
+  _bImgDrag = null;
+  document.querySelectorAll('.color-img-slot.dragging,.color-img-slot.drag-over').forEach(el => el.classList.remove('dragging','drag-over'));
+}
+function bImgDragOver(ev) {
+  if(!_bImgDrag) return;
+  ev.preventDefault();
+  ev.currentTarget.classList.add('drag-over');
+}
+function bImgDrop(ev, mode, cardId, colorId, slot) {
+  ev.preventDefault();
+  const d = _bImgDrag; _bImgDrag = null;
+  const rerender = () => { if(mode === 'e') renderEditColorCards(); else renderProductCards(); };
+  if(!d || d.mode !== mode || d.cardId !== cardId || d.colorId !== colorId || d.slot === slot) { rerender(); return; }
+  if(mode === 'e') {
+    const color = editingColors.find(c => c.colorId === colorId);
+    if(!color) return;
+    const isFilled = s => !!(s.newFile || (s.existingUrl && !s.removed));
+    const items = SLOT_KEYS.map(k => color.slots[k]);
+    const moved = items.splice(SLOT_KEYS.indexOf(d.slot), 1)[0];
+    items.splice(SLOT_KEYS.indexOf(slot), 0, moved);
+    const ordered = items.filter(isFilled).concat(items.filter(x => !isFilled(x)));
+    SLOT_KEYS.forEach((k, i) => { color.slots[k] = ordered[i]; });
+  } else {
+    const card = productCards.find(c => c.cardId === cardId);
+    const color = card && card.colors.find(c => c.colorId === colorId);
+    if(!color) return;
+    const items = SLOT_KEYS.map(k => color.images[k] || null);
+    const moved = items.splice(SLOT_KEYS.indexOf(d.slot), 1)[0];
+    items.splice(SLOT_KEYS.indexOf(slot), 0, moved);
+    const ordered = items.filter(Boolean).concat(items.filter(x => !x));
+    SLOT_KEYS.forEach((k, i) => { color.images[k] = ordered[i]; });
+  }
+  rerender();
+}
 
 function removeEditColorImg(colorId, slotKey) {
   const color = editingColors.find(c => c.colorId === colorId);
@@ -2195,7 +2247,11 @@ function renderProductCards() {
             ${SLOT_KEYS.map(slot => {
               const img = color.images[slot];
               const hasImg = !!img;
-              return `<div class="color-img-slot ${hasImg?'filled':''}" title="${SLOT_LABELS[slot]}"
+              return `<div class="color-img-slot ${hasImg?'filled':''}" title="${hasImg ? '끌어서 순서 변경' : SLOT_LABELS[slot]}"
+                  ${hasImg ? 'draggable="true"' : ''}
+                  ondragstart="bImgDragStart(event,'n',${card.cardId},${color.colorId},'${slot}')" ondragend="bImgDragEnd(event)"
+                  ondragover="bImgDragOver(event)" ondragleave="this.classList.remove('drag-over')"
+                  ondrop="bImgDrop(event,'n',${card.cardId},${color.colorId},'${slot}')"
                   onclick="triggerColorImgUpload(${card.cardId},${color.colorId},'${slot}')">
                 ${hasImg ? `<img src="${img.previewUrl}">` : `<span style="font-size:9px;text-align:center;">${SLOT_LABELS[slot]}</span>`}
                 ${slot==='main' ? `<span class="slot-main-tag">MAIN</span>` : ''}
