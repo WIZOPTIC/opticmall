@@ -139,16 +139,20 @@ tr:hover td{background:#FAFBFC;}
 .color-card-fields input{width:100%;padding:8px 10px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);}
 .color-card-fields input:focus{border-color:var(--sky);}
 .color-img-row{display:flex;gap:8px;flex-wrap:wrap;}
-.color-img-slot{width:56px;height:56px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
+.color-img-slot{width:68px;height:68px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
 .color-img-slot:hover{border-color:var(--sky);color:var(--sky);}
 .color-img-slot.filled{border-style:solid;border-color:var(--green);}
 
+.pthumb{width:84px;height:63px;object-fit:contain;background:#F3F4F6;border-radius:6px;display:block;cursor:zoom-in;}
+.pthumb-ph{width:84px;height:63px;border-radius:6px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.35;}
+#pthumbPop{position:fixed;z-index:99999;display:none;pointer-events:none;background:#fff;border:1px solid #D9DEE3;box-shadow:0 10px 30px rgba(0,0,0,.28);padding:6px;border-radius:8px;}
+#pthumbPop img{width:400px;max-width:62vw;max-height:70vh;object-fit:contain;display:block;}
 .ord-row{display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--g1);background:var(--white);cursor:grab;}
 .ord-row.dragging{opacity:.35;}
 .ord-row.drop-before{box-shadow:0 -3px 0 var(--sky) inset;}
 .ord-row.drop-after{box-shadow:0 3px 0 var(--sky) inset;}
 .ord-no{width:34px;text-align:right;font-size:12px;color:var(--g3);font-weight:600;flex:none;}
-.ord-thumb{width:46px;height:46px;border-radius:6px;object-fit:cover;background:var(--g1);flex:none;}
+.ord-thumb{width:84px;height:63px;border-radius:6px;object-fit:contain;background:#F3F4F6;flex:none;cursor:zoom-in;}
 .ord-info{flex:1;min-width:0;}
 .ord-info b{font-size:14px;}
 .ord-info span{display:block;font-size:11.5px;color:var(--g3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -158,7 +162,7 @@ tr:hover td{background:#FAFBFC;}
 .color-img-slot.drag-over{outline:2px solid var(--sky);outline-offset:1px;}
 .color-img-slot[draggable=true]{cursor:grab;}
 .color-img-slot.dragging{opacity:.4;}
-.color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#F3F4F6;}
 .color-img-slot .slot-main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:7px;text-align:center;padding:1px 0;font-weight:700;}
 .color-img-slot .slot-del{position:absolute;top:1px;right:1px;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;}
 .add-color-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;background:var(--white);color:var(--sky);border:1.5px dashed var(--sky);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:4px;}
@@ -1648,8 +1652,8 @@ async function fetchAllProducts() {
 
 function renderProductRow(p, isApprovalView) {
   const thumb = p.mainImageUrl
-    ? `<img src="${p.mainImageUrl}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">`
-    : `<div style="width:44px;height:44px;border-radius:8px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0.3;"><i class=ic-glasses></i></div>`;
+    ? `<img class="pthumb" src="${p.mainImageUrl}">`
+    : `<div class="pthumb-ph"><i class=ic-glasses></i></div>`;
   const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
   const colorDisplay = hasColors ? p.colors.map(c => c.colorName + (c.colorCode ? `(${c.colorCode})` : '')).join(', ') : (p.color || '-');
   const stockDisplay = hasColors ? p.colors.reduce((sum,c) => sum + (Number(c.stock)||0), 0) : (p.stock ?? '-');
@@ -1763,8 +1767,8 @@ function applyAdminProductSearch() {
 // 신상품·베스트 선정
 function renderFeaturedPickRow(p) {
   const thumb = p.mainImageUrl
-    ? `<img src="${p.mainImageUrl}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">`
-    : `<div style="width:44px;height:44px;border-radius:8px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0.3;"><i class=ic-glasses></i></div>`;
+    ? `<img class="pthumb" src="${p.mainImageUrl}">`
+    : `<div class="pthumb-ph"><i class=ic-glasses></i></div>`;
   const isNew = !!(p.adminPick && p.adminPick.new);
   const isBest = !!(p.adminPick && p.adminPick.best);
   const cs = Array.isArray(p.colors) ? p.colors : [];
@@ -3369,6 +3373,31 @@ async function saveAdminProductEdit() {
 }
 
 
+
+// 목록 썸네일에 마우스를 올리면 큰 사진 미리보기
+(function(){
+  let pop=null;
+  function ensure(){ if(!pop){ pop=document.createElement('div'); pop.id='pthumbPop'; pop.innerHTML='<img alt="">'; document.body.appendChild(pop);} return pop; }
+  function place(e){
+    const p=ensure(); const w=p.offsetWidth||412, h=p.offsetHeight||320;
+    let x=e.clientX+18, y=e.clientY-h/2;
+    if(x+w>window.innerWidth-8) x=e.clientX-w-18;
+    y=Math.max(8,Math.min(y,window.innerHeight-h-8));
+    p.style.left=x+'px'; p.style.top=y+'px';
+  }
+  document.addEventListener('mouseover',function(e){
+    const t=e.target;
+    if(!(t&&t.classList&&t.classList.contains('pthumb')&&t.src)) return;
+    const p=ensure(); p.firstChild.src=t.src; p.style.display='block'; place(e);
+  });
+  document.addEventListener('mousemove',function(e){
+    if(pop&&pop.style.display==='block'&&e.target&&e.target.classList&&e.target.classList.contains('pthumb')) place(e);
+  });
+  document.addEventListener('mouseout',function(e){
+    if(e.target&&e.target.classList&&e.target.classList.contains('pthumb')&&pop) pop.style.display='none';
+  });
+})();
+
 // ===================== 상품 노출 순서 =====================
 const ORD = { all: [], view: [], dirty: false };
 function ordCompare(a, b) {
@@ -3416,7 +3445,7 @@ function ordRender() {
     return `<div class="ord-row" draggable="true" data-i="${i}"
         ondragstart="ordDragStart(event,${i})" ondragend="ordDragEnd(event)" ondragover="ordDragOver(event,${i})" ondragleave="ordDragLeave(event)" ondrop="ordDrop(event,${i})">
       <div class="ord-no">${i + 1}</div>
-      ${p.mainImageUrl ? `<img class="ord-thumb" src="${p.mainImageUrl}" draggable="false">` : '<div class="ord-thumb"></div>'}
+      ${p.mainImageUrl ? `<img class="ord-thumb pthumb" src="${p.mainImageUrl}" draggable="false">` : '<div class="ord-thumb"></div>'}
       <div class="ord-info"><b>${bEsc(p.modelName || '')}</b><span>${bEsc(p.brandName || '')} · ${bEsc(p.category || '')} · 색상 ${colors}개</span></div>
       <div class="ord-btns"><button onclick="ordMove(${i},0)">맨 위로</button><button onclick="ordMove(${i},${ORD.view.length - 1})">맨 아래로</button></div>
     </div>`;
@@ -4171,7 +4200,7 @@ async function openOrderDetail(orderDocId) {
       </tr></thead>
       <tbody>${items.map(it => `
         <tr style="border-top:1px solid var(--g1);">
-          <td style="padding:8px 4px;">${it.mainImageUrl ? `<img src="${esc(it.mainImageUrl)}" style="width:44px;height:44px;object-fit:cover;display:block;">` : ''}</td>
+          <td style="padding:8px 4px;">${it.mainImageUrl ? `<img class="pthumb" src="${esc(it.mainImageUrl)}" style="width:64px;height:48px;">` : ''}</td>
           <td style="padding:8px 4px;"><div style="font-weight:600;">${esc(it.productName||'-')}</div><div style="color:var(--g3);font-size:11px;">${esc(it.brandName||'')}${it.barcode ? ' · ' + esc(it.barcode) : ''}</div></td>
           <td style="padding:8px 4px;">${esc(it.selectedColor||'-')}${it.colorCode ? ' <span style="color:var(--g3);">(' + esc(it.colorCode) + ')</span>' : ''}</td>
           <td style="padding:8px 4px;text-align:right;">${Number(it.qty||0)}</td>
@@ -4508,8 +4537,8 @@ function openCancelDetail(orderId) {
       <div style="font-size:11px;font-weight:700;color:var(--g4);margin-bottom:6px;"><i class=ic-bag></i>️ 주문 상품 (${items.length}건)</div>
       ${items.map(it => `
         <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g1);">
-          <div style="width:44px;height:44px;border-radius:6px;background:var(--g1);overflow:hidden;flex-shrink:0;">
-            ${it.mainImageUrl ? `<img src="${it.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class=ic-glasses></i></div>'}
+          <div style="width:64px;height:48px;border-radius:6px;background:#F3F4F6;overflow:hidden;flex-shrink:0;">
+            ${it.mainImageUrl ? `<img class="pthumb" src="${it.mainImageUrl}" style="width:100%;height:100%;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class=ic-glasses></i></div>'}
           </div>
           <div style="flex:1;">
             <div style="font-size:13px;font-weight:600;">${it.productName||'-'}</div>

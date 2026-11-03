@@ -162,13 +162,13 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--g1);color:var(--blac
 .color-card-fields input{width:100%;padding:8px 10px;border:1.5px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:var(--white);}
 .color-card-fields input:focus{border-color:var(--sky);}
 .color-img-row{display:flex;gap:8px;flex-wrap:wrap;}
-.color-img-slot{width:56px;height:56px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
+.color-img-slot{width:68px;height:68px;border-radius:8px;border:1.5px dashed var(--g3);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g3);position:relative;overflow:hidden;flex-shrink:0;transition:all 0.15s;}
 .color-img-slot:hover{border-color:var(--sky);color:var(--sky);}
 .color-img-slot.filled{border-style:solid;border-color:var(--green);}
 .color-img-slot.drag-over{outline:2px solid var(--sky);outline-offset:1px;}
 .color-img-slot[draggable=true]{cursor:grab;}
 .color-img-slot.dragging{opacity:.4;}
-.color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.color-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#F3F4F6;}
 .color-img-slot .slot-main-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(27,159,216,0.85);color:#fff;font-size:7px;text-align:center;padding:1px 0;font-weight:700;}
 .color-img-slot .slot-del{position:absolute;top:1px;right:1px;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;}
 .add-color-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;background:var(--white);color:var(--sky);border:1.5px dashed var(--sky);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:4px;}
@@ -188,7 +188,10 @@ th{padding:12px 16px;font-size:11px;font-weight:700;color:var(--g4);text-align:l
 td{padding:14px 16px;font-size:13px;color:var(--black);border-bottom:1px solid var(--g1);}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#FAFBFC;}
-.prod-thumb{width:44px;height:44px;border-radius:8px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:20px;object-fit:cover;}
+.prod-thumb{width:84px;height:63px;border-radius:6px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;font-size:22px;object-fit:contain;cursor:zoom-in;}
+.pthumb-ph{width:84px;height:63px;border-radius:6px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.35;}
+#pthumbPop{position:fixed;z-index:99999;display:none;pointer-events:none;background:#fff;border:1px solid #D9DEE3;box-shadow:0 10px 30px rgba(0,0,0,.28);padding:6px;border-radius:8px;}
+#pthumbPop img{width:400px;max-width:62vw;max-height:70vh;object-fit:contain;display:block;}
 .prod-thumb.no-img{opacity:0.3;}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;}
 .badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;}
@@ -1473,7 +1476,7 @@ function renderProductRowHtml(p, withActions) {
   })();
   return `
     <tr data-pid="${p.id}">
-      <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb">` : `<div class="prod-thumb no-img"><i class=ic-glasses></i></div>`}</td>
+      <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb pthumb">` : `<div class="prod-thumb no-img"><i class=ic-glasses></i></div>`}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
       <td style="font-size:12px;">${barcodeDisplay}</td>
       <td style="font-size:12px;">${p.size||'-'}</td>
@@ -2859,6 +2862,31 @@ async function deleteBrand(brandId) {
   bg.onclick=function(){ setOpen(false); };
   sb.addEventListener('click',function(e){ if(e.target.closest('.menu-item')) setOpen(false); });
 })();
+
+// 목록 썸네일에 마우스를 올리면 큰 사진 미리보기
+(function(){
+  let pop=null;
+  function ensure(){ if(!pop){ pop=document.createElement('div'); pop.id='pthumbPop'; pop.innerHTML='<img alt="">'; document.body.appendChild(pop);} return pop; }
+  function place(e){
+    const p=ensure(); const w=p.offsetWidth||412, h=p.offsetHeight||320;
+    let x=e.clientX+18, y=e.clientY-h/2;
+    if(x+w>window.innerWidth-8) x=e.clientX-w-18;
+    y=Math.max(8,Math.min(y,window.innerHeight-h-8));
+    p.style.left=x+'px'; p.style.top=y+'px';
+  }
+  document.addEventListener('mouseover',function(e){
+    const t=e.target;
+    if(!(t&&t.classList&&t.classList.contains('pthumb')&&t.src)) return;
+    const p=ensure(); p.firstChild.src=t.src; p.style.display='block'; place(e);
+  });
+  document.addEventListener('mousemove',function(e){
+    if(pop&&pop.style.display==='block'&&e.target&&e.target.classList&&e.target.classList.contains('pthumb')) place(e);
+  });
+  document.addEventListener('mouseout',function(e){
+    if(e.target&&e.target.classList&&e.target.classList.contains('pthumb')&&pop) pop.style.display='none';
+  });
+})();
+
 </script>
 </body>
 </html>
