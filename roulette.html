@@ -396,7 +396,7 @@ html{color-scheme:only light}
  .ers-head h2,.cat-badge-row .title,.category-hero-title,.ts-wrap .category-hero-title,.page-wrap .category-hero-title,.list-title,.cs-hero h1{font-size:21px!important}
 }
 
-.rl-wrap{max-width:1100px;margin:8px auto 0;padding:24px 24px 28px;border-radius:18px;color:#fff;text-align:center;position:relative;overflow:hidden;
+.rl-wrap{max-width:1100px;margin:8px auto 0;padding:14px 20px 18px;border-radius:18px;color:#fff;text-align:center;position:relative;overflow:hidden;
   display:grid;grid-template-columns:1fr;grid-template-areas:'head' 'stage' 'foot';justify-items:center;align-content:center;
   background:radial-gradient(ellipse at 50% 50%,#1d1813 0%,#0d0b09 62%,#070605 100%);}
 .rl-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
@@ -408,26 +408,13 @@ html{color-scheme:only light}
 .rl-eyebrowline i{display:block;width:clamp(40px,12vw,150px);height:1px;background:linear-gradient(90deg,transparent,#A98C52);}
 .rl-eyebrowline i:last-child{transform:scaleX(-1);}
 .rl-eyebrowline span{font-size:11px;letter-spacing:.55em;color:#D6C49A;padding-left:.55em;}
-.rl-stage{grid-area:stage;position:relative;height:clamp(300px,calc(100vh - 525px),520px);aspect-ratio:360/540;margin:12px 0 14px;}
-.gc-machine{width:100%;height:100%;overflow:visible;display:block;}
-.gc-machine.shaking{animation:gcMachine .13s linear infinite;}
-@keyframes gcMachine{0%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-1px)}100%{transform:translate(0,0)}}
-.gc-cap{transform-box:fill-box;transform-origin:center;animation:gcBob 3.4s ease-in-out infinite;}
-@keyframes gcBob{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
-.gc-machine.shaking .gc-cap{animation:gcTumble .28s ease-in-out infinite;}
-@keyframes gcTumble{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(var(--dx2),var(--dy2)) rotate(var(--rot2))}}
-.gc-knob{transform-box:view-box;transform-origin:180px 392px;}
-.gc-knob.turn{animation:gcTurn 1.2s cubic-bezier(.5,0,.3,1);}
-@keyframes gcTurn{0%{transform:rotate(0)}100%{transform:rotate(540deg)}}
-.gc-tray .in{transform-box:fill-box;transform-origin:center;}.gc-tray.ready{cursor:pointer;}.gc-tray.ready .in{animation:gcPulse 1.3s ease-in-out infinite;}
-.gc-drop .in{transform-box:fill-box;transform-origin:center;}
-.gc-drop.fall{opacity:1;}
-.gc-drop.fall .in{animation:gcDrop .95s cubic-bezier(.3,.2,.4,1) forwards;}
-@keyframes gcDrop{0%{transform:translateY(-86px)}55%{transform:translateY(0)}68%{transform:translateY(-16px)}82%{transform:translateY(0)}91%{transform:translateY(-5px)}100%{transform:translateY(0)}}
-.gc-drop.ready{cursor:pointer;}
-.gc-drop.ready .in{animation:gcPulse 1.3s ease-in-out infinite;}
-@keyframes gcPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.gc-knobhit{cursor:pointer;}
+.rl-stage{grid-area:stage;position:relative;width:min(100%,calc((100vh - 445px) * 1.094),660px);aspect-ratio:1312/1199;margin:2px 0 10px;}
+.cw-inner{position:relative;width:100%;height:100%;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);}
+.cw-inner img,.cw-inner canvas{position:absolute;left:0;top:0;width:100%;height:100%;user-select:none;-webkit-user-drag:none;}
+.cw-start{position:absolute;left:44%;top:61.5%;width:12.2%;height:13.4%;border:0;border-radius:50%;background:transparent;cursor:pointer;padding:0;}
+.cw-tray{position:absolute;left:39.3%;top:78%;width:21.7%;height:14.2%;border-radius:14px;}
+.cw-tray.ready{cursor:pointer;animation:cwGlow 1.4s ease-in-out infinite;}
+@keyframes cwGlow{0%,100%{box-shadow:0 0 14px 2px rgba(255,214,120,.35),inset 0 0 14px rgba(255,214,120,.25)}50%{box-shadow:0 0 34px 8px rgba(255,214,120,.8),inset 0 0 26px rgba(255,214,120,.55)}}
 .rl-foot{grid-area:foot;text-align:center;}
 .rl-btn{display:inline-block;min-width:280px;padding:15px 34px;border:1.5px solid #C8AA68;border-radius:999px !important;background:rgba(12,10,8,.6);color:#E6D3A0;font-size:16px;font-weight:600;letter-spacing:.5px;cursor:pointer;font-family:inherit;box-shadow:0 0 18px rgba(201,168,98,.18);transition:background .2s,transform .15s;}
 .rl-btn:hover:not(:disabled){background:rgba(201,168,98,.14);transform:translateY(-1px);}
@@ -440,8 +427,8 @@ html{color-scheme:only light}
 .gc-ov.done{height:0;margin:0;}
 .gc-ovcap{position:absolute;inset:0;}
 .gc-ovcap .top,.gc-ovcap .bot{position:absolute;left:0;width:170px;height:85px;transition:transform .8s cubic-bezier(.2,.8,.3,1),opacity .8s;}
-.gc-ovcap .top{top:0;border-radius:85px 85px 0 0;background:var(--c);}
-.gc-ovcap .bot{top:85px;border-radius:0 0 85px 85px;background:#F4EEDD;}
+.gc-ovcap .top{top:0;border-radius:85px 85px 0 0;background:linear-gradient(160deg,rgba(255,255,255,.8),rgba(228,222,210,.5));border:2px solid rgba(255,255,255,.7);border-bottom:0;box-sizing:border-box;}
+.gc-ovcap .bot{top:85px;border-radius:0 0 85px 85px;background:linear-gradient(180deg,#E8C874,#8E6D2E);}
 .gc-ovcap .hl{position:absolute;left:28px;top:20px;width:34px;height:60px;border-radius:50%;background:rgba(255,255,255,.35);transform:rotate(20deg);}
 .gc-ovcap.wob{animation:gcWob .9s ease-in-out;}
 @keyframes gcWob{0%,100%{transform:rotate(0)}15%{transform:rotate(-14deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-12deg)}60%{transform:rotate(10deg)}75%{transform:rotate(-6deg)}}
@@ -457,7 +444,7 @@ html{color-scheme:only light}
 .rl-card p{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;margin:0 0 4px;}
 .rl-card .rl-btn{border-radius:999px !important;margin-top:22px;min-width:0;width:100%;background:linear-gradient(180deg,#E6D3A0,#A98C52);color:#1a1510;border:none;font-weight:800;box-shadow:none;}
 .rl-card .rl-btn.sub{background:transparent;color:#D6C49A;border:1px solid rgba(214,196,154,.5);margin-top:10px;}
-@media(max-width:860px){.rl-stage{height:min(480px,62vh);margin:16px 0 18px;}.rl-wrap{padding:26px 14px 32px;}}
+@media(max-width:860px){.rl-stage{width:100%;margin:6px 0 12px;}.rl-wrap{padding:16px 10px 28px;}}
 @media(max-width:600px){.rl-logo{font-size:28px;}.rl-btn{min-width:0;width:100%;}.rl-eyebrowline span{letter-spacing:.3em;white-space:nowrap;}.rl-eyebrowline{gap:10px;}}
 </style>
 </head>
@@ -709,11 +696,11 @@ async function initRoulette(user){
     try{const d=await _db.collection('rouletteSpins').doc(rlSpinId).get();rlSpun=d.exists;}catch(e){}
   }
   const period=(RL.startDate||RL.endDate)?'EVENT PERIOD  '+(RL.startDate||'')+' ~ '+(RL.endDate||''):'';
-  area.innerHTML=gcHtml();clInit();
+  area.innerHTML=gcHtml();cwInit();
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
   if(state==='before'){btn.textContent='시작 전입니다';btn.disabled=true;}
   else if(state==='ended'){btn.textContent='종료된 이벤트입니다';btn.disabled=true;}
-  else if(!user){btn.textContent='로그인하고 참여하기';btn.onclick=()=>location.href='index.html?openLogin=1';}
+  else if(!user){btn.textContent='로그인하고 참여하기';btn.dataset.login='1';}
   else if(memberLevel<2){btn.textContent='승인된 회원만 참여할 수 있어요';btn.disabled=true;}
   else if(rlSpun){btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';btn.disabled=true;msg.textContent='쿠폰함에서 받은 쿠폰을 확인해 보세요.';}
   else btn.textContent='뽑기 시작';
@@ -729,108 +716,83 @@ function gcCap(cx,cy,r,col,i){
    +'<line x1="'+(-r)+'" y1="0" x2="'+r+'" y2="0" stroke="rgba(0,0,0,.18)" stroke-width="1.2"/>'
    +'<ellipse cx="'+(-r*.38)+'" cy="'+(-r*.45)+'" rx="'+(r*.2)+'" ry="'+(r*.34)+'" fill="rgba(255,255,255,.38)" transform="rotate(25 '+(-r*.38)+' '+(-r*.45)+')"/></g></g></g>';
 }
-/* ===== 인형뽑기(집게) 기계 ===== */
-const CL={x:245,hy:150,open:1,balls:[],mode:'idle',raf:0,t0:0,held:null};
-const CL_RAIL=112,CL_HOME_Y=150,CL_CHUTE_X=98,CL_TRAY_Y=474;
+/* ===== 인형뽑기 기계 (사진 + 집게 애니메이션) ===== */
+const CW={img:null,sp:null,dy:0,close:0,cap:null,busy:false};
 function gcHtml(){
-  const pos=[[184,366],[232,366],[280,366],[328,366],[160,366],[208,324],[256,324],[304,324],[232,282],[280,282],[184,324],[328,324]];
-  CL.balls=pos.map((p,i)=>({id:i,x:p[0],y:p[1],c:GC_COLORS[i%GC_COLORS.length],alive:true}));
-  let balls='';CL.balls.forEach(b=>{balls+='<g id="cb'+b.id+'" transform="translate('+b.x+' '+b.y+')">'+gcCap(0,0,24,b.c,b.id).replace('class="gc-cap"','class="gc-cap2"').replace(/animation-delay:[^;"]*/,'')+'</g>';});
-  return '<div class="rl-head"><div class="rl-logo">Opticmall</div><div class="rl-eyebrowline"><i></i><span>LUCKY CRANE</span><i></i></div></div>'
-  +'<div class="rl-stage"><svg class="gc-machine" id="gcMachine" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">'
-  +'<defs><linearGradient id="gcGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4E8C4"/><stop offset=".5" stop-color="#A98C52"/><stop offset="1" stop-color="#E6D3A0"/></linearGradient>'
-  +'<linearGradient id="gcBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b241d"/><stop offset="1" stop-color="#0f0c0a"/></linearGradient>'
-  +'<linearGradient id="gcWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3026"/><stop offset="1" stop-color="#14100d"/></linearGradient>'
-  +'<linearGradient id="gcGlassHl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".45" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
-  +'<clipPath id="clWin"><rect x="40" y="92" width="320" height="310" rx="6"/></clipPath></defs>'
-  +'<ellipse cx="200" cy="552" rx="170" ry="8" fill="rgba(0,0,0,.55)"/>'
-  +'<rect x="10" y="14" width="380" height="530" rx="26" fill="url(#gcBody)" stroke="url(#gcGold)" stroke-width="3"/>'
-  +'<rect x="40" y="26" width="320" height="52" rx="12" fill="#0a0908" stroke="#A98C52" stroke-width="1.5"/>'
-  +'<text x="200" y="62" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="28" fill="#E6D3A0">Opticmall</text>'
-  +'<rect x="40" y="92" width="320" height="310" rx="6" fill="url(#gcWall)"/>'
-  +'<g clip-path="url(#clWin)">'
-  +'<rect x="40" y="394" width="320" height="10" fill="#0a0908"/>'
-  +'<rect x="44" y="392" width="104" height="14" fill="#030202"/>'
-  +'<rect x="150" y="392" width="210" height="12" fill="url(#gcGold)" opacity=".55"/>'
-  +'<line x1="52" y1="'+CL_RAIL+'" x2="348" y2="'+CL_RAIL+'" stroke="url(#gcGold)" stroke-width="5" stroke-linecap="round"/>'
-  +balls
-  +'<g id="clClaw"><line id="clCable" x1="245" y1="'+CL_RAIL+'" x2="245" y2="150" stroke="#C8AA68" stroke-width="3"/>'
-  +'<rect id="clCar" x="229" y="'+(CL_RAIL-9)+'" width="32" height="18" rx="5" fill="url(#gcGold)"/>'
-  +'<g id="clHead"><rect x="-13" y="-8" width="26" height="16" rx="5" fill="url(#gcGold)"/>'
-  +'<g id="clArmL" transform="translate(-9 6)"><path d="M0 0 Q -16 14 -7 40" fill="none" stroke="#E6D3A0" stroke-width="5" stroke-linecap="round"/></g>'
-  +'<g id="clArmR" transform="translate(9 6)"><path d="M0 0 Q 16 14 7 40" fill="none" stroke="#E6D3A0" stroke-width="5" stroke-linecap="round"/></g></g></g>'
-  +'</g>'
-  +'<rect x="40" y="92" width="320" height="310" rx="6" fill="url(#gcGlassHl)" pointer-events="none"/>'
-  +'<rect x="40" y="92" width="320" height="310" rx="6" fill="none" stroke="url(#gcGold)" stroke-width="3"/>'
-  +'<rect x="44" y="424" width="108" height="86" rx="12" fill="#050403" stroke="#A98C52" stroke-width="2"/>'
-  +'<g id="gcDrop" class="gc-tray" onclick="gcOpen()" style="display:none"><g class="in"><g transform="translate('+CL_CHUTE_X+' '+CL_TRAY_Y+')" id="clTrayBall"></g></g></g>'
-  +'<rect x="40" y="500" width="116" height="10" rx="5" fill="url(#gcGold)"/>'
-  +'<circle cx="236" cy="470" r="9" fill="#C8AA68"/><rect x="232" y="470" width="8" height="34" fill="#8E7440"/><ellipse cx="236" cy="504" rx="26" ry="8" fill="#0a0908" stroke="#A98C52" stroke-width="1.5"/>'
-  +'<g class="gc-knobhit" onclick="gcPull()"><circle cx="320" cy="474" r="30" fill="#0a0908" stroke="url(#gcGold)" stroke-width="4"/><circle cx="320" cy="474" r="21" fill="url(#gcGold)"/></g>'
-  +'</svg></div>'
+  return '<div class="rl-stage cw"><div class="cw-inner"><img id="cwImg" src="claw-machine.jpg" alt="" draggable="false"><canvas id="cwCv" width="1312" height="1199"></canvas>'
+  +'<button class="cw-start" id="cwStart" onclick="gcPull()" aria-label="뽑기 시작"></button><div class="cw-tray" id="gcDrop" onclick="gcOpen()"></div></div></div>'
   +'<div class="rl-foot"><button class="rl-btn" id="rlBtn" onclick="gcPull()"></button><div class="rl-msg" id="rlMsg"></div></div>';
 }
-function clInit(){CL.x=245;CL.hy=CL_HOME_Y;CL.open=1;CL.held=null;CL.mode='idle';CL.heldDy=0;clSet();}
-function clSet(){
-  const x=CL.x,hy=CL.hy,ang=8+CL.open*20;
-  document.getElementById('clCable').setAttribute('x1',x);document.getElementById('clCable').setAttribute('x2',x);document.getElementById('clCable').setAttribute('y2',hy-8);
-  document.getElementById('clCar').setAttribute('x',x-16);
-  document.getElementById('clHead').setAttribute('transform','translate('+x+' '+hy+')');
-  document.getElementById('clArmL').setAttribute('transform','translate(-9 6) rotate('+ang+')');
-  document.getElementById('clArmR').setAttribute('transform','translate(9 6) rotate('+(-ang)+')');
-  if(CL.held){const g=document.getElementById('cb'+CL.held.id);g.setAttribute('transform','translate('+x+' '+(hy+34+CL.heldDy)+')');}
+function cwInit(){
+  CW.dy=0;CW.close=0;CW.cap=null;CW.busy=false;
+  let n=0;const done=()=>{if(++n===1)cwDraw();};
+  CW.sp=new Image();CW.sp.onload=done;CW.sp.src='claw-sprite.png';
 }
-function clTween(ms,fn,ease){
-  return new Promise(res=>{const t0=performance.now();(function f(now){let t=Math.min(1,(now-t0)/ms);const e=ease?ease(t):t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;fn(e);if(t<1)requestAnimationFrame(f);else res();})(t0);});
+function cwCapsule(x,y,R){
+  const c=document.getElementById('cwCv').getContext('2d');
+  c.save();c.globalAlpha=CW.cap?CW.cap.a:1;
+  c.beginPath();c.arc(x,y,R,0,Math.PI*2);c.clip();
+  let g=c.createRadialGradient(x-R*.3,y-R*.35,R*.1,x,y,R);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(.6,'rgba(235,228,214,.28)');g.addColorStop(1,'rgba(120,105,80,.55)');
+  c.fillStyle=g;c.fillRect(x-R,y-R,R*2,R*2);
+  g=c.createLinearGradient(0,y,0,y+R);g.addColorStop(0,'#E8C874');g.addColorStop(1,'#8E6D2E');
+  c.fillStyle=g;c.fillRect(x-R,y,R*2,R);
+  g=c.createRadialGradient(x-R*.3,y+R*.5,R*.05,x,y+R*.3,R);g.addColorStop(0,'rgba(255,240,190,.5)');g.addColorStop(1,'rgba(0,0,0,.35)');
+  c.fillStyle=g;c.fillRect(x-R,y,R*2,R);
+  c.fillStyle='rgba(120,90,35,.85)';c.fillRect(x-R,y-2,R*2,4);
+  c.restore();
+  c.save();c.globalAlpha=CW.cap?CW.cap.a:1;
+  c.beginPath();c.arc(x,y,R-1,0,Math.PI*2);c.lineWidth=2.5;c.strokeStyle='rgba(255,255,255,.7)';c.stroke();
+  c.beginPath();c.ellipse(x-R*.38,y-R*.42,R*.2,R*.34,.5,0,Math.PI*2);c.fillStyle='rgba(255,255,255,.7)';c.fill();
+  c.restore();
 }
-const clBounce=t=>{const n=7.5625,d=2.75;if(t<1/d)return n*t*t;if(t<2/d)return n*(t-=1.5/d)*t+.75;if(t<2.5/d)return n*(t-=2.25/d)*t+.9375;return n*(t-=2.625/d)*t+.984375;};
-function clSweepStart(){
-  CL.mode='sweep';CL.t0=performance.now();
-  (function f(now){if(CL.mode!=='sweep')return;CL.x=245+92*Math.sin((now-CL.t0)/1000*1.9);clSet();CL.raf=requestAnimationFrame(f);})(CL.t0);
+function cwDraw(){
+  const cv=document.getElementById('cwCv');if(!cv||!CW.sp||!CW.sp.complete)return;
+  const c=cv.getContext('2d'),sp=CW.sp,dy=CW.dy,cl=CW.close;
+  c.clearRect(0,0,cv.width,cv.height);
+  if(CW.cap&&CW.cap.a>0)cwCapsule(CW.cap.x,CW.cap.y,56);
+  c.drawImage(sp,0,0,245,62,525,213,245,62+dy);
+  c.drawImage(sp,0,62,245,72,525,275+dy,245,72);
+  for(let r=134;r<249;r++){
+    const s=1-cl*.17*((r-134)/115);
+    c.drawImage(sp,0,r,245,1,525+130-130*s,275+dy+(r-62),245*s,1.3);
+  }
+}
+function cwTween(ms,fn,ease){
+  return new Promise(res=>{const t0=performance.now();(function f(now){let t=Math.min(1,(now-t0)/ms);const e=ease?ease(t):t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;fn(e);cwDraw();if(t<1)requestAnimationFrame(f);else res();})(t0);});
 }
 async function gcPull(){
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
-  if(!btn||btn.disabled||rlSpun)return;
-  if(CL.mode==='idle'){CL.mode='sweep0';btn.textContent='집기';msg.textContent='집게가 움직여요. 원하는 곳에서 "집기"를 눌러 주세요.';clSweepStart();return;}
-  if(CL.mode!=='sweep'||rlBusy)return;
-  CL.mode='grab';rlBusy=true;btn.disabled=true;msg.textContent='';
-  cancelAnimationFrame(CL.raf);
-  // 가장 가까운 캡슐(위쪽 우선) 고르기
-  const alive=CL.balls.filter(b=>b.alive).sort((a,b)=>Math.abs(a.x-CL.x)-Math.abs(b.x-CL.x)||a.y-b.y);
-  const target=alive[0],x0=CL.x;
-  await clTween(280,e=>{CL.x=x0+(target.x-x0)*e;clSet();});
-  const hy0=CL.hy,hy1=target.y-26;
+  if(!btn||btn.disabled||rlSpun||CW.busy)return;
+  if(btn.dataset.login){location.href='index.html?openLogin=1';return;}
+  CW.busy=true;rlBusy=true;btn.disabled=true;msg.textContent='';
+  const D=150;
   const call=(async()=>{try{const r=await _fn.httpsCallable('spinRoulette')({});return {d:r.data};}catch(e){return {err:e};}})();
-  await clTween(750,e=>{CL.hy=hy0+(hy1-hy0)*e;clSet();});
-  const o0=CL.open;await clTween(380,e=>{CL.open=o0*(1-e);clSet();});
+  await cwTween(1100,e=>{CW.dy=D*e;});
+  await cwTween(450,e=>{CW.close=e;});
   const res=await call;
   if(res.err){
-    await clTween(650,e=>{CL.hy=hy1+(CL_HOME_Y-hy1)*e;clSet();});
-    await clTween(300,e=>{CL.open=e;clSet();});
-    rlBusy=false;CL.mode='idle';btn.disabled=false;btn.textContent='뽑기 시작';
+    await cwTween(300,e=>{CW.close=1-e;});
+    await cwTween(800,e=>{CW.dy=D*(1-e);});
+    CW.busy=false;rlBusy=false;btn.disabled=false;
     const err=res.err,m=(err&&err.message)||'';
     if(err.code==='functions/already-exists'){rlSpun=true;btn.textContent='참여 완료';btn.disabled=true;msg.textContent=m;}
     else msg.textContent=m||'잠시 후 다시 시도해 주세요.';
     return;
   }
-  rlSpun=true;gcData=res.d;gcColor=target.c;target.alive=false;
-  CL.held=target;CL.heldDy=target.y-(hy1+34);
-  await clTween(300,e=>{CL.heldDy=CL.heldDy*(1-e);clSet();});
-  await clTween(800,e=>{CL.hy=hy1+(CL_HOME_Y-hy1)*e;clSet();});
-  const xs=CL.x;await clTween(1000,e=>{CL.x=xs+(CL_CHUTE_X-xs)*e;clSet();});
-  await new Promise(r=>setTimeout(r,150));
-  CL.open=1;clSet();
-  // 놓기: 아래로 떨어지기
-  const h=CL.held;CL.held=null;
-  const g=document.getElementById('cb'+h.id),y0=CL.hy+34;
-  const tray=document.getElementById('clTrayBall');
-  await clTween(900,e=>{g.setAttribute('transform','translate('+CL_CHUTE_X+' '+(y0+(CL_TRAY_Y-y0)*e)+')');},clBounce);
-  g.parentNode.removeChild(g);
-  tray.innerHTML=gcCap(0,0,24,h.c,h.id).replace('class="gc-cap"','class="gc-cap2"').replace(/animation-delay:[^;"]*/,'');
-  const dr=document.getElementById('gcDrop');dr.style.display='';dr.classList.add('ready');
-  rlBusy=false;gcCanOpen=true;CL.mode='done';
+  rlSpun=true;gcData=res.d;
+  CW.cap={x:656,y:425+D,a:1};
+  await new Promise(r=>setTimeout(r,180));
+  await cwTween(1000,e=>{CW.dy=D*(1-e);CW.cap.y=425+CW.dy;});
+  await new Promise(r=>setTimeout(r,250));
+  await cwTween(380,e=>{CW.close=1-e;});
+  const y0=CW.cap.y;
+  await cwTween(520,e=>{CW.cap.y=y0+(720-y0)*e;},t=>t*t);
+  await cwTween(260,e=>{CW.cap.a=1-e;});
+  CW.cap=null;cwDraw();
+  const dr=document.getElementById('gcDrop');dr.classList.add('ready');
+  rlBusy=false;gcCanOpen=true;
   btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';
-  msg.textContent='뽑은 캡슐을 눌러 열어보세요';
+  msg.textContent='아래 꺼내는 곳의 캡슐을 눌러 열어보세요';
 }
 function gcOpen(){
   if(!gcCanOpen||!gcData)return;
