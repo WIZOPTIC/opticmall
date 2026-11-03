@@ -396,8 +396,8 @@ html{color-scheme:only light}
  .ers-head h2,.cat-badge-row .title,.category-hero-title,.ts-wrap .category-hero-title,.page-wrap .category-hero-title,.list-title,.cs-hero h1{font-size:21px!important}
 }
 
-.rl-wrap{max-width:1300px;margin:8px auto 0;padding:14px 24px;border-radius:18px;color:#fff;text-align:center;position:relative;overflow:hidden;
-  display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:'. stage side';align-items:center;
+.rl-wrap{max-width:1300px;margin:8px auto 0;padding:24px 40px 24px 56px;border-radius:18px;color:#fff;position:relative;overflow:hidden;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:1fr 1fr;grid-template-areas:'head stage' 'act stage';column-gap:40px;align-items:center;text-align:left;
   background:radial-gradient(ellipse at 50% 45%,#6a5642 0%,#473a2e 55%,#2c241e 100%);}
 .rl-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
 .rl-head,.rl-stage,.rl-foot{position:relative;z-index:1;}
@@ -418,7 +418,17 @@ html{color-scheme:only light}
 .cw-tray{position:absolute;left:39.3%;top:78%;width:21.7%;height:14.2%;border-radius:14px;}
 .cw-tray.ready{cursor:pointer;animation:cwGlow 1.4s ease-in-out infinite;}
 @keyframes cwGlow{0%,100%{box-shadow:0 0 14px 2px rgba(255,214,120,.35),inset 0 0 14px rgba(255,214,120,.25)}50%{box-shadow:0 0 34px 8px rgba(255,214,120,.8),inset 0 0 26px rgba(255,214,120,.55)}}
-.rl-foot{grid-area:side;text-align:center;padding:0 12px 0 28px;justify-self:stretch;}
+.rl-head2{grid-area:head;align-self:end;padding-bottom:26px;}
+.rl-act{grid-area:act;align-self:start;}
+.rl-eb2{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.35em;color:#E6D3A0;border:1px solid rgba(214,196,154,.5);border-radius:999px;padding:7px 16px 7px 18px;margin-bottom:22px;}
+.rl-h2{font-size:clamp(30px,3.6vw,48px);font-weight:800;line-height:1.22;letter-spacing:-.5px;color:#fff;margin:0 0 18px;word-break:keep-all;}
+.rl-h2 em{font-style:normal;color:#E6C57A;}
+.rl-desc{font-size:15px;line-height:1.8;color:rgba(255,255,255,.78);margin:0;word-break:keep-all;}
+.rl-per{font-size:13px;color:#D6C49A;margin-top:12px;letter-spacing:.5px;}
+.rl-box{display:flex;align-items:center;justify-content:space-between;gap:18px;background:rgba(0,0,0,.24);border:1px solid rgba(214,196,154,.3);border-radius:16px;padding:16px 18px 16px 24px;}
+.rl-box small{display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.rl-box b{font-size:20px;font-weight:800;color:#fff;}
+.rl-box .rl-btn{min-width:0;padding:15px 30px;white-space:nowrap;}
 .rl-side-eb{font-size:12px;letter-spacing:.4em;color:#E6D3A0;margin-bottom:16px;font-weight:700;}.rl-side-t{word-break:keep-all;text-wrap:balance;font-size:22px;font-weight:700;line-height:1.35;margin-bottom:22px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.35);}
 
 .rl-btn{display:inline-block;min-width:220px;max-width:100%;padding:16px 34px;border:none;border-radius:999px !important;background:linear-gradient(180deg,#F1DFA8,#C8AA68);color:#2A2420;font-size:17px;font-weight:800;letter-spacing:.5px;cursor:pointer;font-family:inherit;box-shadow:0 5px 0 #8a6c2e,0 10px 22px rgba(0,0,0,.35);transition:transform .15s,box-shadow .15s;}
@@ -426,6 +436,13 @@ html{color-scheme:only light}
 .rl-btn:disabled{background:rgba(255,255,255,.14);color:rgba(255,255,255,.5);box-shadow:none;cursor:default;}
 .rl-msg{margin-top:12px;font-size:14px;color:rgba(255,255,255,.7);min-height:20px;}
 /* 캡슐 열기 연출 */
+.rl-notice{max-width:1300px;margin:22px auto 60px;padding:0 24px;}
+.rl-notice h3{font-size:15px;font-weight:700;color:#2A2420;margin:0 0 12px;}
+.rl-notice ul{list-style:none;margin:0;padding:18px 22px;background:#F7F4EE;border-radius:12px;}
+.rl-notice li{position:relative;padding-left:14px;font-size:13px;line-height:1.75;color:#6b6258;word-break:keep-all;}
+.rl-notice li::before{content:'';position:absolute;left:0;top:11px;width:4px;height:4px;border-radius:50%;background:#A98C52;}
+.rl-notice li+li{margin-top:4px;}
+@media(max-width:900px){.rl-notice{padding:0 16px;margin:18px auto 40px;}}
 .rl-modal{position:fixed;inset:0;background:rgba(5,4,3,.86);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column;}
 .rl-modal.open{display:flex;}
 .gc-ov{position:relative;width:170px;height:170px;margin-bottom:10px;}
@@ -449,7 +466,7 @@ html{color-scheme:only light}
 .rl-card p{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;margin:0 0 4px;}
 .rl-card .rl-btn{border-radius:999px !important;margin-top:22px;min-width:0;width:100%;background:linear-gradient(180deg,#F1DFA8,#C8AA68);color:#2A2420;border:none;font-weight:800;}
 .rl-card .rl-btn.sub{background:transparent;color:#D6C49A;border:1px solid rgba(214,196,154,.5);margin-top:10px;box-shadow:none;}
-@media(max-width:900px){.rl-btn{width:100%;max-width:300px;}.rl-wrap{grid-template-columns:1fr;grid-template-areas:'stage' 'side';padding:14px 10px 26px;}.rl-stage{width:100%;margin:0 0 6px;}.rl-foot{padding:0 8px;margin-top:4px;}.rl-side-t{font-size:19px;margin-bottom:14px;}}
+@media(max-width:900px){.rl-wrap{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:'head' 'stage' 'act';padding:26px 16px 24px;row-gap:0;text-align:center;}.rl-head2{padding-bottom:18px;}.rl-stage{width:100%;margin:0 0 16px;}.rl-box{flex-direction:column;text-align:center;padding:16px;gap:12px;}.rl-box .rl-btn{width:100%;}.rl-h2{font-size:28px;}}
 @media(max-width:600px){.rl-logo{font-size:28px;}.rl-btn{min-width:0;width:100%;}.rl-eyebrowline span{letter-spacing:.3em;white-space:nowrap;}.rl-eyebrowline{gap:10px;}}
 </style>
 </head>
@@ -544,6 +561,7 @@ html{color-scheme:only light}
 
 <div class="event-wrap">
   <div class="rl-wrap" id="rlArea"><div class="loading-box"><div class="spinner"></div>불러오는 중...</div></div>
+  <div class="rl-notice" id="rlNotice"></div>
 </div>
 <div class="rl-modal" id="rlModal"><div class="rl-card" id="rlCard"></div></div>
 
@@ -701,7 +719,7 @@ async function initRoulette(user){
     try{const d=await _db.collection('rouletteSpins').doc(rlSpinId).get();rlSpun=d.exists;}catch(e){}
   }
   const period=(RL.startDate||RL.endDate)?'EVENT PERIOD  '+(RL.startDate||'')+' ~ '+(RL.endDate||''):'';
-  area.innerHTML=gcHtml();gxInit();
+  area.innerHTML=gcHtml();gxInit();rlNoticeRender();
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
   if(state==='before'){btn.textContent='시작 전입니다';btn.disabled=true;}
   else if(state==='ended'){btn.textContent='종료된 이벤트입니다';btn.disabled=true;}
@@ -709,6 +727,8 @@ async function initRoulette(user){
   else if(memberLevel<2){btn.textContent='승인된 회원만 참여할 수 있어요';btn.disabled=true;}
   else if(rlSpun){btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';btn.disabled=true;msg.textContent='쿠폰함에서 받은 쿠폰을 확인해 보세요.';}
   else btn.textContent='뽑기 시작';
+  const ch=document.getElementById('rlChance');
+  ch.textContent=state==='before'?'시작 전':state==='ended'?'종료':!user?'로그인 필요':memberLevel<2?'승인 회원 전용':rlTester?'테스트 모드':rlSpun?'0회 남음':'1회 남음';
 }
 let gcData=null,gcCanOpen=false;
 const GC_COLORS=['#E7A58F','#8FBDB6','#E6C36A','#B7A2D6','#8FB0D6','#D98C95','#A7CC9C','#E9B97A'];
@@ -721,118 +741,88 @@ function gcCap(cx,cy,r,col,i){
    +'<line x1="'+(-r)+'" y1="0" x2="'+r+'" y2="0" stroke="rgba(0,0,0,.18)" stroke-width="1.2"/>'
    +'<ellipse cx="'+(-r*.38)+'" cy="'+(-r*.45)+'" rx="'+(r*.2)+'" ry="'+(r*.34)+'" fill="rgba(255,255,255,.38)" transform="rotate(25 '+(-r*.38)+' '+(-r*.45)+')"/></g></g></g>';
 }
-/* ===== 선물상자 뽑기 (집게) ===== */
-const GX={x:320,hy:116,open:1,boxes:[],held:null,busy:false,spark:[]};
-const GX_BOXES=[{x:120,w:86,h:76,c:'#F7F1E3',r:'#C8AA68'},{x:240,w:92,h:82,c:'#C98B62',r:'#F7F1E3'},{x:362,w:86,h:76,c:'#D9B861',r:'#6B4A32'},{x:482,w:92,h:82,c:'#6B4A32',r:'#E8CF8E'}];
-const GX_FLOOR=585;
-function gxShade(c){return c;}
-function gxBox(id,w,h,c,r){
-  const W=w/2;
-  return '<g id="'+id+'"><g class="bb"><rect x="'+(-W)+'" y="'+(-h+20)+'" width="'+w+'" height="'+(h-20)+'" rx="7" fill="'+c+'"/>'
-   +'<rect x="'+(-W)+'" y="'+(-h+20)+'" width="'+(w*.22)+'" height="'+(h-20)+'" rx="5" fill="rgba(255,255,255,.28)"/>'
-   +'<rect x="'+(W-w*.16)+'" y="'+(-h+20)+'" width="'+(w*.16)+'" height="'+(h-20)+'" rx="5" fill="rgba(0,0,40,.16)"/>'
-   +'<rect x="-9" y="'+(-h+20)+'" width="18" height="'+(h-20)+'" fill="'+r+'"/></g>'
-   +'<g class="bl"><rect x="'+(-W-6)+'" y="'+(-h)+'" width="'+(w+12)+'" height="24" rx="7" fill="'+c+'"/><rect x="'+(-W-6)+'" y="'+(-h)+'" width="'+(w+12)+'" height="8" rx="4" fill="rgba(255,255,255,.3)"/><rect x="-9" y="'+(-h)+'" width="18" height="24" fill="'+r+'"/>'
-   +'<ellipse cx="-15" cy="'+(-h-9)+'" rx="16" ry="10" fill="'+r+'" transform="rotate(-20 -15 '+(-h-9)+')"/><ellipse cx="15" cy="'+(-h-9)+'" rx="16" ry="10" fill="'+r+'" transform="rotate(20 15 '+(-h-9)+')"/>'
-   +'<circle cx="0" cy="'+(-h-5)+'" r="7.5" fill="'+r+'"/><circle cx="-2" cy="'+(-h-7)+'" r="3" fill="rgba(255,255,255,.55)"/></g></g>';
-}
+/* ===== 룰렛판 ===== */
+const GX={rot:0,busy:false,n:7};
+const RW_COL=['#F7F1E3','#C98B62','#D9B861','#6B4A32'];
 function gxFmtD(d){return d?String(d).replace(/-/g,'.'):'';}
+function rlNoticeRender(){
+  const el=document.getElementById('rlNotice');if(!el||!RL)return;
+  const vd=RL.validDays||30,daily=RL.limit==='daily';
+  const L=['본 이벤트는 옵틱몰 회원을 대상으로 '+(daily?'일일 1회':'1인 1회')+' 참여 가능합니다.',
+   '발급된 쿠폰은 마이페이지 &gt; 쿠폰함에서 즉시 확인 및 사용할 수 있습니다.',
+   '쿠폰 유효기간은 발급 시점으로부터 '+vd+'일이며, 만료 후 재발급이 불가합니다.',
+   '일부 브랜드 테 및 특가 타임세일 상품에는 쿠폰 적용이 제한될 수 있습니다.',
+   '비정상적인 방법으로 참여 시 당첨 취소 및 계정 제재 조치가 취해질 수 있습니다.',
+   '당사 사정에 의해 이벤트 내용이 사전 고지 없이 변경될 수 있습니다.'];
+  el.innerHTML='<h3>이벤트 유의사항 및 쿠폰 안내</h3><ul>'+L.map(t=>'<li>'+t+'</li>').join('')+'</ul>';
+}
+
+function rwPt(r,deg){const a=deg*Math.PI/180;return [(320+r*Math.sin(a)).toFixed(2),(340-r*Math.cos(a)).toFixed(2)];}
 function gcHtml(){
-  let boxes='';GX.boxes=GX_BOXES.map((b,i)=>({...b,id:'gxb'+i,alive:true}));
-  GX.boxes.forEach(b=>{boxes+='<ellipse cx="'+b.x+'" cy="'+(GX_FLOOR+4)+'" rx="'+(b.w*.62)+'" ry="8" fill="rgba(0,0,0,.28)"/><g transform="translate('+b.x+' '+GX_FLOOR+')">'+gxBox(b.id,b.w,b.h,b.c,b.r)+'</g>';});
-  const ttl=((RL&&RL.title)||'행운 뽑기'),ts=Math.max(26,Math.min(50,Math.floor(560/Math.max(ttl.length,1)*0.98)));
+  const n=Math.max(2,(RL&&RL.prizes&&RL.prizes.length)||7);GX.n=n;const seg=360/n;
+  let w='',d='';
+  for(let i=0;i<n;i++){
+    const p1=rwPt(262,i*seg),p2=rwPt(262,(i+1)*seg),c=RW_COL[i%4];
+    w+='<path d="M320 340 L'+p1[0]+' '+p1[1]+' A262 262 0 0 1 '+p2[0]+' '+p2[1]+' Z" fill="'+c+'" stroke="#2a2018" stroke-width="2"/>';
+    const m=rwPt(190,(i+.5)*seg);
+    w+='<circle cx="'+m[0]+'" cy="'+m[1]+'" r="9" fill="'+(i%4===0||i%4===2?'#B08A3E':'#E8CF8E')+'" opacity=".85"/>';
+    const q=rwPt(274,i*seg);d+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="6" fill="#F4E4B0" stroke="#7a6232" stroke-width="1.5"/>';
+  }
+  const ttl=((RL&&RL.title)||'행운 뽑기');
   const per=(RL&&RL.startDate&&RL.endDate)?gxFmtD(RL.startDate)+' ~ '+gxFmtD(RL.endDate):'오픈 기념 이벤트';
-  let dots='';for(let i=0;i<46;i++){dots+='<circle cx="'+(Math.random()*640).toFixed(0)+'" cy="'+(Math.random()*640).toFixed(0)+'" r="'+(0.8+Math.random()*1.4).toFixed(1)+'" fill="#fff" opacity="'+(0.05+Math.random()*0.1).toFixed(2)+'"/>';}
-  return '<div class="rl-stage cw"><svg class="gx" id="gxSvg" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">'
-  +'<defs><linearGradient id="gxPk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B8764A"/><stop offset=".45" stop-color="#E4AE88"/><stop offset="1" stop-color="#8E5632"/></linearGradient>'
-  +'<linearGradient id="gxCy" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B8963F"/><stop offset=".45" stop-color="#F4E4B0"/><stop offset="1" stop-color="#A98C52"/></linearGradient>'
-  +'<clipPath id="gxClip"><rect x="0" y="0" width="640" height="640" rx="26"/></clipPath></defs>'
-  +''
-  +'<g clip-path="url(#gxClip)">'+dots
-  +''
-  +'<g id="gxTxt"><text x="320" y="290" font-size="64" fill="#F1DFA8" stroke-width="10" letter-spacing="1">OPTICMALL</text>'
-  +'<text x="320" y="'+(290+ts+14)+'" font-size="'+ts+'" fill="#FFFFFF" stroke-width="9">'+escapeHtml(ttl)+'</text>'
-  +'<text x="320" y="'+(290+ts+60)+'" font-size="30" fill="#E0B766" stroke-width="7">'+escapeHtml(per)+'</text>'
-  +'<text x="320" y="'+(290+ts+104)+'" font-size="30" fill="#F1DFA8" stroke-width="7">집게로 행운을 뽑아보세요!</text></g>'
-  +boxes
-  +'<rect x="24" y="22" width="592" height="9" rx="4.5" fill="#8a7048"/>'
-  +'<g id="gxClaw"><path id="gxCable" d="" fill="none" stroke="#D6B26A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>'
-  +'<rect id="gxCar" x="294" y="14" width="52" height="22" rx="8" fill="url(#gxPk)"/>'
-  +'<g id="gxHead"><rect x="-21" y="-34" width="42" height="40" rx="8" fill="url(#gxPk)"/><rect x="-23" y="-26" width="46" height="8" rx="3" fill="url(#gxCy)"/><rect x="-23" y="-6" width="46" height="8" rx="3" fill="url(#gxCy)"/>'
-  +'<rect x="-27" y="4" width="54" height="16" rx="7" fill="url(#gxCy)"/><circle cx="0" cy="22" r="9" fill="#A98C52"/>'
-  +'<g id="gxPL"><path d="M0 0 Q -46 8 -42 58 Q -40 76 -20 70" fill="none" stroke="#7a6232" stroke-width="18" stroke-linecap="round"/><path d="M0 0 Q -46 8 -42 58 Q -40 76 -20 70" fill="none" stroke="url(#gxCy)" stroke-width="13" stroke-linecap="round"/></g>'
-  +'<g id="gxPR"><path d="M0 0 Q 46 8 42 58 Q 40 76 20 70" fill="none" stroke="#7a6232" stroke-width="18" stroke-linecap="round"/><path d="M0 0 Q 46 8 42 58 Q 40 76 20 70" fill="none" stroke="url(#gxCy)" stroke-width="13" stroke-linecap="round"/></g></g></g>'
-  +'<g id="gxHeld"></g><g id="gxFx"></g></g></svg></div>'
-  +'<div class="rl-foot"><div class="rl-side-eb">OPEN EVENT</div><button class="rl-btn" id="rlBtn" onclick="gcPull()"></button><div class="rl-msg" id="rlMsg"></div></div>';
+  const wd=ttl.split(' ').filter(Boolean),h2=wd.length>=4?escapeHtml(wd.slice(0,-2).join(' '))+'<br><em>'+escapeHtml(wd.slice(-2).join(' '))+'</em>':escapeHtml(ttl);
+  return '<div class="rl-head2"><div class="rl-eb2">OPEN EVENT</div><h2 class="rl-h2">'+h2+'</h2><p class="rl-desc">룰렛을 돌리고<br>할인쿠폰을 받아가세요.</p><div class="rl-per">'+per+'</div></div>'
+  +'<div class="rl-stage cw"><svg class="gx" id="gxSvg" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">'
+  +'<defs><linearGradient id="rwG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4E4B0"/><stop offset=".5" stop-color="#B8963F"/><stop offset="1" stop-color="#E6D3A0"/></linearGradient>'
+  +'<radialGradient id="rwH" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#FFF6D6"/><stop offset=".6" stop-color="#D6B26A"/><stop offset="1" stop-color="#8a6c2e"/></radialGradient></defs>'
+  +'<circle cx="320" cy="340" r="292" fill="rgba(0,0,0,.28)"/>'
+  +'<circle cx="320" cy="340" r="284" fill="none" stroke="url(#rwG)" stroke-width="22"/>'
+  +'<g id="rwWheel" style="transform-origin:320px 340px">'+w+'<circle cx="320" cy="340" r="273" fill="none" stroke="#7a6232" stroke-width="2"/>'+d+'</g>'
+  +'<circle cx="320" cy="340" r="46" fill="url(#rwH)" stroke="#7a6232" stroke-width="3"/><circle cx="320" cy="340" r="18" fill="#6B4A32"/>'
+  +'<path d="M320 96 L296 44 Q320 28 344 44 Z" fill="url(#rwG)" stroke="#7a6232" stroke-width="3" stroke-linejoin="round"/><circle cx="320" cy="52" r="7" fill="#6B4A32"/>'
+  +'</svg></div>'
+  +'<div class="rl-act"><div class="rl-box"><div><small>나의 참여 기회</small><b id="rlChance">-</b></div><button class="rl-btn" id="rlBtn" onclick="gcPull()"></button></div><div class="rl-msg" id="rlMsg"></div></div>';
 }
-function gxInit(){GX.x=320;GX.hy=116;GX.open=1;GX.held=null;GX.busy=false;gxSet();}
-function gxSet(){
-  const x=GX.x,hy=GX.hy;
-  let d='M '+x+' 34',y=34,k=0;while(y<hy-34){y+=8;d+=' L '+(x+(k++%2?-7:7))+' '+y;}d+=' L '+x+' '+(hy-34);
-  document.getElementById('gxCable').setAttribute('d',d);
-  document.getElementById('gxCar').setAttribute('x',x-26);
-  document.getElementById('gxHead').setAttribute('transform','translate('+x+' '+hy+')');
-  const a=18-36*GX.open;
-  document.getElementById('gxPL').setAttribute('transform','translate(-14 8) rotate('+a+')');
-  document.getElementById('gxPR').setAttribute('transform','translate(14 8) rotate('+(-a)+')');
-  const h=document.getElementById('gxHeld');
-  if(GX.held){h.setAttribute('transform','translate('+x+' '+(hy+GX.heldDy)+') rotate('+(GX.sway||0)+')');}
-}
-function gxTween(ms,fn,ease){
-  return new Promise(res=>{const t0=performance.now();(function f(now){let t=Math.min(1,(now-t0)/ms);const e=ease?ease(t):t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;fn(e);gxSet();if(t<1)requestAnimationFrame(f);else res();})(t0);});
-}
-const gxWait=ms=>new Promise(r=>setTimeout(r,ms));
+function gxInit(){GX.rot=0;GX.busy=false;const w=document.getElementById('rwWheel');if(w)w.style.transform='rotate(0deg)';}
+function rwSet(a){GX.rot=a;document.getElementById('rwWheel').style.transform='rotate('+a+'deg)';}
 async function gcPull(){
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
   if(!btn||btn.disabled||rlSpun||GX.busy)return;
   if(btn.dataset.login){location.href='index.html?openLogin=1';return;}
   GX.busy=true;rlBusy=true;btn.disabled=true;msg.textContent='';
-  const target=GX.boxes.filter(b=>b.alive)[Math.floor(Math.random()*GX.boxes.filter(b=>b.alive).length)];
-  const call=(async()=>{try{const r=await _fn.httpsCallable('spinRoulette')({});return {d:r.data};}catch(e){return {err:e};}})();
-  const tx=document.getElementById('gxTxt');gxTween(500,e=>{tx.setAttribute('opacity',1-.85*e);});
-  const x0=GX.x;await gxTween(750,e=>{GX.x=x0+(target.x-x0)*e;});
-  const hy0=GX.hy,hy1=GX_FLOOR-target.h-34;
-  await gxTween(900,e=>{GX.hy=hy0+(hy1-hy0)*e;});
-  await gxTween(420,e=>{GX.open=1-e;});
-  const res=await call;
+  let res=null;
+  (async()=>{try{const r=await _fn.httpsCallable('spinRoulette')({});res={d:r.data};}catch(e){res={err:e};}})();
+  // 1) 가속 + 응답 올 때까지 회전
+  let a=GX.rot,v=0,last=performance.now(),t0=last;
+  await new Promise(done=>{(function f(now){
+    const dt=Math.min(50,now-last)/1000;last=now;
+    v=Math.min(900,v+700*dt);a+=v*dt;rwSet(a);
+    if(res&&now-t0>1300)done();else requestAnimationFrame(f);
+  })(last);});
   if(res.err){
-    await gxTween(300,e=>{GX.open=e;});
-    await gxTween(800,e=>{GX.hy=hy1+(116-hy1)*e;tx.setAttribute('opacity',.15+.85*e);});
+    // 감속 정지
+    const a0=GX.rot,a1=a0+240;await gxTweenW(900,e=>rwSet(a0+(a1-a0)*e),t=>1-Math.pow(1-t,3));
     GX.busy=false;rlBusy=false;btn.disabled=false;
     const err=res.err,m=(err&&err.message)||'';
-    if(err.code==='functions/already-exists'){rlSpun=true;btn.textContent='참여 완료';btn.disabled=true;msg.textContent=m;}
+    if(err.code==='functions/already-exists'){rlSpun=true;btn.textContent='참여 완료';btn.disabled=true;msg.textContent=m;const c=document.getElementById('rlChance');if(c)c.textContent='0회 남음';}
     else msg.textContent=m||'잠시 후 다시 시도해 주세요.';
     return;
   }
-  rlSpun=true;gcData=res.d;target.alive=false;
-  // 상자를 집게로 옮기기
-  const orig=document.getElementById(target.id).parentNode;orig.parentNode.removeChild(orig);
-  document.getElementById('gxHeld').innerHTML=gxBox('gxHb',target.w,target.h,target.c,target.r);
-  GX.held=true;GX.heldDy=target.h+14;GX.sway=0;gxSet();
-  await gxWait(150);
-  await gxTween(1300,e=>{GX.hy=hy1+(116-hy1)*e;GX.sway=Math.sin(e*Math.PI*3)*(1-e)*5;});
-  GX.sway=0;gxSet();
-  await gxWait(250);
-  // 흔들 -> 뚜껑 열림
-  await gxTween(650,e=>{GX.sway=Math.sin(e*Math.PI*8)*8*(1-e*.3);});
-  GX.sway=0;gxSet();
-  const lid=document.querySelector('#gxHb .bl');
-  const fx=document.getElementById('gxFx');
-  let sp='';for(let i=0;i<14;i++)sp+='<circle r="'+(3+Math.random()*3)+'" fill="'+(i%3==0?'#F1DFA8':i%3==1?'#D6B26A':'#FFFFFF')+'" opacity="0"/>';
-  fx.innerHTML=sp;const dots=[...fx.children];
-  const cx=GX.x,cy=GX.hy+target.h*.4;
-  const angs=dots.map((_,i)=>i/dots.length*Math.PI*2+Math.random()*.3),dist=dots.map(()=>70+Math.random()*70);
-  await gxTween(700,e=>{
-    lid.setAttribute('transform','translate(0 '+(-90*e)+') rotate('+(-28*e)+' 0 '+(-target.h)+')');lid.setAttribute('opacity',1-e*.9);
-    dots.forEach((d,i)=>{d.setAttribute('cx',cx+Math.cos(angs[i])*dist[i]*e);d.setAttribute('cy',cy-20+Math.sin(angs[i])*dist[i]*e);d.setAttribute('opacity',Math.sin(e*Math.PI));});
-  },t=>1-Math.pow(1-t,2));
-  fx.innerHTML='';
+  rlSpun=true;gcData=res.d;{const c=document.getElementById('rlChance');if(c)c.textContent='0회 남음';}
+  // 2) 당첨 칸에서 멈추기
+  const seg=360/GX.n,i=Math.max(0,Math.min(GX.n-1,res.d.prizeIndex|0));
+  const off=(Math.random()-.5)*seg*.55;
+  const base=-((i+.5)*seg+off);
+  const a0=GX.rot,target=base+360*Math.ceil((a0+1260-base)/360);
+  await gxTweenW(4600,e=>rwSet(a0+(target-a0)*e),t=>1-Math.pow(1-t,4));
+  await new Promise(r=>setTimeout(r,500));
   btn.textContent=RL.limit==='daily'?'오늘은 참여 완료':'참여 완료';
   GX.busy=false;rlBusy=false;
   const modal=document.getElementById('rlModal');
   modal.innerHTML='<div class="rl-card" id="rlCard"></div>';modal.classList.add('open');
   rlShowResult(gcData);
 }
+function gxTweenW(ms,fn,ease){return new Promise(res=>{const t0=performance.now();(function f(now){const t=Math.min(1,(now-t0)/ms);fn(ease(t));if(t<1)requestAnimationFrame(f);else res();})(t0);});}
 function gcOpen(){
   if(!gcCanOpen||!gcData)return;
   gcCanOpen=false;
