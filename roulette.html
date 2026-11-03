@@ -396,24 +396,35 @@ html{color-scheme:only light}
  .ers-head h2,.cat-badge-row .title,.category-hero-title,.ts-wrap .category-hero-title,.page-wrap .category-hero-title,.list-title,.cs-hero h1{font-size:21px!important}
 }
 
-.rl-wrap{max-width:560px;margin:0 auto;text-align:center;padding:8px 0 40px;}
-.rl-title{font-size:28px;font-weight:800;color:#1a1a1a;margin:18px 0 6px;letter-spacing:-.5px;}
-.rl-sub{font-size:14px;color:#777;margin-bottom:6px;}
-.rl-period{font-size:13px;color:#999;margin-bottom:20px;}
-.rl-stage{position:relative;width:min(420px,88vw);aspect-ratio:1/1;margin:0 auto 24px;}
-.rl-pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);z-index:3;width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:30px solid #d93025;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));}
-.rl-wheel{width:100%;height:100%;border-radius:50%;transition:transform 5s cubic-bezier(.12,.7,.1,1);box-shadow:0 8px 28px rgba(0,0,0,.18);}
-.rl-hub{position:absolute;left:50%;top:50%;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:50%;background:#fff;border:4px solid #1a1a1a;z-index:2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#1a1a1a;}
-.rl-btn{display:inline-block;min-width:220px;padding:15px 28px;border:none;border-radius:10px;background:#1a1a1a;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
-.rl-btn:disabled{background:#bbb;cursor:default;}
-.rl-msg{margin-top:14px;font-size:14px;color:#666;min-height:20px;}
-.rl-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
+.rl-wrap{max-width:1100px;margin:8px auto 0;text-align:center;padding:36px 56px;border-radius:18px;display:grid;grid-template-columns:1fr auto;grid-template-areas:'head stage' 'foot stage';align-items:center;column-gap:40px;text-align:left;color:#fff;
+  background:linear-gradient(90deg,rgba(22,18,15,.93) 0%,rgba(22,18,15,.8) 55%,rgba(22,18,15,.72) 100%),url(event-open-wide.jpg) center/cover no-repeat #2A2420;position:relative;overflow:hidden;min-height:calc(100vh - 410px);}
+.rl-wrap:before{content:"";position:absolute;inset:14px;border:1px solid rgba(214,196,154,.28);border-radius:12px;pointer-events:none;}
+.rl-head{grid-area:head;align-self:end;}.rl-foot{grid-area:foot;align-self:start;}.rl-stage{grid-area:stage;}
+.rl-eyebrow{font-size:12px;letter-spacing:4px;color:#D6C49A;margin-bottom:14px;}
+.rl-title{font-size:34px;font-weight:700;color:#fff;margin:0 0 10px;letter-spacing:-.5px;}
+.rl-sub{font-size:15px;color:rgba(255,255,255,.72);margin-bottom:8px;}
+.rl-period{font-size:12px;color:#D6C49A;letter-spacing:.5px;margin-bottom:30px;}
+.rl-stage{position:relative;width:clamp(300px,calc(100vh - 480px),460px);aspect-ratio:1/1;margin:14px 20px 14px 0;}
+.rl-stage:before{content:"";position:absolute;inset:-26px;border-radius:50%;background:radial-gradient(circle,rgba(214,196,154,.28) 0%,rgba(214,196,154,0) 68%);}
+.rl-pointer{position:absolute;left:50%;top:-14px;transform:translateX(-50%);z-index:3;width:34px;height:44px;
+  background:linear-gradient(180deg,#F1E3B8,#A98C52);clip-path:polygon(50% 100%,0 12%,18% 0,82% 0,100% 12%);filter:drop-shadow(0 3px 4px rgba(0,0,0,.5));}
+.rl-wheel{position:relative;width:100%;height:100%;border-radius:50%;transition:transform 5.2s cubic-bezier(.12,.7,.1,1);box-shadow:0 14px 40px rgba(0,0,0,.55);}
+.rl-hub{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;z-index:2;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;letter-spacing:2px;color:#2A2420;background:radial-gradient(circle at 35% 30%,#F4E8C4,#C8AA68 55%,#8E7440);border:3px solid #2A2420;box-shadow:0 0 0 3px #D6C49A,0 6px 14px rgba(0,0,0,.5);}
+.rl-btn{display:inline-block;min-width:240px;padding:17px 34px;border:none;border-radius:999px;background:linear-gradient(180deg,#E6D3A0,#A98C52);color:#2A2420;font-size:16px;font-weight:800;letter-spacing:.5px;cursor:pointer;font-family:inherit;box-shadow:0 8px 20px rgba(0,0,0,.35);transition:transform .15s;}
+.rl-btn:hover:not(:disabled){transform:translateY(-2px);}
+.rl-btn:disabled{background:rgba(255,255,255,.14);color:rgba(255,255,255,.55);box-shadow:none;cursor:default;}
+.rl-msg{margin-top:16px;font-size:14px;color:rgba(255,255,255,.7);min-height:20px;}
+.rl-modal{position:fixed;inset:0;background:rgba(15,12,10,.72);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
 .rl-modal.open{display:flex;}
-.rl-card{background:#fff;border-radius:16px;padding:32px 26px;max-width:340px;width:100%;text-align:center;}
-.rl-card .big{font-size:34px;font-weight:800;color:#d93025;margin:8px 0 10px;}
-.rl-card p{font-size:14px;color:#555;line-height:1.6;margin:0 0 6px;}
-.rl-card .rl-btn{margin-top:18px;min-width:0;width:100%;}
-.rl-card .rl-btn.sub{background:#fff;color:#1a1a1a;border:1px solid #ccc;margin-top:8px;}
+.rl-card{background:radial-gradient(ellipse at 50% 0%,#4a3d33,#2A2420 70%);border:1px solid #A98C52;border-radius:18px;padding:40px 28px 30px;max-width:360px;width:100%;text-align:center;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.rl-card .eb{font-size:12px;letter-spacing:4px;color:#D6C49A;}
+.rl-card .big{font-size:36px;font-weight:800;color:#E6D3A0;margin:14px 0 14px;letter-spacing:-.5px;}
+.rl-card p{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;margin:0 0 4px;}
+.rl-card .rl-btn{margin-top:22px;min-width:0;width:100%;}
+.rl-card .rl-btn.sub{background:transparent;color:#D6C49A;border:1px solid rgba(214,196,154,.5);margin-top:10px;box-shadow:none;}
+@media(max-width:860px){.rl-wrap{background:linear-gradient(180deg,rgba(22,18,15,.82),rgba(22,18,15,.7)),url(event-open-tall.jpg) center/cover no-repeat #2A2420;min-height:0;display:block;text-align:center;padding:40px 18px 48px;}.rl-stage{width:min(420px,80vw);margin:0 auto 30px;}.rl-period{margin-bottom:34px;}}
+@media(max-width:600px){.rl-wrap{padding:40px 14px 48px;border-radius:12px;}.rl-title{font-size:21px;}.rl-btn{min-width:0;width:100%;}}
 </style>
 </head>
 <body>
@@ -668,12 +679,12 @@ async function initRoulette(user){
     rlSpinId=RL.limit==='daily'?eid+'_'+today.replace(/-/g,'')+'_'+user.uid:eid+'_'+user.uid;
     try{const d=await _db.collection('rouletteSpins').doc(rlSpinId).get();rlSpun=d.exists;}catch(e){}
   }
-  const period=(RL.startDate||RL.endDate)?'이벤트 기간 '+(RL.startDate||'')+' ~ '+(RL.endDate||''):'';
-  area.innerHTML='<div class="rl-title">'+escapeHtml(RL.title||'행운의 룰렛')+'</div>'
+  const period=(RL.startDate||RL.endDate)?'EVENT PERIOD  '+(RL.startDate||'')+' ~ '+(RL.endDate||''):'';
+  area.innerHTML='<div class="rl-head"><div class="rl-eyebrow">OPEN EVENT</div><div class="rl-title">'+escapeHtml(RL.title||'행운의 룰렛')+'</div>'
    +(RL.subtitle?'<div class="rl-sub">'+escapeHtml(RL.subtitle)+'</div>':'')
-   +(period?'<div class="rl-period">'+escapeHtml(period)+'</div>':'')
+   +(period?'<div class="rl-period">'+escapeHtml(period)+'</div>':'')+'</div>'
    +'<div class="rl-stage"><div class="rl-pointer"></div><canvas class="rl-wheel" id="rlWheel" width="840" height="840"></canvas><div class="rl-hub">SPIN</div></div>'
-   +'<button class="rl-btn" id="rlBtn" onclick="rlSpin()"></button><div class="rl-msg" id="rlMsg"></div>';
+   +'<div class="rl-foot"><button class="rl-btn" id="rlBtn" onclick="rlSpin()"></button><div class="rl-msg" id="rlMsg"></div></div>';
   rlDraw();
   const btn=document.getElementById('rlBtn'),msg=document.getElementById('rlMsg');
   if(state==='before'){btn.textContent='시작 전입니다';btn.disabled=true;}
@@ -685,18 +696,34 @@ async function initRoulette(user){
 }
 function rlDraw(){
   const c=document.getElementById('rlWheel'),x=c.getContext('2d'),n=RL.prizes.length,S=c.width,R=S/2,a=2*Math.PI/n;
-  const cols=['#fff4e0','#ffe0e0','#e3f2ff','#e6f7e6'];
+  const rim=34,Ri=R-rim;
   x.clearRect(0,0,S,S);
+  // 바깥 금속 테두리
+  let g=x.createLinearGradient(0,0,S,S);g.addColorStop(0,'#F4E8C4');g.addColorStop(.5,'#A98C52');g.addColorStop(1,'#E6D3A0');
+  x.beginPath();x.arc(R,R,R-2,0,2*Math.PI);x.fillStyle=g;x.fill();
+  x.beginPath();x.arc(R,R,R-rim+4,0,2*Math.PI);x.fillStyle='#2A2420';x.fill();
   for(let i=0;i<n;i++){
-    x.beginPath();x.moveTo(R,R);x.arc(R,R,R-4,-Math.PI/2+i*a,-Math.PI/2+(i+1)*a);x.closePath();
-    x.fillStyle=cols[i%cols.length];if(n%cols.length===1&&i===n-1)x.fillStyle='#f3e8ff';
-    x.fill();x.strokeStyle='#fff';x.lineWidth=4;x.stroke();
-    x.save();x.translate(R,R);x.rotate(-Math.PI/2+(i+.5)*a);
-    x.textAlign='right';x.fillStyle='#1a1a1a';x.font='bold 44px sans-serif';
-    x.fillText(rlFmt(RL.prizes[i].value)+'원',R-52,15);
+    const odd3=(n%2===1&&i===n-1),dark=!odd3&&i%2===0;
+    x.beginPath();x.moveTo(R,R);x.arc(R,R,Ri,-Math.PI/2+i*a,-Math.PI/2+(i+1)*a);x.closePath();
+    const gg=x.createRadialGradient(R,R,Ri*.1,R,R,Ri);
+    if(odd3){gg.addColorStop(0,'#E6D3A0');gg.addColorStop(1,'#B8985A');}else if(dark){gg.addColorStop(0,'#3d332c');gg.addColorStop(1,'#241f1b');}else{gg.addColorStop(0,'#FBF8F1');gg.addColorStop(1,'#E9DFC9');}
+    x.fillStyle=gg;x.fill();
+    x.strokeStyle='#C8AA68';x.lineWidth=3;x.stroke();
+    const mid=-Math.PI/2+(i+.5)*a,left=((i+.5)*a)>Math.PI;
+    x.save();x.translate(R,R);x.rotate(left?mid+Math.PI:mid);
+    x.fillStyle=dark?'#E6D3A0':'#2A2420';x.font='700 46px "Noto Sans KR","Malgun Gothic",sans-serif';x.textBaseline='middle';
+    const t=rlFmt(RL.prizes[i].value)+'원';
+    if(left){x.textAlign='left';x.fillText(t,-(Ri-46),2);}else{x.textAlign='right';x.fillText(t,Ri-46,2);}
     x.restore();
   }
-  x.beginPath();x.arc(R,R,R-4,0,2*Math.PI);x.lineWidth=8;x.strokeStyle='#1a1a1a';x.stroke();
+  // 테두리 전구
+  const dots=n*3;
+  for(let i=0;i<dots;i++){
+    const th=i*2*Math.PI/dots,rr=R-rim/2-1;
+    x.beginPath();x.arc(R+Math.sin(th)*rr,R-Math.cos(th)*rr,6,0,2*Math.PI);
+    x.fillStyle=i%2?'#FFF6D8':'#8E7440';x.fill();
+  }
+  x.beginPath();x.arc(R,R,Ri,0,2*Math.PI);x.lineWidth=5;x.strokeStyle='#E6D3A0';x.stroke();
 }
 async function rlSpin(){
   if(rlBusy||rlSpun)return;
@@ -724,7 +751,7 @@ async function rlSpin(){
 }
 function rlShowResult(d){
   const card=document.getElementById('rlCard');
-  card.innerHTML='<p>축하합니다!</p><div class="big">'+rlFmt(d.value)+'원 할인쿠폰</div>'
+  card.innerHTML='<div class="eb">CONGRATULATIONS</div><div class="big">'+rlFmt(d.value)+'원 할인쿠폰</div>'
    +'<p>'+(d.minOrderAmount>0?rlFmt(d.minOrderAmount)+'원 이상 주문 시 사용 가능':'금액 제한 없이 사용 가능')+'</p>'
    +'<p>발급일로부터 '+d.validDays+'일간 사용할 수 있어요.</p>'
    +'<button class="rl-btn" onclick="location.href=\'mypage.html?tab=coupons\'">쿠폰함 보기</button>'
