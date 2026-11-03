@@ -319,6 +319,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     <button class="menu-item" onclick="showPage('productApproval',this)">상품 승인 관리 <span class="menu-badge" id="pendingProductBadge"></span></button>
     <button class="menu-item" onclick="showPage('allProducts',this)">전체 상품 목록</button>
     <button class="menu-item" onclick="showPage('productOrder',this)">상품 노출 순서</button>
+    <button class="menu-item" onclick="showPage('roulette',this)">룰렛 이벤트</button>
     <button class="menu-item" onclick="showPage('featuredPicks',this)">신상품·베스트 선정</button>
     <button class="menu-item" onclick="showPage('bulkRegister',this)">대량 상품 등록</button>
     <div class="menu-section">프로모션</div>
@@ -441,6 +442,31 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
     </div>
 
     <!-- 상품 노출 순서 -->
+    <div class="page" id="page-roulette">
+      <div class="section-card" style="padding:24px;max-width:900px;">
+        <div class="section-title">룰렛 이벤트 설정</div>
+        <div style="font-size:13px;color:#7a8794;margin-bottom:18px;">확률(가중치)은 회원에게 보이지 않아요. 가중치가 0이면 룰렛에는 표시되지만 절대 당첨되지 않습니다.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <label style="grid-column:1/3;font-size:13px;font-weight:600;">진행 여부
+            <select id="rlEnabled" class="form-input" style="margin-top:4px;"><option value="1">진행 중 (회원에게 공개)</option><option value="0">중지</option></select></label>
+          <label style="font-size:13px;font-weight:600;">이벤트 제목<input id="rlTitle" class="form-input" style="margin-top:4px;" value="옵틱몰 오픈 기념 행운의 룰렛"></label>
+          <label style="font-size:13px;font-weight:600;">부제목<input id="rlSubtitle" class="form-input" style="margin-top:4px;" value="룰렛을 돌리고 할인쿠폰을 받아가세요"></label>
+          <label style="font-size:13px;font-weight:600;">시작일<input id="rlStart" type="date" class="form-input" style="margin-top:4px;"></label>
+          <label style="font-size:13px;font-weight:600;">종료일<input id="rlEnd" type="date" class="form-input" style="margin-top:4px;"></label>
+          <label style="font-size:13px;font-weight:600;">참여 횟수
+            <select id="rlLimit" class="form-input" style="margin-top:4px;"><option value="once">회원당 1회</option><option value="daily">회원당 하루 1회</option></select></label>
+          <label style="font-size:13px;font-weight:600;">쿠폰 사용 기간(일)<input id="rlValid" type="number" min="1" class="form-input" style="margin-top:4px;" value="30"></label>
+        </div>
+        <div style="font-size:14px;font-weight:700;margin:6px 0 8px;">상품(쿠폰) 및 확률</div>
+        <table class="data-table" style="width:100%;"><thead><tr><th>할인금액(원)</th><th>가중치</th><th>실제 확률</th><th>최소 주문금액(원)</th><th></th></tr></thead><tbody id="rlPrizeBody"></tbody></table>
+        <div style="margin-top:10px;display:flex;gap:8px;">
+          <button class="btn" onclick="rlAddPrize()">상품 추가</button>
+          <button class="btn btn-primary" onclick="saveRouletteAdmin()">저장</button>
+        </div>
+        <div style="font-size:14px;font-weight:700;margin:28px 0 8px;">당첨 내역 (최근 100건)</div>
+        <div id="rlWinners" style="font-size:13px;color:#555;">불러오는 중...</div>
+      </div>
+    </div>
     <div class="page" id="page-productOrder">
       <div class="section-header">
         <div class="section-title">상품 노출 순서</div>
@@ -1059,13 +1085,14 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', productOrder:'상품 노출 순서', featuredPicks:'신상품·베스트 선정', bulkRegister:'대량 상품 등록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
+  const titles = {dashboard:'대시보드', approval:'가입 승인 관리', members:'회원 목록', productApproval:'상품 승인 관리', allProducts:'전체 상품 목록', roulette:'룰렛 이벤트', productOrder:'상품 노출 순서', featuredPicks:'신상품·베스트 선정', bulkRegister:'대량 상품 등록', promoApproval:'이벤트 승인 관리', allPromos:'전체 이벤트 목록', timesaleManage:'타임세일 관리', orderManage:'주문/배송 관리', cancelManage:'취소/반품 관리', settlement:'정산 관리', editorial:'롤링 배너 관리', heroPhotos:'메인 대표사진 관리', adminSettings:'설정'};
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
   if(name === 'productApproval') loadProductApproval();
   if(name === 'allProducts') loadAllProducts();
   if(name === 'productOrder') loadProductOrder();
+  if(name === 'roulette') loadRouletteAdmin();
   if(name === 'featuredPicks') loadFeaturedPicks();
   if(name === 'bulkRegister') initBulkRegister();
   if(name === 'promoApproval') loadPromoApproval();
@@ -2019,6 +2046,7 @@ const EDITORIAL_LINK_PRESETS = [
   {label:'브랜드관', value:'brands.html'},
   {label:'타임세일', value:'timesale.html'},
   {label:'이벤트', value:'event.html'},
+  {label:'행운의 룰렛', value:'roulette.html'},
   {label:'공지사항', value:'board.html?tab=notice'},
   {label:'V.KOOL', value:'vkool.html'},
   {label:'회원가입', value:'join.html'},
@@ -3399,6 +3427,66 @@ async function saveAdminProductEdit() {
 })();
 
 // ===================== 상품 노출 순서 =====================
+
+// ===================== 룰렛 이벤트 =====================
+let RLA=[];
+async function loadRouletteAdmin(){
+  try{
+    const snap=await window._getDoc(window._doc(window._db,'rouletteConfig','main'));
+    const c=snap.exists()?snap.data():null;
+    if(c){
+      document.getElementById('rlEnabled').value=c.enabled?'1':'0';
+      document.getElementById('rlTitle').value=c.title||'';
+      document.getElementById('rlSubtitle').value=c.subtitle||'';
+      document.getElementById('rlStart').value=c.startDate||'';
+      document.getElementById('rlEnd').value=c.endDate||'';
+      document.getElementById('rlLimit').value=c.limit||'once';
+      document.getElementById('rlValid').value=c.validDays||30;
+      RLA=(c.prizes||[]).map(p=>({value:p.value,weight:p.weight,min:p.minOrderAmount||0}));
+    } else {
+      document.getElementById('rlEnabled').value='0';
+      RLA=[{value:1000,weight:40,min:100000},{value:2000,weight:30,min:100000},{value:3000,weight:30,min:100000},{value:5000,weight:0,min:100000},{value:6000,weight:0,min:100000},{value:7000,weight:0,min:100000},{value:10000,weight:0,min:100000}];
+    }
+  }catch(e){RLA=[];showToast('설정을 불러오지 못했습니다.','error');}
+  rlRenderPrizes();
+  rlLoadWinners();
+}
+function rlRenderPrizes(){
+  const tot=RLA.reduce((s,p)=>s+(Number(p.weight)||0),0);
+  document.getElementById('rlPrizeBody').innerHTML=RLA.map((p,i)=>`<tr>
+    <td><input type="number" class="form-input" style="width:120px;" value="${p.value}" onchange="RLA[${i}].value=Number(this.value)"></td>
+    <td><input type="number" min="0" step="any" class="form-input" style="width:100px;" value="${p.weight}" onchange="RLA[${i}].weight=Number(this.value);rlRenderPrizes()"></td>
+    <td><b>${tot>0?((Number(p.weight)||0)/tot*100).toFixed(1):'0.0'}%</b></td>
+    <td><input type="number" min="0" class="form-input" style="width:130px;" value="${p.min}" onchange="RLA[${i}].min=Number(this.value)"></td>
+    <td><button class="btn" onclick="RLA.splice(${i},1);rlRenderPrizes()">삭제</button></td></tr>`).join('');
+}
+function rlAddPrize(){RLA.push({value:1000,weight:0,min:100000});rlRenderPrizes();}
+async function saveRouletteAdmin(){
+  const prizes=RLA.map(p=>({value:Math.round(Number(p.value)||0),weight:Math.max(0,Number(p.weight)||0),minOrderAmount:Math.max(0,Math.round(Number(p.min)||0))}));
+  if(prizes.length<2||prizes.some(p=>p.value<=0)){showToast('상품은 2개 이상, 금액은 0보다 커야 합니다.','error');return;}
+  if(!prizes.some(p=>p.weight>0)){showToast('가중치가 0보다 큰 상품이 하나는 있어야 합니다.','error');return;}
+  const old=await window._getDoc(window._doc(window._db,'rouletteConfig','main'));
+  const eventId=(old.exists()&&old.data().eventId)||('rl'+Date.now());
+  const base={enabled:document.getElementById('rlEnabled').value==='1',eventId,
+    title:document.getElementById('rlTitle').value.trim(),subtitle:document.getElementById('rlSubtitle').value.trim(),
+    startDate:document.getElementById('rlStart').value,endDate:document.getElementById('rlEnd').value,
+    limit:document.getElementById('rlLimit').value,validDays:Math.max(1,Number(document.getElementById('rlValid').value)||30)};
+  try{
+    await window._setDoc(window._doc(window._db,'rouletteConfig','main'),{...base,prizes});
+    await window._setDoc(window._doc(window._db,'settings','roulette'),{...base,prizes:prizes.map(p=>({value:p.value,minOrderAmount:p.minOrderAmount}))});
+    showToast('저장되었습니다.','success');
+  }catch(e){showToast('저장 실패: '+e.message,'error');}
+}
+async function rlLoadWinners(){
+  const el=document.getElementById('rlWinners');
+  try{
+    const snap=await window._getDocs(window._collection(window._db,'rouletteSpins'));
+    const rows=snap.docs.map(d=>d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,100);
+    if(!rows.length){el.textContent='아직 참여 내역이 없습니다.';return;}
+    el.innerHTML='<table class="data-table" style="width:100%;"><thead><tr><th>일시</th><th>회원</th><th>상호</th><th>당첨</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${r.createdAt?new Date(r.createdAt.seconds*1000).toLocaleString('ko-KR'):''}</td><td>${r.userName||''}</td><td>${r.company||''}</td><td>${Number(r.value).toLocaleString()}원</td></tr>`).join('')+'</tbody></table>';
+  }catch(e){el.textContent='불러오지 못했습니다.';}
+}
+
 const ORD = { all: [], view: [], dirty: false };
 function ordCompare(a, b) {
   const ra = a.displayOrder, rb = b.displayOrder;

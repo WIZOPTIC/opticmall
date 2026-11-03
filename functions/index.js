@@ -872,6 +872,83 @@ exports.getTrackingInfo = onRequest({ cors: true, timeoutSeconds: 30 }, async (r
   }
 });
 
+
+/**
+ * 행운의 룰렛 (이벤트)
+ * - 확률/상품 설정은 rouletteConfig/main (관리자만 읽기/쓰기, 확률은 회원에게 노출되지 않음)
+ * - 추첨은 서버에서만 진행(조작 방지), 당첨되면 회원 쿠폰함(users/{uid}/coupons)에 쿠폰을 바로 발급
+ * - 참여 기록: rouletteSpins/{eventId}_{uid}  (1인 1회)  또는  {eventId}_{yyyymmdd}_{uid}  (하루 1회)
+ */
+exports.spinRoulette = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
+  const uid = request.auth.uid;
+
+  const [cfgSnap, userSnap] = await Promise.all([
+    db.collection("rouletteConfig").doc("main").get(),
+    db.collection("users").doc(uid).get(),
+  ]);
+  if (!cfgSnap.exists) throw new HttpsError("failed-precondition", "진행 중인 룰렛 이벤트가 없습니다.");
+  const cfg = cfgSnap.data();
+  if (!cfg.enabled) throw new HttpsError("failed-precondition", "진행 중인 룰렛 이벤트가 없습니다.");
+  if (!userSnap.exists) throw new HttpsError("not-found", "회원 정보를 찾을 수 없습니다.");
+  const u = userSnap.data();
+  if ((u.member_level || 0) < 2) throw new HttpsError("permission-denied", "승인된 회원만 참여할 수 있습니다.");
+
+  // 기간 확인 (한국시간 기준 날짜 문자열 yyyy-mm-dd)
+  const kst = new Date(Date.now() + 9 * 3600 * 1000);
+  const today = kst.toISOString().slice(0, 10);
+  if (cfg.startDate && today < cfg.startDate) throw new HttpsError("failed-precondition", "아직 이벤트 시작 전입니다.");
+  if (cfg.endDate && today > cfg.endDate) throw new HttpsError("failed-precondition", "이벤트가 종료되었습니다.");
+
+  const prizes = Array.isArray(cfg.prizes) ? cfg.prizes : [];
+  if (prizes.length < 2) throw new HttpsError("failed-precondition", "룰렛 설정이 올바르지 않습니다.");
+  const weights = prizes.map((p) => Math.max(0, Number(p.weight) || 0));
+  const total = weights.reduce((a, b) => a + b, 0);
+  if (total <= 0) throw new HttpsError("failed-precondition", "룰렛 설정이 올바르지 않습니다.");
+
+  const eventId = String(cfg.eventId || "roulette").replace(/[^0-9A-Za-z_-]/g, "") || "roulette";
+  const daily = cfg.limit === "daily";
+  const spinId = daily ? `${eventId}_${today.replace(/-/g, "")}_${uid}` : `${eventId}_${uid}`;
+  const spinRef = db.collection("rouletteSpins").doc(spinId);
+
+  // 서버 난수로 추첨 (가중치 비례)
+  let r = crypto.randomInt(0, 1000000) / 1000000 * total;
+  let idx = 0;
+  for (let i = 0; i < prizes.length; i++) {
+    if (weights[i] <= 0) continue;
+    idx = i;
+    if (r < weights[i]) break;
+    r -= weights[i];
+  }
+  const prize = prizes[idx];
+  const value = Math.round(Number(prize.value) || 0);
+  if (value <= 0) throw new HttpsError("failed-precondition", "룰렛 설정이 올바르지 않습니다.");
+  const validDays = Math.max(1, Number(cfg.validDays) || 30);
+  const couponRef = db.collection("users").doc(uid).collection("coupons").doc();
+  const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + validDays * 24 * 3600 * 1000);
+
+  await db.runTransaction(async (tx) => {
+    const ex = await tx.get(spinRef);
+    if (ex.exists) throw new HttpsError("already-exists", daily ? "오늘은 이미 참여하셨어요." : "이미 참여하셨어요.");
+    tx.set(spinRef, {
+      uid, eventId, prizeIndex: idx, value, couponId: couponRef.id,
+      userName: u.name || "", company: u.storeName || u.brandName || "",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    tx.set(couponRef, {
+      name: `${cfg.title || "행운의 룰렛"} ${value.toLocaleString("ko-KR")}원 할인쿠폰`,
+      type: "fixed", value,
+      minOrderAmount: Math.max(0, Number(prize.minOrderAmount) || 0),
+      maxDiscountAmount: null, firstPurchaseOnly: false,
+      used: false, usedAt: null, usedOrderId: null,
+      source: "roulette",
+      issuedAt: admin.firestore.FieldValue.serverTimestamp(),
+      expiresAt,
+    });
+  });
+  return { prizeIndex: idx, value, minOrderAmount: Math.max(0, Number(prize.minOrderAmount) || 0), validDays };
+});
+
 /**
  * 실시간 베스트 상품 집계 (매일 새벽 4시 자동 실행)
  * 최근 60일 주문 중 결제 완료 이후 상태(paid / preparing / shipping / delivered)의

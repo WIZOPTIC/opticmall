@@ -493,6 +493,9 @@ html{color-scheme:only light}
       <span class="category-hero-eyebrow">BRAND EVENTS</span>
     </div>
   </div>
+  <a id="rlPromo" href="roulette.html" style="display:none;margin:0 0 20px;padding:22px 26px;border-radius:12px;background:#1a1a1a;color:#fff;text-decoration:none;align-items:center;justify-content:space-between;gap:12px;">
+    <span><span style="display:block;font-size:12px;letter-spacing:1.5px;opacity:.7;margin-bottom:4px;">OPEN EVENT</span><span id="rlPromoTitle" style="font-size:20px;font-weight:800;">행운의 룰렛</span><span style="display:block;font-size:13px;opacity:.8;margin-top:4px;">룰렛을 돌리고 할인쿠폰 받기</span></span>
+    <span style="font-size:14px;font-weight:700;white-space:nowrap;">참여하기 &rsaquo;</span></a>
   <div id="eventArea"><div class="loading-box"><div class="spinner"></div>이벤트를 불러오는 중...</div></div>
 </div>
 
@@ -538,6 +541,7 @@ _auth.onAuthStateChanged(async (user) => {
     document.getElementById('topbarUser').style.display = 'none';
   }
   loadEvents();
+  loadRoulettePromo();
 });
 
 function updateHeaderLoggedIn(name, level, role) {
@@ -623,6 +627,16 @@ function eventProductMatches(prod, kw) {
   return modelMatch || brandMatch || topBarcodeMatch || colorBarcodeMatch;
 }
 
+async function loadRoulettePromo(){
+  try{
+    const d=await _db.collection('settings').doc('roulette').get();
+    if(!d.exists||!d.data().enabled)return;
+    const c=d.data(),t=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);
+    if(c.endDate&&t>c.endDate)return;
+    document.getElementById('rlPromoTitle').textContent=c.title||'행운의 룰렛';
+    document.getElementById('rlPromo').style.display='flex';
+  }catch(e){}
+}
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
