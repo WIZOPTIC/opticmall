@@ -51,8 +51,8 @@
       display: flex;
       flex-direction: column;
       --H: max(100svh, 800px, min(190vw, 920px));
-      height: calc(var(--H) * .655 + 148px);
-      padding: 46px 25px 22px;
+      height: calc(var(--H) * .655 + 128px);
+      padding: 34px 25px 22px;
       overflow: hidden;
       background: #120d0a;
     }
@@ -100,7 +100,7 @@
     .hero > :not(.stage):not(.hero-shade) { position: relative; z-index: 1; }
 
     /* 큰 문구 */
-    .hero-copy { margin-top: calc(var(--H) * .05 - 16px); }
+    .hero-copy { margin-top: calc(var(--H) * .05 - 6px); }
     .hero-title {
       margin: 0;
       color: #fff;
@@ -143,41 +143,46 @@
     .actions {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      gap: 9px;
       margin-top: auto;
       padding-top: 0;
     }
     .action {
-      min-height: 56px;
+      min-height: 46px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 9px;
-      padding: 12px 8px;
-      border: 1px solid rgba(235, 216, 174, .62);
+      gap: 8px;
+      padding: 8px 6px;
+      border: 1px solid #736A59;
       border-radius: 999px;
-      color: #f8edda;
-      background: rgba(22, 17, 14, .72);
-      font-size: .98rem;
-      font-weight: 600;
-      letter-spacing: -.025em;
-      transition: background .2s ease, transform .2s ease;
+      color: #EDDFB2;
+      background: #1D1512;
+      font-size: .94rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      transition: transform .2s ease;
     }
     .action:active { transform: scale(.98); }
     .action svg {
-      width: 19px;
-      height: 19px;
-      flex: 0 0 19px;
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
       fill: none;
       stroke: currentColor;
-      stroke-width: 1.7;
+      stroke-width: 1.6;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+    .action svg.fill { fill: currentColor; stroke: none; }
     .action.kakao {
       color: #241d0b;
-      background: #FEE500;
-      border-color: #FEE500;
+      background: #FAE74D;
+      border-color: #FAE74D;
+    }
+    .action.channel {
+      color: #FAE74D;
+      border-color: #92844A;
     }
     .action.shop {
       grid-column: 1 / -1;
@@ -209,13 +214,17 @@
     @media (prefers-reduced-motion: reduce) {
       .action.shop span { animation: none; color: #E8CF8E; background: none; }
     }
-    .action.channel {
-      color: #f4d85b;
-      border-color: rgba(254,229,0,.65);
-    }
 
     /* 취급 브랜드 */
-    .brands-wrap { margin: 0 0 24px; }
+    .brands-wrap {
+      margin: -34px -25px 14px;
+      padding: 34px 25px 26px;
+      background: linear-gradient(180deg, rgba(24,17,12,.5) 0%, rgba(24,17,12,.34) 100%);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+      mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+    }
     .brands-label {
       margin: 0 0 10px;
       color: #E2C27A;
@@ -357,11 +366,11 @@
           <span>연락처 저장</span>
         </a>
         <a class="action kakao" href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c-5 0-9 3.2-9 7.2 0 2.5 1.7 4.7 4.3 6l-.9 3.4 4-2.2h1.6c5 0 9-3.2 9-7.2s-4-7.2-9-7.2Z"/></svg>
-          <span>카카오 상담</span>
+          <svg class="fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c-5 0-9 3.1-9 7 0 2.4 1.5 4.5 3.9 5.8l-.9 3.7 4.2-2.4c.6.1 1.2.1 1.8.1 5 0 9-3.1 9-7.1s-4-7.1-9-7.1Z"/></svg>
+          <span>카톡 상담</span>
         </a>
         <a class="action channel" href="http://pf.kakao.com/_RWTxnX/friend" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c-5 0-9 3.2-9 7.2 0 2.5 1.7 4.7 4.3 6l-.9 3.4 4-2.2h1.6c5 0 9-3.2 9-7.2s-4-7.2-9-7.2Z"/></svg>
+          <svg class="fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c-5 0-9 3.1-9 7 0 2.4 1.5 4.5 3.9 5.8l-.9 3.7 4.2-2.4c.6.1 1.2.1 1.8.1 5 0 9-3.1 9-7.1s-4-7.1-9-7.1Z"/></svg>
           <span>채널 추가</span>
         </a>
         <a class="action shop" href="https://opticmall.co.kr" target="_blank" rel="noopener">
