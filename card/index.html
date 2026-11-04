@@ -284,7 +284,7 @@
       text-align: right;
       overflow-wrap: anywhere;
     }
-    .contact-value.address { max-width: 245px; }
+    .contact-value.address { white-space: nowrap; font-size: clamp(.74rem, 3.6vw, .94rem); letter-spacing: -.02em; }
     .footer-brand {
       margin: 34px 0 0;
       color: #d7bd83;
@@ -382,6 +382,10 @@
     <footer class="contact">
       <ul class="contact-list">
         <li class="contact-row">
+          <span class="contact-label">웹사이트</span>
+          <a class="contact-value" href="https://opticmall.co.kr" target="_blank" rel="noopener">opticmall.co.kr</a>
+        </li>
+        <li class="contact-row">
           <span class="contact-label">휴대전화</span>
           <a class="contact-value" href="tel:01088159980">010-8815-9980</a>
         </li>
@@ -392,10 +396,6 @@
         <li class="contact-row">
           <span class="contact-label">회사주소</span>
           <a class="contact-value address" href="https://map.naver.com/p/search/인천%20검단구%20원당대로%20840번길5%20510호" target="_blank" rel="noopener">인천 검단구 원당대로 840번길5 510호</a>
-        </li>
-        <li class="contact-row">
-          <span class="contact-label">웹사이트</span>
-          <a class="contact-value" href="https://opticmall.co.kr" target="_blank" rel="noopener">opticmall.co.kr</a>
         </li>
       </ul>
       <p class="footer-brand">위즈옵틱 · OPTICMALL</p>
