@@ -51,7 +51,7 @@
       display: flex;
       flex-direction: column;
       --H: max(100svh, 800px, min(190vw, 920px));
-      height: calc(var(--H) * .655 + 100px);
+      height: calc(var(--H) * .655 + 148px);
       padding: 46px 25px 22px;
       overflow: hidden;
       background: #120d0a;
@@ -178,6 +178,36 @@
       color: #241d0b;
       background: #FEE500;
       border-color: #FEE500;
+    }
+    .action.shop {
+      grid-column: 1 / -1;
+      min-height: 40px;
+      margin-top: 2px;
+      padding: 6px 8px;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      color: #E8CF8E;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+    .action.shop span {
+      padding-bottom: 3px;
+      border-bottom: 1px solid rgba(232,207,142,.5);
+      color: transparent;
+      background: linear-gradient(100deg, #C9A45D 0%, #E8CF8E 38%, #FFFFFF 50%, #E8CF8E 62%, #C9A45D 100%);
+      background-size: 250% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: shopShine 2.8s ease-in-out infinite;
+    }
+    @keyframes shopShine {
+      0% { background-position: 120% 0; }
+      60%, 100% { background-position: -20% 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .action.shop span { animation: none; color: #E8CF8E; background: none; }
     }
     .action.channel {
       color: #f4d85b;
@@ -333,6 +363,9 @@
         <a class="action channel" href="http://pf.kakao.com/_RWTxnX/friend" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c-5 0-9 3.2-9 7.2 0 2.5 1.7 4.7 4.3 6l-.9 3.4 4-2.2h1.6c5 0 9-3.2 9-7.2s-4-7.2-9-7.2Z"/></svg>
           <span>채널 추가</span>
+        </a>
+        <a class="action shop" href="https://opticmall.co.kr" target="_blank" rel="noopener">
+          <span>OPTICMALL 바로가기</span>
         </a>
       </nav>
     </section>
