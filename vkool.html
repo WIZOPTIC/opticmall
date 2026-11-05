@@ -468,6 +468,20 @@ html{color-scheme:only light}
 }
 </style>
 <style id="noImgSelect">img{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none}img::selection{background:transparent!important}</style>
+<style id="tabletHeader">
+/* 태블릿(769~1000px): 로고+아이콘 한 줄, 아래에 메뉴 한 줄 (햄버거 없음) */
+@media (min-width:769px) and (max-width:1000px){
+ .hamburger-btn{display:none!important}
+ .header-main,.header-inner{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo icons" "nav nav";align-items:center;row-gap:0!important;gap:0!important;padding-top:20px!important;padding-bottom:0!important}
+ .header-top-row{grid-area:logo;width:auto!important;height:auto!important}
+ .header-nav-row{display:contents!important;position:static!important;transform:none!important}
+ .header-right{grid-area:icons;margin:0!important}
+ .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:26px!important;padding:2px 2px 6px;margin-top:6px;scrollbar-width:none;min-width:0;width:100%}
+ .gnb-inner::-webkit-scrollbar{display:none}
+ .gnb-item{flex:0 0 auto;white-space:nowrap;padding:10px 0!important}
+ .header-main .logo-img,.header-inner .logo-img{height:46px!important}
+}
+</style>
 </head>
 <body>
 <!-- 로그인 팝업 -->

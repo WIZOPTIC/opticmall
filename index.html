@@ -99,19 +99,6 @@ header {
 .tb-badge { font-size: 10px; background: #FF7A1A; color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: 700; margin-left: 6px; }
 .header-auth { display: flex; align-items: center; margin-right: clamp(6px, 1.4vw, 18px); flex-shrink: 0; white-space: nowrap; }
 .header-auth > div { white-space: nowrap; }
-@media (min-width: 769px) and (max-width: 1000px) {
-  .hamburger-btn { display: flex !important; align-items: center; justify-content: center; }
-  .gnb-inner { display: none !important; }
-  .mobile-menu-drawer, .mobile-menu-backdrop { display: block; }
-  .mobile-menu-drawer:not(.open) { display: none; }
-  .mobile-menu-backdrop:not(.open) { display: none; }
-  .header-main { padding: 20px 20px 14px; }
-  .header-top-row { gap: 12px; }
-  .logo-img { height: 50px; }
-  .header-nav-row { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: auto; }
-  .header-right { margin-right: 0 !important; }
-}
-
 .search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
 .search-btn:hover { color: var(--sky); }
 .search-close-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
@@ -815,6 +802,20 @@ html{color-scheme:only light}
 .hero{background:#fff!important;border-bottom:0!important;box-shadow:none!important}
 </style>
 <style id="noImgSelect">img{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none}img::selection{background:transparent!important}</style>
+<style id="tabletHeader">
+/* 태블릿(769~1000px): 로고+아이콘 한 줄, 아래에 메뉴 한 줄 (햄버거 없음) */
+@media (min-width:769px) and (max-width:1000px){
+ .hamburger-btn{display:none!important}
+ .header-main,.header-inner{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo icons" "nav nav";align-items:center;row-gap:0!important;gap:0!important;padding-top:20px!important;padding-bottom:0!important}
+ .header-top-row{grid-area:logo;width:auto!important;height:auto!important}
+ .header-nav-row{display:contents!important;position:static!important;transform:none!important}
+ .header-right{grid-area:icons;margin:0!important}
+ .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:26px!important;padding:2px 2px 6px;margin-top:6px;scrollbar-width:none;min-width:0;width:100%}
+ .gnb-inner::-webkit-scrollbar{display:none}
+ .gnb-item{flex:0 0 auto;white-space:nowrap;padding:10px 0!important}
+ .header-main .logo-img,.header-inner .logo-img{height:46px!important}
+}
+</style>
 </head>
 <body>
 
