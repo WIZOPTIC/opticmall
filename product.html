@@ -860,9 +860,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-head .product-category{font-size:14px!important;font-weight:600!important;letter-spacing:.24em!important;color:#14110f!important}
 .product-meta{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:12px!important}
 .product-meta .head-code{margin-left:auto}
-#colorDotsPreview{gap:18px!important;margin-bottom:12px!important}
-#colorDotsPreview button{border:none!important;background:transparent!important;padding:2px 0!important;border-radius:0!important}
-#colorDotsPreview button span:last-child{font-size:13px!important;color:#14110f!important}
+#colorDotsPreview{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(158px,1fr))!important;gap:2px 6px!important;margin-bottom:12px!important}
+#colorDotsPreview button{border:none!important;background:transparent!important;padding:0 4px!important;border-radius:6px!important;min-height:0!important;height:34px!important;width:100%!important;justify-content:flex-start!important;gap:6px!important;min-width:0!important}
+#colorDotsPreview button:hover{background:#f6f4f1!important}
+#colorDotsPreview button span:first-child{flex-shrink:0!important}
+#colorDotsPreview button span:last-child{font-size:12.5px!important;color:#14110f!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;min-width:0!important}
 #stock-status{display:none!important}
 .spec-line{border-bottom:1px solid #E4DCCF!important;padding-bottom:16px!important;margin-bottom:20px!important}
 .product-info.info-compact .spec-line{padding-bottom:12px!important;margin-bottom:14px!important}
@@ -1102,7 +1104,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
   <div class="header-nav-row">
   <nav class="gnb-inner">
     <button class="gnb-item" onclick="location.href='list.html'"><span class="gnb-label">전체상품</span></button>
-    <button class="gnb-item" onclick="location.href='brands.html'"><span class="gnb-label">브랜드별</span></button>
+    <button class="gnb-item" onclick="location.href='brands.html'"><span class="gnb-label">브랜드샵</span></button>
     <button class="gnb-item" onclick="location.href='list.html?cat=하금테'"><span class="gnb-label">하금테</span></button>
     <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'"><span class="gnb-label">뿔테</span></button>
     <button class="gnb-item" onclick="location.href='list.html?cat=메탈'"><span class="gnb-label">메탈</span></button>
@@ -1160,7 +1162,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
     </div>
     <nav class="mobile-menu-list">
       <button onclick="location.href='list.html'">전체상품</button>
-      <button onclick="location.href='brands.html'">브랜드별</button>
+      <button onclick="location.href='brands.html'">브랜드샵</button>
       <button onclick="location.href='list.html?cat=하금테'">하금테</button>
       <button onclick="location.href='list.html?cat=뿔테'">뿔테</button>
       <button onclick="location.href='list.html?cat=메탈'">메탈</button>
@@ -1681,6 +1683,15 @@ function isValidImgUrl(u) {
   return typeof u === 'string' && /^(https?:|data:image|blob:)/i.test(u.trim());
 }
 
+// 대량등록으로 올린 '세로로 긴 상세 이미지'는 파일 이름에 _long_ 이 들어 있어요.
+// 이런 이미지는 대표사진 넘기기/썸네일에는 넣지 않고, 상세 영역에 한 줄 전체 너비로만 보여줘요.
+function isLongDetailUrl(u) {
+  return typeof u === 'string' && /_long_/.test(u);
+}
+function galleryOnly(urls) {
+  return (urls || []).filter(u => !isLongDetailUrl(u));
+}
+
 // 썸네일 목록 렌더링 + 실제로 로드가 안 되는(깨진/삭제된) 이미지는 빈 회색 박스로 남지 않도록 감지해서 자동으로 제거
 // (background-image는 로드 실패해도 에러 이벤트가 없어서, 숨겨진 Image()로 따로 검증함)
 function renderThumbs(container, urls) {
@@ -1750,16 +1761,28 @@ function makeSmoothThumb(img, size) {
 
 // 메인 사진 박스: 가로는 항상 꽉 채우고, 세로만 화면에 맞게 아주 살짝 잘라서(object-fit:cover) 스크롤 없이 한 화면에 다 보이게
 function fitMainImgToPhoto(img) {
-  if (window.innerWidth <= 768) return;
   const mainBox = document.getElementById('mainImgBox');
   const thumbList = document.getElementById('thumbList');
   if (!mainBox) return;
-  const rectTop = mainBox.getBoundingClientRect().top;
-  const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
-  const h = Math.max(320, Math.min(viewportLimit, 640));
-  mainBox.style.height = h + 'px';
-  if (thumbList) thumbList.style.maxHeight = h + 'px';
+  if (window.innerWidth > 768) {
+    const rectTop = mainBox.getBoundingClientRect().top;
+    const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
+    const h = Math.max(320, Math.min(viewportLimit, 640));
+    mainBox.style.height = h + 'px';
+    if (thumbList) thumbList.style.maxHeight = h + 'px';
+  }
+  // 사진이 박스 비율과 많이 다르면(예: 정사각형 사진) 잘라내지 않고 통째로 보여준다. 조금 차이나면 기존처럼 꽉 채운다.
+  const im = img || document.getElementById('mainImgTag');
+  if (im && im.naturalWidth && im.naturalHeight) {
+    const bw = mainBox.clientWidth, bh = mainBox.clientHeight;
+    if (bw && bh) {
+      const imgAR = im.naturalWidth / im.naturalHeight, boxAR = bw / bh;
+      const crop = imgAR < boxAR ? 1 - imgAR / boxAR : 1 - boxAR / imgAR;
+      im.style.objectFit = crop > 0.06 ? 'contain' : 'cover';
+    }
+  }
 }
+window.addEventListener('resize', function(){ fitMainImgToPhoto(); });
 let currentUserName = '';
 let currentUserRole = null;
 let reviewsLoaded = false;
@@ -2258,7 +2281,7 @@ function renderProduct(p) {
   const initMainUrl = (firstColor && firstColor.mainImageUrl) ? firstColor.mainImageUrl : p.mainImageUrl;
   const initDetailUrls = ((firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || [])).filter(isValidImgUrl);
   const allImages = [initMainUrl, ...initDetailUrls].filter(isValidImgUrl);
-  window._productImages = allImages;
+  window._productImages = galleryOnly(allImages);
   currentImgIndex = 0;
 
   const mainBox = document.getElementById('mainImgBox');
@@ -2280,7 +2303,7 @@ function renderProduct(p) {
 
   // 썸네일 (메인 + 상세이미지들)
   const thumbList = document.getElementById('thumbList');
-  renderThumbs(thumbList, allImages);
+  renderThumbs(thumbList, galleryOnly(allImages));
 
   // 상세이미지 초기 렌더링 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
   renderDetailImageGrids(allImages);
@@ -2364,8 +2387,28 @@ function previewColorOnly(idx) {
 }
 
 function toggleColorDropdown() {
-  document.getElementById('colorDropdownPanel').style.display =
-    document.getElementById('colorDropdownPanel').style.display === 'block' ? 'none' : 'block';
+  const panel = document.getElementById('colorDropdownPanel');
+  const trigger = document.getElementById('colorDropdownTrigger');
+  if (!panel) return;
+  if (panel.style.display === 'block') { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  panel.style.overscrollBehavior = 'contain';
+  // 화면 아래쪽이 모자라면 위로 펼치고, 높이도 보이는 공간에 맞춘다 (마우스 휠이 상세사진 쪽으로 넘어가는 문제 방지)
+  if (trigger) {
+    const r = trigger.getBoundingClientRect();
+    const hd = document.querySelector('header.header');
+    const topLimit = hd ? Math.max(0, hd.getBoundingClientRect().bottom) : 0;
+    const below = window.innerHeight - r.bottom - 20;
+    const above = r.top - topLimit - 16;
+    const want = 300;
+    if (below >= Math.min(want, 220) || below >= above) {
+      panel.style.top = 'calc(100% + 6px)'; panel.style.bottom = 'auto';
+      panel.style.maxHeight = Math.max(140, Math.min(want, below)) + 'px';
+    } else {
+      panel.style.top = 'auto'; panel.style.bottom = 'calc(100% + 6px)';
+      panel.style.maxHeight = Math.max(140, Math.min(want, above)) + 'px';
+    }
+  }
 }
 
 document.addEventListener('click', (e) => {
@@ -2435,18 +2478,18 @@ function renderSelectionList() {
     const unitPrice = getColorPrice(item.colorIdx);
     const lineTotal = unitPrice * item.qty;
     return `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;${i>0?'border-top:1px solid var(--g1);':''}">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:var(--navy);">${currentProduct.modelName || ''} · ${c.colorName}</div>
+      <div style="padding:12px 14px;${i>0?'border-top:1px solid var(--g1);':''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div style="min-width:0;font-size:14px;font-weight:700;color:var(--navy);line-height:1.45;word-break:keep-all;">${currentProduct.modelName || ''} · ${c.colorName}</div>
+          <button onclick="removeSelection(${item.colorIdx})" aria-label="삭제" style="flex-shrink:0;border:none;background:none;color:var(--g3);font-size:18px;line-height:1;cursor:pointer;padding:0 2px;">×</button>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
           <div style="display:flex;align-items:center;border:1px solid var(--g2);border-radius:0;">
             <button onclick="changeSelectionQty(${item.colorIdx},-1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">−</button>
             <div style="width:30px;text-align:center;font-size:14px;font-weight:700;">${item.qty}</div>
             <button onclick="changeSelectionQty(${item.colorIdx},1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">+</button>
           </div>
-          <button onclick="removeSelection(${item.colorIdx})" aria-label="삭제" style="border:none;background:none;color:var(--g3);font-size:16px;cursor:pointer;">×</button>
-          <div style="font-size:14px;font-weight:700;color:var(--navy);min-width:70px;text-align:right;">${lineTotal.toLocaleString()}원</div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy);text-align:right;">${lineTotal.toLocaleString()}원</div>
         </div>
       </div>
     `;
@@ -2470,7 +2513,7 @@ function applyColorImages(color) {
     ? color.detailImageUrls
     : ((currentProduct && currentProduct.detailImageUrls) || [])).filter(isValidImgUrl);
   const allUrls = [mainUrl, ...detailUrls].filter(isValidImgUrl);
-  window._productImages = allUrls;
+  window._productImages = galleryOnly(allUrls);
   currentImgIndex = 0;
 
   // 메인 이미지 교체
@@ -2500,7 +2543,7 @@ function applyColorImages(color) {
 
   // 썸네일 교체
   const thumbList = document.getElementById('thumbList');
-  renderThumbs(thumbList, allUrls);
+  renderThumbs(thumbList, galleryOnly(allUrls));
 
   // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
   renderDetailImageGrids(allUrls);
@@ -2508,18 +2551,41 @@ function applyColorImages(color) {
 
 // 상세 이미지를 "상품정보" 탭 하단(스펙 표 바로 아래)과 "상품 상세" 탭 두 곳에 동일하게 렌더링
 function renderDetailImageGrids(urls) {
-  const html = (urls && urls.length > 0)
-    ? urls.map(url => `<img src="${url}" loading="lazy" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
-    : '';
+  // 긴 상세 이미지가 있으면 그것만 한 줄 전체 너비로 보여줘요 (대표사진이 반쪽 칸에 혼자 떠 있지 않도록).
+  const longs = (urls || []).filter(isLongDetailUrl);
+  const html = longs.length > 0
+    ? longs.map(url => `<img src="${url}" loading="lazy" decoding="async" style="grid-column:1/-1;justify-self:center;width:100%;max-width:750px;cursor:default;" onerror="this.remove()">`).join('')
+    : (urls && urls.length > 0)
+      ? urls.map(url => `<img src="${url}" loading="lazy" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
+      : '';
   const detailWrap = document.getElementById('detailImagesWrap');
+  const specGrid = document.getElementById('specDetailPhotosGrid');
+  // 색상을 바꿀 때 새 사진이 불러와지는 동안 영역 높이가 0으로 줄어서 페이지가 아래(푸터)로 끌려가지 않도록,
+  // 교체 전 높이를 잠시 고정하고 스크롤 위치도 그대로 유지한다.
+  const wraps = [detailWrap, specGrid].filter(Boolean);
+  const keepY = window.scrollY;
+  wraps.forEach(w => { const h = w.offsetHeight; if (h > 0) w.style.minHeight = h + 'px'; });
   if(detailWrap) {
     detailWrap.innerHTML = html || `
       <div style="grid-column:1/-1;background:var(--g1);border-radius:0;padding:60px;text-align:center;color:var(--g3);">
         <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
       </div>`;
   }
-  const specGrid = document.getElementById('specDetailPhotosGrid');
   if(specGrid) specGrid.innerHTML = html;
+  if (keepY > 0 && Math.abs(window.scrollY - keepY) > 1) window.scrollTo(0, keepY);
+  // 새 사진이 모두 불러와지면(또는 4초 지나면) 높이 고정을 푼다
+  wraps.forEach(w => {
+    const imgs = Array.from(w.querySelectorAll('img'));
+    let left = imgs.length;
+    const release = () => { w.style.minHeight = ''; };
+    if (!left) { release(); return; }
+    const done = () => { if (--left <= 0) release(); };
+    imgs.forEach(im => {
+      if (im.complete) done();
+      else { im.addEventListener('load', done, { once: true }); im.addEventListener('error', done, { once: true }); }
+    });
+    setTimeout(release, 4000);
+  });
 }
 
 function updateStockDisplay(stock) {
