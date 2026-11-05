@@ -2464,18 +2464,18 @@ function renderSelectionList() {
     const unitPrice = getColorPrice(item.colorIdx);
     const lineTotal = unitPrice * item.qty;
     return `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;${i>0?'border-top:1px solid var(--g1);':''}">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:var(--navy);">${currentProduct.modelName || ''} · ${c.colorName}</div>
+      <div style="padding:12px 14px;${i>0?'border-top:1px solid var(--g1);':''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div style="min-width:0;font-size:14px;font-weight:700;color:var(--navy);line-height:1.45;word-break:keep-all;">${currentProduct.modelName || ''} · ${c.colorName}</div>
+          <button onclick="removeSelection(${item.colorIdx})" aria-label="삭제" style="flex-shrink:0;border:none;background:none;color:var(--g3);font-size:18px;line-height:1;cursor:pointer;padding:0 2px;">×</button>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
           <div style="display:flex;align-items:center;border:1px solid var(--g2);border-radius:0;">
             <button onclick="changeSelectionQty(${item.colorIdx},-1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">−</button>
             <div style="width:30px;text-align:center;font-size:14px;font-weight:700;">${item.qty}</div>
             <button onclick="changeSelectionQty(${item.colorIdx},1)" style="width:28px;height:28px;border:none;background:none;font-size:14px;cursor:pointer;">+</button>
           </div>
-          <button onclick="removeSelection(${item.colorIdx})" aria-label="삭제" style="border:none;background:none;color:var(--g3);font-size:16px;cursor:pointer;">×</button>
-          <div style="font-size:14px;font-weight:700;color:var(--navy);min-width:70px;text-align:right;">${lineTotal.toLocaleString()}원</div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy);text-align:right;">${lineTotal.toLocaleString()}원</div>
         </div>
       </div>
     `;
