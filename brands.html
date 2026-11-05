@@ -712,10 +712,12 @@ function comingSoonCardHtml(c) {
 // 로고 크기 통일: 로고 이미지마다 안쪽 여백이 달라서 보이는 글씨 폭이 같아지도록 브랜드별 배율을 둠
 function logoScale(name) {
   const n = (name || '').toLowerCase();
-  if(/suofeia|소피아/.test(n)) return 1.03;
-  if(/essential|에센셜/.test(n)) return 0.54;
+  if(/suofeia|소피아/.test(n)) return 1.65;
+  if(/essential|에센셜/.test(n)) return 0.57;
   if(/v\.?kool|브이쿨/.test(n)) return 0.54;
-  return 0.48;
+  if(/roux|루펜/.test(n)) return 0.51;
+  if(/color\s*7|컬러\s*7/.test(n)) return 0.57;
+  return 0.54;
 }
 
 function renderBrands(brands, keyword) {
