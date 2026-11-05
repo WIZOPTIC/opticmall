@@ -724,8 +724,9 @@ function renderBrands(brands, keyword) {
     return;
   }
   area.innerHTML = `<div class="brands-grid">${brands.map(b => {
-    const logoHtml = b.logoUrl
-      ? `<img loading="lazy" decoding="async" src="${b.logoUrl}" alt="${b.brandName} 로고">`
+    const _logo = b.logoUrl || (/v\.?kool/i.test(b.brandName || '') ? 'vkool-logo.png' : null);
+    const logoHtml = _logo
+      ? `<img loading="lazy" decoding="async" src="${_logo}" alt="${b.brandName} 로고">`
       : `<div class="brand-logo-text">${b.brandName}</div>`;
     return `
       <div class="brand-card" onclick="location.href='list.html?brand=${b.brandId}'">
