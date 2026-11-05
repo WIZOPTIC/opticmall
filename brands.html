@@ -111,6 +111,8 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .brand-logo-display{height:230px;background:#fff;border-bottom:1px solid #EFEBE4;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:28px 32px;}
 .brand-logo-display img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;transition:transform .4s;}
 .brand-card:hover .brand-logo-display img{transform:scale(1.04);}
+.brand-logo-display.logo-big img{transform:scale(1.5);}
+.brand-card:hover .brand-logo-display.logo-big img{transform:scale(1.55);}
 .brand-logo-text{font-size:26px;font-weight:700;letter-spacing:.12em;color:#2A2420;text-align:center;}
 .brand-thumb-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E6E1D8;height:84px;border-top:1px solid #E6E1D8;}
 .brand-thumb{height:100%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
@@ -730,7 +732,7 @@ function renderBrands(brands, keyword) {
       : `<div class="brand-logo-text">${b.brandName}</div>`;
     return `
       <div class="brand-card" onclick="location.href='list.html?brand=${b.brandId}'">
-        <div class="brand-logo-display">${logoHtml}</div>
+        <div class="brand-logo-display${/suofeia|소피아/i.test(b.brandName || '') ? ' logo-big' : ''}">${logoHtml}</div>
         <div class="brand-card-info">
           <div>
             <div class="brand-card-name">${b.brandName}</div>
