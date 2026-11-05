@@ -2545,14 +2545,33 @@ function renderDetailImageGrids(urls) {
       ? urls.map(url => `<img src="${url}" loading="lazy" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
       : '';
   const detailWrap = document.getElementById('detailImagesWrap');
+  const specGrid = document.getElementById('specDetailPhotosGrid');
+  // 색상을 바꿀 때 새 사진이 불러와지는 동안 영역 높이가 0으로 줄어서 페이지가 아래(푸터)로 끌려가지 않도록,
+  // 교체 전 높이를 잠시 고정하고 스크롤 위치도 그대로 유지한다.
+  const wraps = [detailWrap, specGrid].filter(Boolean);
+  const keepY = window.scrollY;
+  wraps.forEach(w => { const h = w.offsetHeight; if (h > 0) w.style.minHeight = h + 'px'; });
   if(detailWrap) {
     detailWrap.innerHTML = html || `
       <div style="grid-column:1/-1;background:var(--g1);border-radius:0;padding:60px;text-align:center;color:var(--g3);">
         <div style="font-size:14px;">등록된 상세 이미지가 없습니다.</div>
       </div>`;
   }
-  const specGrid = document.getElementById('specDetailPhotosGrid');
   if(specGrid) specGrid.innerHTML = html;
+  if (keepY > 0 && Math.abs(window.scrollY - keepY) > 1) window.scrollTo(0, keepY);
+  // 새 사진이 모두 불러와지면(또는 4초 지나면) 높이 고정을 푼다
+  wraps.forEach(w => {
+    const imgs = Array.from(w.querySelectorAll('img'));
+    let left = imgs.length;
+    const release = () => { w.style.minHeight = ''; };
+    if (!left) { release(); return; }
+    const done = () => { if (--left <= 0) release(); };
+    imgs.forEach(im => {
+      if (im.complete) done();
+      else { im.addEventListener('load', done, { once: true }); im.addEventListener('error', done, { once: true }); }
+    });
+    setTimeout(release, 4000);
+  });
 }
 
 function updateStockDisplay(stock) {
