@@ -1667,6 +1667,15 @@ function isValidImgUrl(u) {
   return typeof u === 'string' && /^(https?:|data:image|blob:)/i.test(u.trim());
 }
 
+// 대량등록으로 올린 '세로로 긴 상세 이미지'는 파일 이름에 _long_ 이 들어 있어요.
+// 이런 이미지는 대표사진 넘기기/썸네일에는 넣지 않고, 상세 영역에 한 줄 전체 너비로만 보여줘요.
+function isLongDetailUrl(u) {
+  return typeof u === 'string' && /_long_/.test(u);
+}
+function galleryOnly(urls) {
+  return (urls || []).filter(u => !isLongDetailUrl(u));
+}
+
 // 썸네일 목록 렌더링 + 실제로 로드가 안 되는(깨진/삭제된) 이미지는 빈 회색 박스로 남지 않도록 감지해서 자동으로 제거
 // (background-image는 로드 실패해도 에러 이벤트가 없어서, 숨겨진 Image()로 따로 검증함)
 function renderThumbs(container, urls) {
@@ -2244,7 +2253,7 @@ function renderProduct(p) {
   const initMainUrl = (firstColor && firstColor.mainImageUrl) ? firstColor.mainImageUrl : p.mainImageUrl;
   const initDetailUrls = ((firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || [])).filter(isValidImgUrl);
   const allImages = [initMainUrl, ...initDetailUrls].filter(isValidImgUrl);
-  window._productImages = allImages;
+  window._productImages = galleryOnly(allImages);
   currentImgIndex = 0;
 
   const mainBox = document.getElementById('mainImgBox');
@@ -2266,7 +2275,7 @@ function renderProduct(p) {
 
   // 썸네일 (메인 + 상세이미지들)
   const thumbList = document.getElementById('thumbList');
-  renderThumbs(thumbList, allImages);
+  renderThumbs(thumbList, galleryOnly(allImages));
 
   // 상세이미지 초기 렌더링 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
   renderDetailImageGrids(allImages);
@@ -2456,7 +2465,7 @@ function applyColorImages(color) {
     ? color.detailImageUrls
     : ((currentProduct && currentProduct.detailImageUrls) || [])).filter(isValidImgUrl);
   const allUrls = [mainUrl, ...detailUrls].filter(isValidImgUrl);
-  window._productImages = allUrls;
+  window._productImages = galleryOnly(allUrls);
   currentImgIndex = 0;
 
   // 메인 이미지 교체
@@ -2486,7 +2495,7 @@ function applyColorImages(color) {
 
   // 썸네일 교체
   const thumbList = document.getElementById('thumbList');
-  renderThumbs(thumbList, allUrls);
+  renderThumbs(thumbList, galleryOnly(allUrls));
 
   // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
   renderDetailImageGrids(allUrls);
@@ -2494,9 +2503,13 @@ function applyColorImages(color) {
 
 // 상세 이미지를 "상품정보" 탭 하단(스펙 표 바로 아래)과 "상품 상세" 탭 두 곳에 동일하게 렌더링
 function renderDetailImageGrids(urls) {
-  const html = (urls && urls.length > 0)
-    ? urls.map(url => `<img src="${url}" loading="lazy" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
-    : '';
+  // 긴 상세 이미지가 있으면 그것만 한 줄 전체 너비로 보여줘요 (대표사진이 반쪽 칸에 혼자 떠 있지 않도록).
+  const longs = (urls || []).filter(isLongDetailUrl);
+  const html = longs.length > 0
+    ? longs.map(url => `<img src="${url}" loading="lazy" decoding="async" style="grid-column:1/-1;justify-self:center;width:100%;max-width:750px;cursor:default;" onerror="this.remove()">`).join('')
+    : (urls && urls.length > 0)
+      ? urls.map(url => `<img src="${url}" loading="lazy" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
+      : '';
   const detailWrap = document.getElementById('detailImagesWrap');
   if(detailWrap) {
     detailWrap.innerHTML = html || `

@@ -3823,7 +3823,7 @@ function bulkValidate() {
       if (BULK.fileCount && c.found.length === 0) { /* 위에서 에러 처리 */ }
     }
     if (!BULK.fileCount) m.errors.push('사진 폴더 선택 필요');
-    if (m.colors.length > 10) m.errors.push('색상 10개 초과');
+    if (m.colors.length > 30) m.errors.push('색상 30개 초과');
     if (m.errors.length) m.selected = false;
   }
 }
@@ -3901,10 +3901,25 @@ function bulkSelectFirstOne() {
 }
 
 // ---------- 등록 ----------
+// 이미지 가로/세로 크기 읽기 (실패하면 null)
+function bulkImageSize(file) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve({ w: img.naturalWidth, h: img.naturalHeight }); };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
 async function bulkUploadOne(file, ownerUid, ci, slot) {
-  const opt = await resizeImageForUpload(file, 1600, 0.85);
+  // 세로로 아주 긴 상세 이미지(예: 750x6177)는 1600px 기준으로 줄이면 글씨가 뭉개지므로 원본 그대로 올려요.
+  // 파일 이름에 _long_ 을 넣어두면 상품 페이지에서 긴 상세 이미지로 알아보고 한 줄 전체로 보여줘요.
+  const size = await bulkImageSize(file);
+  const isLong = !!(size && size.w > 0 && size.h / size.w >= 2.5 && /\.jpe?g$/i.test(file.name));
+  const opt = isLong ? file : await resizeImageForUpload(file, 1600, 0.85);
   const rand = Math.random().toString(36).slice(2, 8);
-  const path = `products/${ownerUid}/${Date.now()}_c${ci}_${slot}_${rand}.jpg`;
+  const path = `products/${ownerUid}/${Date.now()}_c${ci}_${isLong ? 'long' : slot}_${rand}.jpg`;
   const fileRef = window._ref(window._storage, path);
   await window._uploadBytes(fileRef, opt, { contentType: 'image/jpeg' });
   return await window._getDownloadURL(fileRef);
