@@ -860,9 +860,11 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 .product-head .product-category{font-size:14px!important;font-weight:600!important;letter-spacing:.24em!important;color:#14110f!important}
 .product-meta{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:12px!important}
 .product-meta .head-code{margin-left:auto}
-#colorDotsPreview{gap:18px!important;margin-bottom:12px!important}
-#colorDotsPreview button{border:none!important;background:transparent!important;padding:2px 0!important;border-radius:0!important}
-#colorDotsPreview button span:last-child{font-size:13px!important;color:#14110f!important}
+#colorDotsPreview{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(158px,1fr))!important;gap:2px 6px!important;margin-bottom:12px!important}
+#colorDotsPreview button{border:none!important;background:transparent!important;padding:0 4px!important;border-radius:6px!important;min-height:0!important;height:34px!important;width:100%!important;justify-content:flex-start!important;gap:6px!important;min-width:0!important}
+#colorDotsPreview button:hover{background:#f6f4f1!important}
+#colorDotsPreview button span:first-child{flex-shrink:0!important}
+#colorDotsPreview button span:last-child{font-size:12.5px!important;color:#14110f!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;min-width:0!important}
 #stock-status{display:none!important}
 .spec-line{border-bottom:1px solid #E4DCCF!important;padding-bottom:16px!important;margin-bottom:20px!important}
 .product-info.info-compact .spec-line{padding-bottom:12px!important;margin-bottom:14px!important}
@@ -1745,16 +1747,28 @@ function makeSmoothThumb(img, size) {
 
 // 메인 사진 박스: 가로는 항상 꽉 채우고, 세로만 화면에 맞게 아주 살짝 잘라서(object-fit:cover) 스크롤 없이 한 화면에 다 보이게
 function fitMainImgToPhoto(img) {
-  if (window.innerWidth <= 768) return;
   const mainBox = document.getElementById('mainImgBox');
   const thumbList = document.getElementById('thumbList');
   if (!mainBox) return;
-  const rectTop = mainBox.getBoundingClientRect().top;
-  const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
-  const h = Math.max(320, Math.min(viewportLimit, 640));
-  mainBox.style.height = h + 'px';
-  if (thumbList) thumbList.style.maxHeight = h + 'px';
+  if (window.innerWidth > 768) {
+    const rectTop = mainBox.getBoundingClientRect().top;
+    const viewportLimit = Math.round(window.innerHeight - rectTop - 32);
+    const h = Math.max(320, Math.min(viewportLimit, 640));
+    mainBox.style.height = h + 'px';
+    if (thumbList) thumbList.style.maxHeight = h + 'px';
+  }
+  // 사진이 박스 비율과 많이 다르면(예: 정사각형 사진) 잘라내지 않고 통째로 보여준다. 조금 차이나면 기존처럼 꽉 채운다.
+  const im = img || document.getElementById('mainImgTag');
+  if (im && im.naturalWidth && im.naturalHeight) {
+    const bw = mainBox.clientWidth, bh = mainBox.clientHeight;
+    if (bw && bh) {
+      const imgAR = im.naturalWidth / im.naturalHeight, boxAR = bw / bh;
+      const crop = imgAR < boxAR ? 1 - imgAR / boxAR : 1 - boxAR / imgAR;
+      im.style.objectFit = crop > 0.06 ? 'contain' : 'cover';
+    }
+  }
 }
+window.addEventListener('resize', function(){ fitMainImgToPhoto(); });
 let currentUserName = '';
 let currentUserRole = null;
 let reviewsLoaded = false;
@@ -2359,8 +2373,28 @@ function previewColorOnly(idx) {
 }
 
 function toggleColorDropdown() {
-  document.getElementById('colorDropdownPanel').style.display =
-    document.getElementById('colorDropdownPanel').style.display === 'block' ? 'none' : 'block';
+  const panel = document.getElementById('colorDropdownPanel');
+  const trigger = document.getElementById('colorDropdownTrigger');
+  if (!panel) return;
+  if (panel.style.display === 'block') { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  panel.style.overscrollBehavior = 'contain';
+  // 화면 아래쪽이 모자라면 위로 펼치고, 높이도 보이는 공간에 맞춘다 (마우스 휠이 상세사진 쪽으로 넘어가는 문제 방지)
+  if (trigger) {
+    const r = trigger.getBoundingClientRect();
+    const hd = document.querySelector('header.header');
+    const topLimit = hd ? Math.max(0, hd.getBoundingClientRect().bottom) : 0;
+    const below = window.innerHeight - r.bottom - 20;
+    const above = r.top - topLimit - 16;
+    const want = 300;
+    if (below >= Math.min(want, 220) || below >= above) {
+      panel.style.top = 'calc(100% + 6px)'; panel.style.bottom = 'auto';
+      panel.style.maxHeight = Math.max(140, Math.min(want, below)) + 'px';
+    } else {
+      panel.style.top = 'auto'; panel.style.bottom = 'calc(100% + 6px)';
+      panel.style.maxHeight = Math.max(140, Math.min(want, above)) + 'px';
+    }
+  }
 }
 
 document.addEventListener('click', (e) => {
