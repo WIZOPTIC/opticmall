@@ -826,6 +826,11 @@ html{color-scheme:only light}
  .header-main,.header-inner{padding-top:34px!important}
 }
 </style>
+<style id="loginFix">
+/* 로그인/아이디 찾기/비밀번호 찾기 팝업: 입력칸이 칸 밖으로 밀려 팝업 내용이 옆으로 쏠리는 문제 방지 */
+#loginOverlay input,#forgotPwOverlay input,#findIdOverlay input{min-width:0!important;width:100%!important;box-sizing:border-box}
+#loginOverlay>div:nth-child(2),#forgotPwOverlay>div:nth-child(2),#findIdOverlay>div:nth-child(2){overflow:hidden;overflow:clip!important;box-sizing:border-box}
+</style>
 </head>
 <body>
 
