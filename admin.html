@@ -4456,8 +4456,8 @@ async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
       const snap = await tx.get(orderRef);
       if(!snap.exists()) throw new Error('주문 정보를 찾을 수 없습니다.');
       const data = snap.data();
+      await awardPointsIfDelivered(tx, orderRef, data, patch.status); // 읽기 먼저, 쓰기는 그 다음 (트랜잭션 규칙)
       tx.update(orderRef, patch);
-      await awardPointsIfDelivered(tx, orderRef, data, patch.status);
     });
     return;
   }
@@ -4476,8 +4476,8 @@ async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
       overall = computeOverallOrderStatus(shipments);
       if(overall) updatePayload.status = overall;
     }
+    await awardPointsIfDelivered(tx, orderRef, data, overall); // 읽기 먼저, 쓰기는 그 다음 (트랜잭션 규칙)
     tx.update(orderRef, updatePayload);
-    await awardPointsIfDelivered(tx, orderRef, data, overall);
   });
 }
 
