@@ -1150,7 +1150,7 @@ function renderProducts(products) {
     const imgHtml = hasImg
       ? `<img loading="lazy" decoding="async" src="${p.mainImageUrl}" style="width:100%;height:100%;object-fit:cover;">`
       : `<i class=ic-glasses></i>`;
-    const catLabel = p.category || p.type || p.brandName || '안경테';
+    const catLabel = effCat(p) || p.type || p.brandName || '안경테';
 
     const wishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
     const isWished = wishlistIds.has(wishId);
@@ -1314,6 +1314,9 @@ function updateCount(n) {
 
 const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
 let stockOnly = false;
+// 카테고리 판정: V.KOOL 상품(스포츠고글/선글라스/변색렌즈)은 전부 '선글라스'로 취급
+// (V.KOOL 안에서의 세부 분류는 vkool.html에서 따로 합니다)
+function effCat(p) { return String(p.brandName || '').trim() === 'V.KOOL' ? '선글라스' : p.category; }
 let chipBrand = null; // 브랜드 탭에서 고른 브랜드 (null = 전체)
 const BRAND_TAB_ORDER = ['SUOFEIA','ESSENTIAL','V.KOOL','ROUX PENN','COLOR7'];
 let brandTabKeys = [];
@@ -1515,9 +1518,9 @@ function applyFilters() {
 
   // 카테고리 필터 (메인)
   if(Array.isArray(currentGnbCategory)) {
-    result = result.filter(p => currentGnbCategory.includes(p.category));
+    result = result.filter(p => currentGnbCategory.includes(effCat(p)));
   } else if(currentGnbCategory !== '전체') {
-    result = result.filter(p => p.category === currentGnbCategory);
+    result = result.filter(p => effCat(p) === currentGnbCategory);
   }
 
   // 검색어 필터 (모델명 / 브랜드명 / 대표바코드 / 색상별 바코드 / 카테고리명까지 모두 확인)
@@ -1526,7 +1529,7 @@ function applyFilters() {
     result = result.filter(p => {
       const modelMatch = (p.modelName||'').toLowerCase().includes(keyword);
       const brandMatch = (p.brandName||'').toLowerCase().includes(keyword);
-      const catMatch = (p.category||'').toLowerCase().includes(keyword);
+      const catMatch = (effCat(p)||'').toLowerCase().includes(keyword);
       const topBarcodeMatch = (p.barcode||'').toLowerCase().includes(keyword);
       const colorBarcodeMatch = Array.isArray(p.colors) && p.colors.some(c => (c.barcode||'').toLowerCase().includes(keyword));
       return modelMatch || brandMatch || catMatch || topBarcodeMatch || colorBarcodeMatch;
