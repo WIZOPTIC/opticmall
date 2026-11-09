@@ -18,7 +18,37 @@
   '#ntPanel .nt-e{padding:34px 16px;text-align:center;font-size:13px;color:#A59A8D}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  var items = [], bell, badge, panel, unsub = null;
+  var items = [], bell, badge, panel, unsub = null, firstLoad = true, actx = null;
+
+  // 알림음: 브라우저 정책상 화면을 한 번이라도 클릭/터치한 뒤부터 소리가 납니다
+  function unlock() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      if (!actx) actx = new AC();
+      if (actx.state === 'suspended') actx.resume();
+    } catch (e) {}
+  }
+  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, unlock, { passive: true }); });
+  function chime() {
+    try {
+      if (!actx || actx.state !== 'running') return;
+      [[880, 0], [1318.5, 0.16]].forEach(function (p) {
+        var o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + p[1];
+        o.type = 'sine'; o.frequency.value = p[0];
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + 0.6);
+      });
+    } catch (e) {}
+  }
+  function toast(title, body) {
+    var old = document.getElementById('ntToast'); if (old) old.remove();
+    var t = document.createElement('div'); t.id = 'ntToast';
+    t.style.cssText = 'position:fixed;top:16px;right:16px;z-index:10000;max-width:calc(100vw - 32px);width:320px;background:#2A2420;color:#fff;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.3);font-family:inherit;cursor:pointer;border-left:3px solid #FF7A1A';
+    t.innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:3px">' + esc(title) + '</div><div style="font-size:12.5px;color:#D9D2C8;line-height:1.5">' + esc(body) + '</div>';
+    t.onclick = function () { location.href = 'mypage.html'; };
+    document.body.appendChild(t);
+    setTimeout(function () { if (t.parentNode) t.remove(); }, 6000);
+  }
 
   function ago(ms) {
     var d = (Date.now() - ms) / 1000;
@@ -79,7 +109,14 @@
 
   function start(uid) {
     if (unsub) { unsub(); unsub = null; }
+    firstLoad = true;
     unsub = firebase.firestore().collection('notifications').where('userId', '==', uid).onSnapshot(function (snap) {
+      if (!firstLoad) {
+        snap.docChanges().forEach(function (c) {
+          if (c.type === 'added' && !c.doc.data().read) { var x = c.doc.data(); chime(); toast(x.title, x.body); }
+        });
+      }
+      firstLoad = false;
       items = snap.docs.map(function (d) {
         var x = d.data(); var t = x.createdAt && x.createdAt.toMillis ? x.createdAt.toMillis() : Date.now();
         return { id: d.id, title: x.title, body: x.body, read: !!x.read, ms: t };

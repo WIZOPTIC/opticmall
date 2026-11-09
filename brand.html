@@ -1221,10 +1221,10 @@ async function notifyBuyerShipment(orderDocId, brandOwnerUid, kind, patch) {
     let title, body;
     if(kind === 'shipping') {
       title = '상품이 발송되었어요';
-      body = (brand ? brand + ' · ' : '') + (patch.trackingCompany || '') + ' ' + (patch.trackingNumber || '') + ' (주문 ' + no + ')';
+      body = (brand ? brand + ' · ' : '') + (patch.trackingCompany || '') + ' ' + (patch.trackingNumber || '');
     } else {
       title = '배송이 완료되었어요';
-      body = (brand ? brand + ' 상품 ' : '상품이 ') + '배송이 완료되었습니다. (주문 ' + no + ')';
+      body = (brand ? brand + ' 상품 ' : '') + '배송이 완료되었습니다.';
     }
     await window._addDoc(window._collection(window._db, 'notifications'), { userId: o.userId, type: kind, title, body: body.trim(), orderDocId, read: false, createdAt: window._serverTimestamp() });
   } catch(e) { console.error('알림 저장 실패', e); }
