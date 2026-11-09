@@ -93,14 +93,24 @@
     });
     panel.innerHTML = h + '</div>';
     var all = panel.querySelector('#ntAll');
-    if (all) all.onclick = function () { items.forEach(function (n) { if (!n.read) mark(n); }); };
+    if (all) all.onclick = function () { var ps = items.filter(function (n) { return !n.read; }).map(mark); Promise.all(ps).then(render); };
     panel.querySelectorAll('.nt-i').forEach(function (b) {
-      b.onclick = function () { var n = items[+b.dataset.i]; if (!n.read) mark(n); location.href = 'mypage.html'; };
+      b.onclick = function () { var n = items[+b.dataset.i]; go(n.read ? Promise.resolve() : mark(n)); };
     });
   }
 
   function mark(n) {
-    try { firebase.firestore().collection('notifications').doc(n.id).update({ read: true }); } catch (e) {}
+    n.read = true; // 화면에서는 즉시 읽음 처리
+    try {
+      return firebase.firestore().collection('notifications').doc(n.id).update({ read: true }).catch(function (e) { console.error('알림 읽음 처리 실패', e); });
+    } catch (e) { return Promise.resolve(); }
+  }
+  function go(p) {
+    // 저장이 끝난 뒤(최대 1.5초) 이동해야 읽음 처리가 중간에 끊기지 않습니다
+    Promise.race([p, new Promise(function (r) { setTimeout(r, 1500); })]).then(function () {
+      if (/mypage\.html$/.test(location.pathname)) { if (panel) panel.style.display = 'none'; render(); }
+      else location.href = 'mypage.html';
+    });
   }
   function toggle() {
     if (panel.style.display === 'block') { panel.style.display = 'none'; return; }
