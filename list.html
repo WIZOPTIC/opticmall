@@ -539,6 +539,17 @@ html{color-scheme:only light}
 #loginOverlay input,#forgotPwOverlay input,#findIdOverlay input{min-width:0!important;width:100%!important;box-sizing:border-box}
 #loginOverlay>div:nth-child(2),#forgotPwOverlay>div:nth-child(2),#findIdOverlay>div:nth-child(2){overflow:hidden;overflow:clip!important;box-sizing:border-box}
 </style>
+<style id="brandTabsStyle">
+/* 브랜드 탭: 현재 카테고리/검색 결과 안에서 브랜드별로 좁혀 보기 */
+.brand-tabs{display:flex;gap:28px;border-bottom:1px solid #E6E1D8;margin:4px 0 6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.brand-tabs::-webkit-scrollbar{display:none}
+.brand-tab{flex:0 0 auto;border:none;background:none;padding:13px 0;font-family:inherit;font-size:15px;color:#6B6258;cursor:pointer;position:relative;white-space:nowrap}
+.brand-tab em{font-style:normal;font-size:12px;margin-left:5px;color:#A59A8D}
+.brand-tab:hover{color:#2A2420}
+.brand-tab.on{color:#2A2420;font-weight:700}
+.brand-tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#FF7A1A}
+@media (max-width:768px){.brand-tabs{gap:22px;margin:0 0 4px;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}.brand-tab{font-size:14.5px}}
+</style>
 </head>
 <body>
 <!-- 로그인 팝업 -->
@@ -760,6 +771,8 @@ html{color-scheme:only light}
       </select>
     </div>
   </div>
+
+  <div class="brand-tabs" id="brandTabs" style="display:none;"></div>
 
   <div class="product-grid" id="productGrid">
     <!-- 상품 카드들 JS로 생성 -->
@@ -1301,6 +1314,29 @@ function updateCount(n) {
 
 const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
 let stockOnly = false;
+let chipBrand = null; // 브랜드 탭에서 고른 브랜드 (null = 전체)
+const BRAND_TAB_ORDER = ['SUOFEIA','ESSENTIAL','V.KOOL','ROUX PENN','COLOR7'];
+let brandTabKeys = [];
+function renderBrandTabs(brandMap, total) {
+  const el = document.getElementById('brandTabs');
+  if(!el) return;
+  // 브랜드가 2개 미만이거나 브랜드관에서 들어온 경우엔 탭이 필요 없어서 숨김
+  if(brandMap.size < 2 || currentBrandFilter) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  const rank = n => { const i = BRAND_TAB_ORDER.indexOf(String(n).toUpperCase()); return i === -1 ? 99 : i; };
+  const list = [...brandMap.entries()].sort((a,b) => rank(a[1].name) - rank(b[1].name) || b[1].n - a[1].n);
+  brandTabKeys = list.map(x => x[0]);
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  el.innerHTML = `<button type="button" class="brand-tab${chipBrand ? '' : ' on'}" data-i="-1">전체<em>${total}</em></button>` +
+    list.map((x,i) => `<button type="button" class="brand-tab${chipBrand === x[0] ? ' on' : ''}" data-i="${i}">${esc(x[1].name)}<em>${x[1].n}</em></button>`).join('');
+  el.style.display = 'flex';
+}
+document.addEventListener('click', function(e) {
+  const b = e.target.closest && e.target.closest('.brand-tab');
+  if(!b) return;
+  const i = Number(b.dataset.i);
+  chipBrand = i < 0 ? null : brandTabKeys[i];
+  applyFilters();
+});
 
 // 상품 데이터를 기다리지 않고, 페이지 로드 즉시 URL의 cat/q 파라미터를 보고
 // 네비게이션바 활성화 표시와 타이틀을 먼저 맞춰준다.
@@ -1356,6 +1392,7 @@ function toggleStockOnly() {
 function filterByGnb(category, el) {
   currentGnbCategory = category;
   currentBrandFilter = null;
+  chipBrand = null;
   document.getElementById('searchInput').value = ''; // 카테고리 탭 전환 시 이전 검색어가 몰래 남아있지 않도록 초기화
   document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -1448,6 +1485,7 @@ function doSearch() {
     currentGnbCategory = '전체';
     currentBrandFilter = null;
     currentFeature = null;
+    chipBrand = null;
     document.querySelectorAll('.gnb-item').forEach(b => b.classList.remove('active'));
     const titleEl = document.getElementById('listTitle');
     if(titleEl) titleEl.textContent = `'${kw}' 검색결과`;
@@ -1494,6 +1532,18 @@ function applyFilters() {
       return modelMatch || brandMatch || catMatch || topBarcodeMatch || colorBarcodeMatch;
     });
   }
+
+  // 브랜드 탭 (카테고리/검색 결과 안에서 브랜드별로 좁히기)
+  const brandMap = new Map();
+  result.forEach(p => {
+    const k = p.brandId || p.brandName;
+    if(!k) return;
+    const e = brandMap.get(k) || { name: p.brandName || k, n: 0 };
+    e.n++; brandMap.set(k, e);
+  });
+  if(chipBrand && !brandMap.has(chipBrand)) chipBrand = null;
+  renderBrandTabs(brandMap, result.length);
+  if(chipBrand) result = result.filter(p => (p.brandId || p.brandName) === chipBrand);
 
   // 재고 필터
   if(stockOnly) {
