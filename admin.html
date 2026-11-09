@@ -3823,7 +3823,7 @@ function bulkValidate() {
       if (BULK.fileCount && c.found.length === 0) { /* 위에서 에러 처리 */ }
     }
     if (!BULK.fileCount) m.errors.push('사진 폴더 선택 필요');
-    if (m.colors.length > 30) m.errors.push('색상 30개 초과');
+    if (m.colors.length > 10) m.errors.push('색상 10개 초과');
     if (m.errors.length) m.selected = false;
   }
 }
@@ -3901,25 +3901,10 @@ function bulkSelectFirstOne() {
 }
 
 // ---------- 등록 ----------
-// 이미지 가로/세로 크기 읽기 (실패하면 null)
-function bulkImageSize(file) {
-  return new Promise(resolve => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => { URL.revokeObjectURL(url); resolve({ w: img.naturalWidth, h: img.naturalHeight }); };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
-    img.src = url;
-  });
-}
-
 async function bulkUploadOne(file, ownerUid, ci, slot) {
-  // 세로로 아주 긴 상세 이미지(예: 750x6177)는 1600px 기준으로 줄이면 글씨가 뭉개지므로 원본 그대로 올려요.
-  // 파일 이름에 _long_ 을 넣어두면 상품 페이지에서 긴 상세 이미지로 알아보고 한 줄 전체로 보여줘요.
-  const size = await bulkImageSize(file);
-  const isLong = !!(size && size.w > 0 && size.h / size.w >= 2.5 && /\.jpe?g$/i.test(file.name));
-  const opt = isLong ? file : await resizeImageForUpload(file, 1600, 0.85);
+  const opt = await resizeImageForUpload(file, 1600, 0.85);
   const rand = Math.random().toString(36).slice(2, 8);
-  const path = `products/${ownerUid}/${Date.now()}_c${ci}_${isLong ? 'long' : slot}_${rand}.jpg`;
+  const path = `products/${ownerUid}/${Date.now()}_c${ci}_${slot}_${rand}.jpg`;
   const fileRef = window._ref(window._storage, path);
   await window._uploadBytes(fileRef, opt, { contentType: 'image/jpeg' });
   return await window._getDownloadURL(fileRef);
@@ -4441,6 +4426,28 @@ async function awardPointsIfDelivered(tx, orderRef, data, newOverallStatus) {
   tx.update(orderRef, { pointsAwarded: true, pointsAmount: earnAmount });
 }
 
+// 구매자에게 배송 알림 남기기 (실패해도 배송 처리에는 영향 없음)
+async function notifyBuyerShipment(orderDocId, brandOwnerUid, kind, patch) {
+  try {
+    const snap = await window._getDoc(window._doc(window._db, 'orders', orderDocId));
+    if(!snap.exists()) return;
+    const o = snap.data();
+    if(!o.userId) return;
+    const sh = (Array.isArray(o.shipments) ? o.shipments : []).find(s => brandOwnerUid && s.brandOwnerUid === brandOwnerUid) || {};
+    const brand = sh.brandName || '';
+    const no = o.orderId || orderDocId;
+    let title, body;
+    if(kind === 'shipping') {
+      title = '상품이 발송되었어요';
+      body = (brand ? brand + ' · ' : '') + (patch.trackingCompany || '') + ' ' + (patch.trackingNumber || '') + ' (주문 ' + no + ')';
+    } else {
+      title = '배송이 완료되었어요';
+      body = (brand ? brand + ' 상품 ' : '상품이 ') + '배송이 완료되었습니다. (주문 ' + no + ')';
+    }
+    await window._setDoc(window._doc(window._collection(window._db, 'notifications')), { userId: o.userId, type: kind, title, body: body.trim(), orderDocId, read: false, createdAt: window._serverTimestamp() });
+  } catch(e) { console.error('알림 저장 실패', e); }
+}
+
 async function updateShipmentOrLegacy(orderDocId, brandOwnerUid, patch) {
   const orderRef = window._doc(window._db, 'orders', orderDocId);
   if(brandOwnerUid === null) {
@@ -4548,6 +4555,7 @@ async function confirmShipStart() {
       trackingNumber,
       shippingStartedAt: new Date()
     });
+    await notifyBuyerShipment(orderId, shipStartTargetBrandOwnerUid, 'shipping', { trackingCompany, trackingNumber });
     closeShipStartModal();
     showToast('<i class=ic-check-circle></i> 배송중 상태로 변경되었습니다.', 'success');
     loadOrderManage();
@@ -4565,6 +4573,7 @@ async function advanceToDelivered(orderDocId, brandOwnerUid) {
   if(!confirm('이 배송건을 배송완료 상태로 변경하시겠습니까?')) return;
   try {
     await updateShipmentOrLegacy(orderDocId, brandOwnerUid, { status: 'delivered', deliveredAt: new Date() });
+    await notifyBuyerShipment(orderDocId, brandOwnerUid, 'delivered', {});
     showToast('<i class=ic-check-circle></i> 배송완료로 변경되었습니다.', 'success');
     loadOrderManage();
     loadDashboard();

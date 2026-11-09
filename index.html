@@ -1649,6 +1649,7 @@ _auth.onAuthStateChanged(async (user) => {
       const status = userData.approval_status || 'pending';
       const role = userData.role || 'optician';
       mainMemberLevel = level;
+      try { closeSignupPromo(); } catch(e) {}
       updateHeaderLoggedIn(name, level, status, role);
       updateMainCartCount(user.uid);
       try {
@@ -1656,6 +1657,7 @@ _auth.onAuthStateChanged(async (user) => {
         mainWishlistIds = new Set(wishSnap.docs.map(d => d.id));
       } catch(e) { console.error(e); }
     } catch(e) {
+      try { closeSignupPromo(); } catch(e) {}
       updateHeaderLoggedIn(user.email.split('@')[0], 0, 'pending', 'optician');
     }
   } else {
@@ -2776,5 +2778,6 @@ async function renderFwRecentPanel() {
   upd();
 })();
 </script>
+<script src="notify.js"></script>
 </body>
 </html>

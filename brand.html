@@ -1208,6 +1208,28 @@ function computeOverallOrderStatus(shipments) {
   return 'paid';
 }
 
+// 구매자에게 배송 알림 남기기 (실패해도 배송 처리에는 영향 없음)
+async function notifyBuyerShipment(orderDocId, brandOwnerUid, kind, patch) {
+  try {
+    const snap = await window._getDoc(window._doc(window._db, 'orders', orderDocId));
+    if(!snap.exists()) return;
+    const o = snap.data();
+    if(!o.userId) return;
+    const sh = (Array.isArray(o.shipments) ? o.shipments : []).find(s => brandOwnerUid && s.brandOwnerUid === brandOwnerUid) || {};
+    const brand = sh.brandName || '';
+    const no = o.orderId || orderDocId;
+    let title, body;
+    if(kind === 'shipping') {
+      title = '상품이 발송되었어요';
+      body = (brand ? brand + ' · ' : '') + (patch.trackingCompany || '') + ' ' + (patch.trackingNumber || '') + ' (주문 ' + no + ')';
+    } else {
+      title = '배송이 완료되었어요';
+      body = (brand ? brand + ' 상품 ' : '상품이 ') + '배송이 완료되었습니다. (주문 ' + no + ')';
+    }
+    await window._addDoc(window._collection(window._db, 'notifications'), { userId: o.userId, type: kind, title, body: body.trim(), orderDocId, read: false, createdAt: window._serverTimestamp() });
+  } catch(e) { console.error('알림 저장 실패', e); }
+}
+
 async function updateMyShipment(orderDocId, patch) {
   const uid = window._getCurrentBrandUid();
   const orderRef = window._doc(window._db, 'orders', orderDocId);
@@ -1283,6 +1305,7 @@ async function confirmBrandShipStart() {
       trackingNumber,
       shippingStartedAt: new Date()
     });
+    await notifyBuyerShipment(orderDocId, window._getCurrentBrandUid(), 'shipping', { trackingCompany, trackingNumber });
     closeShipStartModal();
     showToast('배송중 상태로 변경되었습니다.', 'success');
     loadShipManage();
@@ -1295,6 +1318,7 @@ async function brandAdvanceToDelivered(orderDocId) {
   if(!confirm('이 배송건을 배송완료 상태로 변경하시겠습니까?')) return;
   try {
     await updateMyShipment(orderDocId, { status: 'delivered', deliveredAt: new Date() });
+    await notifyBuyerShipment(orderDocId, window._getCurrentBrandUid(), 'delivered', {});
     showToast('배송완료로 변경되었습니다.', 'success');
     loadShipManage();
   } catch(e) {
