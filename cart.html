@@ -828,6 +828,14 @@ async function loadCart() {
       };
     }).filter(item => item.product); // 삭제된 상품은 제외
 
+    // 삭제된 상품이 장바구니에 남아 있으면 화면엔 안 보이는데 헤더 숫자만 올라가므로, 남은 찌꺼기를 함께 정리
+    const orphans = rawItems.filter((it, i) => !productDocs[i].exists);
+    if(orphans.length) {
+      orphans.forEach(it => {
+        _db.collection('carts').doc(uid).collection('items').doc(it.cartItemId).delete().catch(()=>{});
+      });
+    }
+
     // 재고보다 많이 담겨 있으면 현재 재고만큼으로 맞춤 (재고는 결제 승인 시점에 차감됨)
     for(const it of cartItems) {
       const st = getItemStock(it);
