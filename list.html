@@ -541,14 +541,14 @@ html{color-scheme:only light}
 </style>
 <style id="brandTabsStyle">
 /* 브랜드 탭: 현재 카테고리/검색 결과 안에서 브랜드별로 좁혀 보기 */
-.brand-tabs{display:flex;gap:28px;border-bottom:1px solid #E6E1D8;margin:4px 0 6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.brand-tabs{display:flex;gap:36px;border-bottom:1px solid #CFC8BB;margin:14px 0 18px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .brand-tabs::-webkit-scrollbar{display:none}
-.brand-tab{flex:0 0 auto;border:none;background:none;padding:13px 0;font-family:inherit;font-size:15px;color:#6B6258;cursor:pointer;position:relative;white-space:nowrap}
-.brand-tab em{font-style:normal;font-size:12px;margin-left:5px;color:#A59A8D}
-.brand-tab:hover{color:#2A2420}
-.brand-tab.on{color:#2A2420;font-weight:700}
-.brand-tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#FF7A1A}
-@media (max-width:768px){.brand-tabs{gap:22px;margin:0 0 4px;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}.brand-tab{font-size:14.5px}}
+.brand-tab{flex:0 0 auto;border:none;background:none;padding:15px 2px;font-family:inherit;font-size:18px;font-weight:500;color:#4A423B;cursor:pointer;position:relative;white-space:nowrap;letter-spacing:.01em}
+.brand-tab em{font-style:normal;font-size:13px;font-weight:400;margin-left:6px;color:#8A7F73}
+.brand-tab:hover{color:#000}
+.brand-tab.on{color:#2A2420;font-weight:800}
+.brand-tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#FF7A1A}
+@media (max-width:768px){.brand-tabs{gap:24px;margin:6px 0 10px;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}.brand-tab{font-size:15px;padding:13px 0}.brand-tab em{font-size:12px}}
 </style>
 </head>
 <body>
