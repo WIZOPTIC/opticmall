@@ -84,9 +84,10 @@
   }
 
   function render() {
-    var un = items.filter(function (n) { return !n.read; }).length;
+    items = items.filter(function (n) { return !n.read; }); // 확인한 알림은 목록에서 사라집니다
+    var un = items.length;
     badge.textContent = un > 9 ? '9+' : un; badge.style.display = un ? 'flex' : 'none';
-    var h = '<div class="nt-h"><span>알림</span>' + (un ? '<button type="button" id="ntAll">모두 읽음</button>' : '') + '</div><div class="nt-list">';
+    var h = '<div class="nt-h"><span>알림</span>' + (un ? '<button type="button" id="ntAll">모두 확인</button>' : '') + '</div><div class="nt-list">';
     if (!items.length) h += '<div class="nt-e">새로운 알림이 없습니다.</div>';
     items.forEach(function (n, i) {
       h += '<button type="button" class="nt-i' + (n.read ? '' : ' un') + '" data-i="' + i + '"><div class="nt-t">' + esc(n.title) + '</div><div class="nt-b">' + esc(n.body) + '</div><div class="nt-d">' + ago(n.ms) + '</div></button>';
@@ -120,7 +121,7 @@
   function start(uid) {
     if (unsub) { unsub(); unsub = null; }
     firstLoad = true;
-    unsub = firebase.firestore().collection('notifications').where('userId', '==', uid).onSnapshot(function (snap) {
+    unsub = firebase.firestore().collection('notifications').where('userId', '==', uid).where('read', '==', false).onSnapshot(function (snap) {
       if (!firstLoad) {
         snap.docChanges().forEach(function (c) {
           if (c.type === 'added' && !c.doc.data().read) { var x = c.doc.data(); chime(); toast(x.title, x.body); }
