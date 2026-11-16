@@ -1323,6 +1323,7 @@ function effCat(p) { return String(p.brandName || '').trim() === 'V.KOOL' ? '선
 let chipBrand = null; // 브랜드 탭에서 고른 브랜드 (null = 전체)
 const BRAND_TAB_ORDER = ['SUOFEIA','ESSENTIAL','V.KOOL','ROUX PENN','COLOR7'];
 let brandTabKeys = [];
+let pendingBrandTab = new URLSearchParams(location.search).get('bt'); // 메뉴 브랜드 펼침에서 넘어온 브랜드 (이름으로 찾아서 탭 선택)
 function renderBrandTabs(brandMap, total) {
   const el = document.getElementById('brandTabs');
   if(!el) return;
@@ -1547,6 +1548,10 @@ function applyFilters() {
     const e = brandMap.get(k) || { name: p.brandName || k, n: 0 };
     e.n++; brandMap.set(k, e);
   });
+  if(pendingBrandTab && brandMap.size) {
+    for(const [k, e] of brandMap) { if(String(e.name).toUpperCase() === pendingBrandTab.toUpperCase()) { chipBrand = k; break; } }
+    pendingBrandTab = null;
+  }
   if(chipBrand && !brandMap.has(chipBrand)) chipBrand = null;
   renderBrandTabs(brandMap, result.length);
   if(chipBrand) result = result.filter(p => (p.brandId || p.brandName) === chipBrand);
@@ -2081,5 +2086,6 @@ setTimeout(fit,300);setTimeout(fit,1200);})();
 })();
 </script>
 <script src="notify.js"></script>
+<script src="nav-brands.js"></script>
 </body>
 </html>
