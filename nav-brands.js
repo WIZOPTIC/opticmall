@@ -7,18 +7,18 @@
   if (!window.matchMedia || !window.matchMedia('(hover:hover) and (min-width:769px)').matches) return;
 
   var CATS = ['하금테', '뿔테', '메탈', '선글라스'];
+  var SHOP = '브랜드샵';
   var ORDER = ['SUOFEIA', 'ESSENTIAL', 'V.KOOL', 'ROUX PENN', 'COLOR7'];
-  var CACHE_KEY = 'navBrandsV1', TTL = 10 * 60 * 1000;
+  var CACHE_KEY = 'navBrandsV2', TTL = 10 * 60 * 1000;
 
   var css = document.createElement('style');
   css.textContent =
-    '#navBrandPanel{position:absolute;left:0;right:0;top:100%;z-index:300;background:#F4F3F0;border-top:1px solid #E4DFD6;box-shadow:0 6px 14px rgba(42,36,32,.07);display:none;}' +
+    '#navBrandPanel{position:absolute;left:0;right:0;top:100%;z-index:300;background:var(--hdr-bg,#2A2420);border-top:1px solid rgba(255,255,255,.10);box-shadow:0 10px 18px rgba(0,0,0,.14);display:none;}' +
     '#navBrandPanel.on{display:block;}' +
     '#navBrandPanel .nbp-in{max-width:1440px;margin:0 auto;padding:0 24px;height:46px;display:flex;align-items:center;box-sizing:border-box;}' +
     '#navBrandPanel .nbp-row{display:inline-flex;align-items:baseline;gap:30px;white-space:nowrap;}' +
-    '#navBrandPanel a{font-family:inherit;font-size:13.5px;font-weight:500;color:#4A423B;text-decoration:none;text-transform:uppercase;letter-spacing:.05em;transition:color .15s;}' +
+    '#navBrandPanel a{font-family:inherit;font-size:13.5px;font-weight:500;color:rgba(244,243,240,.88);text-decoration:none;text-transform:uppercase;letter-spacing:.05em;transition:color .15s;}' +
     '#navBrandPanel a:hover{color:#FF7A1A;}' +
-    '#navBrandPanel a em{font-style:normal;font-size:11px;font-weight:500;color:#9A8F82;margin-left:5px;letter-spacing:0;}' +
     '.gnb-item.nbp-on{color:#FF7A1A!important;}';
   document.head.appendChild(css);
 
@@ -36,12 +36,15 @@
     } catch (e) {}
     if (loading) return loading;
     loading = firebase.firestore().collection('products').where('status', '==', 'approved').get().then(function (snap) {
-      var by = {};
+      var by = {}, allB = {};
       CATS.forEach(function (c) { by[c] = {}; });
       snap.forEach(function (d) {
         var p = d.data(), cat = effCat(p);
-        if (!by[cat] || !p.brandName) return;
+        if (!p.brandName) return;
         var k = String(p.brandName).trim().toUpperCase();
+        var a = allB[k] || (allB[k] = { name: String(p.brandName).trim(), id: p.brandId || '', n: 0 });
+        a.n++;
+        if (!by[cat]) return;
         var e = by[cat][k] || (by[cat][k] = { name: String(p.brandName).trim(), n: 0 });
         e.n++;
       });
@@ -50,6 +53,7 @@
         out[c] = Object.keys(by[c]).map(function (k) { return by[c][k]; })
           .sort(function (a, b) { return rank(a.name) - rank(b.name) || b.n - a.n; });
       });
+      out[SHOP] = Object.keys(allB).map(function (k) { return allB[k]; }).sort(function (a, b) { return rank(a.name) - rank(b.name) || b.n - a.n; });
       data = out;
       try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: out })); } catch (e) {}
       return out;
@@ -88,7 +92,12 @@
       if (!list.length) { hide(); return; }
       var base = 'list.html?cat=' + encodeURIComponent(cat);
       var html = '<div class="nbp-in"><div class="nbp-row" id="nbpRow">' +
-        list.map(function (b) { return '<a href="' + base + '&bt=' + encodeURIComponent(b.name) + '">' + esc(b.name) + '<em>' + b.n + '</em></a>'; }).join('') +
+        list.map(function (b) {
+          var href;
+          if (cat === SHOP) href = /^V\.?KOOL$/i.test(b.name) ? 'vkool.html' : (b.id ? 'list.html?brand=' + encodeURIComponent(b.id) : 'list.html?q=' + encodeURIComponent(b.name));
+          else href = base + '&bt=' + encodeURIComponent(b.name);
+          return '<a href="' + href + '">' + esc(b.name) + '</a>';
+        }).join('') +
         '</div></div>';
       panel.innerHTML = html;
       panel.classList.add('on');
@@ -108,7 +117,7 @@
     if (!items.length) return;
     items.forEach(function (it) {
       var label = (it.textContent || '').trim();
-      var isCat = CATS.indexOf(label) !== -1;
+      var isCat = CATS.indexOf(label) !== -1 || label === SHOP;
       it.addEventListener('mouseenter', function () {
         if (isCat) show(label, it); else { clearTimeout(hideT); hide(); }
       });
