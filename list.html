@@ -1333,8 +1333,8 @@ function renderBrandTabs(brandMap, total) {
   const list = [...brandMap.entries()].sort((a,b) => rank(a[1].name) - rank(b[1].name) || b[1].n - a[1].n);
   brandTabKeys = list.map(x => x[0]);
   const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  el.innerHTML = `<button type="button" class="brand-tab${chipBrand ? '' : ' on'}" data-i="-1">전체<em>${total}</em></button>` +
-    list.map((x,i) => `<button type="button" class="brand-tab${chipBrand === x[0] ? ' on' : ''}" data-i="${i}">${esc(x[1].name)}<em>${x[1].n}</em></button>`).join('');
+  el.innerHTML = `<button type="button" class="brand-tab${chipBrand ? '' : ' on'}" data-i="-1">전체</button>` +
+    list.map((x,i) => `<button type="button" class="brand-tab${chipBrand === x[0] ? ' on' : ''}" data-i="${i}">${esc(x[1].name)}</button>`).join('');
   el.style.display = 'flex';
 }
 document.addEventListener('click', function(e) {
