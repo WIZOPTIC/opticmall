@@ -2615,9 +2615,9 @@ function renderDetailImageGrids(urls) {
   // 긴 상세 이미지가 있으면 그것만 한 줄 전체 너비로 보여줘요 (대표사진이 반쪽 칸에 혼자 떠 있지 않도록).
   const longs = (urls || []).filter(isLongDetailUrl);
   const html = longs.length > 0
-    ? longs.map(url => `<img src="${url}" loading="lazy" decoding="async" style="grid-column:1/-1;justify-self:center;width:100%;max-width:750px;cursor:default;" onerror="this.remove()">`).join('')
+    ? longs.map(url => `<img src="${url}" loading="eager" decoding="async" style="grid-column:1/-1;justify-self:center;width:100%;max-width:750px;cursor:default;" onerror="this.remove()">`).join('')
     : (urls && urls.length > 0)
-      ? urls.map(url => `<img src="${url}" loading="lazy" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
+      ? urls.map(url => `<img src="${url}" loading="eager" decoding="async" style="cursor:zoom-in;" onclick="openLightboxForUrl('${url}')" onerror="this.remove()">`).join('')
       : '';
   const detailWrap = document.getElementById('detailImagesWrap');
   const specGrid = document.getElementById('specDetailPhotosGrid');
@@ -2625,6 +2625,8 @@ function renderDetailImageGrids(urls) {
   // 교체 전 높이를 잠시 고정하고 스크롤 위치도 그대로 유지한다.
   const wraps = [detailWrap, specGrid].filter(Boolean);
   const keepY = window.scrollY;
+  const t0 = Date.now();
+  if (!window._scrollWatch) { window._scrollWatch = true; ['wheel','touchmove','keydown','mousedown'].forEach(ev => window.addEventListener(ev, () => { window._lastUserScroll = Date.now(); }, { passive: true })); }
   wraps.forEach(w => { const h = w.offsetHeight; if (h > 0) w.style.minHeight = h + 'px'; });
   if(detailWrap) {
     detailWrap.innerHTML = html || `
@@ -2638,14 +2640,18 @@ function renderDetailImageGrids(urls) {
   wraps.forEach(w => {
     const imgs = Array.from(w.querySelectorAll('img'));
     let left = imgs.length;
-    const release = () => { w.style.minHeight = ''; };
+    const release = () => {
+      w.style.minHeight = '';
+      // 높이 고정을 풀 때 페이지가 줄어들어 아래로 끌려갔다면, 사용자가 직접 스크롤하지 않은 경우에 한해 원래 위치로 되돌림
+      if (keepY > 0 && !(window._lastUserScroll && window._lastUserScroll > t0) && Math.abs(window.scrollY - keepY) > 2) window.scrollTo(0, keepY);
+    };
     if (!left) { release(); return; }
     const done = () => { if (--left <= 0) release(); };
     imgs.forEach(im => {
       if (im.complete) done();
       else { im.addEventListener('load', done, { once: true }); im.addEventListener('error', done, { once: true }); }
     });
-    setTimeout(release, 4000);
+    setTimeout(release, 20000); // 큰 상세 이미지가 느리게 와도 끝까지 기다림 (이전엔 4초 만에 풀려서 페이지가 푸터로 끌려갔음)
   });
 }
 
