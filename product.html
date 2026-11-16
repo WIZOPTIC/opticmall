@@ -1744,14 +1744,15 @@ function galleryOnly(urls) {
 
 // 썸네일 목록 렌더링 + 실제로 로드가 안 되는(깨진/삭제된) 이미지는 빈 회색 박스로 남지 않도록 감지해서 자동으로 제거
 // (background-image는 로드 실패해도 에러 이벤트가 없어서, 숨겨진 Image()로 따로 검증함)
-function renderThumbs(container, urls) {
+function renderThumbs(container, urls, activeIdx) {
+  activeIdx = activeIdx || 0;
   if (!container) return;
   if (!urls || urls.length === 0) {
     container.innerHTML = `<div class="thumb active placeholder-emoji"><i class=ic-glasses></i></div>`;
     return;
   }
   container.innerHTML = urls.map((url, i) => `
-    <div class="thumb ${i===0?'active':''}" data-thumb-url="${url}" onclick="switchMainImage('${url}', this, ${i})" style="background-image:url('${url}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    <div class="thumb ${i===activeIdx?'active':''}" data-thumb-url="${url}" onclick="switchMainImage('${url}', this, ${i})" style="background-image:url('${url}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
   `).join('');
   urls.forEach(url => {
     const probe = new Image();
@@ -2328,8 +2329,9 @@ function renderProduct(p) {
 
   // 이미지 - 새 colors 구조면 첫 번째 색상 기준으로 초기 렌더링
   const firstColor = (p.colors && p.colors.length > 0) ? p.colors[getInitColorIdx(p)] : null;
-  const initMainUrl = (firstColor && firstColor.mainImageUrl) ? firstColor.mainImageUrl : p.mainImageUrl;
-  const initDetailUrls = ((firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || [])).filter(isValidImgUrl);
+  const heroUrl = p.heroImageUrl || '';
+  const initMainUrl = heroUrl || ((firstColor && firstColor.mainImageUrl) ? firstColor.mainImageUrl : p.mainImageUrl);
+  const initDetailUrls = (heroUrl ? [firstColor && firstColor.mainImageUrl, ...((firstColor && firstColor.detailImageUrls) || [])].filter(u => u && u !== heroUrl) : (firstColor && firstColor.detailImageUrls && firstColor.detailImageUrls.length > 0) ? firstColor.detailImageUrls : (p.detailImageUrls || [])).filter(isValidImgUrl);
   const allImages = [initMainUrl, ...initDetailUrls].filter(isValidImgUrl);
   window._productImages = galleryOnly(allImages);
   currentImgIndex = 0;
@@ -2364,7 +2366,7 @@ function renderProduct(p) {
   if(p.colors && p.colors.length > 0) {
     colorSection.style.display = 'block';
     selectedItems = [];
-    renderColorButtons(p, getInitColorIdx(p));
+    renderColorButtons(p, getInitColorIdx(p), !!heroUrl && !new URLSearchParams(location.search).has('c'));
   } else {
     colorSection.style.display = 'none';
     const stock = Number(p.stock || 0);
@@ -2381,7 +2383,7 @@ let currentColorIdx = 0;
 // 색상 버튼 렌더링 + 클릭 시 사진 전환
 let selectedItems = [];
 
-function renderColorButtons(p, previewIdx) {
+function renderColorButtons(p, previewIdx, keepInitialImages) {
   currentColorIdx = previewIdx;
   const colors = p.colors;
 
@@ -2425,7 +2427,7 @@ function renderColorButtons(p, previewIdx) {
   }
 
   // 선택한 색상의 이미지로 교체
-  applyColorImages(selected);
+  if(!keepInitialImages) applyColorImages(selected);
   updateStockDisplay(Number(selected.stock || 0));
   updatePriceDisplay(); // 색상마다 가격이 다를 수 있으므로 선택할 때마다 가격도 갱신
 }
@@ -2558,13 +2560,22 @@ function renderSelectionList() {
 
 function applyColorImages(color) {
   // 색상 자체에 이미지가 없으면 상품 대표 이미지로 대체
-  const mainUrl = color.mainImageUrl || (currentProduct && currentProduct.mainImageUrl) || '';
+  let mainUrl = color.mainImageUrl || (currentProduct && currentProduct.mainImageUrl) || '';
   const detailUrls = ((color.detailImageUrls && color.detailImageUrls.length > 0)
     ? color.detailImageUrls
     : ((currentProduct && currentProduct.detailImageUrls) || [])).filter(isValidImgUrl);
-  const allUrls = [mainUrl, ...detailUrls].filter(isValidImgUrl);
+  const heroUrl = (currentProduct && currentProduct.heroImageUrl) || '';
+  let allUrls;
+  if (heroUrl && isValidImgUrl(heroUrl)) {
+    // 대표사진은 항상 맨 위, 선택한 색상 사진은 그 아래. 화면에는 선택한 색상 사진을 먼저 보여줌
+    const rest = [color.mainImageUrl, ...detailUrls].filter(u => u && u !== heroUrl && isValidImgUrl(u));
+    allUrls = [heroUrl, ...rest];
+    mainUrl = rest[0] || heroUrl;
+  } else {
+    allUrls = [mainUrl, ...detailUrls].filter(isValidImgUrl);
+  }
   window._productImages = galleryOnly(allUrls);
-  currentImgIndex = 0;
+  currentImgIndex = Math.max(0, window._productImages.indexOf(mainUrl));
 
   // 메인 이미지 교체
   const mainImgTag = document.getElementById('mainImgTag');
@@ -2593,7 +2604,7 @@ function applyColorImages(color) {
 
   // 썸네일 교체
   const thumbList = document.getElementById('thumbList');
-  renderThumbs(thumbList, galleryOnly(allUrls));
+  renderThumbs(thumbList, galleryOnly(allUrls), currentImgIndex);
 
   // 상세 이미지 교체 (2열 그리드, 클릭 시 크게 보기) - 상품정보 탭 하단 + 상품상세 탭 둘 다. 섬네일과 동일하게 대표사진도 포함
   renderDetailImageGrids(allUrls);
