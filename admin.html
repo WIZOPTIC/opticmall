@@ -114,6 +114,27 @@ tr:hover td{background:#FAFBFC;}
 #allProductsTable table td:last-child, #productApprovalTable table td:last-child { max-width:none; overflow:visible; white-space:nowrap; padding-right:16px; }
 #allProductsTable table tr, #productApprovalTable table tr, #featuredPicksTable table tr { height:84px; }
 #allProductsTable table tbody tr:last-child td, #productApprovalTable table tbody tr:last-child td { border-bottom:none; }
+/* 전체 상품 목록: 체크박스 열 + 오른쪽 관리 열 고정(가로로 잘려도 버튼이 항상 보이게) */
+#allProductsTable { overflow-x:auto !important; }
+#allProductsTable table th.chk, #allProductsTable table td.chk { width:46px; min-width:46px; max-width:46px; padding:0 0 0 18px; overflow:visible; text-align:left; }
+#allProductsTable table td.pimg { width:96px; min-width:96px; max-width:96px; overflow:visible; padding:10px 8px 10px 6px; }
+#allProductsTable table th.pimg { padding-left:6px; }
+#allProductsTable table td:nth-child(3), #allProductsTable table th:nth-child(3) { padding-left:18px; }
+#allProductsTable table td:nth-child(4) { max-width:130px; }
+#allProductsTable table td:nth-child(7) { max-width:150px; }
+#allProductsTable table td:nth-child(9) { max-width:100px; }
+#allProductsTable table td:last-child, #allProductsTable table th:last-child { position:sticky; right:0; z-index:2; box-shadow:-8px 0 10px -8px rgba(0,0,0,0.14); }
+#allProductsTable table td:last-child { background:#fff; }
+#allProductsTable table th:last-child { background:var(--g1); }
+#allProductsTable table tbody tr:hover td:last-child { background:#FAFBFC; }
+#allProductsTable tr.sel-row td, #allProductsTable tr.sel-row td:last-child { background:#FBF6E9; }
+.adm-chk { width:17px; height:17px; accent-color:#111318; cursor:pointer; vertical-align:middle; }
+.bulk-bar { display:none; align-items:center; gap:10px; background:#fff; border:1px solid var(--g2); border-radius:10px; padding:10px 16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); font-size:13px; }
+.bulk-bar.on { display:flex; }
+.bulk-bar b { font-size:14px; }
+.btn-bulk-del { padding:8px 18px; background:#FF4444; color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; }
+.btn-bulk-del:disabled { opacity:0.5; cursor:not-allowed; }
+.btn-bulk-clear { padding:8px 14px; background:var(--g1); color:var(--g4); border:1px solid var(--g2); border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
 #allProductsTable .pthumb, #allProductsTable .pthumb-ph, #productApprovalTable .pthumb, #productApprovalTable .pthumb-ph, #featuredPicksTable .pthumb, #featuredPicksTable .pthumb-ph { border:1px solid #EEF0F2; }
 .btn-approve{padding:5px 12px;background:#E8FBF0;color:#27AE60;border:1px solid #A8DDB8;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-approve:hover{background:#27AE60;color:var(--white);}
@@ -496,6 +517,12 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
       <div class="product-search-bar">
         <input type="text" id="adminProductSearchInput" placeholder="모델명, 바코드, 브랜드, 색상으로 검색" onkeyup="applyAdminProductSearch()">
       </div>
+      <div class="bulk-bar" id="adminBulkBar">
+        <span><b id="adminSelCount">0</b>개 선택됨</span>
+        <button class="btn-bulk-del" id="adminBulkDelBtn" onclick="adminDeleteSelected()">선택 삭제</button>
+        <button class="btn-bulk-clear" onclick="adminClearSelection()">선택 해제</button>
+        <span id="adminBulkProgress" style="color:var(--g4);"></span>
+      </div>
       <div class="table-wrap" id="allProductsTable">
         <div class="loading"><div class="spinner"></div>불러오는 중...</div>
       </div>
@@ -576,6 +603,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
             </select>
           </label>
           <label style="cursor:pointer;"><input type="checkbox" id="bulkSkipDup" checked> 이미 등록된 모델(같은 브랜드+모델명)은 건너뛰기</label>
+          <label style="cursor:pointer;"><input type="checkbox" id="bulkOverwrite"> 이미 등록된 모델은 지우고 다시 등록 (덮어쓰기)</label>
         </div>
       </div>
       <div id="bulkSummary" style="font-size:13px;margin-bottom:10px;">엑셀과 사진 폴더를 선택하면 여기에 요약이 표시돼요.</div>
@@ -998,7 +1026,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, orderBy, where, serverTimestamp, runTransaction, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
 
 const firebaseConfig = {
@@ -1021,6 +1049,7 @@ window._db = db;
 window._storage = storage;
 window._adminWithdrawMember = httpsCallable(getFunctions(app, 'asia-northeast3'), 'adminWithdrawMember');
 window._ref = ref;
+window._deleteObject = deleteObject;
 window._uploadBytes = uploadBytes;
 window._getDownloadURL = getDownloadURL;
 window._signIn = signInWithEmailAndPassword;
@@ -1764,9 +1793,11 @@ function renderProductRow(p, isApprovalView) {
     const min = Math.min(...prices), max = Math.max(...prices);
     return min === max ? `₩${min.toLocaleString()}` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()}`;
   })();
+  const sel = !isApprovalView && window._adminSel && window._adminSel.has(p.id);
   return `
-    <tr>
-      <td>${thumb}</td>
+    <tr${sel ? ' class="sel-row"' : ''}>
+      ${isApprovalView ? '' : `<td class="chk"><input type="checkbox" class="adm-chk adminRowChk" ${sel ? 'checked' : ''} onchange="adminToggleOne('${p.id}',this.checked)"></td>`}
+      <td${isApprovalView ? '' : ' class="pimg"'}>${thumb}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
       <td style="font-size:12px;">${barcodeDisplay}</td>
       <td style="font-size:12px;">${p.size||'-'}</td>
@@ -1836,13 +1867,16 @@ function applyAdminProductSearch() {
   const tableEl = document.getElementById('allProductsTable');
   const products = window._allAdminProducts || [];
   const keyword = (document.getElementById('adminProductSearchInput')?.value || '').trim().toLowerCase();
+  if (window._adminLastKw !== undefined && window._adminLastKw !== keyword) window._adminSel.clear(); // 검색어가 바뀌면 선택 초기화 (안 보이는 상품이 같이 삭제되는 실수 방지)
+  window._adminLastKw = keyword;
 
   const filtered = keyword
     ? products.filter(p =>
         (p.modelName||'').toLowerCase().includes(keyword) ||
         (p.barcode||'').toLowerCase().includes(keyword) ||
         (p.brandName||'').toLowerCase().includes(keyword) ||
-        (p.color||'').toLowerCase().includes(keyword)
+        (p.color||'').toLowerCase().includes(keyword) ||
+        (Array.isArray(p.colors) && p.colors.some(c => (c.barcode||'').toLowerCase().includes(keyword) || (c.colorName||'').toLowerCase().includes(keyword)))
       )
     : products;
 
@@ -1854,14 +1888,90 @@ function applyAdminProductSearch() {
     tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g3);font-size:14px;">검색 결과가 없습니다.</div>';
     return;
   }
+  window._adminFilteredIds = filtered.map(p => p.id);
+  const allOn = filtered.length > 0 && filtered.every(p => window._adminSel.has(p.id));
   tableEl.innerHTML = `
     <table>
       <thead><tr>
-        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
+        <th class="chk"><input type="checkbox" class="adm-chk" id="adminSelAll" ${allOn ? 'checked' : ''} onchange="adminToggleAll(this.checked)" title="화면에 보이는 상품 전체 선택"></th>
+        <th class="pimg">이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
         <th>도매가</th><th>재고</th><th>상태</th><th>관리</th>
       </tr></thead>
       <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
     </table>`;
+  adminUpdateBulkBar();
+}
+
+// ---------- 체크박스 선택 삭제 ----------
+window._adminSel = window._adminSel || new Set();
+function adminUpdateBulkBar() {
+  const n = window._adminSel.size;
+  const bar = document.getElementById('adminBulkBar');
+  if (bar) bar.classList.toggle('on', n > 0);
+  const c = document.getElementById('adminSelCount');
+  if (c) c.textContent = n;
+  const all = document.getElementById('adminSelAll');
+  if (all) { const ids = window._adminFilteredIds || []; all.checked = ids.length > 0 && ids.every(id => window._adminSel.has(id)); }
+}
+function adminToggleOne(id, on) {
+  if (on) window._adminSel.add(id); else window._adminSel.delete(id);
+  const cb = document.querySelector(`.adminRowChk[onchange*="'${id}'"]`);
+  if (cb && cb.closest('tr')) cb.closest('tr').classList.toggle('sel-row', on);
+  adminUpdateBulkBar();
+}
+function adminToggleAll(on) {
+  (window._adminFilteredIds || []).forEach(id => { if (on) window._adminSel.add(id); else window._adminSel.delete(id); });
+  applyAdminProductSearch();
+}
+function adminClearSelection() { window._adminSel.clear(); applyAdminProductSearch(); }
+
+// 상품 + 사진 파일 + 관련 타임세일 항목까지 깔끔하게 삭제
+function collectProductPhotoUrls(p) {
+  const urls = new Set();
+  const walk = v => {
+    if (typeof v === 'string') { if (/^https:\/\/firebasestorage\.googleapis\.com\/.*\/o\/products%2F/.test(v)) urls.add(v); }
+    else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') Object.values(v).forEach(walk);
+  };
+  walk(p);
+  return [...urls];
+}
+async function deleteProductFully(pid) {
+  const data = (window._allAdminProducts || []).find(x => x.id === pid);
+  let urls = data ? collectProductPhotoUrls(data) : [];
+  if (!data) {
+    try { const s = await window._getDoc(window._doc(window._db, 'products', pid)); if (s.exists()) urls = collectProductPhotoUrls(s.data()); } catch (e) {}
+  }
+  await window._deleteDoc(window._doc(window._db, 'products', pid)); // 실패하면 여기서 중단 (사진은 건드리지 않음)
+  let photoFail = 0;
+  await Promise.all(urls.map(async u => {
+    try { await window._deleteObject(window._ref(window._storage, u)); } catch (e) { photoFail++; console.warn('사진 삭제 실패', e.message); }
+  }));
+  try {
+    const ts = await window._getDocs(window._query(window._collection(window._db, 'timesaleItems'), window._where('productId', '==', pid)));
+    for (const d of ts.docs) await window._deleteDoc(window._doc(window._db, 'timesaleItems', d.id));
+  } catch (e) { console.warn('타임세일 정리 실패', e.message); }
+  return { photos: urls.length, photoFail };
+}
+async function adminDeleteSelected() {
+  const ids = [...window._adminSel];
+  if (!ids.length) return;
+  const all = window._allAdminProducts || [];
+  const names = ids.map(id => (all.find(p => p.id === id) || {}).modelName || id);
+  const preview = names.slice(0, 8).join(', ') + (names.length > 8 ? ` 외 ${names.length - 8}개` : '');
+  if (!confirm(`선택한 ${ids.length}개 상품을 삭제할까요?\n\n${preview}\n\n상품 정보와 사진 파일이 함께 지워지고 복구할 수 없어요.`)) return;
+  const btn = document.getElementById('adminBulkDelBtn'), prog = document.getElementById('adminBulkProgress');
+  btn.disabled = true;
+  let ok = 0, fail = 0, photoFail = 0;
+  for (let i = 0; i < ids.length; i++) {
+    prog.textContent = `삭제 중 ${i + 1}/${ids.length}`;
+    try { const r = await deleteProductFully(ids[i]); ok++; photoFail += r.photoFail; window._adminSel.delete(ids[i]); }
+    catch (e) { fail++; console.error(e); if (/permission|insufficient/i.test(e.message)) { showToast('권한 오류로 중단했어요.', 'error'); break; } }
+  }
+  btn.disabled = false; prog.textContent = '';
+  showToast(`삭제 완료 ${ok}개${fail ? ` · 실패 ${fail}개` : ''}${photoFail ? ` · 사진 ${photoFail}장은 지우지 못했어요` : ''}`, fail ? 'error' : 'success');
+  loadDashboard();
+  loadAllProducts();
 }
 
 // 신상품·베스트 선정
@@ -3103,9 +3213,10 @@ async function rejectProduct(pid, fromModal=false) {
 
 // 상품 삭제 (관리자)
 async function deleteProductAdmin(pid, fromModal=false) {
-  if(!confirm('이 상품을 완전히 삭제하시겠습니까?\n삭제된 상품은 복구할 수 없습니다.')) return;
+  if(!confirm('이 상품을 완전히 삭제하시겠습니까?\n사진 파일도 함께 지워지고 복구할 수 없습니다.')) return;
   try {
-    await window._deleteDoc(window._doc(window._db, 'products', pid));
+    await deleteProductFully(pid);
+    window._adminSel.delete(pid);
     showToast('상품이 삭제되었습니다.', 'success');
     if(fromModal) closeProductModal();
     loadDashboard();
@@ -3743,6 +3854,7 @@ async function bulkOnExcel(input) {
         origin: bNorm(pick(r, '원산지')) === '한국' ? 'korea' : 'china',
         photochromic: bNorm(pick(r, '변색렌즈')) === '예',
         discount: Number(String(pick(r, '할인율')).replace(/[^0-9.]/g, '')) || 0,
+        hero: bNorm(pick(r, '대표사진')),
         colors: [], errors: [], warns: []
       };
       models.push(m);
@@ -3823,6 +3935,13 @@ function bulkValidate() {
       if (BULK.fileCount && c.found.length === 0) { /* 위에서 에러 처리 */ }
     }
     if (!BULK.fileCount) m.errors.push('사진 폴더 선택 필요');
+    m.heroFile = null;
+    if (m.hero) {
+      m.photoTotal++;
+      m.heroFile = BULK.files.get(bKey(m.brand, m.model, '대표', m.hero)) || null;
+      if (m.heroFile) m.photoFound++;
+      else if (BULK.fileCount) m.errors.push('대표사진 못 찾음');
+    }
     if (m.colors.length > 10) m.errors.push('색상 10개 초과');
     if (m.errors.length) m.selected = false;
   }
@@ -3915,7 +4034,8 @@ async function bulkRunSelected() {
   const targets = BULK.models.map((m, i) => ({ m, i })).filter(x => x.m.selected && !x.m.errors.length);
   if (!targets.length) { showToast('등록할 모델을 선택해 주세요.', 'error'); return; }
   const status = document.getElementById('bulkStatusSel').value;
-  const skipDup = document.getElementById('bulkSkipDup').checked;
+  const overwrite = document.getElementById('bulkOverwrite').checked;
+  const skipDup = document.getElementById('bulkSkipDup').checked || overwrite;
   if (!confirm(`${targets.length}개 모델을 등록할까요?\n(${status === 'approved' ? '바로 노출(승인 완료)' : '승인 대기'} 상태로 저장돼요)`)) return;
   BULK.running = true; BULK.stop = false;
   document.getElementById('bulkRunBtn').disabled = true;
@@ -3935,10 +4055,17 @@ async function bulkRunSelected() {
       const ownerUid = brand.ownerUid || window._auth.currentUser.uid;
       if (skipDup) {
         const q = await window._getDocs(window._query(window._collection(window._db, 'products'), window._where('modelName', '==', m.model)));
-        if (q.docs.some(d => d.data().brandId === brand.id)) {
+        const dups = q.docs.filter(d => d.data().brandId === brand.id);
+        if (dups.length && overwrite) {
+          setState('기존 상품 삭제 중...');
+          for (const d of dups) await window._deleteDoc(window._doc(window._db, 'products', d.id));
+          bulkLog(`${m.model}: 기존 상품 ${dups.length}개 삭제 후 다시 등록`);
+        } else if (dups.length) {
           setState('<span style="color:#E67E22;">이미 등록됨 · 건너뜀</span>'); skipped++; bulkLog(`${m.model}: 이미 등록돼 있어서 건너뜀`); continue;
         }
       }
+      let heroUrl = '';
+      if (m.heroFile) { setState('대표 사진 업로드 중...'); heroUrl = await bulkUploadOne(m.heroFile, ownerUid, 'h', 'hero'); }
       const savedColors = [];
       for (let ci = 0; ci < m.colors.length; ci++) {
         const c = m.colors[ci];
@@ -3952,7 +4079,7 @@ async function bulkRunSelected() {
         savedColors.push({
           colorName: c.name, colorCode: c.code, barcode: c.barcode, stock: c.stock,
           price, salePrice: m.discount > 0 ? Math.round(price * (1 - m.discount / 100)) : 0,
-          mainImageUrl: urls[0] || '', detailImageUrls: urls.slice(1).filter(Boolean)
+          mainImageUrl: urls[0] || '', detailImageUrls: heroUrl ? [heroUrl, ...urls.slice(1).filter(Boolean)] : urls.slice(1).filter(Boolean)
         });
       }
       const salePrice = m.discount > 0 ? Math.round(m.price * (1 - m.discount / 100)) : 0;
@@ -3963,7 +4090,8 @@ async function bulkRunSelected() {
         origin: m.origin, photochromic: m.photochromic,
         price: m.price, discountRate: m.discount, salePrice,
         colors: savedColors,
-        mainImageUrl: savedColors[0]?.mainImageUrl || '',
+        mainImageUrl: heroUrl || savedColors[0]?.mainImageUrl || '',
+        heroImageUrl: heroUrl,
         colorNames: savedColors.map(c => c.colorName),
         status, createdAt: window._serverTimestamp(),
         approvedAt: status === 'approved' ? window._serverTimestamp() : null,
