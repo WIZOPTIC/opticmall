@@ -12,13 +12,13 @@
 
   var css = document.createElement('style');
   css.textContent =
-    '#navBrandPanel{position:absolute;left:0;right:0;top:100%;z-index:300;background:#F4F3F0;border-top:1px solid #E4DFD6;box-shadow:0 12px 24px rgba(42,36,32,.10);display:none;}' +
+    '#navBrandPanel{position:absolute;left:0;right:0;top:100%;z-index:300;background:#F4F3F0;border-top:1px solid #E4DFD6;box-shadow:0 6px 14px rgba(42,36,32,.07);display:none;}' +
     '#navBrandPanel.on{display:block;}' +
-    '#navBrandPanel .nbp-in{max-width:1440px;margin:0 auto;padding:24px 24px 28px;box-sizing:border-box;}' +
-    '#navBrandPanel .nbp-row{display:inline-flex;align-items:baseline;gap:38px;white-space:nowrap;}' +
-    '#navBrandPanel a{font-family:inherit;font-size:17px;font-weight:500;color:#4A423B;text-decoration:none;text-transform:uppercase;letter-spacing:.04em;transition:color .15s;}' +
+    '#navBrandPanel .nbp-in{max-width:1440px;margin:0 auto;padding:0 24px;height:46px;display:flex;align-items:center;box-sizing:border-box;}' +
+    '#navBrandPanel .nbp-row{display:inline-flex;align-items:baseline;gap:30px;white-space:nowrap;}' +
+    '#navBrandPanel a{font-family:inherit;font-size:13.5px;font-weight:500;color:#4A423B;text-decoration:none;text-transform:uppercase;letter-spacing:.05em;transition:color .15s;}' +
     '#navBrandPanel a:hover{color:#FF7A1A;}' +
-    '#navBrandPanel a em{font-style:normal;font-size:12px;font-weight:500;color:#9A8F82;margin-left:6px;letter-spacing:0;}' +
+    '#navBrandPanel a em{font-style:normal;font-size:11px;font-weight:500;color:#9A8F82;margin-left:5px;letter-spacing:0;}' +
     '.gnb-item.nbp-on{color:#FF7A1A!important;}';
   document.head.appendChild(css);
 
@@ -86,10 +86,8 @@
       if (!item.matches(':hover') && !(panel && panel.matches(':hover'))) return;
       var list = d[cat] || [];
       if (!list.length) { hide(); return; }
-      var total = list.reduce(function (s, b) { return s + b.n; }, 0);
       var base = 'list.html?cat=' + encodeURIComponent(cat);
       var html = '<div class="nbp-in"><div class="nbp-row" id="nbpRow">' +
-        '<a href="' + base + '">전체<em>' + total + '</em></a>' +
         list.map(function (b) { return '<a href="' + base + '&bt=' + encodeURIComponent(b.name) + '">' + esc(b.name) + '<em>' + b.n + '</em></a>'; }).join('') +
         '</div></div>';
       panel.innerHTML = html;
