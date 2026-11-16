@@ -13,11 +13,11 @@
 
   var css = document.createElement('style');
   css.textContent =
-    '#navBrandPanel{position:absolute;left:0;right:0;top:100%;z-index:300;background:var(--hdr-bg,#2A2420);border-top:1px solid rgba(255,255,255,.10);box-shadow:0 10px 18px rgba(0,0,0,.14);display:none;}' +
+    '#navBrandPanel{position:absolute;left:0;right:0;top:100%;z-index:300;background:none;pointer-events:none;display:none;}' +
     '#navBrandPanel.on{display:block;}' +
-    '#navBrandPanel .nbp-in{max-width:1440px;margin:0 auto;padding:0 24px;height:46px;display:flex;align-items:center;box-sizing:border-box;}' +
-    '#navBrandPanel .nbp-row{display:inline-flex;align-items:baseline;gap:30px;white-space:nowrap;}' +
-    '#navBrandPanel a{font-family:inherit;font-size:13.5px;font-weight:500;color:rgba(244,243,240,.88);text-decoration:none;text-transform:uppercase;letter-spacing:.05em;transition:color .15s;}' +
+    '#navBrandPanel .nbp-in{max-width:1440px;margin:0 auto;padding:14px 24px 0;height:46px;display:flex;align-items:flex-start;box-sizing:border-box;}' +
+    '#navBrandPanel .nbp-row{pointer-events:auto;display:inline-flex;align-items:baseline;gap:30px;white-space:nowrap;}' +
+    '#navBrandPanel a{font-family:inherit;font-size:13.5px;font-weight:500;color:#2A2420;text-shadow:0 0 6px #F4F3F0,0 0 12px #F4F3F0;text-decoration:none;text-transform:uppercase;letter-spacing:.05em;transition:color .15s;}' +
     '#navBrandPanel a:hover{color:#FF7A1A;}' +
     '.gnb-item.nbp-on{color:#FF7A1A!important;}';
   document.head.appendChild(css);
@@ -68,8 +68,8 @@
     if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
     panel = document.createElement('div');
     panel.id = 'navBrandPanel';
-    panel.addEventListener('mouseenter', function () { clearTimeout(hideT); });
-    panel.addEventListener('mouseleave', scheduleHide);
+    panel.addEventListener('mouseover', function () { clearTimeout(hideT); });
+    panel.addEventListener('mouseout', scheduleHide);
     host.appendChild(panel);
     return panel;
   }
@@ -79,7 +79,7 @@
     if (curItem) curItem.classList.remove('nbp-on');
     curItem = null;
   }
-  function scheduleHide() { clearTimeout(hideT); hideT = setTimeout(hide, 160); }
+  function scheduleHide() { clearTimeout(hideT); hideT = setTimeout(hide, 320); }
 
   function show(cat, item) {
     clearTimeout(hideT);
