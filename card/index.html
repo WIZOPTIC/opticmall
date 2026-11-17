@@ -6,7 +6,7 @@
 <title>OPTICMALL | 손진영</title>
 <meta property="og:title" content="OPTICMALL | 손진영 대표">
 <meta property="og:description" content="위즈옵틱 · 안경사 전용 B2B 도매 플랫폼 OPTICMALL 디지털 명함입니다.">
-<meta property="og:image" content="https://opticmall.co.kr/card/og-image.jpg">
+<meta property="og:image" content="https://opticmall.co.kr/card/og-logo.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://opticmall.co.kr/card/">
@@ -145,5 +145,27 @@
   <div class="ft">WIZOPTIC · OPTICMALL<br>&copy; 2026 WizOptic. All rights reserved.</div>
 
 </div>
+<script>
+/* hero-freeze: 스마트폰에서 스크롤할 때 주소창이 접히며 화면 높이가 바뀌어도
+   첫 화면(hero) 높이를 처음 한 번만 정해서 이미지와 글씨가 늘어나거나 움직이지 않게 고정 */
+(function(){
+  var hero=document.querySelector('.hero');
+  if(!hero) return;
+  var lastW=0;
+  function apply(){
+    var w=window.innerWidth;
+    if(w===lastW) return;
+    lastW=w;
+    var need=parseFloat(getComputedStyle(hero).getPropertyValue('--need'))||392;
+    var cw=Math.min(w,480);
+    var h=Math.max(window.innerHeight, cw*0.966+need);
+    var maxH=cw*1.947+116;
+    hero.style.height=Math.min(h,maxH)+'px';
+  }
+  apply();
+  window.addEventListener('resize',apply);
+  window.addEventListener('orientationchange',function(){lastW=0;setTimeout(apply,250);});
+})();
+</script>
 </body>
 </html>
