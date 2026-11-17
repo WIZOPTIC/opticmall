@@ -92,6 +92,13 @@
   .sg .hero-brands i{margin-right:-.32em}
   .sg .hero-brands i{align-self:center}
   .sg .hero-brands{align-items:center}
+
+  /* 로고 자리 미리 확보 (이미지 로딩 때 밀림 방지) */
+  .hero-brands .l-suo{aspect-ratio:520/94}.hero-brands .l-ess{aspect-ratio:640/140}.hero-brands .l-vk{aspect-ratio:253/46}.hero-brands .l-rp{aspect-ratio:560/100}.hero-brands .l-c7{aspect-ratio:520/43}
+  /* 큰 제목은 글꼴이 준비되면 부드럽게 표시 */
+  .hd{opacity:0;animation:hdin .3s ease .9s forwards}
+  .hd.on{opacity:1;animation:hdin .25s ease forwards}
+  @keyframes hdin{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
@@ -132,5 +139,9 @@
   <div class="ft">WIZOPTIC · OPTICMALL<br>&copy; 2026 WizOptic. All rights reserved.</div>
 
 </div>
+<script>
+(function(){var h=document.querySelector('.hd');if(!h)return;function go(){h.classList.add('on')}
+if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('300 34px Pretendard','안경사님 곁에서 25년을 함께한 도매 파트너'),document.fonts.load('700 34px Pretendard','25년')]).then(go,go)}else{go()}})();
+</script>
 </body>
 </html>
