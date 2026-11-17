@@ -105,7 +105,13 @@
   .sg .hero-brands i{margin-right:-.32em}
   .sg .hero-brands i{align-self:center}
   .sg .hero-brands{align-items:center}
+
+  /* fgate: 웹폰트(Pretendard)가 도착하기 전 기본 글꼴로 먼저 그려졌다가 바뀌면서 글씨가 움찔하는 것을 막기 위해,
+     글꼴이 준비될 때까지 글씨 영역만 잠깐 숨겼다가 부드럽게 보여줌 (최대 1.5초 후엔 무조건 표시) */
+  html.fgate .hero-text, html.fgate .btns, html.fgate .list, html.fgate .sec, html.fgate .q, html.fgate .ft{opacity:0}
+  .hero-text, .btns, .list, .sec, .q, .ft{transition:opacity .22s ease}
 </style>
+<script>document.documentElement.classList.add('fgate');</script>
 </head>
 <body>
 <div class="page">
@@ -145,6 +151,20 @@
   <div class="ft">WIZOPTIC · OPTICMALL<br>&copy; 2026 WizOptic. All rights reserved.</div>
 
 </div>
+<script>
+(function(){
+  var done=false, root=document.documentElement;
+  function show(){ if(done) return; done=true; root.classList.remove('fgate'); }
+  try{
+    if(document.fonts && document.fonts.load){
+      var w=['300','400','500','600','700'];
+      Promise.all(w.map(function(x){ return document.fonts.load(x+' 16px Pretendard','안경사 OPTICMALL 0123'); }))
+        .then(show, show);
+    } else { show(); }
+  }catch(e){ show(); }
+  setTimeout(show,1500);
+})();
+</script>
 <script>
 /* hero-freeze: 스마트폰에서 스크롤할 때 주소창이 접히며 화면 높이가 바뀌어도
    첫 화면(hero) 높이를 처음 한 번만 정해서 이미지와 글씨가 늘어나거나 움직이지 않게 고정 */
