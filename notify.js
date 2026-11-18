@@ -64,7 +64,9 @@
     var cartBtn = cb && cb.closest('button');
     if (!cartBtn || document.getElementById('ntBell')) return !!document.getElementById('ntBell');
     bell = document.createElement('button');
-    bell.id = 'ntBell'; bell.className = 'icon-btn nt-bell'; bell.type = 'button'; bell.style.display = 'none';
+    bell.id = 'ntBell'; bell.className = 'icon-btn nt-bell'; bell.type = 'button';
+    var cached = false; try { cached = !!localStorage.getItem('om_tbw'); } catch (e) {}
+    bell.style.display = cached ? '' : 'none';
     bell.setAttribute('aria-label', '알림');
     bell.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span class="nt-badge" id="ntBadge">0</span>';
     cartBtn.parentNode.insertBefore(bell, cartBtn);
@@ -139,7 +141,7 @@
   function init() {
     if (!window.firebase || !firebase.apps || !firebase.apps.length || !build()) return;
     firebase.auth().onAuthStateChanged(function (u) {
-      if (u) start(u.uid);
+      if (u) { if (bell) bell.style.display = ''; start(u.uid); }
       else { if (unsub) { unsub(); unsub = null; } items = []; if (bell) bell.style.display = 'none'; if (panel) panel.style.display = 'none'; }
     });
     window.addEventListener('resize', function () { if (panel && panel.style.display === 'block') place(); });
