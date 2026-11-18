@@ -1852,15 +1852,36 @@ function renderProductRow(p, isApprovalView) {
     const min = Math.min(...prices), max = Math.max(...prices);
     return min === max ? `₩${min.toLocaleString()}` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()}`;
   })();
+  // 현재 할인율 / 판매가 (상품 자체 할인 + 진행 중인 이벤트·타임세일 중 큰 할인, 사이트와 같은 계산)
+  const saleInfo = (() => {
+    const dm = window._adminDiscMap || {};
+    const evRate = (dm[p.id] && dm[p.id].rate) || 0;
+    const prodRate = Number(p.discountRate) || 0;
+    const rate = Math.max(evRate, prodRate);
+    const unit = (c) => {
+      const hasCP = c && c.price != null && c.price !== '';
+      const base = hasCP ? Number(c.price) : Number(p.price || 0);
+      if(rate <= 0) return base;
+      if(!hasCP && prodRate > 0 && prodRate === rate && Number(p.salePrice) > 0) return Number(p.salePrice);
+      return Math.round(base * (1 - rate / 100));
+    };
+    const list = hasColors ? p.colors.map(unit) : [unit(null)];
+    const mn = Math.min(...list), mx = Math.max(...list);
+    return { rate, ts: evRate >= prodRate && evRate > 0 && dm[p.id] && dm[p.id].ts,
+             text: mn === mx ? `₩${mn.toLocaleString()}` : `₩${mn.toLocaleString()} ~ ₩${mx.toLocaleString()}` };
+  })();
   const sel = !isApprovalView && window._adminSel && window._adminSel.has(p.id);
   return `
     <tr${sel ? ' class="sel-row"' : ''}>
       ${isApprovalView ? '' : `<td class="chk"><input type="checkbox" class="adm-chk adminRowChk" ${sel ? 'checked' : ''} onchange="adminToggleOne('${p.id}',this.checked)"></td>`}
       <td${isApprovalView ? '' : ' class="pimg"'}>${thumb}</td>
+      <td>${p.brandName||'-'}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
       <td><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></td>
       <td><strong>${stockDisplay}</strong></td>
       <td>${priceDisplay}</td>
+      <td>${saleInfo.rate > 0 ? `<span style="color:#E74C3C;font-weight:700;">${saleInfo.rate}%</span>${saleInfo.ts ? ' <span style="font-size:11px;color:var(--g3);">타임세일</span>' : ''}` : '-'}</td>
+      <td>${saleInfo.rate > 0 ? `<strong>${saleInfo.text}</strong>` : '-'}</td>
       <td class="act">
         <div class="action-btns">
           <button class="btn-view" onclick="openProductModal('${p.id}')"><i class=ic-file></i> 상세</button>
@@ -1875,7 +1896,6 @@ function renderProductRow(p, isApprovalView) {
       </td>
       <td style="font-size:12px;">${barcodeDisplay}</td>
       <td style="font-size:12px;">${p.size||'-'}</td>
-      <td>${p.brandName||'-'}</td>
       <td style="font-size:12px;">${colorDisplay}</td>
       <td>${p.category||'-'}</td>
       <td>${p.material||'-'}</td>
@@ -1899,7 +1919,7 @@ async function loadProductApproval() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>상태</th><th>재고</th><th>도매가</th><th>처리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
+          <th>이미지</th><th>브랜드</th><th>모델명</th><th>상태</th><th>재고</th><th>도매가</th><th>할인율</th><th>판매가</th><th>처리</th><th>바코드</th><th>사이즈</th><th>색상</th><th>카테고리</th><th>소재</th>
         </tr></thead>
         <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
       </table>`;
@@ -1922,6 +1942,33 @@ function _adminRestoreScroll(saved) {
   saved.forEach(([x, t, l]) => { x.scrollTop = t; x.scrollLeft = l; });
   requestAnimationFrame(() => saved.forEach(([x, t, l]) => { x.scrollTop = t; x.scrollLeft = l; }));
 }
+// 진행 중인 이벤트·타임세일 할인율 (상품ID -> {rate, ts})
+async function adminLoadDiscountMap() {
+  const map = {};
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const ps = await window._getDocs(window._query(window._collection(window._db, 'promotions'), window._where('status', '==', 'approved')));
+    ps.forEach(d => {
+      const x = d.data();
+      if(x.startDate > today || x.endDate < today) return;
+      const r = Number(x.discountRate) || 0;
+      (x.targetProductIds || []).forEach(id => { if(!map[id] || r > map[id].rate) map[id] = { rate: r, ts: false }; });
+    });
+  } catch(e) { console.error('이벤트 할인 조회 실패', e); }
+  try {
+    const set = await window._getDoc(window._doc(window._db, 'settings', 'timesale'));
+    const endRaw = set.exists() ? set.data().endAt : null;
+    const end = endRaw && endRaw.toDate ? endRaw.toDate() : null;
+    if(end && end > new Date()) {
+      const ts = await window._getDocs(window._query(window._collection(window._db, 'timesaleItems'), window._where('status', '==', 'approved')));
+      ts.forEach(d => {
+        const t = d.data(); const r = Number(t.discountRate) || 0;
+        if(t.productId && (!map[t.productId] || r > map[t.productId].rate)) map[t.productId] = { rate: r, ts: true };
+      });
+    }
+  } catch(e) { console.error('타임세일 조회 실패', e); }
+  return map;
+}
 async function loadAllProducts() {
   const tableEl = document.getElementById('allProductsTable');
   const hasTable = !!tableEl.querySelector('table');
@@ -1929,7 +1976,8 @@ async function loadAllProducts() {
   // 이미 목록이 보이는 상태면 '불러오는 중'으로 바꾸지 않음 (화면이 줄어들며 맨 위로 튀는 것 방지)
   if(!hasTable) tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
   try {
-    const products = await fetchAllProducts();
+    const [products, discMap] = await Promise.all([fetchAllProducts(), adminLoadDiscountMap()]);
+    window._adminDiscMap = discMap;
     window._allAdminProducts = products; // 검색/수정 모달에서 재사용
     applyAdminProductSearch();
     if(saved) _adminRestoreScroll(saved);
@@ -1969,7 +2017,7 @@ function applyAdminProductSearch() {
     <table>
       <thead><tr>
         <th class="chk"><input type="checkbox" class="adm-chk" id="adminSelAll" ${allOn ? 'checked' : ''} onchange="adminToggleAll(this.checked)" title="화면에 보이는 상품 전체 선택"></th>
-        <th class="pimg">이미지</th><th>모델명</th><th>상태</th><th>재고</th><th>도매가</th><th>관리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
+        <th class="pimg">이미지</th><th>브랜드</th><th>모델명</th><th>상태</th><th>재고</th><th>도매가</th><th>할인율</th><th>판매가</th><th>관리</th><th>바코드</th><th>사이즈</th><th>색상</th><th>카테고리</th><th>소재</th>
       </tr></thead>
       <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
     </table>`;
