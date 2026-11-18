@@ -591,6 +591,9 @@ html{color-scheme:only light}
         <div id="topbarUser" style="display:none;align-items:center;">
       <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="topbarLogout()">로그아웃</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='board.html'">고객센터</button>
     </div>
+<script>(function(){try{var g=document.getElementById('topbarGuest'),u=document.getElementById('topbarUser'),w=document.getElementById('topbarWelcome');if(!g||!u||!w)return;var K='om_tbw',c=localStorage.getItem(K);if(c){g.style.display='none';u.style.display='flex';w.innerHTML=c;}
+var save=function(){try{if(u.style.display!=='none'&&w.innerHTML.trim())localStorage.setItem(K,w.innerHTML);}catch(e){}};new MutationObserver(save).observe(w,{childList:true,subtree:true,characterData:true});
+var t=setInterval(function(){if(window.firebase&&firebase.apps&&firebase.apps.length&&firebase.auth){clearInterval(t);firebase.auth().onAuthStateChanged(function(x){if(!x){try{localStorage.removeItem(K);}catch(e){}g.style.display='';u.style.display='none';}});}},100);setTimeout(function(){clearInterval(t);},15000);}catch(e){}})();</script>
       </div>
 
       <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
