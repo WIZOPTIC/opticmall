@@ -211,6 +211,8 @@ tr:hover td{background:#FAFBFC;}
 #productsTable table td { vertical-align:middle; white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis; padding:8px 10px; }
 #productsTable table td:first-child { width:52px; max-width:52px; overflow:visible; }
 #productsTable table td:last-child { max-width:none; overflow:visible; white-space:nowrap; }
+#productsTable table td.cell-action { max-width:none; min-width:150px; overflow:visible; }
+#productsTable .action-btns { flex-wrap:nowrap; }
 #productsTable table tr { height:64px; }
 .btn-view{padding:5px 12px;background:var(--g1);color:var(--g4);border:1px solid var(--g2);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-view:hover{background:var(--sky-lt);color:var(--sky);border-color:var(--sky);}
@@ -1480,8 +1482,8 @@ function renderProductTable(products, withActions=true) {
   return `
     <table>
       <thead><tr>
-        <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>색상</th><th>카테고리</th><th>소재</th>
-        <th>도매가</th><th>재고</th><th>상태</th>${withActions ? '<th>관리</th>' : ''}
+        <th>이미지</th><th>브랜드</th><th>모델명</th><th>상태</th><th>재고</th><th>도매가</th><th>할인율</th><th>판매가</th>${withActions ? '<th>관리</th>' : ''}
+        <th>바코드</th><th>사이즈</th><th>색상</th><th>카테고리</th><th>소재</th>
       </tr></thead>
       <tbody>
         ${products.map(p => renderProductRowHtml(p, withActions)).join('')}
@@ -1500,18 +1502,34 @@ function renderProductRowHtml(p, withActions) {
     const min = Math.min(...prices), max = Math.max(...prices);
     return min === max ? `₩${min.toLocaleString()}` : `₩${min.toLocaleString()} ~ ₩${max.toLocaleString()}`;
   })();
+  // 현재 할인율 / 판매가 (상품 할인 + 진행 중인 이벤트·타임세일 중 큰 할인, 사이트와 같은 계산)
+  const saleInfo = (() => {
+    const dm = window._brandDiscMap || {};
+    const evRate = (dm[p.id] && dm[p.id].rate) || 0;
+    const prodRate = Number(p.discountRate) || 0;
+    const rate = Math.max(evRate, prodRate);
+    const unit = (c) => {
+      const hasCP = c && c.price != null && c.price !== '';
+      const base = hasCP ? Number(c.price) : Number(p.price || 0);
+      if(rate <= 0) return base;
+      if(!hasCP && prodRate > 0 && prodRate === rate && Number(p.salePrice) > 0) return Number(p.salePrice);
+      return Math.round(base * (1 - rate / 100));
+    };
+    const list = hasColors ? p.colors.map(unit) : [unit(null)];
+    const mn = Math.min(...list), mx = Math.max(...list);
+    return { rate, ts: evRate >= prodRate && evRate > 0 && dm[p.id] && dm[p.id].ts,
+             text: mn === mx ? `₩${mn.toLocaleString()}` : `₩${mn.toLocaleString()} ~ ₩${mx.toLocaleString()}` };
+  })();
   return `
     <tr data-pid="${p.id}">
       <td>${p.mainImageUrl ? `<img src="${p.mainImageUrl}" class="prod-thumb pthumb">` : `<div class="prod-thumb no-img"><i class=ic-glasses></i></div>`}</td>
+      <td>${p.brandName||'-'}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
-      <td style="font-size:12px;">${barcodeDisplay}</td>
-      <td style="font-size:12px;">${p.size||'-'}</td>
-      <td style="font-size:12px;">${colorDisplay}</td>
-      <td>${p.category||'-'}</td>
-      <td>${p.material||'-'}</td>
-      <td class="cell-price">${priceDisplay}</td>
-      <td class="cell-stock">${stockDisplay}</td>
       <td><span class="badge ${statusClassMap[p.status]||'pending'}">${statusLabelMap[p.status]||'대기'}</span></td>
+      <td class="cell-stock"><strong>${stockDisplay}</strong></td>
+      <td class="cell-price">${priceDisplay}</td>
+      <td>${saleInfo.rate > 0 ? `<span style="color:#E74C3C;font-weight:700;">${saleInfo.rate}%</span>${saleInfo.ts ? ' <span style="font-size:11px;color:#9BA5B0;">타임세일</span>' : ''}` : '-'}</td>
+      <td>${saleInfo.rate > 0 ? `<strong>${saleInfo.text}</strong>` : '-'}</td>
       ${withActions ? `
       <td class="cell-action">
         <div class="action-btns">
@@ -1519,6 +1537,11 @@ function renderProductRowHtml(p, withActions) {
           <button class="btn-del-tbl" onclick="deleteProduct('${p.id}')">삭제</button>
         </div>
       </td>` : ''}
+      <td style="font-size:12px;">${barcodeDisplay}</td>
+      <td style="font-size:12px;">${p.size||'-'}</td>
+      <td style="font-size:12px;">${colorDisplay}</td>
+      <td>${p.category||'-'}</td>
+      <td>${p.material||'-'}</td>
     </tr>`;
 }
 
@@ -1939,10 +1962,53 @@ async function saveProductEdit() {
   }
 }
 
+// 진행 중인 이벤트·타임세일 할인율 (상품ID -> {rate, ts})
+async function brandLoadDiscountMap() {
+  const map = {};
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const ps = await window._getDocs(window._query(window._collection(window._db, 'promotions'), window._where('status', '==', 'approved')));
+    ps.forEach(d => {
+      const x = d.data();
+      if(x.startDate > today || x.endDate < today) return;
+      const r = Number(x.discountRate) || 0;
+      (x.targetProductIds || []).forEach(id => { if(!map[id] || r > map[id].rate) map[id] = { rate: r, ts: false }; });
+    });
+  } catch(e) { console.error('이벤트 할인 조회 실패', e); }
+  try {
+    const set = await window._getDoc(window._doc(window._db, 'settings', 'timesale'));
+    const endRaw = set.exists() ? set.data().endAt : null;
+    const end = endRaw && endRaw.toDate ? endRaw.toDate() : null;
+    if(end && end > new Date()) {
+      const ts = await window._getDocs(window._query(window._collection(window._db, 'timesaleItems'), window._where('status', '==', 'approved')));
+      ts.forEach(d => {
+        const t = d.data(); const r = Number(t.discountRate) || 0;
+        if(t.productId && (!map[t.productId] || r > map[t.productId].rate)) map[t.productId] = { rate: r, ts: true };
+      });
+    }
+  } catch(e) { console.error('타임세일 조회 실패', e); }
+  return map;
+}
+// 스크롤 위치 저장/복원 (수정·삭제 후 목록을 다시 불러와도 보던 자리에 머물게)
+function _brandScrollers(el) {
+  const list = [document.scrollingElement || document.documentElement];
+  for(let p = el && el.parentElement; p; p = p.parentElement) {
+    const oy = getComputedStyle(p).overflowY;
+    if((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight) list.push(p);
+  }
+  return list.map(x => [x, x.scrollTop, x.scrollLeft]);
+}
+function _brandRestoreScroll(saved) {
+  saved.forEach(([x, t, l]) => { x.scrollTop = t; x.scrollLeft = l; });
+  requestAnimationFrame(() => saved.forEach(([x, t, l]) => { x.scrollTop = t; x.scrollLeft = l; }));
+}
 async function loadProducts() {
   const tableEl = document.getElementById('productsTable');
-  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  const hasTable = !!tableEl.querySelector('table');
+  const saved = hasTable ? _brandScrollers(tableEl) : null;
+  if(!hasTable) tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
   try {
+    window._brandDiscMap = await brandLoadDiscountMap();
     const uid = window._getCurrentBrandUid();
     const snap = await window._getDocs(window._query(
       window._collection(window._db, 'products'),
@@ -1959,6 +2025,7 @@ async function loadProducts() {
 
     window._allMyProducts = products; // 검색/수정 모달에서 재사용
     applyMyProductSearch();
+    if(saved) _brandRestoreScroll(saved);
   } catch(e) {
     tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
   }
