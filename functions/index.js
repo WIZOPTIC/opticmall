@@ -14,6 +14,9 @@
  *   firebase functions:secrets:set GMAIL_PASS   (Gmail "앱 비밀번호" 16자리, 계정 비밀번호 아님!)
  *   firebase functions:secrets:set TOSS_SECRET_KEY   (토스페이먼츠 시크릿 키, 결제 승인용)
  *
+ * 문자(SMS) 발송: Firestore privateConfig/sms 문서에 apiKey, apiSecret, sender 입력 (솔라피)
+ *   문서가 없으면 인증번호는 이메일로 보내진다.
+ *
  * 배포:
  *   cd functions && npm install
  *   firebase deploy --only functions
@@ -80,6 +83,115 @@ function getTransporter() {
   return cachedTransporter;
 }
 
+/* ============================================================================
+ * 아이디 로그인 + 문자(SMS) 인증
+ * ----------------------------------------------------------------------------
+ * - 아이디로 가입한 회원은 로그인 계정 이메일을 "아이디@id.opticmall.co.kr" 로 만들고,
+ *   실제 이메일은 users/{uid}.email 에 따로 저장한다.
+ * - 문자 발송은 솔라피(SOLAPI)를 사용한다. 설정값은 Firestore 의
+ *   privateConfig/sms 문서에 넣는다 (화면에서는 읽을 수 없는 위치):
+ *     apiKey : 솔라피 API Key
+ *     apiSecret : 솔라피 API Secret
+ *     sender : 등록된 발신번호 (예: 0325639984)
+ *   이 문서가 없거나 발송에 실패하면 등록된 이메일로 대신 보낸다.
+ * ========================================================================== */
+const ID_DOMAIN = "id.opticmall.co.kr";
+
+function loginIdToAuthEmail(loginId) {
+  return String(loginId || "").trim().toLowerCase() + "@" + ID_DOMAIN;
+}
+
+let cachedSmsConfig = null;
+async function getSmsConfig() {
+  if (cachedSmsConfig && Date.now() - cachedSmsConfig.at < 5 * 60 * 1000) return cachedSmsConfig.v;
+  let v = null;
+  try {
+    const d = await db.collection("privateConfig").doc("sms").get();
+    if (d.exists) {
+      const c = d.data();
+      if (c.apiKey && c.apiSecret && c.sender) v = { apiKey: String(c.apiKey), apiSecret: String(c.apiSecret), sender: normalizePhone(c.sender) };
+    }
+  } catch (e) {
+    console.error("SMS 설정 조회 실패", e);
+  }
+  cachedSmsConfig = { at: Date.now(), v };
+  return v;
+}
+
+/** 솔라피로 문자 1건 발송. 성공하면 true */
+async function sendSms(to, text) {
+  const cfg = await getSmsConfig();
+  const phone = normalizePhone(to);
+  if (!cfg || phone.length < 10) return false;
+  const date = new Date().toISOString();
+  const salt = crypto.randomBytes(16).toString("hex");
+  const signature = crypto.createHmac("sha256", cfg.apiSecret).update(date + salt).digest("hex");
+  try {
+    const res = await fetch("https://api.solapi.com/messages/v4/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `HMAC-SHA256 apiKey=${cfg.apiKey}, date=${date}, salt=${salt}, signature=${signature}`,
+      },
+      body: JSON.stringify({ message: { to: phone, from: cfg.sender, text } }),
+    });
+    if (!res.ok) {
+      console.error("SMS 발송 실패", res.status, await res.text());
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("SMS 발송 오류", e);
+    return false;
+  }
+}
+
+/** 인증번호 전달: 문자 우선, 안 되면 이메일. 반환: 'sms' | 'email' */
+async function deliverCode(user, code, title) {
+  const ok = await sendSms(user.phone, `[OPTICMALL] ${title} 인증번호는 [${code}] 입니다. 5분 안에 입력해주세요.`);
+  if (ok) return "sms";
+  if (!user.email) throw new HttpsError("failed-precondition", "인증번호를 보낼 연락처가 없습니다. 고객센터로 문의해주세요.");
+  await getTransporter().sendMail({
+    from: `"OPTICMALL" <${GMAIL_USER.value()}>`,
+    to: user.email,
+    subject: `[OPTICMALL] ${title} 인증번호`,
+    html: `
+      <div style="font-family:'Apple SD Gothic Neo',sans-serif;max-width:420px;margin:0 auto;padding:32px 28px;border:1px solid #eee;border-radius:8px;">
+        <h2 style="margin:0 0 18px;font-size:17px;color:#111;">OPTICMALL ${title}</h2>
+        <p style="font-size:13px;color:#666;line-height:1.6;margin:0 0 20px;">
+          아래 인증번호를 화면에 입력해주세요.<br>인증번호는 <b>5분간</b> 유효합니다.
+        </p>
+        <div style="background:#f7f4ee;border-radius:6px;padding:18px;text-align:center;margin-bottom:20px;">
+          <span style="font-size:28px;font-weight:700;letter-spacing:8px;color:#111;">${code}</span>
+        </div>
+        <p style="font-size:11.5px;color:#aaa;line-height:1.6;margin:0;">본인이 요청하지 않았다면 이 메일을 무시해주세요.</p>
+      </div>`,
+  });
+  return "email";
+}
+
+/** 아이디(또는 기존 회원의 이메일)로 회원 1명 찾기 */
+async function findUserByLoginOrEmail(identifier) {
+  const v = String(identifier || "").trim().toLowerCase();
+  if (!v) return null;
+  let snap;
+  if (v.includes("@")) snap = await db.collection("users").where("email", "==", v).limit(1).get();
+  else snap = await db.collection("users").where("loginId", "==", v).limit(1).get();
+  if (snap.empty && v.includes("@")) {
+    // 이메일 대소문자가 다르게 저장된 기존 회원 대비: 로그인 계정으로 한 번 더 찾기
+    try {
+      const u = await admin.auth().getUserByEmail(v);
+      const d = await db.collection("users").doc(u.uid).get();
+      return d.exists ? { id: d.id, ...d.data() } : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...d.data() };
+}
+
 /**
  * 1단계: 인증번호 요청
  * 입력: { name, phone }
@@ -127,29 +239,9 @@ exports.requestFindIdCode = onCall(
       expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + CODE_TTL_MS),
     });
 
-    const transporter = getTransporter();
-    await transporter.sendMail({
-      from: `"OPTICMALL" <${GMAIL_USER.value()}>`,
-      to: matched.email,
-      subject: "[OPTICMALL] 아이디 찾기 인증번호",
-      html: `
-        <div style="font-family:'Apple SD Gothic Neo',sans-serif;max-width:420px;margin:0 auto;padding:32px 28px;border:1px solid #eee;border-radius:8px;">
-          <h2 style="margin:0 0 18px;font-size:17px;color:#111;">OPTICMALL 아이디 찾기</h2>
-          <p style="font-size:13px;color:#666;line-height:1.6;margin:0 0 20px;">
-            아래 인증번호를 아이디 찾기 화면에 입력해주세요.<br>
-            인증번호는 <b>5분간</b> 유효합니다.
-          </p>
-          <div style="background:#f7f4ee;border-radius:6px;padding:18px;text-align:center;margin-bottom:20px;">
-            <span style="font-size:28px;font-weight:700;letter-spacing:8px;color:#111;">${code}</span>
-          </div>
-          <p style="font-size:11.5px;color:#aaa;line-height:1.6;margin:0;">
-            본인이 요청하지 않았다면 이 메일을 무시해주세요.
-          </p>
-        </div>
-      `,
-    });
+    const via = await deliverCode(matched, code, "아이디 찾기");
 
-    return { ok: true };
+    return { ok: true, via };
   }
 );
 
@@ -202,7 +294,7 @@ exports.verifyFindIdCode = onCall(async (request) => {
   // 인증 성공 - 코드는 1회용이므로 즉시 삭제
   await codeDocRef.delete();
 
-  return { email: matched.email };
+  return { email: matched.email || "", loginId: matched.loginId || "" };
 });
 
 /**
@@ -226,11 +318,103 @@ exports.checkEmailExists = onCall(async (request) => {
     await admin.auth().getUserByEmail(email);
     return { exists: true };
   } catch (e) {
-    if (e.code === "auth/user-not-found") {
-      return { exists: false };
+    if (e.code !== "auth/user-not-found") {
+      throw new HttpsError("internal", "이메일 확인 중 오류가 발생했습니다.");
     }
-    throw new HttpsError("internal", "이메일 확인 중 오류가 발생했습니다.");
   }
+  // 아이디로 가입한 회원의 실제 이메일도 중복으로 본다
+  const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+  return { exists: !snap.empty };
+});
+
+/**
+ * 아이디 중복 확인
+ * 입력: { loginId }   반환: { exists: boolean }
+ */
+exports.checkLoginIdExists = onCall(async (request) => {
+  const loginId = String(request.data?.loginId || "").trim().toLowerCase();
+  if (!/^[a-z0-9]{4,16}$/.test(loginId)) {
+    throw new HttpsError("invalid-argument", "아이디는 영문 소문자와 숫자 4~16자로 입력해주세요.");
+  }
+  try {
+    await admin.auth().getUserByEmail(loginIdToAuthEmail(loginId));
+    return { exists: true };
+  } catch (e) {
+    if (e.code !== "auth/user-not-found") throw new HttpsError("internal", "아이디 확인 중 오류가 발생했습니다.");
+  }
+  const snap = await db.collection("users").where("loginId", "==", loginId).limit(1).get();
+  return { exists: !snap.empty };
+});
+
+/**
+ * 비밀번호 찾기 1단계: 아이디(또는 이메일) + 휴대폰 번호 확인 → 인증번호 발송 (문자 우선)
+ * 입력: { loginId, phone }   반환: { ok: true }
+ */
+exports.requestPwResetCode = onCall(
+  { secrets: [GMAIL_USER, GMAIL_PASS] },
+  async (request) => {
+    const phoneNormalized = normalizePhone(request.data?.phone);
+    if (!request.data?.loginId || phoneNormalized.length < 9) {
+      throw new HttpsError("invalid-argument", "아이디와 휴대폰 번호를 정확히 입력해주세요.");
+    }
+    const user = await findUserByLoginOrEmail(request.data?.loginId);
+    // 회원이 없거나 번호가 달라도 같은 응답 (가입 여부 노출 방지)
+    if (!user || normalizePhone(user.phone) !== phoneNormalized) return { ok: true };
+
+    const ref = db.collection("pwResetCodes").doc(user.id);
+    const existing = await ref.get();
+    if (existing.exists) {
+      const createdAtMs = existing.data().createdAt?.toMillis?.() || 0;
+      if (Date.now() - createdAtMs < RESEND_COOLDOWN_MS) {
+        throw new HttpsError("resource-exhausted", "잠시 후 다시 시도해주세요. (재발송은 60초 간격으로 가능합니다)");
+      }
+    }
+    const code = generateCode();
+    await ref.set({
+      codeHash: hashCode(code),
+      attempts: 0,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + CODE_TTL_MS),
+    });
+    const via = await deliverCode(user, code, "비밀번호 찾기");
+    return { ok: true, via };
+  }
+);
+
+/**
+ * 비밀번호 찾기 2단계: 인증번호 확인 후 새 비밀번호로 변경
+ * 입력: { loginId, phone, code, newPassword }   반환: { ok: true }
+ */
+exports.resetPasswordWithCode = onCall(async (request) => {
+  const phoneNormalized = normalizePhone(request.data?.phone);
+  const code = String(request.data?.code || "").trim();
+  const newPassword = String(request.data?.newPassword || "");
+  if (!code || phoneNormalized.length < 9) throw new HttpsError("invalid-argument", "입력값을 확인해주세요.");
+  if (newPassword.length < 8) throw new HttpsError("invalid-argument", "비밀번호는 8자 이상 입력해주세요.");
+
+  const user = await findUserByLoginOrEmail(request.data?.loginId);
+  if (!user || normalizePhone(user.phone) !== phoneNormalized) {
+    throw new HttpsError("not-found", "일치하는 회원 정보가 없습니다.");
+  }
+  const ref = db.collection("pwResetCodes").doc(user.id);
+  const doc = await ref.get();
+  if (!doc.exists) throw new HttpsError("failed-precondition", "먼저 인증번호를 요청해주세요.");
+  const c = doc.data();
+  if (c.attempts >= MAX_ATTEMPTS) {
+    await ref.delete();
+    throw new HttpsError("resource-exhausted", "인증 시도 횟수를 초과했습니다. 인증번호를 다시 요청해주세요.");
+  }
+  if (Date.now() > c.expiresAt.toMillis()) {
+    await ref.delete();
+    throw new HttpsError("deadline-exceeded", "인증번호가 만료되었습니다. 다시 요청해주세요.");
+  }
+  if (hashCode(code) !== c.codeHash) {
+    await ref.update({ attempts: admin.firestore.FieldValue.increment(1) });
+    throw new HttpsError("permission-denied", "인증번호가 일치하지 않습니다.");
+  }
+  await admin.auth().updateUser(user.id, { password: newPassword });
+  await ref.delete();
+  return { ok: true };
 });
 
 /* ============================================================================

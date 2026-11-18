@@ -43,7 +43,9 @@ service cloud.firestore {
             && request.resource.data.get('bizDocUrl', null) == resource.data.get('bizDocUrl', null)
             && request.resource.data.get('pointsBalance', 0) == resource.data.get('pointsBalance', 0)
             && request.resource.data.get('total_purchase_amount', 0) == resource.data.get('total_purchase_amount', 0)
-            && request.resource.data.get('purchase_level', 0) == resource.data.get('purchase_level', 0));
+            && request.resource.data.get('purchase_level', 0) == resource.data.get('purchase_level', 0)
+            && request.resource.data.get('loginId', null) == resource.data.get('loginId', null)
+            && request.resource.data.get('vkoolFirstDone', false) == resource.data.get('vkoolFirstDone', false));
 
       allow delete: if isMaster();
 

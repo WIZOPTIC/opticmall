@@ -560,7 +560,7 @@ html{color-scheme:only light}
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <input type="email" id="loginEmail" name="email" autocomplete="username" placeholder="이메일" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          <input type="text" id="loginEmail" name="username" autocomplete="username" autocapitalize="off" placeholder="아이디 또는 이메일" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doLogin()"/>
         </div>
         <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -590,13 +590,44 @@ html{color-scheme:only light}
     <button onclick="closeForgotPw()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:none;font-size:10px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;">✕</button>
     <div style="padding:44px 40px 36px;">
       <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;text-align:center;color:#14110f;margin-bottom:14px;">비밀번호 찾기</div>
-      <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:24px;">가입하신 이메일을 입력하시면<br>비밀번호 재설정 링크를 보내드려요.</p>
-      <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <input type="email" id="forgotPwEmail" placeholder="가입한 이메일" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')sendResetEmail()"/>
+
+      <!-- 1단계: 아이디 + 휴대폰 번호 -->
+      <div id="forgotPwStep1">
+        <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:22px;">아이디와 가입 시 등록한 휴대폰 번호를 입력하시면<br>문자로 인증번호를 보내드려요.</p>
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
+          <input type="text" id="forgotPwId" placeholder="아이디 또는 이메일"  style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')requestPwReset()"/>
+        </div>
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
+          <input type="tel" id="forgotPwPhone" placeholder="휴대폰 번호 ('-' 없이 또는 포함)"  style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')requestPwReset()"/>
+        </div>
+        <div id="forgotPwStep1Msg" style="display:none;font-size:11.5px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
+        <button id="forgotPwStep1Btn" onclick="requestPwReset()" style="width:100%;padding:13px;background:#2A2420;color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#463D36'" onmouseout="this.style.background='#2A2420'">인증번호 받기</button>
       </div>
-      <div id="forgotPwMsg" style="display:none;font-size:11px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
-      <button id="forgotPwSubmitBtn" onclick="sendResetEmail()" style="width:100%;padding:13px;background:#2A2420;color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#463D36'" onmouseout="this.style.background='#2A2420'">재설정 링크 보내기</button>
+
+      <!-- 2단계: 인증번호 + 새 비밀번호 -->
+      <div id="forgotPwStep2" style="display:none;">
+        <p id="forgotPwStep2Guide" style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:22px;">문자로 인증번호를 보내드렸어요.<br>5분 이내에 입력하고 새 비밀번호를 정해주세요.</p>
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
+          <input type="text" id="forgotPwCode" placeholder="인증번호 6자리" inputmode="numeric" maxlength="6" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doPwReset()"/>
+        </div>
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
+          <input type="password" id="forgotPwNew" placeholder="새 비밀번호 (8자 이상)" autocomplete="new-password" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doPwReset()"/>
+        </div>
+        <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
+          <input type="password" id="forgotPwNew2" placeholder="새 비밀번호 확인" autocomplete="new-password" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')doPwReset()"/>
+        </div>
+        <div id="forgotPwStep2Msg" style="display:none;font-size:11.5px;margin-bottom:12px;text-align:center;line-height:1.6;"></div>
+        <button id="forgotPwStep2Btn" onclick="doPwReset()" style="margin-bottom:10px;width:100%;padding:13px;background:#2A2420;color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#463D36'" onmouseout="this.style.background='#2A2420'">비밀번호 변경</button>
+        <div style="text-align:center;">
+          <span onclick="requestPwReset(true)" style="font-size:12px;color:#999;cursor:pointer;text-decoration:underline;">인증번호 다시 받기</span>
+        </div>
+      </div>
+
+      <!-- 3단계: 완료 -->
+      <div id="forgotPwStep3" style="display:none;text-align:center;">
+        <p style="font-size:15px;font-weight:700;color:#2A2420;margin:6px 0 24px;">비밀번호가 변경되었어요.</p>
+        <button onclick="closeForgotPw();openLogin();" style="width:100%;padding:13px;background:#2A2420;color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#463D36'" onmouseout="this.style.background='#2A2420'">로그인하기</button>
+      </div>
     </div>
   </div>
 </div>
@@ -611,7 +642,7 @@ html{color-scheme:only light}
 
       <!-- 1단계: 이름 + 전화번호 입력 -->
       <div id="findIdStep1">
-        <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:22px;">가입 시 등록한 이름과 휴대폰 번호를 입력하시면<br>등록된 이메일로 인증번호를 보내드려요.</p>
+        <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:22px;">가입 시 등록한 이름과 휴대폰 번호를 입력하시면<br>문자로 인증번호를 보내드려요.</p>
         <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:10px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
           <input type="text" id="findIdName" placeholder="이름" style="border:none;outline:none;flex:1;font-size:15px;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')requestFindId()"/>
         </div>
@@ -624,7 +655,7 @@ html{color-scheme:only light}
 
       <!-- 2단계: 인증번호 입력 -->
       <div id="findIdStep2" style="display:none;">
-        <p style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:20px;">등록된 이메일로 인증번호를 보내드렸어요.<br>5분 이내에 입력해주세요.</p>
+        <p id="findIdStep2Guide" style="font-size:12.5px;color:#999;line-height:1.7;text-align:center;margin-bottom:20px;">문자로 인증번호를 보내드렸어요.<br>5분 이내에 입력해주세요.</p>
         <div style="display:flex;align-items:center;border:1.5px solid #e8e8e8;border-radius:0;padding:12px 16px;gap:10px;margin-bottom:14px;transition:border-color 0.15s;" onfocusin="this.style.borderColor='#2A2420'" onfocusout="this.style.borderColor='#e8e8e8'">
           <input type="text" inputmode="numeric" maxlength="6" id="findIdCode" placeholder="인증번호 6자리" style="border:none;outline:none;flex:1;font-size:15px;letter-spacing:0.1em;font-family:inherit;color:#333;background:none;" onkeydown="if(event.key==='Enter')verifyFindId()"/>
         </div>
@@ -637,7 +668,7 @@ html{color-scheme:only light}
 
       <!-- 3단계: 결과 표시 -->
       <div id="findIdStep3" style="display:none;text-align:center;">
-        <p style="font-size:12.5px;color:#999;margin-bottom:10px;">회원님의 아이디(이메일)는</p>
+        <p style="font-size:12.5px;color:#999;margin-bottom:10px;">회원님의 아이디는</p>
         <p id="findIdResultEmail" style="font-size:17px;font-weight:700;color:#2A2420;margin-bottom:24px;word-break:break-all;"></p>
         <button onclick="closeFindId();openLogin();" style="width:100%;padding:13px;background:#2A2420;color:#fff;border:none;border-radius:0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#463D36'" onmouseout="this.style.background='#2A2420'">로그인하러 가기</button>
       </div>
@@ -818,21 +849,26 @@ function openLogin() {
 function closeLogin() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('loginError').style.display='none'; }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin(); });
 
+// 아이디 로그인: '@'가 없으면 아이디로 보고 내부 로그인 주소로 바꿈 (기존 회원은 이메일 그대로)
+function toLoginEmail(v) {
+  v = String(v || '').trim();
+  return v.includes('@') ? v : v.toLowerCase() + '@id.opticmall.co.kr';
+}
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pw = document.getElementById('loginPw').value;
   const errEl = document.getElementById('loginError');
   const btn = document.getElementById('loginSubmitBtn');
   errEl.style.display = 'none';
-  if(!email || !pw) { errEl.textContent='이메일과 비밀번호를 입력해주세요.'; errEl.style.display='block'; return; }
+  if(!email || !pw) { errEl.textContent='아이디와 비밀번호를 입력해주세요.'; errEl.style.display='block'; return; }
   btn.textContent = '로그인 중...';
   btn.disabled = true;
   try {
     // 로그인 유지는 브라우저 기본값(LOCAL)을 그대로 사용 (로그아웃 후 재로그인 시 멈추는 문제 방지를 위해 매번 따로 지정하지 않음)
-    await _auth.signInWithEmailAndPassword(email, pw);
+    await _auth.signInWithEmailAndPassword(toLoginEmail(email), pw);
     closeLogin();
   } catch(e) {
-    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    errEl.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
     errEl.style.display = 'block';
   } finally {
     btn.textContent = '로그인';
@@ -841,47 +877,80 @@ async function doLogin() {
 }
 // 비밀번호 찾기
 function openForgotPw() {
-  document.getElementById('forgotPwEmail').value = document.getElementById('loginEmail').value.trim();
-  document.getElementById('forgotPwMsg').style.display = 'none';
+  document.getElementById('forgotPwId').value = document.getElementById('loginEmail').value.trim();
+  ['forgotPwPhone','forgotPwCode','forgotPwNew','forgotPwNew2'].forEach(id => document.getElementById(id).value = '');
+  ['forgotPwStep1Msg','forgotPwStep2Msg'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('forgotPwStep1').style.display = 'block';
+  document.getElementById('forgotPwStep2').style.display = 'none';
+  document.getElementById('forgotPwStep3').style.display = 'none';
   document.getElementById('forgotPwOverlay').style.display = 'block';
 }
 function closeForgotPw() {
   document.getElementById('forgotPwOverlay').style.display = 'none';
 }
-async function sendResetEmail() {
-  const email = document.getElementById('forgotPwEmail').value.trim();
-  const msgEl = document.getElementById('forgotPwMsg');
-  const btn = document.getElementById('forgotPwSubmitBtn');
-  msgEl.style.display = 'none';
-
-  if(!email) {
-    msgEl.textContent = '이메일을 입력해주세요.';
-    msgEl.style.color = '#FF4444';
-    msgEl.style.display = 'block';
-    return;
-  }
-
-  btn.textContent = '전송 중...';
-  btn.disabled = true;
+// ===== 비밀번호 찾기 (아이디 + 휴대폰 → 문자 인증번호 → 새 비밀번호) =====
+let _pwResetLastRequestAt = 0;
+function _pwShowMsg(elId, text, isError) {
+  const el = document.getElementById(elId);
+  el.textContent = text;
+  el.style.color = isError ? '#FF4444' : '#000000';
+  el.style.display = 'block';
+}
+async function requestPwReset(resend) {
+  const loginId = document.getElementById('forgotPwId').value.trim();
+  const phone = document.getElementById('forgotPwPhone').value.trim();
+  const msgElId = resend ? 'forgotPwStep2Msg' : 'forgotPwStep1Msg';
+  const btn = document.getElementById('forgotPwStep1Btn');
+  if(!loginId) { _pwShowMsg(msgElId, '아이디를 입력해주세요.', true); return; }
+  if(!phone || phone.replace(/[^0-9]/g,'').length < 9) { _pwShowMsg(msgElId, '휴대폰 번호를 정확히 입력해주세요.', true); return; }
+  const now = Date.now();
+  if(now - _pwResetLastRequestAt < 60 * 1000) { _pwShowMsg(msgElId, '잠시 후 다시 시도해주세요. (60초 간격으로 재발송 가능)', true); return; }
+  if(!resend) { btn.textContent = '전송 중...'; btn.disabled = true; }
   try {
-    await _auth.sendPasswordResetEmail(email);
-    msgEl.textContent = '입력하신 이메일로 재설정 링크를 보냈어요. 메일함(스팸함 포함)을 확인해주세요.';
-    msgEl.style.color = '#000000';
-    msgEl.style.display = 'block';
-    btn.textContent = '다시 보내기';
-    btn.disabled = false;
+    const r = await _functions.httpsCallable('requestPwResetCode')({ loginId, phone });
+    _pwResetLastRequestAt = now;
+    document.getElementById('forgotPwStep2Guide').innerHTML = (r.data && r.data.via === 'email')
+      ? '등록된 이메일로 인증번호를 보내드렸어요.<br>5분 이내에 입력하고 새 비밀번호를 정해주세요.'
+      : '문자로 인증번호를 보내드렸어요.<br>5분 이내에 입력하고 새 비밀번호를 정해주세요.';
+    document.getElementById('forgotPwStep1').style.display = 'none';
+    document.getElementById('forgotPwStep2').style.display = 'block';
+    document.getElementById('forgotPwStep2Msg').style.display = 'none';
+    if(resend) _pwShowMsg('forgotPwStep2Msg', '인증번호를 다시 보냈어요.', false);
   } catch(e) {
-    if(e.code === 'auth/user-not-found') {
-      msgEl.textContent = '가입된 회원 정보를 찾을 수 없습니다. 이메일을 다시 확인해주세요.';
-    } else if(e.code === 'auth/invalid-email') {
-      msgEl.textContent = '올바른 이메일 형식이 아닙니다.';
-    } else {
-      msgEl.textContent = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-    }
-    msgEl.style.color = '#FF4444';
-    msgEl.style.display = 'block';
-    btn.textContent = '재설정 링크 보내기';
-    btn.disabled = false;
+    console.error('비밀번호 찾기 요청 실패:', e);
+    _pwShowMsg(msgElId, e.code === 'functions/resource-exhausted' ? '잠시 후 다시 시도해주세요. (60초 간격으로 재발송 가능)' : '오류가 발생했습니다. 잠시 후 다시 시도해주세요.', true);
+  } finally {
+    if(!resend) { btn.textContent = '인증번호 받기'; btn.disabled = false; }
+  }
+}
+async function doPwReset() {
+  const loginId = document.getElementById('forgotPwId').value.trim();
+  const phone = document.getElementById('forgotPwPhone').value.trim();
+  const code = document.getElementById('forgotPwCode').value.trim();
+  const pw = document.getElementById('forgotPwNew').value;
+  const pw2 = document.getElementById('forgotPwNew2').value;
+  const btn = document.getElementById('forgotPwStep2Btn');
+  if(!code) { _pwShowMsg('forgotPwStep2Msg', '인증번호를 입력해주세요.', true); return; }
+  if(pw.length < 8) { _pwShowMsg('forgotPwStep2Msg', '새 비밀번호를 8자 이상 입력해주세요.', true); return; }
+  if(pw !== pw2) { _pwShowMsg('forgotPwStep2Msg', '새 비밀번호가 서로 다릅니다.', true); return; }
+  btn.textContent = '변경 중...'; btn.disabled = true;
+  try {
+    await _functions.httpsCallable('resetPasswordWithCode')({ loginId, phone, code, newPassword: pw });
+    document.getElementById('forgotPwStep2').style.display = 'none';
+    document.getElementById('forgotPwStep3').style.display = 'block';
+    const le = document.getElementById('loginEmail'); if(le && !le.value) le.value = loginId;
+  } catch(e) {
+    console.error('비밀번호 변경 실패:', e);
+    let msg = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    if(e.code === 'functions/permission-denied') msg = '인증번호가 일치하지 않습니다.';
+    else if(e.code === 'functions/deadline-exceeded') msg = '인증번호가 만료되었습니다. 다시 요청해주세요.';
+    else if(e.code === 'functions/resource-exhausted') msg = '시도 횟수를 초과했습니다. 인증번호를 다시 요청해주세요.';
+    else if(e.code === 'functions/not-found') msg = '일치하는 회원 정보가 없습니다.';
+    else if(e.code === 'functions/failed-precondition') msg = '먼저 인증번호를 요청해주세요.';
+    else if(e.code === 'functions/invalid-argument') msg = e.message;
+    _pwShowMsg('forgotPwStep2Msg', msg, true);
+  } finally {
+    btn.textContent = '비밀번호 변경'; btn.disabled = false;
   }
 }
 
@@ -930,8 +999,9 @@ async function requestFindId(resend) {
 
   try {
     const fn = _functions.httpsCallable('requestFindIdCode');
-    await fn({ name, phone });
+    const fr = await fn({ name, phone });
     _findIdLastRequestAt = now;
+    document.getElementById('findIdStep2Guide').innerHTML = (fr.data && fr.data.via === 'email') ? '등록된 이메일로 인증번호를 보내드렸어요.<br>5분 이내에 입력해주세요.' : '문자로 인증번호를 보내드렸어요.<br>5분 이내에 입력해주세요.';
 
     document.getElementById('findIdStep1').style.display = 'none';
     document.getElementById('findIdStep2').style.display = 'block';
@@ -966,7 +1036,7 @@ async function verifyFindId() {
     const result = await fn({ name, phone, code });
 
     document.getElementById('findIdStep2').style.display = 'none';
-    document.getElementById('findIdResultEmail').textContent = result.data.email;
+    document.getElementById('findIdResultEmail').textContent = result.data.loginId || result.data.email;
     document.getElementById('findIdStep3').style.display = 'block';
   } catch(e) {
     console.error('아이디 찾기 인증 실패:', e);

@@ -667,7 +667,17 @@ html{color-scheme:only light}
         <div class="field-body"><input class="form-input" type="text" placeholder="19800101" id="birth"></div>
       </div>
       <div class="field-row">
-        <div class="field-label"><span class="dot">•</span>이메일 (아이디)</div>
+        <div class="field-label"><span class="dot">•</span>아이디</div>
+        <div class="field-body">
+          <div class="input-btn-row">
+            <input class="form-input" type="text" placeholder="영문 소문자, 숫자 4~16자" id="loginId" autocomplete="username" autocapitalize="off" maxlength="16" style="flex:1;" oninput="onLoginIdChanged()">
+            <button class="btn-check" id="loginIdCheckBtn" onclick="checkLoginId()">중복확인</button>
+          </div>
+          <div class="form-hint" id="loginId-hint"></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><span class="dot">•</span>이메일</div>
         <div class="field-body">
           <div class="input-btn-row">
             <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap;">
@@ -844,6 +854,7 @@ window._createUser = createUserWithEmailAndPassword;
 window._deleteUser = deleteUser;
 window._fetchSignIn = fetchSignInMethodsForEmail;
 window._checkEmailExists = httpsCallable(functions, 'checkEmailExists');
+window._checkLoginIdExists = httpsCallable(functions, 'checkLoginIdExists');
 window._claimSignupCoupons = httpsCallable(functions, 'claimSignupCoupons');
 window._doc = doc;
 window._setDoc = setDoc;
@@ -918,6 +929,7 @@ document.addEventListener('click', (e) => {
 
 <script>
 let emailVerified = false;
+let loginIdVerified = false;
 let bizVerified = false;
 let bizFileUrl = '';
 let bizFileObj = null;
@@ -991,6 +1003,54 @@ function onEmailPartsChanged() {
 }
 
 // 이메일 중복확인
+// 아이디: 영문 소문자 + 숫자 4~16자
+function onLoginIdChanged() {
+  const el = document.getElementById('loginId');
+  const v = el.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (v !== el.value) el.value = v;
+  loginIdVerified = false;
+  el.classList.remove('success', 'error');
+  const btn = document.getElementById('loginIdCheckBtn');
+  btn.textContent = '중복확인'; btn.classList.remove('done');
+  document.getElementById('loginId-hint').textContent = '';
+}
+async function checkLoginId() {
+  const el = document.getElementById('loginId');
+  const loginId = el.value.trim().toLowerCase();
+  const hint = document.getElementById('loginId-hint');
+  const btn = document.getElementById('loginIdCheckBtn');
+  if (!/^[a-z0-9]{4,16}$/.test(loginId)) {
+    hint.textContent = '영문 소문자와 숫자로 4~16자 입력해주세요.';
+    hint.className = 'form-hint error';
+    return;
+  }
+  btn.textContent = '확인중...'; btn.disabled = true;
+  try {
+    const result = await window._checkLoginIdExists({ loginId });
+    if (result.data.exists) {
+      hint.textContent = '이미 사용중인 아이디입니다.';
+      hint.className = 'form-hint error';
+      el.classList.remove('success'); el.classList.add('error');
+      btn.textContent = '중복확인';
+      loginIdVerified = false;
+    } else {
+      hint.textContent = '✓ 사용 가능한 아이디입니다.';
+      hint.className = 'form-hint success';
+      el.classList.remove('error'); el.classList.add('success');
+      btn.textContent = '확인완료'; btn.classList.add('done');
+      loginIdVerified = true;
+    }
+  } catch (e) {
+    console.error(e);
+    hint.textContent = '아이디 확인 중 오류가 발생했습니다. 다시 시도해주세요.';
+    hint.className = 'form-hint error';
+    btn.textContent = '중복확인';
+    loginIdVerified = false;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 async function checkEmail() {
   const email = document.getElementById('email').value.trim();
   const hint = document.getElementById('email-hint');
@@ -1163,7 +1223,8 @@ function formatBizNoHyphen(raw) {
 // 회원가입 제출
 async function submitForm() {
   const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
+  const loginId = document.getElementById('loginId').value.trim().toLowerCase();
+  const email = document.getElementById('email').value.trim().toLowerCase();
   const pw = document.getElementById('pw').value;
   const pw2 = document.getElementById('pw2').value;
   const phone = formatPhoneHyphen(document.getElementById('phone').value.trim());
@@ -1176,6 +1237,8 @@ async function submitForm() {
 
   // 유효성 검사
   if (!name) { showToast('이름을 입력해주세요.', 'error'); return; }
+  if (!loginId) { showToast('아이디를 입력해주세요.', 'error'); return; }
+  if (!loginIdVerified) { showToast('아이디 중복확인을 해주세요.', 'error'); return; }
   if (!email) { showToast('이메일을 입력해주세요.', 'error'); return; }
   if (!emailVerified) { showToast('이메일 중복확인을 해주세요.', 'error'); return; }
   if (!pw || pw.length < 8) { showToast('비밀번호 8자 이상 입력해주세요.', 'error'); return; }
@@ -1199,7 +1262,8 @@ async function submitForm() {
   let createdUser = null, docSaved = false;
   try {
     // 1. Firebase Auth 회원가입
-    const userCred = await window._createUser(window._auth, email, pw);
+    // 로그인은 아이디로 하고, 실제 이메일은 회원 정보(email)에 따로 저장 (비밀번호 찾기 등 연락용)
+    const userCred = await window._createUser(window._auth, loginId + '@id.opticmall.co.kr', pw);
     createdUser = userCred.user;
     const uid = userCred.user.uid;
 
@@ -1220,7 +1284,7 @@ async function submitForm() {
     // 3. Firestore에 회원 정보 저장 (가입 유형은 항상 안경원 기본값,
     //    브랜드사 권한은 관리자가 admin.html에서 별도로 부여)
     await window._setDoc(window._doc(window._db, 'users', uid), {
-      uid, name, email, phone,
+      uid, name, loginId, email, phone,
       birth: document.getElementById('birth').value,
       address: { zipcode, addr1, addr2 },
       storeName, bizNo, bizNoNormalized, storePhone,
@@ -1263,7 +1327,7 @@ async function submitForm() {
     document.getElementById('submitBtn').disabled = false;
     console.error(e);
     if (e.code === 'auth/email-already-in-use') {
-      showToast('이미 가입된 이메일입니다.', 'error');
+      showToast('이미 사용중인 아이디입니다.', 'error');
     } else if (e.code === 'auth/weak-password') {
       showToast('비밀번호가 너무 간단합니다.', 'error');
     } else {

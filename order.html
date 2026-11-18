@@ -936,7 +936,7 @@ function preselectQuickPayFromParam() {
 function fillOrdererInfo() {
   document.getElementById('ordererName').value = currentUserData.name || '-';
   document.getElementById('ordererPhone').value = currentUserData.phone || '-';
-  document.getElementById('ordererEmail').value = currentUser.email || '-';
+  document.getElementById('ordererEmail').value = (currentUserData && currentUserData.email) || currentUser.email || '-';
   document.getElementById('ordererStore').value = currentUserData.storeName || currentUserData.brandName || '-';
 }
 
@@ -1531,7 +1531,7 @@ async function startPayment(easyPayProvider) {
       orderId: orderId,
       orderName: orderName,
       customerName: currentUserData.name || '',
-      customerEmail: currentUser.email || '',
+      customerEmail: (currentUserData && currentUserData.email) || currentUser.email || '',
       successUrl: location.origin + '/order-success.html',
       failUrl: location.origin + '/order-fail.html',
       // 네이버페이/카카오페이 버튼으로 진입한 경우, 결제수단 선택 화면 없이

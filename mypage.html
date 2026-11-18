@@ -1288,7 +1288,7 @@ function renderProfile() {
   const wdCard = document.getElementById('withdrawCard');
   if(wdCard) wdCard.style.display = (u.role && u.role !== 'optician') ? 'none' : '';
   document.getElementById('editBirth').value = u.birth || '';
-  document.getElementById('editEmail').value = currentUser.email || '';
+  document.getElementById('editEmail').value = u.email || currentUser.email || '';
   document.getElementById('editPhone').value = u.phone || '';
   document.getElementById('editZipcode').value = u.zipcode || '';
   document.getElementById('editAddr1').value = u.addr1 || '';

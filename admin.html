@@ -1567,6 +1567,7 @@ async function openModal(uid) {
 
     body.innerHTML = `
       <div class="info-row"><div class="info-label">이름</div><div class="info-value"><strong>${user.name||'-'}</strong></div></div>
+      <div class="info-row"><div class="info-label">아이디</div><div class="info-value">${user.loginId||'(이메일 로그인)'}</div></div>
       <div class="info-row"><div class="info-label">이메일</div><div class="info-value">${user.email||'-'}</div></div>
       <div class="info-row"><div class="info-label">휴대폰</div><div class="info-value">${user.phone||'-'}</div></div>
       <div class="info-row"><div class="info-label">안경원명</div><div class="info-value">${user.storeName||'-'}</div></div>
