@@ -60,17 +60,23 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function build() {
-    var cb = document.getElementById('cartCountBadge');
-    var cartBtn = cb && cb.closest('button');
-    if (!cartBtn || document.getElementById('ntBell')) return !!document.getElementById('ntBell');
-    bell = document.createElement('button');
-    bell.id = 'ntBell'; bell.className = 'icon-btn nt-bell'; bell.type = 'button';
-    var cached = false; try { cached = !!localStorage.getItem('om_tbw'); } catch (e) {}
-    bell.style.display = cached ? '' : 'none';
-    bell.setAttribute('aria-label', '알림');
-    bell.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span class="nt-badge" id="ntBadge">0</span>';
-    cartBtn.parentNode.insertBefore(bell, cartBtn);
+    var existing = document.getElementById('ntBell');
+    if (existing) {
+      bell = existing;
+    } else {
+      var cb = document.getElementById('cartCountBadge');
+      var cartBtn = cb && cb.closest('button');
+      if (!cartBtn) return false;
+      bell = document.createElement('button');
+      bell.id = 'ntBell'; bell.className = 'icon-btn nt-bell'; bell.type = 'button';
+      var cached = false; try { cached = !!localStorage.getItem('om_tbw'); } catch (e) {}
+      bell.style.display = cached ? '' : 'none';
+      bell.setAttribute('aria-label', '알림');
+      bell.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span class="nt-badge" id="ntBadge">0</span>';
+      cartBtn.parentNode.insertBefore(bell, cartBtn);
+    }
     badge = bell.querySelector('#ntBadge');
+    if (badge) badge.style.display = 'none';
     panel = document.createElement('div'); panel.id = 'ntPanel';
     document.body.appendChild(panel);
     bell.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
