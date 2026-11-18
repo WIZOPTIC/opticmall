@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="only light">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회사소개 - 옵틱몰</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF7A1A'/><text x='50' y='68' font-family='Arial, sans-serif' font-weight='800' font-size='48' fill='%23FFFFFF' text-anchor='middle'>om</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700&family=Inter:wght@700;800&family=Fraunces:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--sky:#000000;--sky-dk:#000000;--footer-bg:#2A2420;--navy:#000000;--gold:#A98C52;--gold-soft:#D6C49A;--g1:#F2F4F6;--g2:#E0E4E8;--g3:#9BA5B0;--g4:#5A6472;--black:#111318;--font-serif:"Fraunces",serif;--font-body:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;}
+body{font-family:var(--font-body);background:var(--g1);color:var(--black);}
+/* 헤더 */
+header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.header-main { max-width: 1440px; margin: 0 auto; padding: 39px 24px 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; position: relative; }
+.header-top-row { display: flex; align-items: center; width: 100%; gap: 32px; }
+.header-nav-row { display: flex; align-items: center; width: 100%; }
+.header-auth { display: flex; align-items: center; margin-right: 18px; }
+.logo { font-family: var(--font-serif); font-style: italic; font-size: 36px; font-weight: 500; color: var(--navy); text-decoration: none; letter-spacing: 0.01em; user-select: none; }
+.logo-img { display: block; height: 70px; width: auto; image-rendering: -webkit-optimize-contrast; image-rendering: auto; user-select: none; pointer-events: none; }
+.header-right{margin-left:auto;display:flex;align-items:center;gap:2px;}
+.search-btn { padding: 0 14px; background: var(--white); border: none; cursor: pointer; color: var(--g4); border-left: 1.5px solid var(--g2); }
+.search-btn:hover { color: var(--sky); }
+.icon-btn {
+  width: 36px; height: 36px; border: none; background: none;
+  cursor: pointer; border-radius:0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--navy); transition: all 0.15s; position: relative;
+}
+.icon-btn:hover { background: var(--g1); color: var(--navy); }
+.cart-count{position:absolute;top:2px;right:2px;background:#FF7A1A;color:#fff;font-size:9px;font-weight:700;border-radius:100px;padding:1px 4px;min-width:15px;text-align:center;display:flex;align-items:center;justify-content:center;}
+
+/* GNB */
+.gnb-inner { display: flex; position: static; gap: 38px; flex-wrap: wrap; }
+.gnb-item { padding: 6px 0; font-size:15px; font-weight: 400; color: var(--navy); cursor: pointer; border: none; background: none; font-family: inherit; position: relative; transition: color 0.15s, font-weight 0.15s; white-space: nowrap; text-align: center; user-select: none; -webkit-user-select: none; }
+.gnb-item:hover { color: var(--sky-dk); font-weight: 600; }
+
+.gnb-label { position: relative; display: inline-block; }
+
+/* 모바일 요소 */
+.hamburger-btn { display: none; background: none; border: none; padding: 6px; margin-right: 8px; cursor: pointer; color: var(--navy); }
+.mobile-menu-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 998; opacity: 0; transition: opacity 0.25s; }
+.mobile-menu-backdrop.open { display: block; opacity: 1; }
+.mobile-menu-drawer {
+  display: none; position: fixed; top: 0; left: 0; bottom: 0; width: 78%; max-width: 320px;
+  background: #fff; z-index: 999; transform: translateX(-100%); transition: transform 0.25s ease;
+  overflow-y: auto; box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+.mobile-menu-drawer.open { transform: translateX(0); }
+.mobile-menu-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--g2); }
+.mobile-menu-list { display: flex; flex-direction: column; padding: 8px 0; }
+.mobile-menu-list button { text-align: left; background: none; border: none; padding: 15px 20px; font-size: 15px; font-weight: 600; color: var(--black); font-family: inherit; cursor: pointer; border-bottom: 1px solid var(--g1); }
+@media (max-width: 768px) {
+  .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+  .gnb-inner { display: none; }
+  .mobile-menu-drawer, .mobile-menu-backdrop { display: block; }
+  .mobile-menu-drawer:not(.open) { display: none; }
+  .mobile-menu-backdrop:not(.open) { display: none; }
+  .header-main { padding: 14px 16px; gap: 8px; }
+  .header-top-row { gap: 10px; }
+  .logo { font-size: 20px; }
+  .icon-btn { width: 32px; height: 32px; }
+
+}
+.wrap{max-width:760px;margin:0 auto;padding:40px 24px 80px;}
+.doc-title{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+.doc-updated{font-size:12px;color:var(--g3);margin-bottom:32px;}
+.card{background:#fff;border-radius:0;padding:32px 36px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+h2{font-size:16px;font-weight:700;color:var(--navy);margin:28px 0 10px;padding-top:16px;border-top:1px solid var(--g1);}
+h2:first-child{margin-top:0;padding-top:0;border-top:none;}
+p,li{font-size:13.5px;line-height:1.8;color:var(--g4);}
+ul,ol{padding-left:20px;margin:6px 0;}
+li{margin-bottom:4px;}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;}
+td,th{border:1px solid var(--g2);padding:8px 10px;text-align:left;color:var(--g4);}
+th{background:var(--g1);color:var(--navy);}
+.back-link{display:inline-block;margin-top:32px;font-size:14px;color:var(--sky);text-decoration:none;}
+
+/* ── FOOTER (공통) ── */
+footer { background: var(--footer-bg); padding: 56px 24px 36px; }
+.footer-inner { max-width: 1440px; margin: 0 auto; }
+.footer-top {
+  display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px;
+  padding: 0 110px 40px 0; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 28px;
+}
+.footer-mid { display: flex; gap: 64px; flex-wrap: wrap; }
+.footer-logo { font-family: var(--font-serif); font-style: italic; font-size:22px; font-weight: 500; color: #fff; margin-bottom: 22px; }
+.footer-logo-img { display: block; height: 29px; width: auto; filter: brightness(0) invert(1); margin-bottom: 22px; }
+.footer-logo span { color: var(--gold-soft); font-style: normal; }
+.footer-cols { display: flex; gap: 64px; }
+.footer-col h5 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 16px; }
+.footer-col a { display: block; font-size:14px; color: rgba(255,255,255,0.75); text-decoration: none; margin-bottom: 13px; font-weight: 400; transition: opacity 0.15s; }
+.footer-col a:hover { opacity: 0.7; }
+.footer-contact .fc-label { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.footer-contact .fc-hours { font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 400; line-height: 1.8; }
+.footer-right { max-width: 400px; }
+.footer-biz { font-size:13px; color: rgba(255,255,255,0.55); font-weight: 400; line-height: 1.9; }
+.footer-biz-addr { white-space: nowrap; }
+.footer-bottom { padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+.footer-copy { font-size:12px; color: rgba(255,255,255,0.45); font-family: "Inter", sans-serif; }
+
+/* ── TOPBAR ── */
+
+.tb-link { background: none; border: none; color: var(--navy); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; padding: 0; white-space: nowrap; transition: opacity 0.15s; }
+.tb-link:hover { opacity: 0.6; }
+.tb-sep { opacity: 0.4; margin: 0 8px; color: var(--gold-soft); }
+.tb-welcome { color: var(--navy); font-weight: 600; font-size: 13px; white-space: nowrap; }
+.tb-badge { font-size: 10px; background: #FF7A1A; color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: 700; margin-left: 6px; }
+
+/* ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== */
+.floating-widget { position: fixed; right: 24px; bottom: 90px; z-index: 500; display: flex; flex-direction: column; gap: 10px; }
+.fw-btn {
+  width: 52px; height: 52px; border-radius: 50%; background: var(--white);
+  border: 1px solid var(--g2); box-shadow: 0 4px 14px rgba(10,14,20,0.14);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--navy); transition: transform 0.15s, box-shadow 0.15s; position: relative;
+  text-decoration: none;
+}
+.fw-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(10,14,20,0.2); }
+.fw-btn.fw-kakao { background: #FEE500; border-color: #FEE500; }
+.fw-btn.fw-top { opacity: 0; pointer-events: none; transform: translateY(8px); font-size: 20px; font-weight: 700; }
+.fw-btn.fw-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.fw-tip {
+  position: absolute; right: 62px; top: 50%; transform: translateY(-50%);
+  background: var(--navy); color: #fff; font-size: 12px; font-weight: 600;
+  padding: 6px 10px; border-radius:0; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.fw-btn:hover .fw-tip { opacity: 1; }
+.fw-recent-panel {
+  position: fixed; right: 84px; bottom: 90px; width: 260px; max-height: 380px;
+  background: var(--white); border: 1px solid var(--g2); border-radius:0;
+  box-shadow: 0 10px 32px rgba(10,14,20,0.2); z-index: 501;
+  display: none; flex-direction: column; overflow: hidden;
+}
+.fw-recent-panel.open { display: flex; }
+.fw-recent-head { padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
+.fw-recent-close { background: none; border: none; font-size: 18px; color: var(--g3); cursor: pointer; line-height: 1; }
+.fw-recent-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.fw-recent-item { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius:0; text-decoration: none; color: var(--black); }
+.fw-recent-item:hover { background: var(--sky-lt); }
+.fw-recent-item img { width: 44px; height: 44px; border-radius:0; object-fit: cover; background: var(--g1); flex-shrink: 0; }
+.fw-recent-name { font-size: 12.5px; line-height: 1.4; }
+.fw-recent-empty { padding: 34px 16px; text-align: center; color: var(--g3); font-size: 13px; }
+.fw-share-panel {
+  position: fixed; right: 84px; bottom: 90px; width: 320px;
+  background: var(--white); border-radius:0;
+  box-shadow: 0 12px 36px rgba(10,14,20,0.22); z-index: 501;
+  display: none; padding: 22px 20px;
+}
+.fw-share-panel.open { display: block; }
+.fw-share-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.fw-share-title { font-size: 17px; font-weight: 700; color: var(--black); }
+.fw-share-close { background: none; border: none; font-size: 20px; color: var(--g3); cursor: pointer; line-height: 1; padding: 0; }
+.fw-share-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 6px; margin-bottom: 18px; }
+.fw-share-item { display: flex; flex-direction: column; align-items: center; gap: 7px; text-decoration: none; cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; }
+.fw-share-icon {
+  width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.fw-share-label { font-size: 11.5px; color: var(--g4); }
+.fw-share-link-row { display: flex; gap: 8px; }
+.fw-share-link-row input {
+  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--g2); border-radius:0;
+  font-size: 12.5px; color: var(--g4); background: var(--sky-lt); font-family: inherit;
+}
+.fw-share-copy-btn {
+  flex-shrink: 0; padding: 10px 16px; border-radius:0; border: none; background: var(--navy);
+  color: var(--white); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.fw-share-copy-btn:hover { background: var(--sky-dk); }
+
+/* 데스크탑에서는 본문 오른쪽에 위젯이 들어갈 최소한의 여백(70px)만 확보해서, 사진 크기 변화는 최소로 하면서도 화면 배율/창 크기와 상관없이 사진 위에 겹치지 않게 함 */
+
+@media (max-width: 768px) {
+  .floating-widget { right: 14px; bottom: 24px; }
+  .fw-recent-panel { right: 14px; bottom: 24px; width: calc(100vw - 28px); max-width: 300px; }
+  .fw-btn { width: 46px; height: 46px; }
+  .fw-tip { display: none; }
+}
+
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #333 !important;
+  caret-color: #333;
+  transition: background-color 9999s ease-in-out 0s;
+}
+/* ===== OPTICMALL 메인 통일 스타일 ===== */
+:root{--hdr-bg:#2A2420;--footer-bg:#2A2420;--gold:#A98C52;--gold-soft:#D6C49A;--bg-subtle:#FAF8F4;--ivory:#F7F4EE;--ink:#12181F}
+html{overflow-y:scroll}
+header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shadow:none!important}
+.header-main,.header-inner{padding:25px 24px 12px!important;gap:6px!important}
+.logo-img{height:65px!important;filter:invert(1) brightness(1.05)}
+.mobile-menu-drawer .logo-img{filter:none!important}
+@media (min-width:769px) and (max-width:1000px){.logo-img{height:51px!important}.header-main,.header-inner{padding-top:41px!important}}
+@media (max-width:768px){.header-main,.header-inner{padding:12px 16px!important}.logo-img{height:36px!important}.mobile-menu-drawer .logo-img{height:36px!important}}
+/* 로고만 작게: 로고가 차지하던 높이는 그대로 유지해서 헤더 위치가 변하지 않게 함 */
+.header-top-row .logo{display:flex;align-items:center;height:69px}
+@media (min-width:769px) and (max-width:1000px){.header-top-row .logo{height:57px}}
+@media (max-width:768px){.header-top-row .logo{height:40px}}
+.footer-logo-img{margin-bottom:25px!important}
+@media (max-width:768px){.footer-cols{gap:28px;flex-wrap:wrap}.footer-col h5,.footer-col a{white-space:nowrap}}
+/* 모바일 헤더: 로고+아이콘 한 줄, 아래에 옆으로 미는 메뉴 줄 (햄버거 없음) */
+@media (max-width:768px){
+ .hamburger-btn{display:none!important}
+ .header-main,.header-inner{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo icons" "nav nav";align-items:center;row-gap:0!important;gap:0!important;padding-top:16px!important;padding-bottom:0!important}
+ .header-top-row{grid-area:logo;width:auto!important}
+ .header-nav-row{display:contents!important;position:static!important;transform:none!important}
+ .header-right{grid-area:icons;margin:0!important}
+ .header-auth{display:none!important}
+ .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:13px!important;padding:2px 2px 4px;margin-top:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0;width:100%}
+ .gnb-inner::-webkit-scrollbar{display:none}
+ .gnb-item{flex:0 0 auto;white-space:nowrap;font-size:14.5px!important;letter-spacing:0!important;padding:9px 0!important}
+}
+/* 모바일 상품 격자: 2열 (기본 5열 규칙이 뒤에 있어서 덮어쓰던 문제 해결) */
+@media (max-width:768px){
+ .product-grid:not(#eventFullGrid):not(#newArrivalFullGrid):not(#bestFullGrid){grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ .brands-grid,.event-products-grid,.related-grid,.wish-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ .product-card{min-width:0}
+}
+/* 모바일 바탕은 전부 흰색 */
+@media (max-width:768px){
+ html,html body{background:#fff!important}
+ .hero,.main-img{background:#fff!important}
+ .card,.summary-card,.cart-header,.cart-item,.profile-card,.menu-card,.order-summary{border:1px solid #ECE8E1}
+}
+/* 모바일 하단 탭바 제거 (PC와 동일하게, 메뉴는 상단 헤더로 통일) */
+@media (max-width:768px){
+ .mobile-tabbar{display:none!important}
+ body{padding-bottom:0!important}
+ .floating-widget{bottom:20px!important}
+ .fw-recent-panel,.fw-share-panel{bottom:20px!important}
+}
+.mobile-menu-header .logo{display:flex;align-items:center;height:36px}
+.gnb-item,.tb-link,.tb-welcome,.icon-btn,.hamburger-btn{color:#F4F3F0!important}
+.gnb-item{font-size:14.5px!important;font-weight:500!important;letter-spacing:.02em}
+.gnb-item:hover,.gnb-item.active{font-weight:500!important;color:#FF7A1A!important}
+.gnb-item.active .gnb-label::after{display:none!important}
+.tb-sep{color:#9aa39d!important}
+.icon-btn:hover{background:rgba(255,255,255,.1)!important}
+.header-right{margin-right:0!important}
+@media (min-width:769px){.header-right{gap:0!important}.header-right>#userMenuWrap,.header-right>div[id=userMenuWrap]{margin-left:8px!important}.header-right>.icon-btn:nth-child(4),.header-right>.icon-btn:nth-child(5){margin-left:8px!important}}
+@media (min-width:900px){.header-right{margin-right:-8px!important}}
+.tb-welcome{display:inline-flex!important;align-items:center}
+.tb-welcome .tb-badge{display:inline-flex;align-items:center;line-height:1;padding:4px 8px 2px;margin-left:6px;height:16px;box-sizing:border-box}
+
+
+.mobile-menu-drawer .icon-btn,.mobile-menu-drawer .hamburger-btn{color:#141413!important}
+/* 푸터 좌우 끝선을 헤더·본문 선에 맞춤 */
+@media (min-width:861px){.footer-inner{padding:0 24px!important}.footer-top{padding-right:0!important}}
+/* 푸터 글씨 톤 */
+.footer-col a{font-weight:500!important;letter-spacing:.02em;color:rgba(255,255,255,.78)}
+.footer-col h5,.footer-contact .fc-label{font-weight:600!important;letter-spacing:.02em}
+.footer-biz,.footer-contact .fc-hours{letter-spacing:.01em}
+.footer-copy{font-family:var(--font-body)!important;letter-spacing:.02em}
+/* 세리프 이탤릭 → 깔끔한 영문 라벨(Montserrat) */
+.category-hero-eyebrow,.cs-hero .eyebrow,.list-eyebrow{font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-style:normal!important;font-size:12px!important;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#7A7167!important}
+.cs-hero h1{font-family:var(--font-body)!important;font-weight:600!important;letter-spacing:-.02em}
+.event-discount{font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-style:normal!important;font-weight:600!important}
+.product-code{font-family:var(--font-body)!important;font-style:normal!important;font-size:12.5px!important;font-weight:600!important;letter-spacing:.02em;text-transform:uppercase}
+/* 칩·탭·필터·상태 라벨: 알약 → 각진 모서리 */
+.cs-tab,.cs-cat-chip,.stock-toggle,.sort-select,.filter-btn,.filter-chip{border-radius:0!important}
+.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag{border-radius:2px!important}
+/* 상품 카드: 각진 모서리 + 참고 시안 글씨 */
+.p-badge{border-radius:0!important;font-family:'Montserrat','Pretendard Variable',sans-serif!important;font-size:9.5px!important;font-weight:500!important;letter-spacing:.08em;padding:3px 7px!important}
+.p-badge.new{background:#EADFD1!important;color:#5A4A3A!important}
+.p-badge.hot,.p-badge.best{background:#8B6242!important;color:#F4F2EF!important}
+.p-cat{font-size:11px!important;font-weight:400!important;color:#8A8279!important;letter-spacing:.03em}
+.p-brand{font-weight:600!important;letter-spacing:.02em;text-transform:uppercase;font-size:12px!important;color:var(--ink)!important}
+.p-name{font-weight:400!important;font-size:12px!important;letter-spacing:.02em;color:#8A8279!important}
+.p-price{font-family:var(--font-body)!important;font-size:14.5px!important;font-weight:600!important;color:var(--ink)!important}
+.product-card:hover{border-color:var(--gold)!important}
+body{background:#FAF8F4!important}
+/* ===== OPTICMALL 직각 컨셉 ===== */
+:root{--sky-lt:#F7F4EE}
+.filter-chip,.cs-tab,.cs-cat-chip,.filter-btn,.sort-select,.status-badge,.order-status,.status-pill-mini,.profile-level,.purchase-level-badge,.addr-default-badge,.addr-select-default,.faq-cat-tag,.purchase-progress-bar,.purchase-progress-fill,.pw-bar,#clearRecentBtn,.search-box,.search-input{border-radius:0!important}
+input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-btn):not(.hamburger-btn):not(.fw-btn):not([class*=fw-]):not([class*=float]){border-radius:0!important}
+/* 헤더 정돈: 로고-메뉴 왼쪽선 맞춤, 메뉴 가볍게 */
+@media (min-width:1001px){.header-top-row .logo{margin-left:-8px}}
+.gnb-item{font-weight:450!important;letter-spacing:.08em!important}
+.gnb-item:hover,.gnb-item.active{font-weight:450!important}
+
+/* 사진 HDR 밝기 확장 방지 */
+img,video,canvas{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
+html,body,.thumb,[style*="background"]{dynamic-range-limit:standard;-webkit-dynamic-range-limit:standard}
+html{color-scheme:only light}
+
+/* 푸터 정렬: 모바일/태블릿 */
+.footer-bottom{border-top:none!important;padding-top:0!important}
+@media (max-width:1000px){
+ .footer-top{flex-direction:column!important;gap:0!important;padding:0 0 28px!important}
+ .footer-mid{flex-direction:column!important;gap:0!important;flex-wrap:nowrap!important;width:100%}
+ .footer-contact{order:-1;padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.12)}
+ .footer-cols{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px!important;padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.12)}
+ .footer-col a{white-space:normal!important}
+ .footer-right{max-width:none!important;width:100%}
+}
+
+/* 모바일 상단 메뉴: 옆에 더 있으면 가장자리를 흐리게 해서 쓸 수 있다는 것을 알려줌 */
+@media (max-width:768px){
+ .gnb-inner.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent)}
+ .gnb-inner.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 48px),transparent)}
+ .gnb-inner.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 48px),transparent)}
+}
+
+/* 헤더 아이콘 간격 통일: 검색/내정보/찜/장바구니 모두 같은 크기·같은 간격 */
+.header-right .icon-btn{flex:none!important;box-sizing:border-box}
+@media (min-width:769px){
+ .header-right{gap:8px!important}
+ .header-right .icon-btn,.header-right>.icon-btn:nth-child(n){width:36px!important;height:36px!important;margin:0!important}
+ .header-right>#userMenuWrap,.header-right>div[id=userMenuWrap]{margin:0!important;flex:none}
+}
+@media (max-width:768px){
+ .header-right{gap:2px!important}
+ .header-right .icon-btn,.header-right>.icon-btn:nth-child(n){width:34px!important;height:34px!important;margin:0!important}
+ .header-right>#userMenuWrap,.header-right>div[id=userMenuWrap]{margin:0!important;flex:none;width:34px;height:34px}
+}
+
+/* 모바일 비율 정리: 로고는 키우고, 섹션/페이지 제목은 줄여서 로고가 주인공이 되게 */
+@media (max-width:768px){
+ .header-main .logo-img,.header-inner .logo-img{height:46px!important}
+ .header-top-row .logo{height:46px!important}
+}
+@media (max-width:640px){
+ .ers-head h2,.cat-badge-row .title,.category-hero-title,.ts-wrap .category-hero-title,.page-wrap .category-hero-title,.list-title,.cs-hero h1{font-size:21px!important}
+}
+</style>
+<style id="noImgSelect">img{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none}img::selection{background:transparent!important}</style>
+<style id="tabletHeader">
+/* 태블릿(769~1000px): 로고+아이콘 한 줄, 아래에 메뉴 한 줄 (햄버거 없음) */
+@media (min-width:769px) and (max-width:1000px){
+ .hamburger-btn{display:none!important}
+ .header-main,.header-inner{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo icons" "nav nav";align-items:center;row-gap:0!important;gap:0!important;padding-top:20px!important;padding-bottom:0!important}
+ .header-top-row{grid-area:logo;width:auto!important;height:auto!important}
+ .header-nav-row{display:contents!important;position:static!important;transform:none!important}
+ .header-right{grid-area:icons;margin:0!important}
+ .gnb-inner{display:flex!important;flex-wrap:nowrap!important;grid-area:nav;overflow-x:auto;gap:26px!important;padding:2px 2px 6px;margin-top:6px;scrollbar-width:none;min-width:0;width:100%}
+ .gnb-inner::-webkit-scrollbar{display:none}
+ .gnb-item{flex:0 0 auto;white-space:nowrap;padding:10px 0!important}
+ .header-main .logo-img,.header-inner .logo-img{height:46px!important}
+}
+</style>
+<style id="mobileAuth">
+/* 모바일: 로그인/회원가입을 헤더 맨 위 오른쪽에 작게 표시 */
+@media (max-width:768px){
+ .header-auth{display:flex!important;position:absolute;top:8px;right:26.6px;margin:0!important;z-index:3}
+ .header-auth .tb-link,.header-auth .tb-welcome{font-size:12px!important;line-height:1}
+ .header-auth .tb-sep{font-size:12px!important;margin:0 7px}
+ .header-auth .tb-badge{font-size:10px!important}
+ .header-main,.header-inner{padding-top:34px!important}
+}
+</style>
+<style id="mobileTidy">
+/* 모바일 상단 정리: 환영 줄 / 로고+아이콘 줄 / 메뉴 줄을 같은 톤으로 */
+@media (max-width:768px){
+ .header-auth .tb-link,.header-auth .tb-welcome{font-size:11.5px!important;font-weight:400!important;color:rgba(244,243,240,.78)!important}
+ .header-auth .tb-sep{margin:0 8px;opacity:.5}
+ .header-auth .tb-badge{font-size:9.5px!important;padding:1px 6px!important;margin-left:5px}
+ .header-main,.header-inner{padding-top:30px!important}
+ .header-main .logo-img,.header-inner .logo-img{height:32px!important}
+ .header-top-row .logo{height:32px!important}
+ .header-right .icon-btn{width:34px!important;height:34px!important}
+ .header-right .icon-btn svg{width:20px;height:20px}
+ .gnb-inner{gap:22px!important;margin-top:10px!important;padding:0 2px!important;border-top:1px solid rgba(255,255,255,.10);-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
+ .gnb-item{font-size:14px!important;font-weight:500!important;padding:12px 0!important;color:rgba(244,243,240,.88)!important}
+ .gnb-item.active{color:#fff!important}
+ .hero-nav-btn{display:none!important}
+}
+</style>
+<style>
+.about-page{background:#fff}
+.about-inner{max-width:1440px;margin:0 auto;padding:0 24px;box-sizing:border-box}
+.about-page .category-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 0;margin-bottom:20px}
+.about-page .category-hero-titlewrap{display:flex;align-items:baseline;gap:10px}
+.about-page .category-hero-title{font-family:inherit;font-size:20px;font-weight:600;color:var(--navy);line-height:1.3;margin:0;letter-spacing:-0.005em}
+@media (min-width:769px){html body .about-page .category-hero{padding-top:37px!important;padding-bottom:3px!important}html body .about-page .category-hero-titlewrap{padding-left:20px!important}}
+.ab-intro{background:var(--bg-subtle,#FAF8F4);padding:72px 0;margin-top:8px}
+.ab-intro-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:64px;align-items:start;padding-left:44px;padding-right:44px}
+.ab-eyebrow{font-family:'Montserrat','Pretendard Variable',sans-serif;font-size:12px;font-weight:500;letter-spacing:.18em;color:var(--gold,#A98C52);margin-bottom:16px}
+.ab-h2{font-size:34px;font-weight:700;line-height:1.35;letter-spacing:-0.03em;color:#111;margin:0}
+.ab-intro-text strong{color:#111;font-weight:700;box-shadow:inset 0 -7px 0 #EFE4CC}
+.ab-intro-text p{font-size:15.5px;line-height:1.9;color:#4A423B;margin:0 0 16px;word-break:keep-all}
+.ab-stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:56px;margin-bottom:24px}
+.ab-stat{text-align:center;padding:12px 0;border-left:1px solid #E6E0D6}
+.ab-stat:first-child{border-left:0}
+.ab-stat-num{white-space:nowrap;font-family:'Montserrat','Pretendard Variable',sans-serif;font-size:38px;font-weight:600;color:#111;letter-spacing:-0.01em}
+.ab-stat-num.ko{font-family:"Pretendard Variable",sans-serif;font-size:32px;font-weight:700;letter-spacing:-0.03em;line-height:46px}
+.ab-stat-num span{font-family:'Pretendard Variable',sans-serif;font-size:18px;font-weight:600;margin-left:2px}
+.ab-stat-label{font-size:13px;color:#7A7167;margin-top:6px}
+.ab-sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:28px;padding-left:20px}
+.ab-sec-title{font-size:24px;font-weight:700;letter-spacing:-0.02em;color:#111;margin:0}
+.ab-sec-en{font-family:'Montserrat','Pretendard Variable',sans-serif;font-size:12px;font-weight:500;letter-spacing:.14em;color:#7A7167;padding-left:12px;border-left:1px solid #CFC7BC}
+.ab-sec-head.light .ab-sec-title{color:#F4F3F0}
+.ab-sec-head.light .ab-sec-en{color:#B9AE9F;border-left-color:#5A4F45}
+.ab-values{margin-top:72px;margin-bottom:80px}
+.ab-value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ab-value{border:1px solid #E6E0D6;padding:32px 28px;background:#fff}
+.ab-value-no{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;color:var(--gold,#A98C52);letter-spacing:.1em;margin-bottom:18px}
+.ab-value-title{font-size:18px;font-weight:700;color:#111;margin-bottom:10px;letter-spacing:-0.02em}
+.ab-value-desc{font-size:14px;line-height:1.75;color:#5A5048;word-break:keep-all}
+.ab-brands{background:#2A2420;padding:64px 0 72px}
+.ab-brand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.ab-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;height:170px;border:1px solid rgba(255,255,255,.12);text-decoration:none;transition:border-color .2s,background .2s}
+.ab-brand:hover{border-color:rgba(214,196,154,.6);background:rgba(255,255,255,.03)}
+.ab-brand img{max-width:62%;max-height:52px;object-fit:contain}
+.ab-brand span{font-size:12.5px;color:#B9AE9F;letter-spacing:.02em}
+.ab-brands2{margin-bottom:0}
+.ab-brand-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #E6E0D6;border-bottom:1px solid #E6E0D6}
+.ab-brand2{display:flex;align-items:center;justify-content:center;height:104px;border-left:1px solid #E6E0D6;opacity:.72;transition:opacity .2s}
+.ab-brand2:first-child{border-left:0}
+.ab-brand2:hover{opacity:1}
+.ab-brand2 img{max-width:46%;max-height:30px;object-fit:contain}
+.ab-info{margin-top:80px}
+.ab-table{width:100%;border-collapse:collapse;border-top:2px solid #111}
+.ab-table th,.ab-table td{padding:16px 20px;border-bottom:1px solid #EAE5DC;font-size:14.5px;text-align:left;vertical-align:top}
+.ab-table th{width:180px;background:#FAF8F4;color:#4A423B;font-weight:600}
+.ab-table td{color:#222}
+.ab-table a{color:inherit;text-decoration:none;border-bottom:1px solid #CFC7BC}
+.ab-cta{margin-top:64px;margin-bottom:96px}
+.ab-cta-box{display:flex;align-items:center;justify-content:space-between;gap:24px;background:#FAF8F4;border:1px solid #EAE5DC;padding:36px 44px}
+.ab-cta-title{font-size:20px;font-weight:700;color:#111;letter-spacing:-0.02em;margin-bottom:6px}
+.ab-cta-desc{font-size:14px;color:#6A6058}
+.ab-cta-btns{display:flex;gap:10px;flex-shrink:0}
+.ab-btn{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 26px;border:1px solid #2A2420;color:#2A2420;font-size:14px;font-weight:600;text-decoration:none}
+.ab-btn.primary{background:#2A2420;color:#F4F3F0}
+@media (max-width:768px){
+ .about-inner{padding:0 16px}
+ .about-page .category-hero{padding:14px 0;margin-bottom:12px}
+ .about-page .category-hero-title{font-size:21px}
+ .ab-intro{padding:44px 0}
+ .ab-intro-grid{grid-template-columns:1fr;gap:20px;padding-left:16px;padding-right:16px}
+ .ab-h2{font-size:25px}
+ .ab-intro-text p{font-size:14.5px}
+ .ab-stats{grid-template-columns:repeat(2,1fr);row-gap:18px;margin-top:36px}
+ .ab-stat:nth-child(3){border-left:0}
+ .ab-stat-num{font-size:30px}
+ .ab-stat-num.ko{font-size:25px;line-height:36px}
+ .ab-sec-head{padding-left:0;margin-bottom:18px}
+ .ab-sec-title{font-size:20px}
+ .ab-values{margin-top:48px;margin-bottom:52px}
+ .ab-value-grid{grid-template-columns:1fr}
+ .ab-value{padding:24px 20px}
+ .ab-brands{padding:44px 0 48px}
+ .ab-brand-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+ .ab-brand{height:120px;gap:12px}
+ .ab-brand img{max-height:34px;max-width:70%}
+ .ab-brand span{font-size:11px}
+ .ab-brand-row{grid-template-columns:repeat(2,1fr)}
+ .ab-brand2{height:76px}
+ .ab-brand2:nth-child(3){border-left:0}
+ .ab-brand2:nth-child(n+3){border-top:1px solid #E6E0D6}
+ .ab-brand2 img{max-height:22px;max-width:60%}
+ .ab-info{margin-top:52px}
+ .ab-table th{width:112px;padding:12px 10px;font-size:13px;word-break:keep-all}
+ .ab-sec-en{display:none}
+ .ab-table td{padding:12px 10px;font-size:13.5px}
+ .ab-cta{margin-top:40px;margin-bottom:56px}
+ .ab-cta-box{flex-direction:column;align-items:flex-start;padding:26px 20px}
+ .ab-cta-btns{width:100%}
+ .ab-btn{flex:1}
+}
+</style>
+</head>
+<body>
+<!-- TOPBAR + HEADER (함께 고정) -->
+<div style="position:sticky;top:0;z-index:200;">
+<header style="position:relative;">
+  <div class="header-main">
+    <div class="header-top-row">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="index.html" class="logo"><img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="logo-img"></a>
+    
+    
+  </div>
+  <div class="header-nav-row">
+  <nav class="gnb-inner">
+    <button class="gnb-item" onclick="location.href='list.html'"><span class="gnb-label">전체상품</span></button>
+    <button class="gnb-item" onclick="location.href='brands.html'"><span class="gnb-label">브랜드샵</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=하금테'"><span class="gnb-label">하금테</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=뿔테'"><span class="gnb-label">뿔테</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=메탈'"><span class="gnb-label">메탈</span></button>
+    <button class="gnb-item" onclick="location.href='list.html?cat=선글라스'"><span class="gnb-label">선글라스</span></button>
+    <button class="gnb-item" onclick="location.href='vkool.html'"><span class="gnb-label">V.KOOL</span></button>
+    <button class="gnb-item" onclick="location.href='timesale.html'"><span class="gnb-label">타임세일</span></button>
+    <button class="gnb-item" onclick="location.href='event.html'"><span class="gnb-label">이벤트</span></button>
+    </nav>
+    <div class="header-right">
+      <div class="header-auth">
+        <div id="topbarGuest">
+      <button class="tb-link" onclick="location.href='index.html?openLogin=1'">로그인</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='join.html'">회원가입</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='board.html'">고객센터</button>
+    </div>
+        <div id="topbarUser" style="display:none;align-items:center;">
+      <span id="topbarWelcome" class="tb-welcome"></span><span class="tb-sep">|</span><button class="tb-link" onclick="topbarLogout()">로그아웃</button><span class="tb-sep">|</span><button class="tb-link" onclick="location.href='board.html'">고객센터</button>
+    </div>
+<script>(function(){try{var g=document.getElementById('topbarGuest'),u=document.getElementById('topbarUser'),w=document.getElementById('topbarWelcome');if(!g||!u||!w)return;var K='om_tbw',c=localStorage.getItem(K);if(c){g.style.display='none';u.style.display='flex';w.innerHTML=c;}
+var save=function(){try{if(u.style.display!=='none'&&w.innerHTML.trim())localStorage.setItem(K,w.innerHTML);}catch(e){}};new MutationObserver(save).observe(w,{childList:true,subtree:true,characterData:true});
+var t=setInterval(function(){if(window.firebase&&firebase.apps&&firebase.apps.length&&firebase.auth){clearInterval(t);firebase.auth().onAuthStateChanged(function(x){if(!x){try{localStorage.removeItem(K);}catch(e){}g.style.display='';u.style.display='none';}});}},100);setTimeout(function(){clearInterval(t);},15000);}catch(e){}})();</script>
+      </div>
+
+      <button class="icon-btn" id="searchToggleBtn" onclick="toggleSearchOverlay()">
+        <svg id="searchIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg id="closeIcon" style="display:none;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div style="position:relative;margin-left:8px;" id="userMenuWrap">
+        <button class="icon-btn" id="userMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E0E4E8;border-radius:0;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px;z-index:500;overflow:hidden;">
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">마이페이지</a>
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">관심상품</a>
+          <a href="index.html?openLogin=1" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="location.href='mypage.html?tab=wish'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></button>
+      <button class="icon-btn" onclick="location.href='cart.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13a1 1 0 01-1 1H6a1 1 0 01-1-1L6 7z"/><path d="M9 10V6a3 3 0 016 0v4"/></svg><span class="cart-count" id="cartCountBadge" style="display:none;">0</span></button>
+<!--om_ntb--><script>(function(){try{if(!localStorage.getItem('om_tbw')||document.getElementById('ntBell'))return;var cb=document.getElementById('cartCountBadge');var c=cb&&cb.closest('button');if(!c)return;var b=document.createElement('button');b.id='ntBell';b.className='icon-btn nt-bell';b.type='button';b.setAttribute('aria-label','알림');b.style.position='relative';b.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span class="nt-badge" id="ntBadge" style="display:none">0</span>';c.parentNode.insertBefore(b,c);}catch(e){}})();</script>
+        </div>
+  </div>
+
+
+  </div>
+
+  <!-- 모바일 메뉴 드로어 -->
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+    <div class="mobile-menu-header">
+      <span class="logo"><img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="logo-img" style="height:32px;"></span>
+      <button onclick="toggleMobileMenu()" aria-label="메뉴 닫기" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--g4);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="mobile-menu-list">
+      <button onclick="location.href='list.html'">전체상품</button>
+      <button onclick="location.href='brands.html'">브랜드샵</button>
+      <button onclick="location.href='list.html?cat=하금테'">하금테</button>
+      <button onclick="location.href='list.html?cat=뿔테'">뿔테</button>
+      <button onclick="location.href='list.html?cat=메탈'">메탈</button>
+      <button onclick="location.href='list.html?cat=선글라스'">선글라스</button>
+      <button onclick="location.href='vkool.html'">V.KOOL</button>
+      <button onclick="location.href='timesale.html'">타임세일</button>
+      <button onclick="location.href='event.html'">이벤트</button>
+      <button onclick="location.href='board.html'">고객센터</button>
+    </nav>
+  </div>
+  <div id="searchOverlay" style="display:none;position:fixed;left:0;right:0;background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 12px 24px rgba(0,0,0,0.08);z-index:210;">
+    <div style="max-width:600px;margin:0 auto;padding:20px 24px;">
+      <div style="display:flex;background:var(--white);border:1.5px solid var(--g2);border-radius:0;overflow:hidden;">
+        <input type="text" id="searchInput" placeholder="전체 상품 검색" autocomplete="off" style="flex:1;padding:12px 16px;border:none;outline:none;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter') doSearch()">
+        <button class="search-btn" onclick="doSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      </div>
+    </div>
+  </div>
+</header>
+<div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
+</div>
+
+<div class="about-page">
+  <div class="about-inner">
+    <div class="category-hero">
+      <div class="category-hero-titlewrap">
+        <h1 class="category-hero-title">회사소개</h1>
+        <span class="category-hero-eyebrow">ABOUT US</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="ab-intro">
+    <div class="about-inner ab-intro-grid">
+      <div>
+        <div class="ab-eyebrow">SINCE 2001</div>
+        <h2 class="ab-h2">안경사를 먼저 생각하는<br>안경 도매 파트너</h2>
+      </div>
+      <div class="ab-intro-text">
+        <p>위즈옵틱은 2001년부터 안경원과 함께해 온 안경테·선글라스 도매 회사입니다. 직접 발로 뛰며 안경원을 만나 온 25년의 현장 경험으로, 안경사가 정말 필요로 하는 제품과 서비스가 무엇인지 고민해 왔습니다.</p>
+        <p>OPTICMALL은 이 경험을 온라인으로 옮긴 안경원 전용 도매몰입니다. 언제든 제품을 보고, 여러 브랜드를 한 번에 주문하고, 빠르게 받아보실 수 있도록 만들었습니다. 제품은 중국 현지 공장과 직접 거래해 합리적인 가격으로 공급하고 있습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-inner ab-stats">
+    <div class="ab-stat"><div class="ab-stat-num">2001</div><div class="ab-stat-label">설립</div></div>
+    <div class="ab-stat"><div class="ab-stat-num">25<span>년</span></div><div class="ab-stat-label">안경 도매 경력</div></div>
+    <div class="ab-stat"><div class="ab-stat-num" id="abItemCount">700<span>+</span></div><div class="ab-stat-label">취급 상품 (색상 기준)</div></div>
+    <div class="ab-stat"><div class="ab-stat-num">B2B</div><div class="ab-stat-label">안경원 전용 도매</div></div>
+  </section>
+
+  <section class="about-inner ab-values">
+    <div class="ab-sec-head"><h2 class="ab-sec-title">OPTICMALL이 약속하는 것</h2><span class="ab-sec-en">OUR PROMISE</span></div>
+    <div class="ab-value-grid">
+      <div class="ab-value">
+        <div class="ab-value-no">01</div>
+        <div class="ab-value-title">안경원 전용 도매가</div>
+        <div class="ab-value-desc">사업자 확인을 거친 안경원 회원에게만 도매가를 공개합니다. 소비자 가격과 섞이지 않는 거래 환경을 지킵니다.</div>
+      </div>
+      <div class="ab-value">
+        <div class="ab-value-no">02</div>
+        <div class="ab-value-title">여러 브랜드, 한 번에 주문</div>
+        <div class="ab-value-desc">브랜드마다 따로 연락할 필요 없이 한 장바구니에서 주문하세요. 평일 오후 1시 이전 결제 건은 당일 출고됩니다.</div>
+      </div>
+      <div class="ab-value">
+        <div class="ab-value-no">03</div>
+        <div class="ab-value-title">현장을 아는 상담</div>
+        <div class="ab-value-desc">25년 동안 안경원을 직접 다녀 온 경험으로 제품 선택부터 진열까지 편하게 상담해 드립니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-inner ab-brands2">
+    <div class="ab-sec-head"><h2 class="ab-sec-title">운영 브랜드</h2><span class="ab-sec-en">OUR BRANDS</span></div>
+    <div class="ab-brand-row">
+      <a class="ab-brand2" href="brands.html"><img src="assets/brands/suofeia-dark.png" alt="SUOFEIA"></a>
+      <a class="ab-brand2" href="brands.html"><img src="assets/brands/essential-dark.png" alt="ESSENTIAL"></a>
+      <a class="ab-brand2" href="brands.html"><img src="assets/brands/color7-dark.png" alt="COLOR7"></a>
+      <a class="ab-brand2" href="vkool.html"><img src="assets/brands/vkool-dark.png" alt="V.KOOL"></a>
+    </div>
+  </section>
+
+  <section class="about-inner ab-info">
+    <div class="ab-sec-head"><h2 class="ab-sec-title">회사 정보</h2><span class="ab-sec-en">COMPANY</span></div>
+    <table class="ab-table">
+      <tr><th>상호</th><td>위즈옵틱 (OPTICMALL)</td></tr>
+      <tr><th>대표</th><td>손진영</td></tr>
+      <tr><th>설립</th><td>2001년</td></tr>
+      <tr><th>사업 분야</th><td>안경테 · 선글라스 도매, 안경원 전용 온라인 도매몰 운영</td></tr>
+      <tr><th>주소</th><td>인천광역시 검단구 원당대로 840번길 5 장원프라자 5F</td></tr>
+      <tr><th>대표전화</th><td><a href="tel:0325639984">032-563-9984</a> (평일 10:00 ~ 17:00, 주말·공휴일 휴무)</td></tr>
+      <tr><th>이메일</th><td><a href="mailto:info@opticmall.co.kr">info@opticmall.co.kr</a></td></tr>
+      <tr><th>사업자등록번호</th><td>137-19-96848</td></tr>
+      <tr><th>통신판매업신고</th><td>2025-인천서구-0228</td></tr>
+    </table>
+  </section>
+
+  <section class="about-inner ab-cta">
+    <div class="ab-cta-box">
+      <div>
+        <div class="ab-cta-title">안경원 사장님, OPTICMALL과 함께하세요</div>
+        <div class="ab-cta-desc">회원가입 후 사업자 확인이 끝나면 도매가 확인과 주문이 가능합니다.</div>
+      </div>
+      <div class="ab-cta-btns">
+        <a class="ab-btn primary" href="join.html">회원가입</a>
+        <a class="ab-btn" href="board.html">고객센터</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER (공통) -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-mid">
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h5>고객지원</h5>
+            <a href="board.html?tab=notice">공지사항</a><a href="board.html?tab=faq&cat=배송">배송안내</a><a href="board.html?tab=faq&cat=반품/교환">반품/교환</a><a href="board.html?tab=inquiry">1:1 문의</a>
+          </div>
+          <div class="footer-col">
+            <h5>회사</h5>
+            <a href="about.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+          </div>
+        </div>
+        <div class="footer-contact">
+          <div class="fc-label">고객센터 032-563-9984</div>
+          <div class="fc-hours">평일 오전 10:00 ~ 오후 05:00<br>주말 · 공휴일 휴무</div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <img src="assets/opticmall-logo-v3.svg" alt="Opticmall" class="footer-logo-img">
+        <div class="footer-biz">
+          위즈옵틱 · 대표: 손진영<br>
+          <span class="footer-biz-addr">인천광역시 검단구 원당대로 840번길 5 장원프라자 5F</span><br>
+          사업자등록번호: 137-19-96848<br>
+          통신판매업신고번호: 2025-인천서구-0228<br>
+          E-mail: info@opticmall.co.kr
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 OPTICMALL. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
+  authDomain: "opticmall.firebaseapp.com",
+  projectId: "opticmall",
+  storageBucket: "opticmall.firebasestorage.app",
+  messagingSenderId: "649171316547",
+  appId: "1:649171316547:web:778de09e4fe6a43df109f6"
+};
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
+function topbarLogout() { _auth.signOut(); location.reload(); }
+function toggleMobileMenu() {
+  document.getElementById('mobileMenuDrawer').classList.toggle('open');
+  document.getElementById('mobileMenuBackdrop').classList.toggle('open');
+  document.body.style.overflow = document.getElementById('mobileMenuDrawer').classList.contains('open') ? 'hidden' : '';
+}
+function toggleSearchOverlay() {
+  const overlay = document.getElementById('searchOverlay');
+  const backdrop = document.getElementById('searchBackdrop');
+  const searchIcon = document.getElementById('searchIcon');
+  const closeIcon = document.getElementById('closeIcon');
+  const isOpen = overlay.style.display === 'block';
+  if (isOpen) {
+    overlay.style.display = 'none';
+    backdrop.style.display = 'none';
+    searchIcon.style.display = '';
+    closeIcon.style.display = 'none';
+  } else {
+    overlay.style.display = 'block';
+    backdrop.style.display = 'block';
+    searchIcon.style.display = 'none';
+    closeIcon.style.display = '';
+    setTimeout(() => document.getElementById('searchInput').focus(), 50);
+  }
+}
+function doSearch() {
+  const kw = document.getElementById('searchInput').value.trim();
+  location.href = 'list.html' + (kw ? ('?q=' + encodeURIComponent(kw)) : '');
+}
+document.getElementById('userMenuBtn')?.addEventListener('click', () => {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+});
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('userMenuWrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('userDropdown').style.display = 'none';
+});
+_auth.onAuthStateChanged(async (user) => {
+  if(!user) return;
+  try {
+    const userDoc = await _db.collection('users').doc(user.uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const guest = document.getElementById('topbarGuest');
+    const userEl = document.getElementById('topbarUser');
+    const welcome = document.getElementById('topbarWelcome');
+    if(guest) guest.style.display = 'none';
+    if(userEl) userEl.style.display = 'flex';
+    const level = userData.member_level || 0;
+    const name = userData.name || user.email.split('@')[0];
+    if(welcome) {
+      const badge = level >= 2 ? '<span class="tb-badge">B2B</span>' : '<span class="tb-badge" style="background:#FEF9E7;color:#F39C12;">승인대기</span>';
+      welcome.innerHTML = name + '님 환영합니다!' + badge;
+    }
+    const dropdown = document.getElementById('userDropdown');
+    if(dropdown) {
+      let adminLinkHtml = '';
+      if(userData.role === 'brand') {
+        adminLinkHtml = `<a href="brand.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#000000;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+      } else if(userData.role === 'master' || userData.role === 'submaster') {
+        adminLinkHtml = `<a href="admin.html" style="display:block;padding:13px 20px;font-size:14px;font-weight:700;color:#000000;text-decoration:none;border-bottom:1px solid #F2F4F6;">관리자 모드</a>`;
+      }
+      dropdown.innerHTML = `
+        <div style="padding:12px 20px;border-bottom:1px solid #F2F4F6;">
+          <div style="font-size:14px;font-weight:700;color:#000000;">${name}님</div>
+          <div style="font-size:12px;color:#9BA5B0;margin-top:2px;">${level >= 2 ? 'B2B 승인회원' : '승인 대기중'}</div>
+        </div>
+        ${adminLinkHtml}
+        <a href="mypage.html" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">마이페이지</a>
+        <a href="mypage.html" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">주문/배송조회</a>
+        <a href="mypage.html?tab=wish" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">관심상품</a>
+        <a href="mypage.html?tab=recent" style="display:block;padding:13px 20px;font-size:14px;color:#5A6472;text-decoration:none;">최근 본 상품</a>
+        <a href="#" onclick="topbarLogout()" style="display:block;padding:13px 20px;font-size:14px;color:#FF4444;text-decoration:none;border-top:1px solid #F2F4F6;">로그아웃</a>`;
+    }
+    try {
+      const cartSnap = await _db.collection('carts').doc(user.uid).collection('items').get();
+      const cartBadge = document.getElementById('cartCountBadge');
+      if(cartBadge && cartSnap.size > 0) { cartBadge.textContent = cartSnap.size; cartBadge.style.display = 'flex'; }
+    } catch(e) {}
+  } catch(e) { console.error(e); }
+});
+</script>
+
+
+<!-- ===================== 플로팅 위젯 (카카오상담 / 최근본상품 / 맨위로) - 전 페이지 공통 ===================== -->
+<div class="fw-recent-panel" id="fwRecentPanel">
+  <div class="fw-recent-head">
+    최근 본 상품
+    <button class="fw-recent-close" onclick="document.getElementById('fwRecentPanel').classList.remove('open')">&times;</button>
+  </div>
+  <div class="fw-recent-list" id="fwRecentList"></div>
+</div>
+<div class="fw-share-panel" id="fwSharePanel">
+  <div class="fw-share-head">
+    <div class="fw-share-title">공유하기</div>
+    <button class="fw-share-close" onclick="document.getElementById('fwSharePanel').classList.remove('open')">&times;</button>
+  </div>
+  <div class="fw-share-grid">
+    <button class="fw-share-item" onclick="fwShareNaver('blog')">
+      <span class="fw-share-icon fw-si-blog"><img src="assets/share-icons/blog.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">블로그</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareNaver('cafe')">
+      <span class="fw-share-icon fw-si-cafe"><img src="assets/share-icons/cafe.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">카페</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareKeep()">
+      <span class="fw-share-icon fw-si-keep"><img src="assets/share-icons/keep.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">Keep</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareMail()">
+      <span class="fw-share-icon fw-si-mail"><img src="assets/share-icons/mail.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">메일</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareBand()">
+      <span class="fw-share-icon fw-si-band"><img src="assets/share-icons/band.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">밴드</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareLine()">
+      <span class="fw-share-icon fw-si-line"><img src="assets/share-icons/line.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">LINE</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareX()">
+      <span class="fw-share-icon fw-si-x"><img src="assets/share-icons/x.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">X</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareFacebook()">
+      <span class="fw-share-icon fw-si-fb"><img src="assets/share-icons/fb.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">페이스북</span>
+    </button>
+    <button class="fw-share-item" onclick="fwShareKakao()">
+      <span class="fw-share-icon fw-si-kakao"><img src="assets/share-icons/kakao.png" alt="" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span class="fw-share-label">카카오톡</span>
+    </button>
+  </div>
+  <div class="fw-share-link-row">
+    <input type="text" id="fwShareLinkInput" readonly>
+    <button class="fw-share-copy-btn" onclick="fwCopySiteLink()">복사</button>
+  </div>
+</div>
+<div class="floating-widget">
+  <a class="fw-btn fw-kakao" href="http://pf.kakao.com/_RWTxnX/chat" target="_blank" rel="noopener">
+    <svg width="24" height="24" viewBox="0 0 16 16" aria-hidden="true"><path fill="#391B1B" d="M8 1C3.6 1 0 3.8 0 7.3c0 2.2 1.5 4.2 3.7 5.3-.2.6-.7 2.3-.8 2.7 0 0-.02.2.1.27.1.07.24.03.24.03.3-.04 2.5-1.66 2.9-1.94.6.1 1.2.15 1.85.15 4.4 0 8-2.8 8-6.3S12.4 1 8 1z"/></svg>
+    <span class="fw-tip">카카오 채널 상담</span>
+  </a>
+  <button class="fw-btn" id="fwRecentBtn" onclick="toggleFwRecentPanel()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
+    <span class="fw-tip">최근 본 상품</span>
+  </button>
+  <button class="fw-btn" id="fwShareBtn" onclick="toggleFwSharePanel()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+    <span class="fw-tip">공유하기</span>
+  </button>
+  <button class="fw-btn fw-top" id="fwTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    ↑
+    <span class="fw-tip">맨 위로</span>
+  </button>
+</div>
+<script>
+window.addEventListener('scroll', () => {
+  const topBtn = document.getElementById('fwTopBtn');
+  if (topBtn) topBtn.classList.toggle('show', window.scrollY > 400);
+});
+// 스크롤이 푸터에 닿으면 플로팅 버튼(카카오/최근본상품/공유/맨위로)이 푸터 내용을 가리지 않도록 위로 밀어줌
+(function () {
+  const widget = document.querySelector('.floating-widget');
+  const footer = document.querySelector('footer');
+  if (!widget || !footer) return;
+  let ticking = false;
+  function adjustFloatingWidget() {
+    ticking = false;
+    const baseBottom = window.innerWidth <= 860 ? 72 : 90;
+    const footerRect = footer.getBoundingClientRect();
+    const widgetHeight = widget.offsetHeight;
+    const dockedBottom = window.innerHeight - footerRect.top - widgetHeight;
+    widget.style.bottom = (dockedBottom > baseBottom ? dockedBottom : baseBottom) + 'px';
+  }
+  function onScrollOrResize() {
+    if (!ticking) { window.requestAnimationFrame(adjustFloatingWidget); ticking = true; }
+  }
+  window.addEventListener('scroll', onScrollOrResize);
+  window.addEventListener('resize', onScrollOrResize);
+  adjustFloatingWidget();
+})();
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('fwRecentPanel');
+  const btn = document.getElementById('fwRecentBtn');
+  if (panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+function toggleFwSharePanel() {
+  const panel = document.getElementById('fwSharePanel');
+  if (!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  panel.classList.toggle('open', willOpen);
+  if (willOpen) {
+    const input = document.getElementById('fwShareLinkInput');
+    if (input) input.value = window.location.href;
+  }
+}
+document.addEventListener('click', (e) => {
+  const sPanel = document.getElementById('fwSharePanel');
+  const sBtn = document.getElementById('fwShareBtn');
+  if (sPanel && sPanel.classList.contains('open') && !sPanel.contains(e.target) && sBtn && !sBtn.contains(e.target)) {
+    sPanel.classList.remove('open');
+  }
+});
+async function fwCopySiteLink() {
+  const url = window.location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e2) {}
+    document.body.removeChild(ta);
+  }
+  if (typeof showToast === 'function') {
+    showToast('링크가 복사됐어요. 원하는 곳에 붙여넣어 공유해보세요.', 'success');
+  } else {
+    alert('링크가 복사됐습니다.');
+  }
+}
+function fwShareNaver(service) {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+  window.open(
+    'https://share.naver.com/web/shareView.nhn?url=' + url + '&title=' + title,
+    'naversharedialog',
+    'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=550,width=600'
+  );
+}
+function fwShareMail() {
+  const url = window.location.href;
+  const title = document.title;
+  window.location.href = 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(title + '\n' + url);
+}
+function fwShareBand() {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+  window.open('https://band.us/plugin/share?body=' + title + '&route=' + url, '_blank', 'width=600,height=600');
+}
+function fwShareLine() {
+  const url = encodeURIComponent(window.location.href);
+  window.open('https://social-plugins.line.me/lineit/share?url=' + url, '_blank', 'width=500,height=600');
+}
+function fwShareX() {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+  window.open('https://twitter.com/intent/tweet?url=' + url + '&text=' + title, '_blank', 'width=550,height=420');
+}
+function fwShareFacebook() {
+  const url = encodeURIComponent(window.location.href);
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + url, '_blank', 'width=550,height=450');
+}
+async function fwShareKeep() {
+  await fwCopySiteLink();
+}
+async function fwShareKakao() {
+  await fwCopySiteLink();
+}
+function toggleFwRecentPanel() {
+  const panel = document.getElementById('fwRecentPanel');
+  if (!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  panel.classList.toggle('open', willOpen);
+  if (willOpen) renderFwRecentPanel();
+}
+async function renderFwRecentPanel() {
+  const listEl = document.getElementById('fwRecentList');
+  if (!listEl) return;
+  let ids = [];
+  try { ids = JSON.parse(localStorage.getItem('recentlyViewed') || '[]'); } catch(e) {}
+  ids = ids.slice(0, 8);
+  if (ids.length === 0) {
+    listEl.innerHTML = `<div class="fw-recent-empty">최근 본 상품이 없습니다</div>`;
+    return;
+  }
+  listEl.innerHTML = `<div class="fw-recent-empty">불러오는 중...</div>`;
+  try {
+    const docs = await Promise.all(ids.map(id => _db.collection('products').doc(id).get()));
+    const items = docs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() }));
+    if (items.length === 0) {
+      listEl.innerHTML = `<div class="fw-recent-empty">최근 본 상품이 없습니다</div>`;
+      return;
+    }
+    listEl.innerHTML = items.map(p => {
+      const img = (p.colors && p.colors[0] && p.colors[0].mainImageUrl) || p.mainImageUrl || '';
+      const name = p.name || p.modelName || '상품';
+      return `<a class="fw-recent-item" href="product.html?id=${p.id}">
+        <img loading="lazy" decoding="async" src="${img}" onerror="this.style.visibility='hidden'">
+        <span class="fw-recent-name">${name}</span>
+      </a>`;
+    }).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div class="fw-recent-empty">불러오지 못했습니다</div>`;
+  }
+}
+</script>
+
+<script>/* 내용이 짧은 페이지에서도 푸터를 화면 맨 아래에 고정 (페이지마다 푸터가 위아래로 움찔거리지 않게) */
+(function(){var f=document.querySelector('footer');if(!f)return;var busy=false;
+function fit(){if(busy)return;busy=true;f.style.marginTop='0px';var b=document.body.getBoundingClientRect().bottom+window.pageYOffset;var gap=document.documentElement.clientHeight-b;f.style.marginTop=(gap>0?Math.round(gap):0)+'px';busy=false;}
+fit();window.addEventListener('load',fit);window.addEventListener('resize',fit);
+if(window.ResizeObserver){var t=0;new ResizeObserver(function(){cancelAnimationFrame(t);t=requestAnimationFrame(fit)}).observe(document.body);}
+setTimeout(fit,300);setTimeout(fit,1200);})();
+</script>
+<!-- COUPON-EXPIRY-NOTICE -->
+<script>
+(function(){
+  try {
+    var KEY = 'couponExpiryNoticeClosed';
+    try { if(sessionStorage.getItem(KEY) === '1') return; } catch(e) {}
+    var tries = 0;
+    var timer = setInterval(function(){
+      tries++;
+      if(typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length || !firebase.firestore) {
+        if(tries > 40) clearInterval(timer);
+        return;
+      }
+      clearInterval(timer);
+      firebase.auth().onAuthStateChanged(function(user){
+        if(!user || document.getElementById('couponExpiryBar')) return;
+        firebase.firestore().collection('users').doc(user.uid).collection('coupons').get().then(function(snap){
+          var now = Date.now(), limit = now + 7*24*60*60*1000, n = 0, first = null;
+          snap.forEach(function(d){
+            var c = d.data();
+            if(c.used || !c.expiresAt) return;
+            var t = c.expiresAt.toDate ? c.expiresAt.toDate() : new Date(c.expiresAt);
+            var ms = t.getTime();
+            if(ms > now && ms <= limit) { n++; if(!first || ms < first.getTime()) first = t; }
+          });
+          if(!n || document.getElementById('couponExpiryBar')) return;
+          var days = Math.max(0, Math.ceil((first.getTime() - now) / 86400000));
+          var bar = document.createElement('div');
+          bar.id = 'couponExpiryBar';
+          bar.style.cssText = 'background:#2B2B2B;color:#fff;font-size:13px;line-height:1.5;padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;position:relative;z-index:50;';
+          bar.innerHTML = '<span>7일 안에 만료되는 쿠폰이 <b>' + n + '장</b> 있어요. (가장 빠른 만료 ' + (days === 0 ? '오늘' : 'D-' + days) + ')</span>'
+            + '<a href="mypage.html?tab=coupons" style="color:#fff;text-decoration:underline;font-weight:700;white-space:nowrap;">쿠폰함 보기</a>'
+            + '<button type="button" aria-label="닫기" style="background:none;border:0;color:#fff;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;border-radius:0;">✕</button>';
+          bar.querySelector('button').onclick = function(){
+            bar.remove();
+            try { sessionStorage.setItem(KEY, '1'); } catch(e) {}
+          };
+          document.body.insertBefore(bar, document.body.firstChild);
+        }).catch(function(){});
+      });
+    }, 250);
+  } catch(e) {}
+})();
+</script>
+<script>
+/* 모바일 상단 메뉴: 더 볼 메뉴가 있는 쪽 가장자리를 흐리게 표시 + 지금 보는 메뉴가 가려져 있으면 보이게 이동 */
+(function(){
+  var g=document.querySelector('.gnb-inner'); if(!g) return;
+  var mq=window.matchMedia('(max-width:768px)');
+  function upd(){
+    var max=g.scrollWidth-g.clientWidth;
+    g.classList.toggle('fade-r',mq.matches&&g.scrollLeft<max-4);
+    g.classList.toggle('fade-l',mq.matches&&g.scrollLeft>4);
+  }
+  function reveal(){
+    if(!mq.matches) return;
+    var a=g.querySelector('.gnb-item.active'); if(!a) return;
+    var l=a.offsetLeft-g.offsetLeft-16;
+    if(a.offsetLeft+a.offsetWidth>g.scrollLeft+g.clientWidth-20) g.scrollLeft=Math.max(0,l);
+  }
+  g.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);
+  window.addEventListener('load',function(){reveal();upd();});
+  setTimeout(function(){reveal();upd();},300); setTimeout(function(){reveal();upd();},1200);
+  if(window.ResizeObserver) new ResizeObserver(upd).observe(g);
+  upd();
+})();
+</script>
+<script src="notify.js"></script>
+<script>
+/* 취급 상품 수: 등록된 상품(색상 기준)을 세어 100단위로 내림해서 표시 (상품이 늘면 자동으로 올라감) */
+(function(){
+  var t=setInterval(function(){
+    if(!(window.firebase&&firebase.apps&&firebase.apps.length&&firebase.firestore)) return;
+    clearInterval(t);
+    firebase.firestore().collection('products').get().then(function(snap){
+      var n=0;
+      snap.forEach(function(d){var p=d.data(); n+= (Array.isArray(p.colors)&&p.colors.length)?p.colors.length:((p.colorNames&&p.colorNames.length)||1);});
+      var r=Math.floor(n/100)*100;
+      if(r>=100){var el=document.getElementById('abItemCount'); if(el) el.innerHTML=r.toLocaleString()+'<span>+</span>';}
+    }).catch(function(){});
+  },150);
+  setTimeout(function(){clearInterval(t);},15000);
+})();
+</script>
+</body>
+</html>

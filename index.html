@@ -1941,6 +1941,16 @@ function makeColorView(p, ci) {
   });
 }
 
+// 색상 점 클릭: 카드 사진을 그 색상으로 바꿈 (카드를 누르면 그 색상으로 상세 이동)
+function selectMainCardColor(event, chipEl, imgUrl, colorIdx, productId) {
+  event.stopPropagation();
+  const card = chipEl.closest('.product-card');
+  if(!imgUrl || !card) { goToProductFromMain(productId, colorIdx); return; }
+  const ph = card.querySelector('.img-ph');
+  if(ph) ph.innerHTML = `<img src="${imgUrl}" decoding="async" style="width:100%;height:100%;object-fit:cover;">`;
+  card.dataset.c = colorIdx;
+}
+
 function renderMainProductCard(p, badgeText, badgeClass) {
   const imgHtml = p.mainImageUrl
     ? `<img src="${p.mainImageUrl}" alt="${p.modelName||''}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`
@@ -1963,7 +1973,7 @@ function renderMainProductCard(p, badgeText, badgeClass) {
   const mainWishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c${p._ci||0}` : p.id;
   const isWished = mainWishlistIds.has(mainWishId);
   return `
-    <div class="product-card" onclick="goToProductFromMain('${p.id}',${p._ci||0})" style="cursor:pointer;">
+    <div class="product-card" data-c="${p._ci||0}" onclick="goToProductFromMain('${p.id}',+(this.dataset.c||0))" style="cursor:pointer;">
       <div class="product-img-wrap">
         <div class="img-ph" style="overflow:hidden;">${imgHtml}</div>
         <button class="wish-btn${isWished ? ' active' : ''}" onclick="toggleMainWish(event,'${p.id}','${mainWishId}',${(p.colors&&p.colors[0])?`'${(p.colors[0].colorName||'').replace(/'/g,"\\'")}'`:'null'})">${isWished ? '<i class=ic-wish-filled></i>' : '<i class=ic-wish></i>'}</button>
@@ -1975,9 +1985,13 @@ function renderMainProductCard(p, badgeText, badgeClass) {
         ${(() => {
           const colorNames = p.colorNames || (p.color ? [p.color] : []);
           if(colorNames.length === 0) return '';
-          const chips = colorNames.slice(0,6).map(c =>
-            `<div class="p-color-chip" title="${c}" style="background:${getMainColorDot(c)};"></div>`
-          ).join('');
+          const colorsArrC = Array.isArray(p.colors) ? p.colors : [];
+          const chips = colorNames.slice(0,6).map(c => {
+            const ci = Math.max(0, colorsArrC.findIndex(cc => cc.colorName === c));
+            const m = colorsArrC.find(cc => cc.colorName === c);
+            const safeImg = String(m && m.mainImageUrl ? m.mainImageUrl : '').replace(/'/g,"\\'");
+            return `<div class="p-color-chip" title="${c}" style="background:${getMainColorDot(c)};cursor:pointer;" onclick="selectMainCardColor(event,this,'${safeImg}',${ci},'${p.id}')"></div>`;
+          }).join('');
           const more = colorNames.length > 6 ? `<span class="p-color-more">+${colorNames.length-6}</span>` : '';
           return `<div class="p-colors">${chips}${more}</div>`;
         })()}
