@@ -725,6 +725,7 @@ html{color-scheme:only light}
 </div>
 
 <div class="page-wrap">
+  <div id="vkoolListNotice" style="display:none;margin:18px 0 0;padding:13px 16px;background:#F7F4EE;border:1px solid #E3D9C6;color:#6B5A3A;font-size:14px;font-weight:600;line-height:1.6;"></div>
   <div class="list-header">
     <div>
       <div class="list-eyebrow">V.KOOL Brand Shop</div>
@@ -779,6 +780,7 @@ html{color-scheme:only light}
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="vkool-rule.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script>
 const firebaseConfig = {
@@ -1915,5 +1917,8 @@ setTimeout(fit,300);setTimeout(fit,1200);})();
 })();
 </script>
 <script src="notify.js"></script>
+<script>
+(function(){ if(!window.VkoolRule) return; VkoolRule.noticeText().then(t => { const el = document.getElementById('vkoolListNotice'); if(el && t){ el.textContent = t; el.style.display = 'block'; } }); })();
+</script>
 </body>
 </html>

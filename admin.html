@@ -696,6 +696,19 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         <button class="btn-sm btn-primary" onclick="requestOrderNotificationPermission()">새 주문 알림 켜기</button>
       </div>
       <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:24px;max-width:480px;margin-top:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:700;color:var(--navy);">V.KOOL 주문 규정</div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#5A6472;cursor:pointer;"><input type="checkbox" id="vkRuleEnabled" style="width:16px;height:16px;"> 사용</label>
+        </div>
+        <div style="display:grid;grid-template-columns:130px 1fr;gap:12px 14px;align-items:center;font-size:13px;color:#5A6472;">
+          <label for="vkRuleFirstMin">첫 주문 최소 금액</label>
+          <div style="display:flex;align-items:center;gap:8px;"><input type="number" id="vkRuleFirstMin" min="0" step="10000" style="flex:1;padding:9px 12px;border:1.5px solid #E0E4E8;border-radius:6px;font-size:14px;font-family:inherit;text-align:right;"><span>원</span></div>
+          <label for="vkRuleRepeatQty">재주문 최소 수량</label>
+          <div style="display:flex;align-items:center;gap:8px;"><input type="number" id="vkRuleRepeatQty" min="0" step="1" style="flex:1;padding:9px 12px;border:1.5px solid #E0E4E8;border-radius:6px;font-size:14px;font-family:inherit;text-align:right;"><span>장</span></div>
+        </div>
+        <div style="margin-top:18px;text-align:right;"><button class="btn-sm btn-primary" onclick="saveVkoolRuleAdmin()">저장</button></div>
+      </div>
+      <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:24px;max-width:480px;margin-top:16px;">
         <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;">계정</div>
         <div style="font-size:13px;color:#5A6472;margin-bottom:12px;">로그인된 관리자 계정에서 로그아웃해요.</div>
         <button class="btn-sm" style="background:var(--g1);color:var(--navy);" onclick="adminLogout()">로그아웃</button>
@@ -1191,6 +1204,7 @@ function showPage(name, el) {
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
+  if(name === 'adminSettings') loadVkoolRuleAdmin();
   if(name === 'productApproval') loadProductApproval();
   if(name === 'allProducts') loadAllProducts();
   if(name === 'productOrder') loadProductOrder();
@@ -1573,6 +1587,13 @@ async function openModal(uid) {
         <button class="btn-role-save" onclick="changePurchaseLevel('${uid}')">등급 변경</button>
       </div>
 
+      ${role === 'optician' ? `
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">V.KOOL 초도 주문</div>
+      <div class="role-select-box">
+        <span style="flex:1;font-size:13px;color:var(--navy);">${user.vkoolFirstDone ? '초도 완료로 표시됨' : '표시 안 함'}</span>
+        <button class="btn-role-save" onclick="toggleVkoolFirst('${uid}', ${!user.vkoolFirstDone})">${user.vkoolFirstDone ? '표시 해제' : '초도 완료로 표시'}</button>
+      </div>` : ''}
+
       <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);"><i class=ic-key></i> 회원 권한 설정</div>
       <div class="role-select-box">
         <select id="roleSelect-${uid}">
@@ -1691,6 +1712,40 @@ async function changeRole(uid) {
 }
 
 // 구매등급 수동 변경
+// ===================== V.KOOL 주문 규정 =====================
+async function loadVkoolRuleAdmin() {
+  try {
+    const snap = await window._getDoc(window._doc(window._db, 'settings', 'vkoolRule'));
+    const r = Object.assign({ enabled: true, firstMinAmount: 1000000, repeatMinQty: 2 }, snap.exists() ? snap.data() : {});
+    document.getElementById('vkRuleEnabled').checked = r.enabled !== false;
+    document.getElementById('vkRuleFirstMin').value = Number(r.firstMinAmount) || 0;
+    document.getElementById('vkRuleRepeatQty').value = Number(r.repeatMinQty) || 0;
+  } catch(e) { console.error(e); }
+}
+async function saveVkoolRuleAdmin() {
+  const firstMinAmount = Math.max(0, parseInt(document.getElementById('vkRuleFirstMin').value, 10) || 0);
+  const repeatMinQty = Math.max(0, parseInt(document.getElementById('vkRuleRepeatQty').value, 10) || 0);
+  const enabled = document.getElementById('vkRuleEnabled').checked;
+  try {
+    await window._setDoc(window._doc(window._db, 'settings', 'vkoolRule'), { enabled, brandName: 'V.KOOL', firstMinAmount, repeatMinQty }, { merge: true });
+    showToast('<i class=ic-check-circle></i> V.KOOL 주문 규정이 저장되었습니다.', 'success');
+  } catch(e) {
+    console.error(e);
+    showToast('저장 실패: ' + e.message, 'error');
+  }
+}
+async function toggleVkoolFirst(uid, done) {
+  if(!confirm(done ? '이 거래처를 V.KOOL 초도 완료로 표시할까요?\n표시하면 다음 주문부터 재주문 기준이 적용됩니다.' : 'V.KOOL 초도 완료 표시를 해제할까요?')) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'users', uid), { vkoolFirstDone: done });
+    showToast('<i class=ic-check-circle></i> 저장되었습니다.', 'success');
+    openModal(uid);
+  } catch(e) {
+    console.error(e);
+    showToast('저장 실패: ' + e.message, 'error');
+  }
+}
+
 async function changePurchaseLevel(uid) {
   const select = document.getElementById('purchaseLevelSelect-' + uid);
   const newLevel = Number(select.value);

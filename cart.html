@@ -570,6 +570,7 @@ html{color-scheme:only light}
         <span class="total-price" id="sumTotal">₩0</span>
       </div>
     </div>
+    <div id="vkoolNotice" style="display:none;margin:0 0 10px;padding:12px 14px;background:#FFF4F2;border:1px solid #F2C9C2;color:#C0392B;font-size:13px;font-weight:600;line-height:1.6;"></div>
     <button class="btn-order" id="orderBtn" onclick="goToOrder()">주문하기</button>
   </div>
 </div>
@@ -589,6 +590,7 @@ html{color-scheme:only light}
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="vkool-rule.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -672,6 +674,9 @@ function doSearch() {
 function topbarLogout() { _auth.signOut(); location.reload(); }
 
 let memberLevel = 0;
+let cartUserData = {};
+let vkoolOk = true;
+let vkoolSeq = 0;
 let cartItems = []; // [{cartItemId, productId, qty, product:{...}}]
 let defaultAddrForShipping = ''; // 기본 배송지 주소(도서산간 여부 판단용)
 let userCoupons = [];
@@ -747,6 +752,7 @@ _auth.onAuthStateChanged(async (user) => {
   try {
     const userDoc = await _db.collection('users').doc(user.uid).get();
     const userData = userDoc.exists ? userDoc.data() : {};
+    cartUserData = userData;
     memberLevel = userData.member_level || 0;
     updateTopbarLoggedIn(userData.name || user.email.split('@')[0], memberLevel, userData.role);
 
@@ -1135,20 +1141,50 @@ function updateSummary() {
   orderBtn.disabled = (count === 0 || memberLevel < 2);
   orderBtn.textContent = count > 0 ? '주문하기 (' + count + '개)' : '주문하기';
 
+  refreshVkoolNotice(selectedItems);
+
   const allCb = document.getElementById('chk-all');
   allCb.checked = cartItems.length > 0 && cartItems.every(i => i.selected || getItemStock(i) <= 0);
 }
 
-function goToOrder() {
+// V.KOOL 주문 규정 확인 (첫 주문 최소 금액 / 재주문 최소 수량)
+function vkoolItemsOf(list) {
+  return list.map(i => ({ brandName: i.product.brandName, qty: i.qty, price: getItemPrice(i) }));
+}
+async function refreshVkoolNotice(selectedItems) {
+  const seq = ++vkoolSeq;
+  const box = document.getElementById('vkoolNotice');
+  const btn = document.getElementById('orderBtn');
+  if(!_auth.currentUser || !window.VkoolRule) return;
+  const r = await VkoolRule.check(vkoolItemsOf(selectedItems), _auth.currentUser.uid, cartUserData);
+  if(seq !== vkoolSeq) return;
+  vkoolOk = r.ok;
+  if(r.applies && !r.ok) {
+    box.textContent = r.message; box.style.display = 'block';
+    btn.disabled = true;
+  } else {
+    box.style.display = 'none';
+  }
+}
+async function vkoolGuard(list) {
+  if(!window.VkoolRule) return true;
+  const r = await VkoolRule.check(vkoolItemsOf(list), _auth.currentUser.uid, cartUserData);
+  if(r.applies && !r.ok) { alert(r.message); return false; }
+  return true;
+}
+
+async function goToOrder() {
   const selectedItems = cartItems.filter(i => i.selected && getItemStock(i) > 0);
   if(selectedItems.length === 0) { alert('주문할 상품을 선택해주세요.'); return; }
+  if(!(await vkoolGuard(selectedItems))) return;
   const param = selectedItems.map(i => `${i.product.id}:${i.qty}:${i.selectedColorIdx ?? 0}`).join(',');
   const couponParam = appliedCoupon ? `&coupon=${encodeURIComponent(appliedCoupon.id)}` : '';
   location.href = `order.html?items=${encodeURIComponent(param)}${couponParam}`;
 }
-function goToOrderAll() {
+async function goToOrderAll() {
   const allItems = cartItems.filter(i => getItemStock(i) > 0);
   if(allItems.length === 0) { alert('주문 가능한 상품이 없습니다.'); return; }
+  if(!(await vkoolGuard(allItems))) return;
   const param = allItems.map(i => `${i.product.id}:${i.qty}:${i.selectedColorIdx ?? 0}`).join(',');
   const couponParam = appliedCoupon ? `&coupon=${encodeURIComponent(appliedCoupon.id)}` : '';
   location.href = `order.html?items=${encodeURIComponent(param)}${couponParam}`;

@@ -747,6 +747,7 @@ html{color-scheme:only light}
         <label class="agree-item" for="agree1"><input type="checkbox" id="agree1"> 구매조건 확인 및 결제 동의 (필수)</label>
         <label class="agree-item" for="agree2"><input type="checkbox" id="agree2"> 개인정보 제3자 제공 동의 (필수)</label>
       </div>
+      <div id="vkoolNotice" style="display:none;margin:0 0 10px;padding:12px 14px;background:#FFF4F2;border:1px solid #F2C9C2;color:#C0392B;font-size:13px;font-weight:600;line-height:1.6;"></div>
       <button class="btn-pay" id="payBtn" onclick="startPayment()">결제하기</button>
       <div class="quickpay-divider">
         <span></span><em>간편결제</em><span></span>
@@ -763,6 +764,7 @@ html{color-scheme:only light}
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="vkool-rule.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -897,6 +899,7 @@ _auth.onAuthStateChanged(async (user) => {
     await fetchCoupons();
     await loadAddressesForOrder();
     await loadOrderProduct();
+    showVkoolNotice();
     preselectCouponFromParam();
     preselectQuickPayFromParam();
   } catch(e) {
@@ -1395,7 +1398,23 @@ function generateOrderId() {
   return 'OM' + Date.now() + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
+// V.KOOL 주문 규정 (첫 주문 최소 금액 / 재주문 최소 수량)
+async function checkVkoolRule() {
+  if(!window.VkoolRule || !orderItems || !orderItems.length) return { ok: true };
+  return VkoolRule.check(
+    orderItems.map(i => ({ brandName: i.product.brandName, qty: i.qty, price: Number(i.product.effectivePrice || i.product.price || 0) })),
+    currentUser.uid, currentUserData);
+}
+async function showVkoolNotice() {
+  const r = await checkVkoolRule();
+  const box = document.getElementById('vkoolNotice');
+  if(r.applies && !r.ok) { box.textContent = r.message; box.style.display = 'block'; }
+  else box.style.display = 'none';
+}
+
 async function startPayment(easyPayProvider) {
+  const vk = await checkVkoolRule();
+  if(vk.applies && !vk.ok) { alert(vk.message); return; }
   // 필수값 검증
   const selectedAddr = getSelectedAddress();
   if(!selectedAddr) { alert('배송지를 선택하거나 새 배송지를 추가해주세요.'); return; }
