@@ -116,6 +116,7 @@ tr:hover td{background:#FAFBFC;}
 #allProductsTable table tbody tr:last-child td, #productApprovalTable table tbody tr:last-child td { border-bottom:none; }
 /* 전체 상품 목록: 체크박스 열 + 오른쪽 관리 열 고정(가로로 잘려도 버튼이 항상 보이게) */
 #allProductsTable { overflow-x:auto !important; }
+#allProductsTable table td.act, #productApprovalTable table td.act { max-width:none; overflow:visible; }
 #allProductsTable table th.chk, #allProductsTable table td.chk { width:46px; min-width:46px; max-width:46px; padding:0 0 0 18px; overflow:visible; text-align:left; }
 #allProductsTable table td.pimg { width:96px; min-width:96px; max-width:96px; overflow:visible; padding:10px 8px 10px 6px; }
 #allProductsTable table th.pimg { padding-left:6px; }
@@ -1857,7 +1858,9 @@ function renderProductRow(p, isApprovalView) {
       <td${isApprovalView ? '' : ' class="pimg"'}>${thumb}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
       <td><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></td>
-      <td>
+      <td><strong>${stockDisplay}</strong></td>
+      <td>${priceDisplay}</td>
+      <td class="act">
         <div class="action-btns">
           <button class="btn-view" onclick="openProductModal('${p.id}')"><i class=ic-file></i> 상세</button>
           ${isApprovalView ? `
@@ -1875,8 +1878,6 @@ function renderProductRow(p, isApprovalView) {
       <td style="font-size:12px;">${colorDisplay}</td>
       <td>${p.category||'-'}</td>
       <td>${p.material||'-'}</td>
-      <td>${priceDisplay}</td>
-      <td>${stockDisplay}</td>
     </tr>`;
 }
 
@@ -1897,8 +1898,7 @@ async function loadProductApproval() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>상태</th><th>처리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
-          <th>도매가</th><th>재고</th>
+          <th>이미지</th><th>모델명</th><th>상태</th><th>재고</th><th>도매가</th><th>처리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
         </tr></thead>
         <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
       </table>`;
@@ -1968,8 +1968,7 @@ function applyAdminProductSearch() {
     <table>
       <thead><tr>
         <th class="chk"><input type="checkbox" class="adm-chk" id="adminSelAll" ${allOn ? 'checked' : ''} onchange="adminToggleAll(this.checked)" title="화면에 보이는 상품 전체 선택"></th>
-        <th class="pimg">이미지</th><th>모델명</th><th>상태</th><th>관리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
-        <th>도매가</th><th>재고</th>
+        <th class="pimg">이미지</th><th>모델명</th><th>상태</th><th>재고</th><th>도매가</th><th>관리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
       </tr></thead>
       <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
     </table>`;
