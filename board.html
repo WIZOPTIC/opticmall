@@ -727,7 +727,7 @@ const _db = firebase.firestore();
 let currentUser = null;
 let currentUserData = null;
 let currentTab = new URLSearchParams(location.search).get('tab') || 'notice';
-let currentFaqCat = '전체';
+let currentFaqCat = (function(){ const c = new URLSearchParams(location.search).get('cat'); return (c && ['전체','배송','주문/결제','반품/교환','회원','기타'].includes(c)) ? c : '전체'; })();
 let openedRowId = null; // 현재 펼쳐진 게시글 id (테이블용)
 
 function toggleMobileMenu() {
@@ -1355,7 +1355,7 @@ async function submitBoardPost() {
         <div class="footer-cols">
           <div class="footer-col">
             <h5>고객지원</h5>
-            <a href="board.html?tab=notice">공지사항</a><a href="board.html?tab=faq">배송안내</a><a href="board.html?tab=faq">반품/교환</a><a href="board.html?tab=inquiry">1:1 문의</a>
+            <a href="board.html?tab=notice">공지사항</a><a href="board.html?tab=faq&cat=배송">배송안내</a><a href="board.html?tab=faq&cat=반품/교환">반품/교환</a><a href="board.html?tab=inquiry">1:1 문의</a>
           </div>
           <div class="footer-col">
             <h5>회사</h5>
