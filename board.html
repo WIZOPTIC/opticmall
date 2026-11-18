@@ -138,6 +138,10 @@ header{background:var(--white);border-bottom:1px solid var(--g2);box-shadow:0 2p
 .answer-write{margin-top:14px;}
 .answer-write textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:0;font-family:inherit;font-size:14px;resize:vertical;min-height:70px;outline:none;}
 .answer-write textarea:focus{border-color:var(--sky);}
+.post-admin-bar{display:flex;gap:6px;justify-content:flex-end;margin-top:18px;}
+.post-admin-btn{height:30px;padding:0 14px;border:1px solid var(--g2);background:#fff;color:var(--g4);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;}
+.post-admin-btn:hover{border-color:var(--navy);color:var(--navy);}
+.post-admin-btn.del:hover{border-color:#C0392B;color:#C0392B;}
 .answer-submit-btn{margin-top:8px;padding:8px 16px;background:var(--navy);color:var(--white);border:none;border-radius:0;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;}
 
 /* FAQ 아코디언 */
@@ -683,6 +687,10 @@ html{color-scheme:only light}
         <input type="checkbox" id="wmSecretChk" style="accent-color:var(--sky);">
         <label for="wmSecretChk" style="cursor:pointer;">비공개 문의 (작성자와 관리자만 열람 가능)</label>
       </div>
+      <div class="wm-secret-row" id="wmPinRow" style="display:none;">
+        <input type="checkbox" id="wmPinChk" style="accent-color:var(--sky);">
+        <label for="wmPinChk" style="cursor:pointer;">상단 고정</label>
+      </div>
       <div class="wm-err" id="wmErr"></div>
     </div>
     <div class="wm-foot">
@@ -1069,6 +1077,7 @@ async function toggleDetail(id) {
     + `<div class="board-detail-meta">작성자: ${post.authorName || 'OPTICMALL'} · ${fmtDate(post.createdAt)} ${post.viewCount!==undefined ? '· 조회 '+(post.viewCount||0) : ''}</div>`
     + `<div style="white-space:pre-wrap;">${escapeHtml(post.content || '')}</div>`
     + renderAnswerArea(post)
+    + adminPostBar(post.id)
     + `</div>`;
 
   // 조회수 증가 (공지/상품문의만, 트랜잭션으로 안전하게)
@@ -1146,8 +1155,9 @@ function renderFaqList(posts) {
       <div class="faq-a">
         <div class="faq-a-inner">
           <div class="faq-a-mark">A</div>
-          <div>${escapeHtml(p.content)}</div>
+          <div style="white-space:pre-wrap;">${escapeHtml(p.content)}</div>
         </div>
+        ${adminPostBar(p.id)}
       </div>
     </div>`).join('')}</div>`;
 }
@@ -1186,8 +1196,45 @@ function openWriteModal() {
   document.getElementById('wmSecretChk').checked = currentTab === 'inquiry';
   document.getElementById('wmTitleInput').value = '';
   document.getElementById('wmContentInput').value = '';
+  document.getElementById('wmPinRow').style.display = currentTab === 'notice' ? '' : 'none';
+  document.getElementById('wmPinChk').checked = false;
+  editingPostId = null;
+  document.getElementById('wmSubmitBtn').textContent = '등록하기';
   document.getElementById('wmErr').style.display = 'none';
   document.getElementById('wmOverlay').style.display = 'block';
+}
+
+// ===== 공지/FAQ 수정·삭제 (관리자) =====
+let editingPostId = null;
+function adminPostBar(id) {
+  if(!isMaster() || (currentTab !== 'notice' && currentTab !== 'faq')) return '';
+  return `<div class="post-admin-bar" onclick="event.stopPropagation()">`
+    + `<button class="post-admin-btn" onclick="openEditPost('${id}')">수정</button>`
+    + `<button class="post-admin-btn del" onclick="deleteBoardPost('${id}')">삭제</button>`
+    + `</div>`;
+}
+function openEditPost(id) {
+  const post = (window._boardAll || []).find(p => p.id === id) || (window._boardPosts || []).find(p => p.id === id);
+  if(!post) return;
+  openWriteModal();
+  editingPostId = id;
+  document.getElementById('wmTitle').textContent = currentTab === 'notice' ? '공지사항 수정' : 'FAQ 수정';
+  document.getElementById('wmTitleInput').value = post.title || '';
+  document.getElementById('wmContentInput').value = post.content || '';
+  if(currentTab === 'faq' && post.category) document.getElementById('wmCategory').value = post.category;
+  document.getElementById('wmPinChk').checked = !!post.pinned;
+  document.getElementById('wmSubmitBtn').textContent = '수정하기';
+}
+async function deleteBoardPost(id) {
+  if(!isMaster()) return;
+  if(!confirm('이 글을 삭제할까요? 삭제하면 되돌릴 수 없습니다.')) return;
+  try {
+    await _db.collection('board').doc(id).delete();
+    loadBoardList();
+  } catch(e) {
+    console.error(e);
+    alert('삭제 중 오류가 발생했습니다.');
+  }
 }
 function closeWriteModal() {
   document.getElementById('wmOverlay').style.display = 'none';
@@ -1213,7 +1260,28 @@ async function submitBoardPost() {
 
   const btn = document.getElementById('wmSubmitBtn');
   btn.disabled = true;
-  btn.textContent = '등록 중...';
+  const isEdit = !!editingPostId;
+  btn.textContent = isEdit ? '수정 중...' : '등록 중...';
+
+  if(isEdit) {
+    try {
+      const upd = { title, content };
+      if(currentTab === 'faq') upd.category = document.getElementById('wmCategory').value;
+      if(currentTab === 'notice') upd.pinned = document.getElementById('wmPinChk').checked;
+      await _db.collection('board').doc(editingPostId).update(upd);
+      editingPostId = null;
+      closeWriteModal();
+      loadBoardList();
+    } catch(e) {
+      console.error(e);
+      err.textContent = '수정 중 오류가 발생했습니다. 다시 시도해주세요.';
+      err.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = editingPostId ? '수정하기' : '등록하기';
+    }
+    return;
+  }
 
   try {
     const data = {
@@ -1224,6 +1292,10 @@ async function submitBoardPost() {
     };
     if(currentTab === 'faq') {
       data.category = document.getElementById('wmCategory').value;
+    } else if(currentTab === 'notice') {
+      data.authorUid = currentUser.uid;
+      data.authorName = 'OPTICMALL';
+      data.pinned = document.getElementById('wmPinChk').checked;
     } else {
       data.authorUid = currentUser.uid;
       data.authorName = currentUserData?.name || currentUser.email.split('@')[0];
