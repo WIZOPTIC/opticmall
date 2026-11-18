@@ -515,6 +515,7 @@ html{color-scheme:only light}
 #loginOverlay>div:nth-child(2),#forgotPwOverlay>div:nth-child(2),#findIdOverlay>div:nth-child(2){overflow:hidden;overflow:clip!important;box-sizing:border-box}
 </style>
 <style>/* 색깔공: 마우스를 올리면 살짝 커지고, 고르면 나머지는 흐려짐 (테두리 없음) */.p-color-chip{transition:transform .15s ease,opacity .15s ease,filter .15s ease}.p-color-chip[onclick]:hover{transform:scale(1.25);filter:brightness(1.12)}.chip-picked .p-color-chip{opacity:.35}.chip-picked .p-color-chip.picked{opacity:1;transform:scale(1.18)}.chip-picked .p-color-chip:hover{opacity:1}</style>
+<style>/* 반반 색깔공이 테두리까지 정확히 반반으로 보이게 */[style*="linear-gradient(90deg"]{background-origin:border-box!important}</style>
 </head>
 <body>
 <!-- 로그인 팝업 -->
@@ -1258,13 +1259,19 @@ const CHECKER_BG = "background-image:linear-gradient(45deg,#ddd 25%,transparent 
 function extractSwatchColors(colorName) {
   const name = (colorName || '').toLowerCase();
   const isTransparent = TRANSPARENT_KEYWORDS.some(k => name.includes(k));
-  const found = [];
+  // 이름에 나온 순서대로 색을 찾되, 이미 찾은 단어 안에 들어 있는 짧은 단어(예: 로즈골드 속 '골드')는 건너뜀
+  const hits = [];
   for(const [key, hex] of COLOR_KEYWORD_MAP) {
-    if(name.includes(key) && !found.includes(hex)) {
-      found.push(hex);
-      if(found.length >= 2) break;
+    let from = 0, idx;
+    while((idx = name.indexOf(key, from)) !== -1) {
+      const end = idx + key.length;
+      if(!hits.some(h => idx < h.end && end > h.start)) hits.push({ start: idx, end, hex });
+      from = end;
     }
   }
+  hits.sort((a, b) => a.start - b.start);
+  const found = [];
+  for(const h of hits) { if(!found.includes(h.hex)) found.push(h.hex); if(found.length >= 2) break; }
   return { colors: found, isTransparent };
 }
 

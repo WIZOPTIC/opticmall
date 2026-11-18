@@ -1029,6 +1029,7 @@ input:not([type=checkbox]):not([type=radio]),select,textarea,button:not(.icon-bt
 #loginOverlay input,#forgotPwOverlay input,#findIdOverlay input{min-width:0!important;width:100%!important;box-sizing:border-box}
 #loginOverlay>div:nth-child(2),#forgotPwOverlay>div:nth-child(2),#findIdOverlay>div:nth-child(2){overflow:hidden;overflow:clip!important;box-sizing:border-box}
 </style>
+<style>/* 반반 색깔공이 테두리까지 정확히 반반으로 보이게 */[style*="linear-gradient(90deg"]{background-origin:border-box!important}</style>
 </head>
 <body>
 <!-- 로그인 팝업 -->
@@ -2788,13 +2789,19 @@ const CHECKER_BG = "background-image:linear-gradient(45deg,#ddd 25%,transparent 
 function extractSwatchColors(colorName) {
   const name = (colorName || '').toLowerCase();
   const isTransparent = TRANSPARENT_KEYWORDS.some(k => name.includes(k));
-  const found = [];
+  // 이름에 나온 순서대로 색을 찾되, 이미 찾은 단어 안에 들어 있는 짧은 단어(예: 로즈골드 속 '골드')는 건너뜀
+  const hits = [];
   for(const [key, hex] of COLOR_KEYWORD_MAP) {
-    if(name.includes(key) && !found.includes(hex)) {
-      found.push(hex);
-      if(found.length >= 2) break;
+    let from = 0, idx;
+    while((idx = name.indexOf(key, from)) !== -1) {
+      const end = idx + key.length;
+      if(!hits.some(h => idx < h.end && end > h.start)) hits.push({ start: idx, end, hex });
+      from = end;
     }
   }
+  hits.sort((a, b) => a.start - b.start);
+  const found = [];
+  for(const h of hits) { if(!found.includes(h.hex)) found.push(h.hex); if(found.length >= 2) break; }
   return { colors: found, isTransparent };
 }
 
@@ -3574,7 +3581,7 @@ loadProduct();
           </div>
           <div class="footer-col">
             <h5>회사</h5>
-            <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+            <a href="about.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
           </div>
         </div>
         <div class="footer-contact">
