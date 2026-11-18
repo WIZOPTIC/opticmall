@@ -1617,6 +1617,10 @@ async function openModal(uid) {
       <div class="role-select-box">
         <span style="flex:1;font-size:13px;color:var(--navy);">${user.vkoolFirstDone ? '초도 완료로 표시됨' : '표시 안 함'}</span>
         <button class="btn-role-save" onclick="toggleVkoolFirst('${uid}', ${!user.vkoolFirstDone})">${user.vkoolFirstDone ? '표시 해제' : '초도 완료로 표시'}</button>
+      </div>
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">카카오 채널 추가 쿠폰 (10,000원 · 10만원 이상 · 3개월)</div>
+      <div class="role-select-box" id="kakaoCpnBox-${uid}">
+        <span style="flex:1;font-size:13px;color:var(--g3);">확인 중...</span>
       </div>` : ''}
 
       <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);"><i class=ic-key></i> 회원 권한 설정</div>
@@ -1672,6 +1676,8 @@ async function openModal(uid) {
         }
       }
     }
+
+    if(role === 'optician') renderKakaoCouponBox(uid);
 
     // 대기 상태일 때만 승인/거절 버튼
     if(user.approval_status === 'pending') {
@@ -1821,6 +1827,63 @@ async function saveVkoolRuleAdmin() {
     showToast('저장 실패: ' + e.message, 'error');
   }
 }
+// ===== 카카오 채널 추가 쿠폰 (수동 지급, 사업자번호당 1회) =====
+const KAKAO_CPN_ID = 'kakao_channel';
+async function findKakaoCouponForBiz(uid) {
+  const meSnap = await window._getDoc(window._doc(window._db, 'users', uid));
+  const me = meSnap.exists() ? meSnap.data() : {};
+  const uids = [uid];
+  const biz = String(me.bizNoNormalized || '').trim();
+  if(biz) {
+    const q = await window._getDocs(window._query(window._collection(window._db, 'users'), window._where('bizNoNormalized', '==', biz)));
+    q.forEach(d => { if(!uids.includes(d.id)) uids.push(d.id); });
+  }
+  for(const id of uids) {
+    const c = await window._getDoc(window._doc(window._db, 'users', id, 'coupons', KAKAO_CPN_ID));
+    if(c.exists()) return { uid: id, data: c.data(), self: id === uid };
+  }
+  return null;
+}
+async function renderKakaoCouponBox(uid) {
+  const box = document.getElementById('kakaoCpnBox-' + uid);
+  if(!box) return;
+  try {
+    const found = await findKakaoCouponForBiz(uid);
+    if(found) {
+      const d = found.data;
+      const dt = (d.issuedAt && d.issuedAt.toDate) ? d.issuedAt.toDate().toLocaleDateString('ko-KR') : '';
+      const state = d.used ? '사용 완료' : '미사용';
+      box.innerHTML = `<span style="flex:1;font-size:13px;color:var(--navy);">${found.self ? '지급 완료' : '같은 사업자의 다른 계정에 지급됨'}${dt ? ' · ' + dt : ''} · ${state}</span>`;
+    } else {
+      box.innerHTML = `<span style="flex:1;font-size:13px;color:var(--g3);">미지급</span>`
+        + `<button class="btn-role-save" onclick="issueKakaoCoupon('${uid}')">쿠폰 지급</button>`;
+    }
+  } catch(e) {
+    console.error(e);
+    box.innerHTML = `<span style="flex:1;font-size:13px;color:#C0392B;">확인 실패: ${e.message}</span>`;
+  }
+}
+async function issueKakaoCoupon(uid) {
+  if(!confirm('카카오 채널 추가 쿠폰(10,000원)을 이 회원에게 지급할까요?\n채널 추가를 확인한 경우에만 지급해 주세요.')) return;
+  try {
+    const found = await findKakaoCouponForBiz(uid);
+    if(found) { showToast('이미 같은 사업자로 지급된 쿠폰이 있습니다.', 'error'); renderKakaoCouponBox(uid); return; }
+    await window._setDoc(window._doc(window._db, 'users', uid, 'coupons', KAKAO_CPN_ID), {
+      name: '카카오 채널 추가 쿠폰', type: 'fixed', value: 10000,
+      minOrderAmount: 100000, maxDiscountAmount: null, firstPurchaseOnly: false,
+      used: false, usedAt: null, usedOrderId: null,
+      source: 'kakao_channel',
+      issuedAt: window._serverTimestamp(),
+      expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+    });
+    showToast('<i class=ic-check-circle></i> 쿠폰이 지급되었습니다.', 'success');
+    renderKakaoCouponBox(uid);
+  } catch(e) {
+    console.error(e);
+    showToast('지급 실패: ' + e.message, 'error');
+  }
+}
+
 async function toggleVkoolFirst(uid, done) {
   if(!confirm(done ? '이 거래처를 V.KOOL 초도 완료로 표시할까요?\n표시하면 다음 주문부터 재주문 기준이 적용됩니다.' : 'V.KOOL 초도 완료 표시를 해제할까요?')) return;
   try {
