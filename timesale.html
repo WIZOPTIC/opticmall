@@ -788,12 +788,16 @@ function renderProductCard(p) {
   const wishId = (Array.isArray(p.colors) && p.colors.length > 0) ? `${p.id}_c0` : p.id;
   const isWished = wishlistIds.has(wishId);
   const colorNames = p.colorNames || (p.color ? [p.color] : []);
-  const colorsHtml = colorNames.length > 0 ? `<div class="p-colors">${colorNames.slice(0,6).map(c =>
-    `<div class="p-color-chip" title="${c}" style="background:${getColorDot(c)};"></div>`
-  ).join('')}${colorNames.length > 6 ? `<span class="p-color-more">+${colorNames.length-6}</span>` : ''}</div>` : '';
+  const colorsArrC = Array.isArray(p.colors) ? p.colors : [];
+  const colorsHtml = colorNames.length > 0 ? `<div class="p-colors">${colorNames.slice(0,6).map(c => {
+    const ci = Math.max(0, colorsArrC.findIndex(cc => cc.colorName === c));
+    const m = colorsArrC.find(cc => cc.colorName === c);
+    const safeImg = String(m && m.mainImageUrl ? m.mainImageUrl : '').replace(/'/g,"\\'");
+    return `<div class="p-color-chip" title="${c}" style="background:${getColorDot(c)};cursor:pointer;" onclick="selectCardColor(event,this,'${safeImg}',${ci})"></div>`;
+  }).join('')}${colorNames.length > 6 ? `<span class="p-color-more">+${colorNames.length-6}</span>` : ''}</div>` : '';
 
   return `
-    <div class="product-card" onclick="location.href='product.html?id=${p.id}'">
+    <div class="product-card" data-pid="${p.id}" onclick="location.href='product.html?id=${p.id}'+(+(this.dataset.c||0)>0?'&c='+this.dataset.c:'')">
       <div class="product-img-wrap">
         ${imgHtml}
         <span class="p-badge">SALE</span>
@@ -896,6 +900,23 @@ function renderTimesaleGrid(products) {
     return;
   }
   grid.innerHTML = products.map(p => renderProductCard(p)).join('');
+}
+
+// 색상 점 클릭: 카드 사진을 그 색상으로 바꿈 (카드를 누르면 그 색상으로 상세 이동)
+function selectCardColor(event, chipEl, imgUrl, colorIdx) {
+  event.stopPropagation();
+  const card = chipEl.closest('.product-card');
+  if(!card) return;
+  if(!imgUrl) { location.href = 'product.html?id=' + card.dataset.pid + (colorIdx > 0 ? '&c=' + colorIdx : ''); return; }
+  const box = card.querySelector('.product-img-wrap');
+  let img = box && box.querySelector('img');
+  if(box && !img) {
+    img = document.createElement('img'); img.decoding = 'async';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+    const ph = box.firstElementChild; if(ph && !ph.matches('span,button')) ph.replaceWith(img); else box.prepend(img);
+  }
+  if(img) img.src = imgUrl;
+  card.dataset.c = colorIdx;
 }
 </script>
 <nav class="mobile-tabbar">
