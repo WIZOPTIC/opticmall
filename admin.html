@@ -116,7 +116,8 @@ tr:hover td{background:#FAFBFC;}
 #allProductsTable table tbody tr:last-child td, #productApprovalTable table tbody tr:last-child td { border-bottom:none; }
 /* 전체 상품 목록: 체크박스 열 + 오른쪽 관리 열 고정(가로로 잘려도 버튼이 항상 보이게) */
 #allProductsTable { overflow-x:auto !important; }
-#allProductsTable table td.act, #productApprovalTable table td.act { max-width:none; overflow:visible; }
+#allProductsTable table td.act, #productApprovalTable table td.act { max-width:none; min-width:250px; width:250px; overflow:visible; }
+#allProductsTable .action-btns, #productApprovalTable .action-btns { flex-wrap:nowrap; }
 #allProductsTable table th.chk, #allProductsTable table td.chk { width:46px; min-width:46px; max-width:46px; padding:0 0 0 18px; overflow:visible; text-align:left; }
 #allProductsTable table td.pimg { width:96px; min-width:96px; max-width:96px; overflow:visible; padding:10px 8px 10px 6px; }
 #allProductsTable table th.pimg { padding-left:6px; }
@@ -124,7 +125,7 @@ tr:hover td{background:#FAFBFC;}
 #allProductsTable table td:nth-child(4) { max-width:130px; }
 #allProductsTable table td:nth-child(7) { max-width:150px; }
 #allProductsTable table td:nth-child(9) { max-width:100px; }
-#allProductsTable table td:last-child, #allProductsTable table th:last-child { position:sticky; right:0; z-index:2; box-shadow:-8px 0 10px -8px rgba(0,0,0,0.14); }
+/* (관리 칸이 앞으로 옮겨져서 오른쪽 고정은 쓰지 않음) */
 #allProductsTable table td:last-child { background:#fff; }
 #allProductsTable table th:last-child { background:var(--g1); }
 #allProductsTable table tbody tr:hover td:last-child { background:#FAFBFC; }
