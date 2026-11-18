@@ -710,6 +710,27 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
         </div>
         <div style="margin-top:18px;text-align:right;"><button class="btn-sm btn-primary" onclick="saveVkoolRuleAdmin()">저장</button></div>
       </div>
+      <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:24px;max-width:860px;margin-top:16px;">
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">배송비 규정 (출고처별)</div>
+        <div style="font-size:12px;color:#9BA5B0;margin-bottom:14px;">같은 줄에 적은 브랜드는 금액·수량을 합쳐서 계산해요. 브랜드명은 쉼표로 구분해 주세요.</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="color:#5A6472;text-align:left;">
+            <th style="padding:6px 4px;font-weight:600;">이름</th><th style="padding:6px 4px;font-weight:600;">브랜드</th><th style="padding:6px 4px;font-weight:600;">기준</th>
+            <th style="padding:6px 4px;font-weight:600;">무료배송 기준</th><th style="padding:6px 4px;font-weight:600;">배송비</th><th></th>
+          </tr></thead>
+          <tbody id="shipRuleRows"></tbody>
+        </table>
+        <button class="btn-sm" style="margin-top:10px;" onclick="addShipRuleRow()">+ 출고처 추가</button>
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:10px 14px;align-items:center;font-size:13px;color:#5A6472;margin-top:18px;max-width:440px;">
+          <label for="shipDefThreshold">그 외 브랜드 무료 기준</label>
+          <div style="display:flex;align-items:center;gap:8px;"><input type="number" id="shipDefThreshold" style="flex:1;padding:8px 10px;border:1.5px solid #E0E4E8;border-radius:6px;font-size:13px;font-family:inherit;text-align:right;"><span>원</span></div>
+          <label for="shipDefFee">그 외 브랜드 배송비</label>
+          <div style="display:flex;align-items:center;gap:8px;"><input type="number" id="shipDefFee" style="flex:1;padding:8px 10px;border:1.5px solid #E0E4E8;border-radius:6px;font-size:13px;font-family:inherit;text-align:right;"><span>원</span></div>
+          <label for="shipJejuFee">제주·도서산간 추가</label>
+          <div style="display:flex;align-items:center;gap:8px;"><input type="number" id="shipJejuFee" style="flex:1;padding:8px 10px;border:1.5px solid #E0E4E8;border-radius:6px;font-size:13px;font-family:inherit;text-align:right;"><span>원</span></div>
+        </div>
+        <div style="margin-top:18px;text-align:right;"><button class="btn-sm btn-primary" onclick="saveShipRuleAdmin()">저장</button></div>
+      </div>
       <div style="background:#fff;border:1px solid #E0E4E8;border-radius:10px;padding:24px;max-width:480px;margin-top:16px;">
         <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;">계정</div>
         <div style="font-size:13px;color:#5A6472;margin-bottom:12px;">로그인된 관리자 계정에서 로그아웃해요.</div>
@@ -1207,7 +1228,7 @@ function showPage(name, el) {
   document.getElementById('pageTitle').textContent = titles[name] || '';
   if(name === 'approval') loadApproval();
   if(name === 'members') loadMembers();
-  if(name === 'adminSettings') loadVkoolRuleAdmin();
+  if(name === 'adminSettings') { loadVkoolRuleAdmin(); loadShipRuleAdmin(); }
   if(name === 'productApproval') loadProductApproval();
   if(name === 'allProducts') loadAllProducts();
   if(name === 'productOrder') loadProductOrder();
@@ -1716,6 +1737,68 @@ async function changeRole(uid) {
 }
 
 // 구매등급 수동 변경
+// ===================== 배송비 규정 (출고처별) =====================
+const SHIP_RULE_DEFAULT = {
+  defaultThreshold: 100000, defaultFee: 3500, jejuFee: 3000,
+  groups: [
+    { name: 'SUOFEIA · ESSENTIAL', brands: ['SUOFEIA','ESSENTIAL'], type: 'amount', threshold: 70000, fee: 3500 },
+    { name: 'COLOR7', brands: ['COLOR7'], type: 'amount', threshold: 50000, fee: 3500 },
+    { name: 'V.KOOL', brands: ['V.KOOL'], type: 'qty', threshold: 2, fee: 3500 }
+  ]
+};
+function shipRuleRowHtml(g) {
+  const inp = 'padding:8px 10px;border:1.5px solid #E0E4E8;border-radius:6px;font-size:13px;font-family:inherit;width:100%;box-sizing:border-box;';
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  return `<tr class="ship-rule-row">
+    <td style="padding:4px;"><input class="sr-name" value="${esc(g.name)}" style="${inp}"></td>
+    <td style="padding:4px;"><input class="sr-brands" value="${esc((g.brands||[]).join(', '))}" style="${inp}"></td>
+    <td style="padding:4px;width:96px;"><select class="sr-type" style="${inp}"><option value="amount"${g.type!=='qty'?' selected':''}>금액</option><option value="qty"${g.type==='qty'?' selected':''}>수량</option></select></td>
+    <td style="padding:4px;width:120px;"><input class="sr-threshold" type="number" value="${Number(g.threshold)||0}" style="${inp}text-align:right;"></td>
+    <td style="padding:4px;width:100px;"><input class="sr-fee" type="number" value="${Number(g.fee)||0}" style="${inp}text-align:right;"></td>
+    <td style="padding:4px;width:44px;"><button class="btn-del-tbl" onclick="this.closest('tr').remove()">삭제</button></td>
+  </tr>`;
+}
+function addShipRuleRow() {
+  document.getElementById('shipRuleRows').insertAdjacentHTML('beforeend', shipRuleRowHtml({ name:'', brands:[], type:'amount', threshold:100000, fee:3500 }));
+}
+async function loadShipRuleAdmin() {
+  let r = SHIP_RULE_DEFAULT;
+  try {
+    const snap = await window._getDoc(window._doc(window._db, 'settings', 'shipping'));
+    if(snap.exists()) r = Object.assign({}, SHIP_RULE_DEFAULT, snap.data());
+  } catch(e) { console.error(e); }
+  document.getElementById('shipRuleRows').innerHTML = (r.groups || []).map(shipRuleRowHtml).join('');
+  document.getElementById('shipDefThreshold').value = Number(r.defaultThreshold) || 0;
+  document.getElementById('shipDefFee').value = Number(r.defaultFee) || 0;
+  document.getElementById('shipJejuFee').value = Number(r.jejuFee) || 0;
+}
+async function saveShipRuleAdmin() {
+  const groups = [...document.querySelectorAll('#shipRuleRows .ship-rule-row')].map(tr => ({
+    name: tr.querySelector('.sr-name').value.trim(),
+    brands: tr.querySelector('.sr-brands').value.split(',').map(x => x.trim()).filter(Boolean),
+    type: tr.querySelector('.sr-type').value === 'qty' ? 'qty' : 'amount',
+    threshold: Math.max(0, parseInt(tr.querySelector('.sr-threshold').value, 10) || 0),
+    fee: Math.max(0, parseInt(tr.querySelector('.sr-fee').value, 10) || 0)
+  })).filter(g => g.brands.length);
+  groups.forEach(g => { if(!g.name) g.name = g.brands.join(' · '); });
+  const names = groups.map(g => g.name);
+  if(new Set(names).size !== names.length) { showToast('출고처 이름이 겹치지 않게 해주세요.', 'error'); return; }
+  const data = {
+    groups,
+    defaultThreshold: Math.max(0, parseInt(document.getElementById('shipDefThreshold').value, 10) || 0),
+    defaultFee: Math.max(0, parseInt(document.getElementById('shipDefFee').value, 10) || 0),
+    jejuFee: Math.max(0, parseInt(document.getElementById('shipJejuFee').value, 10) || 0)
+  };
+  try {
+    await window._setDoc(window._doc(window._db, 'settings', 'shipping'), data);
+    showToast('<i class=ic-check-circle></i> 배송비 규정이 저장되었습니다.', 'success');
+    loadShipRuleAdmin();
+  } catch(e) {
+    console.error(e);
+    showToast('저장 실패: ' + e.message, 'error');
+  }
+}
+
 // ===================== V.KOOL 주문 규정 =====================
 async function loadVkoolRuleAdmin() {
   try {

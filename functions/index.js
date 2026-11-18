@@ -449,6 +449,51 @@ function isRemoteAddress(addr) {
   return REMOTE_KEYWORDS.some((kw) => String(addr || "").includes(kw));
 }
 
+/* 출고처(브랜드 묶음)별 무료배송 기준 — 화면의 shipping-rule.js 와 같은 계산
+ * settings/shipping: { groups:[{name, brands[], type:'amount'|'qty', threshold, fee}], defaultThreshold, defaultFee, jejuFee } */
+const DEFAULT_SHIPPING_RULE = {
+  defaultThreshold: FREE_SHIPPING_THRESHOLD, defaultFee: BASE_SHIPPING_FEE, jejuFee: JEJU_EXTRA_FEE,
+  groups: [
+    { name: "SUOFEIA · ESSENTIAL", brands: ["SUOFEIA", "ESSENTIAL"], type: "amount", threshold: 70000, fee: 3500 },
+    { name: "COLOR7", brands: ["COLOR7"], type: "amount", threshold: 50000, fee: 3500 },
+    { name: "V.KOOL", brands: ["V.KOOL"], type: "qty", threshold: 2, fee: 3500 },
+  ],
+};
+async function loadShippingRule() {
+  try {
+    const d = await db.collection("settings").doc("shipping").get();
+    return d.exists ? { ...DEFAULT_SHIPPING_RULE, ...d.data() } : DEFAULT_SHIPPING_RULE;
+  } catch (e) {
+    console.error("배송비 규정 조회 실패", e);
+    return DEFAULT_SHIPPING_RULE;
+  }
+}
+// lines: [{ brandName, qty, amount }]
+function calcShippingByRule(rule, lines, addr1) {
+  const norm = (v) => String(v || "").trim().toUpperCase().replace(/\s+/g, "");
+  const groups = {};
+  for (const it of lines) {
+    const b = norm(it.brandName);
+    const g = (rule.groups || []).find((x) => (x.brands || []).some((n) => norm(n) === b));
+    const key = g ? "g:" + g.name : "b:" + b;
+    if (!groups[key]) {
+      groups[key] = g
+        ? { type: g.type === "qty" ? "qty" : "amount", threshold: Number(g.threshold) || 0, fee: Number(g.fee) || 0, amount: 0, qty: 0 }
+        : { type: "amount", threshold: Number(rule.defaultThreshold) || 0, fee: Number(rule.defaultFee) || 0, amount: 0, qty: 0 };
+    }
+    groups[key].amount += Number(it.amount) || 0;
+    groups[key].qty += Number(it.qty) || 0;
+  }
+  let total = 0;
+  const list = Object.values(groups);
+  for (const g of list) {
+    const have = g.type === "qty" ? g.qty : g.amount;
+    if (have < g.threshold) total += g.fee;
+  }
+  if (list.length > 0 && isRemoteAddress(addr1)) total += Number(rule.jejuFee) || 0;
+  return total;
+}
+
 function computeCouponDiscount(coupon, productAmount) {
   if (!coupon) return 0;
   if (productAmount < (coupon.minOrderAmount || 0)) return 0;
@@ -604,6 +649,7 @@ exports.confirmPayment = onCall(
       const discountMap = await loadDiscountMap();
 
       let productAmount = 0;
+      const shipLines = [];
       needByProduct = {}; // productId -> { colors: {idx: qty}, plain: qty }
       for (const it of items) {
         const p = products[it.productId];
@@ -626,6 +672,7 @@ exports.confirmPayment = onCall(
           );
         }
         productAmount += unit * qty;
+        shipLines.push({ brandName: p.brandName, qty, amount: unit * qty });
 
         const need = (needByProduct[it.productId] = needByProduct[it.productId] || { colors: {}, plain: 0 });
         if (Array.isArray(p.colors) && p.colors.length > colorIdx) {
@@ -638,9 +685,7 @@ exports.confirmPayment = onCall(
         throw new HttpsError("failed-precondition", "주문 금액이 올바르지 않습니다. 주문서를 다시 열어 확인해주세요.");
       }
 
-      const shippingFee =
-        (productAmount >= FREE_SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING_FEE) +
-        (isRemoteAddress(order.receiver?.addr1) ? JEJU_EXTRA_FEE : 0);
+      const shippingFee = calcShippingByRule(await loadShippingRule(), shipLines, order.receiver?.addr1);
       if (shippingFee !== Number(order.shippingFee)) {
         throw new HttpsError("failed-precondition", "배송비가 올바르지 않습니다. 주문서를 다시 열어 확인해주세요.");
       }

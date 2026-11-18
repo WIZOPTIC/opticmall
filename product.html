@@ -1462,7 +1462,7 @@ html{color-scheme:only light}
     <div class="delivery-info">
       <div class="delivery-row">
         <div class="delivery-label">배송</div>
-        <div class="delivery-value"><span class="highlight">10만원 이상 무료배송</span> · 오후 1시 이전 당일발송</div>
+        <div class="delivery-value"><span class="highlight shipRuleFree">10만원 이상 무료배송</span> · 오후 1시 이전 당일발송</div>
       </div>
       <div class="delivery-row">
         <div class="delivery-label">반품/교환</div>
@@ -1542,7 +1542,7 @@ html{color-scheme:only light}
       </div>
       <div class="delivery-row">
         <div class="delivery-label">배송비</div>
-        <div class="delivery-value"><span class="highlight">10만원 이상 무료배송</span> (미만 시 3,500원)</div>
+        <div class="delivery-value"><span class="highlight shipRuleFree">10만원 이상 무료배송</span> (<span class="shipRuleFee">미만 시 3,500원</span>, 브랜드별 따로 계산)</div>
       </div>
       <div class="delivery-row">
         <div class="delivery-label">배송방법</div>
@@ -1734,6 +1734,7 @@ html{color-scheme:only light}
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="vkool-rule.js"></script>
+<script src="shipping-rule.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script>
 const firebaseConfig = {
@@ -2381,6 +2382,13 @@ function renderProduct(p) {
   document.title = '옵틱몰 - 프리미엄 도매몰';
   document.getElementById('breadcrumbName').textContent = p.modelName || '-';
   document.getElementById('productCategory').textContent = p.brandName || '';
+  if(window.ShippingRule) {
+    ShippingRule.load().then(() => {
+      const r = ShippingRule.ruleFor(p.brandName);
+      document.querySelectorAll('.shipRuleFree').forEach(el => el.textContent = r.free);
+      document.querySelectorAll('.shipRuleFee').forEach(el => el.textContent = `미만 시 ${r.fee.toLocaleString()}원`);
+    });
+  }
   if(window.VkoolRule && VkoolRule.isVkool(p.brandName)) {
     VkoolRule.noticeText().then(t => { const el = document.getElementById('vkoolPdNotice'); if(t){ el.textContent = t; el.style.display = 'block'; } });
   }

@@ -727,6 +727,7 @@ html{color-scheme:only light}
         <span class="val" id="couponValue" style="cursor:pointer;color:var(--sky);text-decoration:underline;" onclick="openCouponPicker()">쿠폰 선택</span>
       </div>
       <div class="sum-row"><span class="lbl">배송비</span><span class="val" id="shippingFeeDisplay" style="color:var(--green);">무료</span></div>
+      <div id="shipHints" style="display:none;margin:-4px 0 10px;padding:10px 12px;background:#F7F4EE;font-size:12px;line-height:1.7;color:#6B5A3A;"></div>
       <div class="sum-row" id="pointsUseRow" style="display:none;flex-direction:column;align-items:stretch;gap:8px;">
         <span class="lbl">적립금 <span id="pointsBalanceLabel" style="color:var(--g3);font-weight:400;">(보유 0원)</span></span>
         <span style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
@@ -765,6 +766,7 @@ html{color-scheme:only light}
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="vkool-rule.js"></script>
+<script src="shipping-rule.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCZh95M18vqxwJGkXj2JkM9J4NfW_s0f1w",
@@ -898,6 +900,7 @@ _auth.onAuthStateChanged(async (user) => {
     initPointsUI();
     await fetchCoupons();
     await loadAddressesForOrder();
+    await ShippingRule.load();
     await loadOrderProduct();
     showVkoolNotice();
     preselectCouponFromParam();
@@ -1298,12 +1301,22 @@ function isJejuAddress(addr) {
   return remoteKeywords.some(kw => addr.includes(kw));
 }
 
+// 출고처별 배송비 안내 (무료배송까지 얼마 남았는지)
+function renderShipHints(r) {
+  const el = document.getElementById('shipHints');
+  if(!el) return;
+  if(!r || r.groups.length === 0) { el.style.display = 'none'; return; }
+  el.innerHTML = r.groups.map(g => `<div>${ShippingRule.hintText(g)}</div>`).join('') +
+    (r.groups.length > 1 ? '<div style="color:#9BA5B0;">브랜드마다 따로 출고되어 배송비가 브랜드별로 계산됩니다.</div>' : '');
+  el.style.display = 'block';
+}
+// 출고처(브랜드 묶음)별 무료배송 기준으로 계산
 function calcShippingFee() {
   const selected = getSelectedAddress();
   const addr1 = selected?.addr1 || '';
-  let fee = totalAmount >= FREE_SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING_FEE;
-  if(isJejuAddress(addr1)) fee += JEJU_EXTRA_FEE;
-  return fee;
+  const r = ShippingRule.calc((orderItems || []).map(i => ({ brandName: i.product.brandName, qty: i.qty, amount: Number(i.product.effectivePrice || i.product.price || 0) * i.qty })), addr1);
+  renderShipHints(r);
+  return r.total;
 }
 
 function updateShippingAndTotal() {
