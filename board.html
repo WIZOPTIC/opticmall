@@ -1000,6 +1000,7 @@ function renderBoardTable(posts, total, start) {
 
   const showAuthorCol = currentTab !== 'notice';
   const showStatusCol = currentTab === 'qna' || currentTab === 'inquiry';
+  const colCount = showAuthorCol ? 5 : 4;
 
   const rowsHtml = posts.map((p, idx) => {
     const num = p.pinned ? '공지' : ((total || posts.length) - (start || 0) - idx);
@@ -1017,7 +1018,7 @@ function renderBoardTable(posts, total, start) {
       <td class="cell-sub">${fmtDate(p.createdAt)}</td>
       ${showStatusCol ? statusHtml : `<td class="cell-sub">${p.viewCount || 0}</td>`}
     </tr>
-    <tr class="board-detail" id="detail-${p.id}" style="display:none;"><td colspan="5"></td></tr>`;
+    <tr class="board-detail" id="detail-${p.id}" style="display:none;"><td colspan="${colCount}"></td></tr>`;
   }).join('');
 
   area.innerHTML = `
@@ -1064,11 +1065,11 @@ async function toggleDetail(id) {
     return;
   }
 
-  td.innerHTML = `<div class="board-detail-inner">
-    <div class="board-detail-meta">작성자: ${post.authorName || 'OPTICMALL'} · ${fmtDate(post.createdAt)} ${post.viewCount!==undefined ? '· 조회 '+(post.viewCount||0) : ''}</div>
-    <div>${escapeHtml(post.content || '')}</div>
-    ${renderAnswerArea(post)}
-  </div>`;
+  td.innerHTML = `<div class="board-detail-inner" style="white-space:normal;">`
+    + `<div class="board-detail-meta">작성자: ${post.authorName || 'OPTICMALL'} · ${fmtDate(post.createdAt)} ${post.viewCount!==undefined ? '· 조회 '+(post.viewCount||0) : ''}</div>`
+    + `<div style="white-space:pre-wrap;">${escapeHtml(post.content || '')}</div>`
+    + renderAnswerArea(post)
+    + `</div>`;
 
   // 조회수 증가 (공지/상품문의만, 트랜잭션으로 안전하게)
   if((currentTab === 'notice' || currentTab === 'qna') && !post._viewed) {
@@ -1090,7 +1091,7 @@ function renderAnswerArea(post) {
   if(post.answer) {
     html += `<div class="answer-box">
       <div class="answer-box-title">OPTICMALL 답변</div>
-      <div>${escapeHtml(post.answer)}</div>
+      <div style="white-space:pre-wrap;">${escapeHtml(post.answer)}</div>
     </div>`;
   }
   // 마스터는 답변 등록/수정 가능
