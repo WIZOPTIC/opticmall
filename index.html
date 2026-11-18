@@ -862,6 +862,7 @@ html{color-scheme:only light}
 <style>/* 홈 배너 위 갈색 여백 제거 */@media (min-width:769px){#heroBannerViewport{padding-top:0!important}}</style>
 <style>/* 섹션 제목: 한글 먼저, 영문은 뒤에 */.ers-head h2::before,.cat-badge-row .title::before{order:2;margin-right:0!important;padding-right:0!important;border-right:0!important;margin-left:16px;padding-left:16px;border-left:1px solid #CFC7BC}</style>
 <style>/* 메인 섹션 제목도 페이지 제목처럼 살짝 안쪽으로 */@media (min-width:769px){.ers-head h2,.cat-badge-row .title{padding-left:20px!important}}</style>
+<style>/* 색깔공: 마우스를 올리면 살짝 커지고, 고르면 나머지는 흐려짐 (테두리 없음) */.p-color-chip{transition:transform .15s ease,opacity .15s ease,filter .15s ease}.p-color-chip[onclick]:hover{transform:scale(1.25);filter:brightness(1.12)}.chip-picked .p-color-chip{opacity:.35}.chip-picked .p-color-chip.picked{opacity:1;transform:scale(1.18)}.chip-picked .p-color-chip:hover{opacity:1}</style>
 </head>
 <body>
 
@@ -1278,7 +1279,7 @@ var t=setInterval(function(){if(window.firebase&&firebase.apps&&firebase.apps.le
           </div>
           <div class="footer-col">
             <h5>회사</h5>
-            <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+            <a href="about.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
           </div>
         </div>
         <div class="footer-contact">
@@ -1949,6 +1950,8 @@ function selectMainCardColor(event, chipEl, imgUrl, colorIdx, productId) {
   const ph = card.querySelector('.img-ph');
   if(ph) ph.innerHTML = `<img src="${imgUrl}" decoding="async" style="width:100%;height:100%;object-fit:cover;">`;
   card.dataset.c = colorIdx;
+  card.classList.add('chip-picked');
+  card.querySelectorAll('.p-color-chip').forEach(el => el.classList.toggle('picked', el === chipEl));
 }
 
 function renderMainProductCard(p, badgeText, badgeClass) {

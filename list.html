@@ -550,6 +550,7 @@ html{color-scheme:only light}
 </style>
 <style>/* 페이지 제목 위치를 다른 페이지(브랜드관·이벤트·타임세일)와 동일하게 */@media (min-width:769px){.page-wrap{padding-top:0!important}.category-hero{margin-top:-7px!important}}@media (max-width:768px){.page-wrap{padding-top:0!important}.category-hero{margin-top:-2px!important}}</style>
 <style>/* 페이지 제목: 헤더와 여백을 두고 살짝 안쪽으로 (본문 위치는 그대로) */@media (min-width:769px){html body .category-hero{padding-top:37px!important;padding-bottom:3px!important}html body .category-hero-titlewrap{padding-left:20px!important}.brand-tabs{padding-left:18px!important}}</style>
+<style>/* 색깔공: 마우스를 올리면 살짝 커지고, 고르면 나머지는 흐려짐 (테두리 없음) */.p-color-chip{transition:transform .15s ease,opacity .15s ease,filter .15s ease}.p-color-chip[onclick]:hover{transform:scale(1.25);filter:brightness(1.12)}.chip-picked .p-color-chip{opacity:.35}.chip-picked .p-color-chip.picked{opacity:1;transform:scale(1.18)}.chip-picked .p-color-chip:hover{opacity:1}</style>
 </head>
 <body>
 <!-- 로그인 팝업 -->
@@ -1369,6 +1370,8 @@ function selectCardColor(event, chipEl, imgUrl, colorIdx, productId) {
   if(mediaEl) mediaEl.innerHTML = `<img loading="lazy" decoding="async" src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;">`;
   card.querySelector('.product-img')?.classList.remove('no-img');
   card.dataset.c = colorIdx;
+  card.classList.add('chip-picked');
+  card.querySelectorAll('.p-color-chip').forEach(el => el.classList.toggle('picked', el === chipEl));
 }
 
 function goToProduct(productId, colorIdx) {
@@ -1835,7 +1838,7 @@ loadApprovedProducts();
           </div>
           <div class="footer-col">
             <h5>회사</h5>
-            <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+            <a href="about.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
           </div>
         </div>
         <div class="footer-contact">

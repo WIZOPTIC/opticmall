@@ -462,6 +462,7 @@ html{color-scheme:only light}
 </style>
 <style>/* 제목 크기·순서를 다른 페이지(한글 제목 + 영문)와 동일하게 */html body .ts-wrap .category-hero-titlewrap{align-items:baseline!important;gap:10px!important}html body .ts-wrap .category-hero-title{order:0!important;font-size:20px!important;font-weight:600!important;letter-spacing:-0.005em!important;line-height:1.3!important}html body .ts-wrap .category-hero-eyebrow{order:0!important;font-size:12px!important;letter-spacing:.14em!important;margin-right:0!important;padding-right:0!important;border-right:0!important;line-height:normal!important}@media (max-width:768px){html body .ts-wrap .category-hero-title{font-size:21px!important}html body .ts-wrap .category-hero-titlewrap{flex-direction:row!important;flex-wrap:nowrap!important;align-items:baseline!important}}</style>
 <style>/* 페이지 제목: 헤더와 여백을 두고 살짝 안쪽으로 (본문 위치는 그대로) */@media (min-width:769px){html body .category-hero{padding-top:37px!important;padding-bottom:3px!important}html body .category-hero-titlewrap{padding-left:20px!important}}</style>
+<style>/* 색깔공: 마우스를 올리면 살짝 커지고, 고르면 나머지는 흐려짐 (테두리 없음) */.p-color-chip{transition:transform .15s ease,opacity .15s ease,filter .15s ease}.p-color-chip[onclick]:hover{transform:scale(1.25);filter:brightness(1.12)}.chip-picked .p-color-chip{opacity:.35}.chip-picked .p-color-chip.picked{opacity:1;transform:scale(1.18)}.chip-picked .p-color-chip:hover{opacity:1}</style>
 </head>
 <body>
 <!-- TOPBAR + HEADER (함께 고정) -->
@@ -888,6 +889,8 @@ function selectCardColor(event, chipEl, imgUrl, colorIdx) {
   }
   if(img) img.src = imgUrl;
   card.dataset.c = colorIdx;
+  card.classList.add('chip-picked');
+  card.querySelectorAll('.p-color-chip').forEach(el => el.classList.toggle('picked', el === chipEl));
 }
 </script>
 <nav class="mobile-tabbar">
@@ -925,7 +928,7 @@ function selectCardColor(event, chipEl, imgUrl, colorIdx) {
           </div>
           <div class="footer-col">
             <h5>회사</h5>
-            <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+            <a href="about.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
           </div>
         </div>
         <div class="footer-contact">
