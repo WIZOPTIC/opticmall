@@ -1856,14 +1856,6 @@ function renderProductRow(p, isApprovalView) {
       ${isApprovalView ? '' : `<td class="chk"><input type="checkbox" class="adm-chk adminRowChk" ${sel ? 'checked' : ''} onchange="adminToggleOne('${p.id}',this.checked)"></td>`}
       <td${isApprovalView ? '' : ' class="pimg"'}>${thumb}</td>
       <td><strong>${p.modelName||'-'}</strong></td>
-      <td style="font-size:12px;">${barcodeDisplay}</td>
-      <td style="font-size:12px;">${p.size||'-'}</td>
-      <td>${p.brandName||'-'}</td>
-      <td style="font-size:12px;">${colorDisplay}</td>
-      <td>${p.category||'-'}</td>
-      <td>${p.material||'-'}</td>
-      <td>${priceDisplay}</td>
-      <td>${stockDisplay}</td>
       <td><span class="badge ${prodStatusClassMap[p.status]||'pending'}">${prodStatusLabelMap[p.status]||'대기'}</span></td>
       <td>
         <div class="action-btns">
@@ -1877,6 +1869,14 @@ function renderProductRow(p, isApprovalView) {
           `}
         </div>
       </td>
+      <td style="font-size:12px;">${barcodeDisplay}</td>
+      <td style="font-size:12px;">${p.size||'-'}</td>
+      <td>${p.brandName||'-'}</td>
+      <td style="font-size:12px;">${colorDisplay}</td>
+      <td>${p.category||'-'}</td>
+      <td>${p.material||'-'}</td>
+      <td>${priceDisplay}</td>
+      <td>${stockDisplay}</td>
     </tr>`;
 }
 
@@ -1897,8 +1897,8 @@ async function loadProductApproval() {
     tableEl.innerHTML = `
       <table>
         <thead><tr>
-          <th>이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
-          <th>도매가</th><th>재고</th><th>상태</th><th>처리</th>
+          <th>이미지</th><th>모델명</th><th>상태</th><th>처리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
+          <th>도매가</th><th>재고</th>
         </tr></thead>
         <tbody>${pending.map(p => renderProductRow(p, true)).join('')}</tbody>
       </table>`;
@@ -1908,13 +1908,30 @@ async function loadProductApproval() {
 }
 
 // 전체 상품 목록 로드
+// 스크롤 위치 저장/복원 (수정·삭제 후 목록을 다시 불러와도 보던 자리에 머물게)
+function _adminScrollers(el) {
+  const list = [document.scrollingElement || document.documentElement];
+  for(let p = el && el.parentElement; p; p = p.parentElement) {
+    const oy = getComputedStyle(p).overflowY;
+    if((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight) list.push(p);
+  }
+  return list.map(x => [x, x.scrollTop, x.scrollLeft]);
+}
+function _adminRestoreScroll(saved) {
+  saved.forEach(([x, t, l]) => { x.scrollTop = t; x.scrollLeft = l; });
+  requestAnimationFrame(() => saved.forEach(([x, t, l]) => { x.scrollTop = t; x.scrollLeft = l; }));
+}
 async function loadAllProducts() {
   const tableEl = document.getElementById('allProductsTable');
-  tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+  const hasTable = !!tableEl.querySelector('table');
+  const saved = hasTable ? _adminScrollers(tableEl) : null;
+  // 이미 목록이 보이는 상태면 '불러오는 중'으로 바꾸지 않음 (화면이 줄어들며 맨 위로 튀는 것 방지)
+  if(!hasTable) tableEl.innerHTML = '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
   try {
     const products = await fetchAllProducts();
     window._allAdminProducts = products; // 검색/수정 모달에서 재사용
     applyAdminProductSearch();
+    if(saved) _adminRestoreScroll(saved);
   } catch(e) {
     tableEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);">로드 실패: ' + e.message + '</div>';
   }
@@ -1951,8 +1968,8 @@ function applyAdminProductSearch() {
     <table>
       <thead><tr>
         <th class="chk"><input type="checkbox" class="adm-chk" id="adminSelAll" ${allOn ? 'checked' : ''} onchange="adminToggleAll(this.checked)" title="화면에 보이는 상품 전체 선택"></th>
-        <th class="pimg">이미지</th><th>모델명</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
-        <th>도매가</th><th>재고</th><th>상태</th><th>관리</th>
+        <th class="pimg">이미지</th><th>모델명</th><th>상태</th><th>관리</th><th>바코드</th><th>사이즈</th><th>브랜드</th><th>색상</th><th>카테고리</th><th>소재</th>
+        <th>도매가</th><th>재고</th>
       </tr></thead>
       <tbody>${filtered.map(p => renderProductRow(p, false)).join('')}</tbody>
     </table>`;
