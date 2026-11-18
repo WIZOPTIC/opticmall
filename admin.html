@@ -986,6 +986,7 @@ i[class^="ic-"]{display:inline-block;width:1em;height:1em;vertical-align:-0.15em
             <option value="메탈">메탈</option>
             <option value="선글라스">선글라스</option>
             <option value="스포츠고글">스포츠고글</option>
+            <option value="덮경선글라스">덮경선글라스</option>
           </select>
         </div>
         <div class="edit-form-group">
@@ -3858,7 +3859,7 @@ const bNorm = s => String(s == null ? '' : s).normalize('NFC').trim();
 const bKey = (b, m, c, f) => [b, m, c, f].map(x => bNorm(x).toLowerCase()).join('/');
 const bEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const BULK_SLOTS = ['main','detail1','detail2','detail3','detail4','detail5'];
-const BULK_CATEGORIES = ['하금테','뿔테','메탈','선글라스','스포츠고글'];
+const BULK_CATEGORIES = ['하금테','뿔테','메탈','선글라스','덮경선글라스','스포츠고글'];
 
 async function initBulkRegister() {
   if (BULK.brands.length) { bulkRender(); return; }

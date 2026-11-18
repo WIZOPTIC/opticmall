@@ -1370,8 +1370,12 @@ const CATEGORIES = ['하금테', '뿔테', '메탈', '선글라스'];
 let stockOnly = false;
 // 카테고리 판정: V.KOOL 상품(스포츠고글/선글라스/변색렌즈)은 전부 '선글라스'로 취급
 // (V.KOOL 안에서의 세부 분류는 vkool.html에서 따로 합니다)
-function effCat(p) { return String(p.brandName || '').trim() === 'V.KOOL' ? '선글라스' : p.category; }
+// 덮경선글라스도 메뉴에서는 '선글라스'에 포함 (브랜드관 탭에서만 따로 나눔)
+function effCat(p) { return String(p.brandName || '').trim() === 'V.KOOL' || p.category === '덮경선글라스' ? '선글라스' : p.category; }
 let chipBrand = null; // 브랜드 탭에서 고른 브랜드 (null = 전체)
+let chipCat = null; // 브랜드관 안에서 고른 분류 탭 (null = 전체)
+const CAT_TAB_ORDER = ['메탈','선글라스','덮경선글라스','하금테','뿔테','스포츠고글'];
+let catTabKeys = [];
 const BRAND_TAB_ORDER = ['SUOFEIA','ESSENTIAL','V.KOOL','ROUX PENN','COLOR7'];
 let brandTabKeys = [];
 let pendingBrandTab = new URLSearchParams(location.search).get('bt'); // 메뉴 브랜드 펼침에서 넘어온 브랜드 (이름으로 찾아서 탭 선택)
@@ -1388,11 +1392,24 @@ function renderBrandTabs(brandMap, total) {
     list.map((x,i) => `<button type="button" class="brand-tab${chipBrand === x[0] ? ' on' : ''}" data-i="${i}">${esc(x[1].name)}</button>`).join('');
   el.style.display = 'flex';
 }
+// 브랜드관(브랜드로 들어온 경우): 분류 탭 (메탈 / 선글라스 / 덮경선글라스 ...)
+function renderCatTabs(catMap) {
+  const el = document.getElementById('brandTabs');
+  if(!el) return;
+  if(catMap.size < 2) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  const rank = c => { const i = CAT_TAB_ORDER.indexOf(c); return i === -1 ? 99 : i; };
+  catTabKeys = [...catMap.keys()].sort((a,b) => rank(a) - rank(b));
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  el.innerHTML = `<button type="button" class="brand-tab${chipCat ? '' : ' on'}" data-kind="cat" data-i="-1">전체</button>` +
+    catTabKeys.map((c,i) => `<button type="button" class="brand-tab${chipCat === c ? ' on' : ''}" data-kind="cat" data-i="${i}">${esc(c)}</button>`).join('');
+  el.style.display = 'flex';
+}
 document.addEventListener('click', function(e) {
   const b = e.target.closest && e.target.closest('.brand-tab');
   if(!b) return;
   const i = Number(b.dataset.i);
-  chipBrand = i < 0 ? null : brandTabKeys[i];
+  if(b.dataset.kind === 'cat') chipCat = i < 0 ? null : catTabKeys[i];
+  else chipBrand = i < 0 ? null : brandTabKeys[i];
   applyFilters();
 });
 
@@ -1605,8 +1622,19 @@ function applyFilters() {
     pendingBrandTab = null;
   }
   if(chipBrand && !brandMap.has(chipBrand)) chipBrand = null;
-  renderBrandTabs(brandMap, result.length);
-  if(chipBrand) result = result.filter(p => (p.brandId || p.brandName) === chipBrand);
+  if(currentBrandFilter) {
+    // 브랜드관: 브랜드 탭 대신 분류 탭
+    chipBrand = null;
+    const catMap = new Map();
+    result.forEach(p => { const c = p.category || '기타'; catMap.set(c, (catMap.get(c) || 0) + 1); });
+    if(chipCat && !catMap.has(chipCat)) chipCat = null;
+    renderCatTabs(catMap);
+    if(chipCat) result = result.filter(p => (p.category || '기타') === chipCat);
+  } else {
+    chipCat = null;
+    renderBrandTabs(brandMap, result.length);
+    if(chipBrand) result = result.filter(p => (p.brandId || p.brandName) === chipBrand);
+  }
 
   // 재고 필터
   if(stockOnly) {
