@@ -3618,13 +3618,13 @@ function renderAdminEditColorCards() {
           <input type="number" placeholder="재고수량" value="${color.stock ?? ''}"
             onchange="updateAdminEditColorField(${color.colorId},'stock',this.value)">
         </div>
-        <div>
+        <div style="display:none;">
           <label>가격 <span style="font-weight:400;color:var(--g3);">(비워두면 기본가)</span></label>
           <input type="number" placeholder="기본가 사용" value="${color.price||''}"
             onchange="updateAdminEditColorField(${color.colorId},'price',this.value)">
         </div>
       </div>
-      <div id="admin-edit-color-price-preview-${color.colorId}" style="font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getAdminColorPricePreviewText(document.getElementById('aEditPrice')?.value, document.getElementById('aEditDiscountRate')?.value, color)}</div>
+      <div id="admin-edit-color-price-preview-${color.colorId}" style="display:none;font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getAdminColorPricePreviewText(document.getElementById('aEditPrice')?.value, document.getElementById('aEditDiscountRate')?.value, color)}</div>
       <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
       <div class="color-img-row">
         ${A_SLOT_KEYS.map(slot => {
@@ -3832,7 +3832,7 @@ async function saveAdminProductEdit() {
           urls[slot] = s.existingUrl || '';
         }
       }
-      const ownPrice = color.price !== '' && color.price != null && Number(color.price) !== price;
+      const ownPrice = false; // 지금은 색상별 가격을 쓰지 않음 - 모든 색상이 기본가를 따름
       const colorPrice = ownPrice ? Number(color.price) : price;
       const colorSalePrice = discountRate > 0 ? Math.round(colorPrice * (1 - discountRate/100)) : 0;
       savedColors.push({
@@ -4369,7 +4369,7 @@ async function bulkRunSelected() {
         const price = m.price;
         savedColors.push({
           colorName: c.name, colorCode: c.code, barcode: c.barcode, stock: c.stock,
-          price, salePrice: m.discount > 0 ? Math.round(price * (1 - m.discount / 100)) : 0,
+          price: null, salePrice: m.discount > 0 ? Math.round(price * (1 - m.discount / 100)) : 0, // 색상 가격은 기본가를 따름
           mainImageUrl: urls[0] || '', detailImageUrls: heroUrl ? [heroUrl, ...urls.slice(1).filter(Boolean)] : urls.slice(1).filter(Boolean)
         });
       }

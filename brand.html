@@ -1710,13 +1710,13 @@ function renderEditColorCards() {
           <input type="number" placeholder="재고수량" value="${color.stock ?? ''}"
             onchange="updateEditColorField(${color.colorId},'stock',this.value)">
         </div>
-        <div>
+        <div style="display:none;">
           <label>가격 <span style="font-weight:400;color:var(--g3);">(비워두면 기본가)</span></label>
           <input type="number" placeholder="기본가 사용" value="${color.price||''}"
             onchange="updateEditColorField(${color.colorId},'price',this.value)">
         </div>
       </div>
-      <div id="edit-color-price-preview-${color.colorId}" style="font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getColorPricePreviewText({price: document.getElementById('editPrice')?.value, discountRate: document.getElementById('editDiscountRate')?.value}, color)}</div>
+      <div id="edit-color-price-preview-${color.colorId}" style="display:none;font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getColorPricePreviewText({price: document.getElementById('editPrice')?.value, discountRate: document.getElementById('editDiscountRate')?.value}, color)}</div>
       <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
       <div class="color-img-row">
         ${SLOT_KEYS.map(slot => {
@@ -1922,7 +1922,7 @@ async function saveProductEdit() {
           urls[slot] = s.existingUrl || '';
         }
       }
-      const ownPrice = color.price !== '' && color.price != null && Number(color.price) !== price;
+      const ownPrice = false; // 지금은 색상별 가격을 쓰지 않음 - 모든 색상이 기본가를 따름
       const colorPrice = ownPrice ? Number(color.price) : price;
       const colorSalePrice = discountRate > 0 ? Math.round(colorPrice * (1 - discountRate/100)) : 0;
       savedColors.push({
@@ -2333,13 +2333,13 @@ function renderProductCards() {
               <input type="number" placeholder="재고수량" value="${color.stock||''}"
                 onchange="updateColorField(${card.cardId},${color.colorId},'stock',this.value)">
             </div>
-            <div>
+            <div style="display:none;">
               <label>가격 <span style="font-weight:400;color:var(--g3);">(비워두면 기본가)</span></label>
               <input type="number" placeholder="${card.price||'기본가 사용'}" value="${color.price||''}"
                 onchange="updateColorField(${card.cardId},${color.colorId},'price',this.value)">
             </div>
           </div>
-          <div id="color-price-preview-${card.cardId}-${color.colorId}" style="font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getColorPricePreviewText(card, color)}</div>
+          <div id="color-price-preview-${card.cardId}-${color.colorId}" style="display:none;font-size:11px;color:var(--sky);font-weight:600;margin:-4px 0 10px;">${getColorPricePreviewText(card, color)}</div>
           <div style="font-size:11px;color:var(--g4);margin-bottom:6px;font-weight:600;">이미지 (메인 + 상세 최대 4장)</div>
           <div class="color-img-row">
             ${SLOT_KEYS.map(slot => {
@@ -2455,7 +2455,7 @@ async function submitBulkRegister() {
           colorCode: (color.colorCode||'').trim(),
           barcode: color.barcode.trim(),
           stock: Number(color.stock) || 0,
-          price: colorPrice,
+          price: null, // 모든 색상이 기본가를 따름
           salePrice: colorSalePrice,
           mainImageUrl: imgUrls.main || '',
           detailImageUrls: [imgUrls.detail1, imgUrls.detail2, imgUrls.detail3, imgUrls.detail4, imgUrls.detail5].filter(Boolean)
