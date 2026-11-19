@@ -1044,11 +1044,11 @@ exports.claimSignupCoupons = onCall(async (request) => {
   const batch = db.batch();
   batch.set(fixedRef, {
     ...base, name: "회원가입 쿠폰", type: "fixed", value: 25000,
-    minOrderAmount: 300000, maxDiscountAmount: null, firstPurchaseOnly: false,
+    minOrderAmount: 400000, maxDiscountAmount: null, firstPurchaseOnly: false,
   });
   batch.set(firstRef, {
     ...base, name: "첫 구매 10% 할인 쿠폰", type: "percent", value: 10,
-    minOrderAmount: 200000, maxDiscountAmount: 20000, firstPurchaseOnly: true,
+    minOrderAmount: 300000, maxDiscountAmount: 20000, firstPurchaseOnly: true,
   });
   await batch.commit();
   return { granted: true };

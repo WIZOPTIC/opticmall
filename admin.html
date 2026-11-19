@@ -1618,7 +1618,7 @@ async function openModal(uid) {
         <span style="flex:1;font-size:13px;color:var(--navy);">${user.vkoolFirstDone ? '초도 완료로 표시됨' : '표시 안 함'}</span>
         <button class="btn-role-save" onclick="toggleVkoolFirst('${uid}', ${!user.vkoolFirstDone})">${user.vkoolFirstDone ? '표시 해제' : '초도 완료로 표시'}</button>
       </div>
-      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">카카오 채널 추가 쿠폰 (10,000원 · 10만원 이상 · 3개월)</div>
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">카카오 채널 추가 쿠폰 (10,000원 · 20만원 이상 · 3개월)</div>
       <div class="role-select-box" id="kakaoCpnBox-${uid}">
         <span style="flex:1;font-size:13px;color:var(--g3);">확인 중...</span>
       </div>` : ''}
@@ -1870,7 +1870,7 @@ async function issueKakaoCoupon(uid) {
     if(found) { showToast('이미 같은 사업자로 지급된 쿠폰이 있습니다.', 'error'); renderKakaoCouponBox(uid); return; }
     await window._setDoc(window._doc(window._db, 'users', uid, 'coupons', KAKAO_CPN_ID), {
       name: '카카오 채널 추가 쿠폰', type: 'fixed', value: 10000,
-      minOrderAmount: 100000, maxDiscountAmount: null, firstPurchaseOnly: false,
+      minOrderAmount: 200000, maxDiscountAmount: null, firstPurchaseOnly: false,
       used: false, usedAt: null, usedOrderId: null,
       source: 'kakao_channel',
       issuedAt: window._serverTimestamp(),
