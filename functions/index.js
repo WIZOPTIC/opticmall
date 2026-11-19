@@ -445,6 +445,43 @@ function calcPurchaseLevel(total) {
   return r;
 }
 
+/* 등급 달성 쿠폰: 등급이 처음 오를 때 1회 자동 지급 (쿠폰 문서 ID level_N 로 중복 방지) */
+const LEVEL_COUPONS = {
+  2: { value: 10000, min: 200000 },
+  3: { value: 20000, min: 300000 },
+  4: { value: 30000, min: 400000 },
+  5: { value: 50000, min: 500000 },
+};
+// 트랜잭션 안에서 "읽기" 단계에 호출 → 지급할 쿠폰 목록 반환
+async function readLevelCoupons(tx, userRef, oldTotal, newTotal) {
+  const oldLv = calcPurchaseLevel(oldTotal).level;
+  const newLv = calcPurchaseLevel(newTotal).level;
+  const out = [];
+  for (let lv = oldLv + 1; lv <= newLv; lv++) {
+    if (!LEVEL_COUPONS[lv]) continue;
+    const ref = userRef.collection("coupons").doc("level_" + lv);
+    const snap = await tx.get(ref);
+    if (!snap.exists) out.push({ ref, lv });
+  }
+  return out;
+}
+// 트랜잭션 안에서 "쓰기" 단계에 호출
+function writeLevelCoupons(tx, list) {
+  const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + 90 * 24 * 60 * 60 * 1000);
+  for (const { ref, lv } of list) {
+    const c = LEVEL_COUPONS[lv];
+    const name = (PURCHASE_LEVELS.find((x) => x.level === lv) || {}).name || "";
+    tx.set(ref, {
+      name: `${name} 등급 달성 쿠폰`, type: "fixed", value: c.value,
+      minOrderAmount: c.min, maxDiscountAmount: null, firstPurchaseOnly: false,
+      used: false, usedAt: null, usedOrderId: null,
+      source: "level_up", level: lv,
+      issuedAt: admin.firestore.FieldValue.serverTimestamp(),
+      expiresAt,
+    });
+  }
+}
+
 function isRemoteAddress(addr) {
   return REMOTE_KEYWORDS.some((kw) => String(addr || "").includes(kw));
 }
@@ -779,6 +816,8 @@ exports.confirmPayment = onCall(
         const cSnap = couponRef ? await tx.get(couponRef) : null;
 
         const uData = uSnap.data() || {};
+        const oldTotalAmt = Number(uData.total_purchase_amount) || 0;
+        const levelCoupons = await readLevelCoupons(tx, userRef, oldTotalAmt, oldTotalAmt + amount);
         const curBalance = Number(uData.pointsBalance) || 0;
         if (pointsUsed > curBalance) throw new Error("POINTS_INSUFFICIENT");
         if (cSnap && (!cSnap.exists || cSnap.data().used)) throw new Error("COUPON_USED");
@@ -826,7 +865,8 @@ exports.confirmPayment = onCall(
           });
         }
 
-        // 구매 누적 금액 / 등급 (결제금액 기준)
+        // 구매 누적 금액 / 등급 (결제금액 기준) + 등급 달성 쿠폰
+        writeLevelCoupons(tx, levelCoupons);
         const newTotal = (Number(uData.total_purchase_amount) || 0) + amount;
         const lv = calcPurchaseLevel(newTotal);
         tx.update(userRef, {
@@ -1021,6 +1061,8 @@ exports.placePostpaidOrder = onCall({ timeoutSeconds: 60 }, async (request) => {
       const uSnap = await tx.get(userRef);
       const cSnap = couponRef ? await tx.get(couponRef) : null;
       if (cSnap && (!cSnap.exists || cSnap.data().used)) throw new Error("COUPON_USED");
+      const uPre = uSnap.data() || {};
+      const levelCoupons = await readLevelCoupons(tx, userRef, Number(uPre.total_purchase_amount) || 0, (Number(uPre.total_purchase_amount) || 0) + expectedTotal);
 
       pSnaps.forEach((pSnap, i) => {
         const pData = pSnap.data();
@@ -1047,6 +1089,7 @@ exports.placePostpaidOrder = onCall({ timeoutSeconds: 60 }, async (request) => {
         tx.update(couponRef, { used: true, usedAt: admin.firestore.FieldValue.serverTimestamp(), usedOrderId: orderId });
       }
 
+      writeLevelCoupons(tx, levelCoupons);
       const uData = uSnap.data() || {};
       const newTotal = (Number(uData.total_purchase_amount) || 0) + expectedTotal;
       const lv = calcPurchaseLevel(newTotal);
