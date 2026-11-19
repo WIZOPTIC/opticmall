@@ -2566,6 +2566,8 @@ function pickColor(idx) {
   renderColorButtons(currentProduct, idx);
   refreshWishBtnState();
 
+  // 비회원/미승인: 색상 사진만 바꿔 보여주고 담기(가격 표시)는 하지 않음
+  if(memberLevel < 2) { return; }
   const already = selectedItems.some(it => it.colorIdx === idx);
   if(already) { showToast('이미 담긴 색상이에요.', 'error'); return; }
   const stock = Number(currentProduct.colors[idx].stock || 0);
@@ -2606,7 +2608,7 @@ function renderSelectionList() {
   const listEl = document.getElementById('selectionList');
   const summaryEl = document.getElementById('selectionSummary');
 
-  if(selectedItems.length === 0) {
+  if(selectedItems.length === 0 || memberLevel < 2) {
     wrap.style.display = 'none';
     emptyHint.style.display = 'block';
     return;
