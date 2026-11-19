@@ -498,8 +498,8 @@ var t=setInterval(function(){if(window.firebase&&firebase.apps&&firebase.apps.le
     <div class="card">
       <div class="info-row"><span class="lbl">주문번호</span><span class="val" id="rOrderId">-</span></div>
       <div class="info-row"><span class="lbl">주문상품</span><span class="val" id="rOrderName">-</span></div>
-      <div class="info-row"><span class="lbl">결제금액</span><span class="val price" id="rAmount">-</span></div>
-      <div class="info-row"><span class="lbl">결제상태</span><span class="val" style="color:var(--green);">결제 완료</span></div>
+      <div class="info-row"><span class="lbl" id="rAmountLbl">결제금액</span><span class="val price" id="rAmount">-</span></div>
+      <div class="info-row"><span class="lbl">결제상태</span><span class="val" id="rPayState" style="color:var(--green);">결제 완료</span></div>
     </div>
 
     <div class="btn-group">
@@ -660,6 +660,11 @@ async function handleSuccess() {
       return;
     }
 
+    if(params.get('postpaid') === '1') {
+      showError('주문 접수가 완료되지 않았습니다. 장바구니에서 다시 주문해주세요.');
+      return;
+    }
+
     if(!paymentKey || Number(amount) !== Number(order.totalAmount)) {
       showError('결제 금액이 주문 금액과 일치하지 않습니다. 고객센터로 문의해주세요.');
       return;
@@ -681,6 +686,8 @@ async function handleSuccess() {
 function showResult(orderId, order, amount) {
   document.getElementById('rOrderId').textContent = orderId;
   document.getElementById('rOrderName').textContent = renderOrderNameFromOrder(order);
+  if(order && order.postpaid) amount = order.postpaidAmount ?? order.totalAmount;
+  if(order && order.postpaid) { document.getElementById('rAmountLbl').textContent = '주문금액'; document.getElementById('rPayState').textContent = '후불 (월말 정산)'; }
   document.getElementById('rAmount').textContent = '₩' + Number(amount).toLocaleString();
   document.getElementById('loadingArea').style.display = 'none';
   document.getElementById('resultArea').style.display = 'block';
@@ -718,7 +725,7 @@ _auth.onAuthStateChanged(async (user) => {
           </div>
           <div class="footer-col">
             <h5>회사</h5>
-            <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+            <a href="about.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
           </div>
         </div>
         <div class="footer-contact">

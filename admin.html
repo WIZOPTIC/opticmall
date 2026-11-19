@@ -1085,6 +1085,7 @@ window._auth = auth;
 window._db = db;
 window._storage = storage;
 window._adminWithdrawMember = httpsCallable(getFunctions(app, 'asia-northeast3'), 'adminWithdrawMember');
+window._setPostpaid = httpsCallable(getFunctions(app, 'asia-northeast3'), 'setPostpaid');
 window._ref = ref;
 window._deleteObject = deleteObject;
 window._uploadBytes = uploadBytes;
@@ -1621,6 +1622,11 @@ async function openModal(uid) {
       <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">카카오 채널 추가 쿠폰 (10,000원 · 20만원 이상 · 3개월)</div>
       <div class="role-select-box" id="kakaoCpnBox-${uid}">
         <span style="flex:1;font-size:13px;color:var(--g3);">확인 중...</span>
+      </div>
+      <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);">후불 거래처 (결제 없이 주문 · 월말 정산 · 적립금 없음)</div>
+      <div class="role-select-box">
+        <span style="flex:1;font-size:13px;color:${user.postpaid ? 'var(--navy)' : 'var(--g3)'};">${user.postpaid ? '후불 거래처로 지정됨' : '일반 거래처 (카드 결제)'}</span>
+        <button class="btn-role-save" onclick="togglePostpaid('${uid}', ${!user.postpaid})">${user.postpaid ? '후불 해제' : '후불 거래처로 지정'}</button>
       </div>` : ''}
 
       <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--g4);"><i class=ic-key></i> 회원 권한 설정</div>
@@ -1827,6 +1833,22 @@ async function saveVkoolRuleAdmin() {
     showToast('저장 실패: ' + e.message, 'error');
   }
 }
+// ===== 후불 거래처 지정/해제 =====
+async function togglePostpaid(uid, enable) {
+  const msg = enable
+    ? '이 회원을 후불 거래처로 지정할까요?\n결제 없이 주문이 접수되고, 적립금은 쌓이지 않습니다.'
+    : '후불 거래처 지정을 해제할까요?\n다음 주문부터 카드 결제로 바뀝니다.';
+  if(!confirm(msg)) return;
+  try {
+    await window._setPostpaid({ targetUid: uid, enabled: enable });
+    showToast('<i class=ic-check-circle></i> ' + (enable ? '후불 거래처로 지정했습니다.' : '후불 지정을 해제했습니다.'), 'success');
+    openModal(uid);
+  } catch(e) {
+    console.error(e);
+    showToast('처리 실패: ' + (e.message || e), 'error');
+  }
+}
+
 // ===== 카카오 채널 추가 쿠폰 (수동 지급, 사업자번호당 1회) =====
 const KAKAO_CPN_ID = 'kakao_channel';
 async function findKakaoCouponForBiz(uid) {
@@ -4507,7 +4529,7 @@ async function loadOrderManage() {
             orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
             createdAt: o.createdAt, brandName: s.brandName||'-', brandOwnerUid: s.brandOwnerUid||null,
             items: myItems, amount, status: s.status,
-            pointsUsed: Number(o.pointsUsed || 0), paidAmount: o.paidAmount,
+            pointsUsed: Number(o.pointsUsed || 0), paidAmount: o.postpaid ? null : o.paidAmount, postpaid: !!o.postpaid,
             trackingCompany: s.trackingCompany, trackingNumber: s.trackingNumber, legacy: false
           });
         });
@@ -4517,7 +4539,7 @@ async function loadOrderManage() {
           orderDocId: o.id, orderId: o.orderId||o.id, userName: o.userName||o.userEmail||'-',
           createdAt: o.createdAt, brandName: '-', brandOwnerUid: null,
           items, amount: o.totalAmount, status: o.status,
-          pointsUsed: Number(o.pointsUsed || 0), paidAmount: o.paidAmount,
+          pointsUsed: Number(o.pointsUsed || 0), paidAmount: o.postpaid ? null : o.paidAmount, postpaid: !!o.postpaid,
           trackingCompany: o.trackingCompany, trackingNumber: o.trackingNumber, legacy: true
         });
       }
@@ -4649,6 +4671,7 @@ function renderOrderManageTable() {
                 ₩${Number(r.amount||0).toLocaleString()}
                 ${r.pointsUsed > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px;">적립금 -₩${r.pointsUsed.toLocaleString()} 사용</div>` : ''}
                 ${r.paidAmount != null ? `<div style="font-size:10px;color:var(--g3);margin-top:2px;">실결제 ₩${Number(r.paidAmount).toLocaleString()}</div>` : ''}
+                ${r.postpaid ? `<div style="display:inline-block;margin-top:3px;padding:1px 6px;font-size:10px;font-weight:700;color:#7A5A1E;background:#F5EBD6;">후불</div>` : ''}
               </td>
               <td><span class="badge ${statusInfo.cls}">${statusInfo.label}</span></td>
               <td style="font-size:11px;">${shipInfo}</td>
@@ -4782,7 +4805,7 @@ async function openOrderDetail(orderDocId) {
     Number(o.pointsUsed||0) > 0 ? row('적립금 사용', '-' + won(o.pointsUsed)) : '',
     row('배송비', won(o.shippingFee)),
     row('총 결제금액', '<b style="font-size:15px;">' + won(o.totalAmount) + '</b>'),
-    o.paidAmount != null ? row('실결제 금액', won(o.paidAmount)) : '',
+    o.postpaid ? row('결제 방식', '<b style="color:#7A5A1E;">후불 (월말 정산)</b>') : (o.paidAmount != null ? row('실결제 금액', won(o.paidAmount)) : ''),
     o.paymentKey ? row('결제키', '<span style="font-size:11px;">' + esc(o.paymentKey) + '</span>') : ''
   ].join('');
 

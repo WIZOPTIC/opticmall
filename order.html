@@ -770,6 +770,7 @@ var t=setInterval(function(){if(window.firebase&&firebase.apps&&firebase.apps.le
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script src="vkool-rule.js"></script>
 <script src="shipping-rule.js"></script>
 <script>
@@ -784,6 +785,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const _auth = firebase.auth();
 const _db = firebase.firestore();
+const _functions = firebase.app().functions('asia-northeast3');
 
 function updateTopbarLoggedIn(name, level, role, uid) {
   const guest = document.getElementById('topbarGuest');
@@ -1363,7 +1365,7 @@ function updateShippingAndTotal() {
 
   // 적립 예정 금액: 실제 구매금액(상품금액, 배송비 제외) 기준 1% — 배송완료 후 지급
   const earnRow = document.getElementById('sumEarnPointsRow');
-  const expectedEarn = Math.floor(Math.max(0, totalAmount - couponDiscount) * 0.01);
+  const expectedEarn = isPostpaidUser() ? 0 : Math.floor(Math.max(0, totalAmount - couponDiscount) * 0.01);
   if(expectedEarn > 0) {
     earnRow.style.display = 'flex';
     document.getElementById('sumEarnPoints').textContent = '+₩' + expectedEarn.toLocaleString();
@@ -1381,7 +1383,26 @@ function updateShippingAndTotal() {
 }
 
 // ===================== 적립금 사용 =====================
+function isPostpaidUser() { return currentUserData && currentUserData.postpaid === true; }
+
+// 후불 거래처: 결제 버튼 대신 "후불 주문하기", 적립금 사용/적립 표시 없음
+function applyPostpaidUI() {
+  if(!isPostpaidUser()) return;
+  const btn = document.getElementById('payBtn');
+  if(btn) btn.textContent = '후불 주문하기';
+  document.querySelectorAll('.quickpay-divider, .easypay-row').forEach(el => el.style.display = 'none');
+  const tl = document.querySelector('.sum-total > span');
+  if(tl) tl.textContent = '총 주문금액';
+  const a1 = document.querySelector('label[for="agree1"]');
+  if(a1) a1.lastChild.textContent = ' 구매조건 확인 및 주문 동의 (필수)';
+  const box = document.querySelector('.agree-box');
+  if(box && !document.getElementById('postpaidNote')) {
+    box.insertAdjacentHTML('beforebegin', '<div id="postpaidNote" style="margin:0 0 12px;padding:12px 14px;background:#F7F4EE;font-size:12.5px;line-height:1.7;color:#5A4A3A;">후불 거래처 주문입니다. 결제 없이 바로 접수되며, 주문 금액은 월말에 정산해 드립니다.</div>');
+  }
+}
+
 function initPointsUI() {
+  if(isPostpaidUser()) { pointsToUse = 0; document.getElementById('pointsUseRow').style.display = 'none'; applyPostpaidUI(); return; }
   const balance = Number(currentUserData?.pointsBalance) || 0;
   const row = document.getElementById('pointsUseRow');
   if(balance <= 0) { row.style.display = 'none'; return; }
@@ -1535,6 +1556,21 @@ async function startPayment(easyPayProvider) {
     return;
   }
 
+  // 후불 거래처: 결제창 없이 서버에서 바로 주문 확정
+  if(isPostpaidUser()) {
+    const btn = document.getElementById('payBtn');
+    if(btn) { btn.disabled = true; btn.textContent = '주문 접수 중...'; }
+    try {
+      await _functions.httpsCallable('placePostpaidOrder')({ orderId });
+      location.href = 'order-success.html?orderId=' + encodeURIComponent(orderId) + '&postpaid=1';
+    } catch(e) {
+      console.error(e);
+      alert(e && e.message ? e.message : '주문 접수 중 오류가 발생했습니다.');
+      if(btn) { btn.disabled = false; btn.textContent = '후불 주문하기'; }
+    }
+    return;
+  }
+
   // 결제창 진입 기록: 취소/실패 후 돌아왔을 때 뒤로가기가 꼬이지 않게 사용
   try { sessionStorage.setItem('om_payTried', location.href); } catch(e) {}
   // 토스페이먼츠 결제창 호출
@@ -1599,7 +1635,7 @@ async function startPayment(easyPayProvider) {
           </div>
           <div class="footer-col">
             <h5>회사</h5>
-            <a href="index.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
+            <a href="about.html">회사소개</a><a href="join.html">회원가입</a><a href="terms.html">이용약관</a><a href="privacy.html">개인정보처리방침</a>
           </div>
         </div>
         <div class="footer-contact">

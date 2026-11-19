@@ -895,6 +895,201 @@ exports.confirmPayment = onCall(
 );
 
 /**
+ * 후불 거래처 (체인점 등) - 결제 없이 주문 접수, 월말 계좌이체 정산
+ *  - 관리자만 지정/해제 (postpaidAccounts/{uid} 문서로 관리, 회원이 스스로 바꿀 수 없음)
+ *  - 가격·쿠폰은 일반 거래처와 동일 / 적립금은 쓰지도 쌓이지도 않음
+ */
+async function isPostpaidUser(uid) {
+  const s = await db.collection("postpaidAccounts").doc(uid).get();
+  return s.exists && s.data().enabled === true;
+}
+
+exports.setPostpaid = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
+  const meSnap = await db.collection("users").doc(request.auth.uid).get();
+  const myRole = meSnap.exists ? meSnap.data().role : null;
+  if (myRole !== "master" && myRole !== "submaster") {
+    throw new HttpsError("permission-denied", "관리자만 사용할 수 있습니다.");
+  }
+  const targetUid = String(request.data?.targetUid || "").trim();
+  const enabled = request.data?.enabled === true;
+  if (!targetUid) throw new HttpsError("invalid-argument", "대상 회원이 올바르지 않습니다.");
+  const tSnap = await db.collection("users").doc(targetUid).get();
+  if (!tSnap.exists) throw new HttpsError("not-found", "회원 정보를 찾을 수 없습니다.");
+  await db.collection("postpaidAccounts").doc(targetUid).set({
+    enabled,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedBy: request.auth.uid,
+  });
+  await db.collection("users").doc(targetUid).update({ postpaid: enabled });
+  return { ok: true, enabled };
+});
+
+exports.placePostpaidOrder = onCall({ timeoutSeconds: 60 }, async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
+  const uid = request.auth.uid;
+  const orderId = String(request.data?.orderId || "").trim();
+  if (!orderId) throw new HttpsError("invalid-argument", "주문 정보가 올바르지 않습니다.");
+  if (!(await isPostpaidUser(uid))) {
+    throw new HttpsError("permission-denied", "후불 거래처로 등록된 회원만 이용할 수 있습니다.");
+  }
+
+  const orderRef = db.collection("orders").doc(orderId);
+  const orderSnap = await orderRef.get();
+  if (!orderSnap.exists) throw new HttpsError("not-found", "주문 내역을 찾을 수 없습니다.");
+  const order = orderSnap.data();
+  if (order.userId !== uid) throw new HttpsError("permission-denied", "본인의 주문이 아닙니다.");
+  if (order.status !== "payment_pending") {
+    if (order.postpaid) return { ok: true, already: true };
+    throw new HttpsError("failed-precondition", "이미 처리된 주문입니다.");
+  }
+
+  const userRef = db.collection("users").doc(uid);
+  const userSnap = await userRef.get();
+  const user = userSnap.exists ? userSnap.data() : {};
+  if ((Number(user.member_level) || 0) < 2) {
+    throw new HttpsError("permission-denied", "안경사 인증 승인 후 주문이 가능합니다.");
+  }
+
+  // ---------- 서버 재검증: 상품 가격 / 배송비 / 쿠폰 ----------
+  const items = Array.isArray(order.items) ? order.items : [];
+  if (items.length === 0) throw new HttpsError("failed-precondition", "주문 상품 정보가 없습니다.");
+  const productIds = [...new Set(items.map((it) => it.productId).filter(Boolean))];
+  const productSnaps = await Promise.all(productIds.map((pid) => db.collection("products").doc(pid).get()));
+  const products = {};
+  productSnaps.forEach((s) => { if (s.exists) products[s.id] = s.data(); });
+  const discountMap = await loadDiscountMap();
+
+  let productAmount = 0;
+  const shipLines = [];
+  const needByProduct = {};
+  for (const it of items) {
+    const p = products[it.productId];
+    if (!p) throw new HttpsError("failed-precondition", `판매가 종료되었거나 삭제된 상품이 있습니다. (${it.productName || it.productId})`);
+    if (p.status && p.status !== "approved") throw new HttpsError("failed-precondition", `현재 판매 중이 아닌 상품이 있습니다. (${it.productName || ""})`);
+    const qty = Number(it.qty);
+    if (!Number.isInteger(qty) || qty < 1) throw new HttpsError("invalid-argument", "주문 수량이 올바르지 않습니다.");
+    const colorIdx = Number(it.selectedColorIdx) || 0;
+    const unit = computeUnitPrice(p, colorIdx, discountMap[it.productId] || 0);
+    if (unit !== Number(it.unitPrice)) {
+      throw new HttpsError("failed-precondition", `상품 가격이 변경되었습니다. 주문서를 다시 열어 확인해주세요. (${it.productName || ""})`);
+    }
+    productAmount += unit * qty;
+    shipLines.push({ brandName: p.brandName, qty, amount: unit * qty });
+    const need = (needByProduct[it.productId] = needByProduct[it.productId] || { colors: {}, plain: 0 });
+    if (Array.isArray(p.colors) && p.colors.length > colorIdx) need.colors[colorIdx] = (need.colors[colorIdx] || 0) + qty;
+    else need.plain += qty;
+  }
+  if (productAmount !== Number(order.productAmount)) {
+    throw new HttpsError("failed-precondition", "주문 금액이 올바르지 않습니다. 주문서를 다시 열어 확인해주세요.");
+  }
+  const shippingFee = calcShippingByRule(await loadShippingRule(), shipLines, order.receiver?.addr1);
+  if (shippingFee !== Number(order.shippingFee)) {
+    throw new HttpsError("failed-precondition", "배송비가 올바르지 않습니다. 주문서를 다시 열어 확인해주세요.");
+  }
+  let couponRef = null;
+  let couponDiscount = 0;
+  if (order.couponId) {
+    couponRef = userRef.collection("coupons").doc(order.couponId);
+    const cSnap = await couponRef.get();
+    if (!cSnap.exists) throw new HttpsError("failed-precondition", "사용할 수 없는 쿠폰입니다.");
+    const c = cSnap.data();
+    const exp = c.expiresAt?.toDate ? c.expiresAt.toDate() : c.expiresAt ? new Date(c.expiresAt) : null;
+    if (c.used || (exp && exp < new Date())) throw new HttpsError("failed-precondition", "이미 사용했거나 기간이 지난 쿠폰입니다.");
+    couponDiscount = computeCouponDiscount(c, productAmount);
+  }
+  if (couponDiscount !== (Number(order.couponDiscount) || 0)) {
+    throw new HttpsError("failed-precondition", "쿠폰 할인 금액이 올바르지 않습니다.");
+  }
+  if ((Number(order.pointsUsed) || 0) !== 0) {
+    throw new HttpsError("failed-precondition", "후불 거래처는 적립금을 사용할 수 없습니다.");
+  }
+  const expectedTotal = Math.max(0, productAmount + shippingFee - couponDiscount);
+  if (expectedTotal !== Number(order.totalAmount)) {
+    throw new HttpsError("failed-precondition", "주문 금액이 올바르지 않습니다. 주문서를 다시 열어 확인해주세요.");
+  }
+
+  // ---------- 주문 확정 (재고 차감 / 쿠폰 사용 / 구매 누적) ----------
+  try {
+    await db.runTransaction(async (tx) => {
+      const oSnap = await tx.get(orderRef);
+      const o = oSnap.data();
+      if (o.status !== "payment_pending") throw new Error("ALREADY_PROCESSED");
+      const pids = Object.keys(needByProduct);
+      const pRefs = pids.map((pid) => db.collection("products").doc(pid));
+      const pSnaps = await Promise.all(pRefs.map((r) => tx.get(r)));
+      const uSnap = await tx.get(userRef);
+      const cSnap = couponRef ? await tx.get(couponRef) : null;
+      if (cSnap && (!cSnap.exists || cSnap.data().used)) throw new Error("COUPON_USED");
+
+      pSnaps.forEach((pSnap, i) => {
+        const pData = pSnap.data();
+        const need = needByProduct[pids[i]];
+        const payload = {};
+        if (Object.keys(need.colors).length > 0) {
+          const colors = pData.colors.map((c) => ({ ...c }));
+          for (const idx of Object.keys(need.colors)) {
+            const left = Number(colors[idx].stock || 0) - need.colors[idx];
+            if (left < 0) throw new Error("STOCK_INSUFFICIENT");
+            colors[idx].stock = left;
+          }
+          payload.colors = colors;
+        }
+        if (need.plain > 0) {
+          const left = Number(pData.stock || 0) - need.plain;
+          if (left < 0) throw new Error("STOCK_INSUFFICIENT");
+          payload.stock = left;
+        }
+        tx.update(pRefs[i], payload);
+      });
+
+      if (couponRef) {
+        tx.update(couponRef, { used: true, usedAt: admin.firestore.FieldValue.serverTimestamp(), usedOrderId: orderId });
+      }
+
+      const uData = uSnap.data() || {};
+      const newTotal = (Number(uData.total_purchase_amount) || 0) + expectedTotal;
+      const lv = calcPurchaseLevel(newTotal);
+      tx.update(userRef, { total_purchase_amount: newTotal, purchase_level: lv.level, purchase_level_name: lv.name });
+
+      const shipments = Array.isArray(o.shipments) ? o.shipments.map((s) => ({ ...s, status: "paid" })) : [];
+      const upd = {
+        status: "paid",
+        postpaid: true,
+        paymentMethod: "후불(월말 정산)",
+        paidAmount: 0,
+        postpaidAmount: expectedTotal,
+        settled: false,
+        pointsAwarded: true,
+        pointsAmount: 0,
+        paymentPassedAt: admin.firestore.FieldValue.serverTimestamp(),
+        couponConsumed: !!couponRef,
+      };
+      if (shipments.length > 0) upd.shipments = shipments;
+      tx.update(orderRef, upd);
+    });
+  } catch (e) {
+    if (e.message === "ALREADY_PROCESSED") return { ok: true, already: true };
+    const msg =
+      e.message === "STOCK_INSUFFICIENT" ? "재고가 부족하여 주문할 수 없습니다. 수량을 확인해주세요." :
+      e.message === "COUPON_USED" ? "이미 사용한 쿠폰입니다." :
+      "주문 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+    throw new HttpsError("aborted", msg);
+  }
+
+  try {
+    const cartSnap = await db.collection("carts").doc(uid).collection("items").get();
+    const batch = db.batch();
+    const ordered = new Set(items.map((i) => i.productId));
+    cartSnap.forEach((d) => { if (ordered.has(d.data().productId)) batch.delete(d.ref); });
+    await batch.commit();
+  } catch (e) {
+    console.error("장바구니 정리 실패:", e);
+  }
+  return { ok: true };
+});
+
+/**
  * 회원 탈퇴 공통 처리 (본인 탈퇴 / 관리자 강제 탈퇴 모두 사용)
  *  - 진행 중인 주문(결제완료~배송중, 취소/반품 진행 중)이 있으면 막음
  *  - 삭제: 회원정보, 배송지, 적립금내역, 쿠폰, 장바구니, 관심상품, 재입고알림, 사업자등록증 파일, 로그인 계정
