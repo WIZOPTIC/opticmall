@@ -73,10 +73,7 @@
   async function noticeText() {
     const rule = await loadRule();
     if (!rule.enabled) return '';
-    const man = rule.firstMinAmount >= 10000 && rule.firstMinAmount % 10000 === 0
-      ? (rule.firstMinAmount / 10000).toLocaleString('ko-KR') + '만원'
-      : rule.firstMinAmount.toLocaleString('ko-KR') + '원';
-    return `V.KOOL 첫 주문은 ${man} 이상, 이후에는 모델 상관없이 ${rule.repeatMinQty}장 이상부터 주문 가능합니다.`;
+    return 'V.KOOL은 초도구매가 있는 상품입니다.';
   }
 
   window.VkoolRule = { loadRule, isVkool, isFirstOrder, check, noticeText };
