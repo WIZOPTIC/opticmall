@@ -95,10 +95,6 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 }
 
 /* V.KOOL 내부 서브탭 */
-.vk-subtab { padding: 14px 18px; font-size: 14px; font-weight: 600; color: var(--g4); cursor: pointer; border: none; background: none; font-family: inherit; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
-.vk-subtab:hover { color: var(--navy); }
-.vk-subtab.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 700; }
-.vk-cnt { font-size: 11px; color: var(--g3); font-weight: 400; }
 
 /* 레이아웃 */
 .page-wrap { max-width: 1440px; margin: 0 auto; padding: 32px 24px 80px; }
@@ -304,7 +300,6 @@ header{background:var(--hdr-bg)!important;border-bottom:none!important;box-shado
 .header-top-row .logo{display:flex;align-items:center;height:69px}
 @media (min-width:769px) and (max-width:1000px){.header-top-row .logo{height:57px}}
 @media (max-width:768px){.header-top-row .logo{height:40px}}
-@media (max-width:768px){#vkoolSubTabs{overflow-x:auto;padding:0 8px!important;scrollbar-width:none;-webkit-overflow-scrolling:touch}#vkoolSubTabs::-webkit-scrollbar{display:none}.vk-subtab{flex:0 0 auto;padding:12px 14px;font-size:13px}}
 .footer-logo-img{margin-bottom:25px!important}
 @media (max-width:768px){.footer-cols{gap:28px;flex-wrap:wrap}.footer-col h5,.footer-col a{white-space:nowrap}}
 /* 모바일 헤더: 로고+아이콘 한 줄, 아래에 옆으로 미는 메뉴 줄 (햄버거 없음) */
@@ -434,8 +429,6 @@ html{color-scheme:only light}
  .list-controls .filter-dropdown{min-width:0}
  .list-controls .filter-panel{min-width:100%!important;max-width:calc(100vw - 32px)}
  .list-controls .filter-dropdown:nth-of-type(1) .filter-panel{left:auto;right:0}
- #vkoolSubTabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0!important;overflow:visible!important;padding:0 16px!important}
- .vk-subtab{flex:none!important;text-align:center;padding:13px 4px!important;white-space:nowrap}
 }
 
 /* 모바일 상단 메뉴: 옆에 더 있으면 가장자리를 흐리게 해서 쓸 수 있다는 것을 알려줌 */
@@ -517,6 +510,34 @@ html{color-scheme:only light}
 <style>/* 색깔공: 마우스를 올리면 살짝 커지고, 고르면 나머지는 흐려짐 (테두리 없음) */.p-color-chip{transition:transform .15s ease,opacity .15s ease,filter .15s ease}.p-color-chip[onclick]:hover{transform:scale(1.25);filter:brightness(1.12)}.chip-picked .p-color-chip{opacity:.35}.chip-picked .p-color-chip.picked{opacity:1;transform:scale(1.18)}.chip-picked .p-color-chip:hover{opacity:1}</style>
 <style>/* 반반 색깔공이 테두리까지 정확히 반반으로 보이게 */[style*="linear-gradient(90deg"]{background-origin:border-box!important}</style>
 <style>/* 상품 카드 사진 선명하게 (축소될 때 뭉개짐 방지 + 대비 살짝) */.product-card img{image-rendering:-webkit-optimize-contrast;filter:contrast(1.06) saturate(1.04)}</style>
+<style>#categoryHero .category-hero-titlewrap{align-items:center!important;gap:14px!important}
+.vk-hero-logo{height:26px;width:auto;display:block}
+#listTitle:empty{display:none}
+.vk-hero-tag{font-size:13.5px;color:#7A7167;white-space:nowrap}
+@media (max-width:768px){.vk-hero-logo{height:24px}.vk-hero-tag{display:none}#categoryHero .category-hero-titlewrap{min-height:27.3px}}
+</style>
+<style id="vkHeroStyle">
+.category-hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; margin-bottom: 20px; flex-wrap: wrap; }
+.category-hero-titlewrap { display: flex; align-items: baseline; gap: 10px; }
+.category-hero-title { font-family: inherit; font-style: normal; font-size: 20px; font-weight: 600; color: var(--navy); line-height: 1.3; margin: 0; letter-spacing: -0.005em; }
+@media (max-width: 768px) { .category-hero { padding: 14px 0; margin-bottom: 16px; } .category-hero-title { font-size: 17px; } }
+@media (max-width:768px){ .category-hero{padding:16px 0 12px!important;gap:14px!important} }
+.brand-tab.active{color:#2A2420;font-weight:700}
+.brand-tab.active:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#FF7A1A}
+</style>
+<style id="brandTabsStyle">
+/* 브랜드 탭: 현재 카테고리/검색 결과 안에서 브랜드별로 좁혀 보기 */
+.brand-tabs{display:flex;gap:30px;border-bottom:1px solid #CFC8BB;margin:14px 0 18px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.brand-tabs::-webkit-scrollbar{display:none}
+.brand-tab{text-transform:uppercase;flex:0 0 auto;border:none;background:none;padding:12px 2px;font-family:inherit;font-size:14.5px;font-weight:500;color:#4A423B;cursor:pointer;position:relative;white-space:nowrap;letter-spacing:.02em}
+.brand-tab em{font-style:normal;font-size:13px;font-weight:400;margin-left:6px;color:#8A7F73}
+.brand-tab:hover{color:#000}
+.brand-tab.on{color:#2A2420;font-weight:700}
+.brand-tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#FF7A1A}
+@media (max-width:768px){.brand-tabs{gap:24px;margin:6px 0 10px;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}.brand-tab{font-size:14px;padding:11px 0}.brand-tab em{font-size:12px}}
+</style>
+<style>/* 페이지 제목 위치를 다른 페이지(브랜드관·이벤트·타임세일)와 동일하게 */@media (min-width:769px){.page-wrap{padding-top:0!important}.category-hero{margin-top:-7px!important}}@media (max-width:768px){.page-wrap{padding-top:0!important}.category-hero{margin-top:-2px!important}}</style>
+<style>/* 페이지 제목: 헤더와 여백을 두고 살짝 안쪽으로 (본문 위치는 그대로) */@media (min-width:769px){html body .category-hero{padding-top:37px!important;padding-bottom:3px!important}html body .category-hero-titlewrap{padding-left:20px!important}.brand-tabs{padding-left:18px!important}}</style>
 </head>
 <body>
 <!-- 로그인 팝업 -->
@@ -740,36 +761,12 @@ var t=setInterval(function(){if(window.firebase&&firebase.apps&&firebase.apps.le
 <div id="searchBackdrop" onclick="toggleSearchOverlay()" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(10,15,20,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:205;"></div>
 </div>
 
-<!-- V.KOOL 브랜드 히어로 -->
-<div style="background:var(--white);border-bottom:1px solid var(--g2);padding:28px 0;">
-  <div style="max-width:1440px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <img src="vkool-logo.png" alt="V.KOOL" style="height:32px;">
-      <div>
-        <div style="font-size:14px;color:var(--g4);">스포츠고글 · 선글라스 · 변색렌즈 전문 브랜드</div>
-      </div>
-    </div>
-    <div style="font-size:12px;color:var(--g3);">입점 브랜드관 · OPTICMALL</div>
-  </div>
-</div>
-
-<!-- V.KOOL 내부 서브탭 -->
-<div style="background:var(--white);border-bottom:1px solid var(--g2);">
-  <div style="max-width:1440px;margin:0 auto;padding:0 24px;display:flex;gap:4px;" id="vkoolSubTabs">
-    <button class="vk-subtab active" data-cat="전체" onclick="filterVkoolTab('전체', this)">전체 <span class="vk-cnt" id="vkcnt-전체">(0)</span></button>
-    <button class="vk-subtab" data-cat="스포츠고글" onclick="filterVkoolTab('스포츠고글', this)">스포츠고글 <span class="vk-cnt" id="vkcnt-스포츠고글">(0)</span></button>
-    <button class="vk-subtab" data-cat="선글라스" onclick="filterVkoolTab('선글라스', this)">선글라스 <span class="vk-cnt" id="vkcnt-선글라스">(0)</span></button>
-    <button class="vk-subtab" data-cat="변색렌즈" onclick="filterVkoolTab('변색렌즈', this)">변색렌즈 <span class="vk-cnt" id="vkcnt-변색렌즈">(0)</span></button>
-  </div>
-</div>
-
 <div class="page-wrap">
-  <div id="vkoolListNotice" style="display:none;margin:18px 0 0;padding:13px 16px;background:#F7F4EE;border:1px solid #E3D9C6;color:#6B5A3A;font-size:14px;font-weight:600;line-height:1.6;"></div>
-  <div class="list-header">
-    <div>
-      <div class="list-eyebrow">V.KOOL Brand Shop</div>
-      <div class="list-title" id="listTitle">V.KOOL 전체상품</div>
-      <div class="list-count">총 <strong>0</strong>개 상품</div>
+  <div class="category-hero" id="categoryHero">
+    <div class="category-hero-titlewrap">
+      <img src="vkool-logo.png" alt="V.KOOL" class="vk-hero-logo">
+      <h1 class="category-hero-title" id="listTitle"></h1>
+      <span class="vk-hero-tag">스포츠고글 · 선글라스 · 변색렌즈 전문 브랜드</span>
     </div>
     <div class="list-controls">
       <button class="stock-toggle" id="stockToggleBtn" onclick="toggleStockOnly()"><span class="dot"></span>재고있음만</button>
@@ -800,6 +797,15 @@ var t=setInterval(function(){if(window.firebase&&firebase.apps&&firebase.apps.le
       </select>
     </div>
   </div>
+
+  <div class="brand-tabs" id="vkoolSubTabs">
+    <button type="button" class="brand-tab vk-subtab active" data-cat="전체" onclick="filterVkoolTab('전체', this)">전체<em id="vkcnt-전체">0</em></button>
+    <button type="button" class="brand-tab vk-subtab" data-cat="스포츠고글" onclick="filterVkoolTab('스포츠고글', this)">스포츠고글<em id="vkcnt-스포츠고글">0</em></button>
+    <button type="button" class="brand-tab vk-subtab" data-cat="선글라스" onclick="filterVkoolTab('선글라스', this)">선글라스<em id="vkcnt-선글라스">0</em></button>
+    <button type="button" class="brand-tab vk-subtab" data-cat="변색렌즈" onclick="filterVkoolTab('변색렌즈', this)">변색렌즈<em id="vkcnt-변색렌즈">0</em></button>
+  </div>
+
+  <div id="vkoolListNotice" style="display:none;margin:0 0 18px;padding:12px 16px;background:#F7F4EE;border:1px solid #E3D9C6;color:#6B5A3A;font-size:14px;font-weight:600;line-height:1.6;"></div>
 
   <div class="product-grid" id="productGrid">
     <!-- 상품 카드들 JS로 생성 -->
@@ -1185,7 +1191,7 @@ function renderProducts(products) {
       const salePrice = p.salePrice ? Number(p.salePrice) : (discountRate > 0 ? Math.round(price * (1 - discountRate/100)) : 0);
       if(discountRate > 0 && price > 0) {
         priceHtml = `<div class="p-price">
-          <span class="discount-pct">${discountRate}%</span>
+          <span class="discount-pct">${p.isTimesale ? '타임세일 ' : ''}${discountRate}%</span>
           <span class="won">₩</span>${salePrice.toLocaleString()}
           <span class="orig-price">₩${price.toLocaleString()}</span>
         </div>`;
@@ -1370,7 +1376,7 @@ function goToProduct(productId, colorIdx) {
 }
 
 function updateCount(n) {
-  document.querySelector('.list-count').innerHTML = `총 <strong>${n}</strong>개 상품`;
+  {const _lc=document.querySelector('.list-count'); if(_lc) _lc.innerHTML = `총 <strong>${n}</strong>개 상품`;}
 }
 
 const VK_SUBCATS = ['스포츠고글', '선글라스', '변색렌즈'];
@@ -1391,7 +1397,7 @@ function updateVkoolTabCounts() {
   });
   Object.keys(counts).forEach(k => {
     const el = document.getElementById('vkcnt-'+k);
-    if(el) el.textContent = `(${counts[k]})`;
+    if(el) el.textContent = `${counts[k]}`;
   });
 }
 
@@ -1401,7 +1407,7 @@ function filterVkoolTab(cat, el) {
   document.getElementById('searchInput').value = ''; // 탭 전환 시 이전 검색어가 몰래 남아있지 않도록 초기화
   document.querySelectorAll('.vk-subtab').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('listTitle').textContent = cat === '전체' ? 'V.KOOL 전체상품' : `V.KOOL ${cat}`;
+  document.getElementById('listTitle').textContent = '';
   applyFilters();
 }
 
@@ -1557,6 +1563,37 @@ function onFilterCheckChange(kind) {
   applyFilters();
 }
 
+// 진행 중인 이벤트·타임세일 할인을 상품 목록에 반영 (주문서·결제 서버와 같은 계산)
+async function applyLiveDiscounts(products) {
+  const promo = {}, ts = {};
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const s = await _db.collection('promotions').where('status', '==', 'approved').get();
+    s.forEach(d => { const x = d.data(); if(x.startDate > today || x.endDate < today) return; const r = Number(x.discountRate) || 0; (x.targetProductIds || []).forEach(pid => { if(r > (promo[pid] || 0)) promo[pid] = r; }); });
+  } catch(e) { console.error('이벤트 조회 실패:', e); }
+  try {
+    const t = await _db.collection('settings').doc('timesale').get();
+    const endRaw = t.exists ? t.data().endAt : null;
+    const endDate = endRaw && endRaw.toDate ? endRaw.toDate() : null;
+    if(endDate && endDate > new Date()) {
+      const s = await _db.collection('timesaleItems').where('status', '==', 'approved').get();
+      s.forEach(d => { const x = d.data(); const r = Number(x.discountRate) || 0; if(x.productId && r > (ts[x.productId] || 0)) ts[x.productId] = r; });
+    }
+  } catch(e) { console.error('타임세일 조회 실패:', e); }
+  products.forEach(p => {
+    const own = Number(p.discountRate) || 0;
+    const ev = Math.max(promo[p.id] || 0, ts[p.id] || 0);
+    const fin = Math.max(own, ev);
+    if(ev > 0 && ev >= own) {
+      p.discountRate = fin;
+      p.originalPrice = Number(p.price || 0);
+      p.salePrice = Math.round(p.originalPrice * (1 - fin / 100));
+    }
+    p.isTimesale = (ts[p.id] || 0) > 0 && ts[p.id] === fin;
+  });
+  return products;
+}
+
 async function loadActivePromotions() {
   try {
     const snap = await _db.collection('promotions').where('status', '==', 'approved').get();
@@ -1598,15 +1635,8 @@ async function loadApprovedProducts() {
     // 노출 순서 정렬 (관리자 지정 순서 우선)
     products.sort(compareDisplayOrder);
 
-    // 진행중 이벤트 할인가 매칭
-    const discountMap = await loadActivePromotions();
-    products.forEach(p => {
-      if(discountMap[p.id]) {
-        p.discountRate = discountMap[p.id];
-        p.originalPrice = Number(p.price || 0);
-        p.salePrice = Math.round(p.originalPrice * (1 - discountMap[p.id]/100));
-      }
-    });
+    // 진행중 이벤트·타임세일 할인가 매칭
+    await applyLiveDiscounts(products);
 
     // V.KOOL 브랜드 상품만 (이 페이지는 V.KOOL 전용관이므로)
     allProducts = products.filter(p => (p.brandName||'').trim() === VKOOL_BRAND_NAME);
@@ -1620,7 +1650,6 @@ async function loadApprovedProducts() {
       document.querySelectorAll('.vk-subtab').forEach(b => b.classList.remove('active'));
       const matchingTab = document.querySelector(`.vk-subtab[data-cat="${subcatParam}"]`);
       if(matchingTab) matchingTab.classList.add('active');
-      document.getElementById('listTitle').textContent = `V.KOOL ${subcatParam}`;
     }
 
     // URL의 q 파라미터 처리 (다른 페이지 검색창으로 넘어온 경우)
